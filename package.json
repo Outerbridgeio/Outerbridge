@@ -6,6 +6,7 @@
   "scripts": {
     "bootstrap": "lerna bootstrap --hoist",
     "build": "lerna exec yarn run build",
+    "start": "cd packages && cd server && yarn start",
     "dev": "lerna exec yarn run dev --parallel",
     "test": "lerna yarn run test"
   },

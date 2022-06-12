@@ -59,10 +59,15 @@ Outerbridge uses MongoDB as database. Download and install one [here](https://ww
     npm install --global yarn
     ```
 
+5. Start the app:
+	```
+	yarn run start
+	```
+
 You can now access the app on `http://localhost:3000/`.
 
 ## Development
-For development build, run: `yarn run dev` and access the app on `http://localhost:8080/`. Any code changes will reload the app automatically.
+For development build, run: `yarn run dev`. Any code changes will reload the app automatically.
 
 ## Milestones
 - Documentation, Forums, Discord
