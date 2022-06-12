@@ -1,0 +1,15 @@
+{
+  "name": "outerbridge-root",
+  "version": "1.0.0",
+  "private": true,
+  "homepage": "https://outerbridge.io",
+  "scripts": {
+    "bootstrap": "lerna bootstrap --hoist",
+    "build": "lerna exec yarn run build",
+    "dev": "lerna exec yarn run dev --parallel",
+    "test": "lerna yarn run test"
+  },
+  "devDependencies": {
+    "lerna": "^3.13.1"
+  }
+}
