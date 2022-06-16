@@ -106,12 +106,7 @@ const CredentialInput = ({
 
     const resetCredentialParams = () => {
         setCredentialParams([]);
-        const updateParams = [];
-        const resetParam = initialParams.find((prm) => prm.name === 'credentialMethod');
-        if (resetParam) {
-            updateParams.push(resetParam);
-        }
-        paramsChanged(updateParams, paramsType);
+        paramsChanged([], paramsType);
     }
 
     const clearCredentialParamsValues = (value) => {
@@ -173,7 +168,7 @@ const CredentialInput = ({
 
             setCredentialParams(newCredentialParams);
 
-            const updateParams = initialParams;
+            const updateParams = [];
 
             for (let i = 0; i < newCredentialParams.length; i+=1 ) {
                 const credParamName = newCredentialParams[i].name;
@@ -228,13 +223,13 @@ const CredentialInput = ({
                 onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
                     try {
                         if (scriptedRef.current) {
-                            
                             const isAddNewCredential = values && values.registeredCredential && values.registeredCredential.name === ADD_NEW_CREDENTIAL;
                             if (!isAddNewCredential && credentialParams.length === 0) {
                                 values.submit = true;
                                 onSubmit(values, paramsType);
                                 setStatus({ success: true });
                                 setSubmitting(false);
+                                
                             } else {
                                 const body = getCredentialRequestBody(values);
                                 let response;
@@ -357,7 +352,7 @@ const CredentialInput = ({
                                 id="registered-credential"
                                 freeSolo
                                 options={credentialOptions}
-                                value={values.registeredCredential ? values.registeredCredential : " "}
+                                value={values.registeredCredential && values.credentialMethod ? values.registeredCredential : " "}
                                 getOptionLabel={(option) => option.name || " "}
                                 onChange={(e, selectedCredential) => {
                                     setFieldValue('registeredCredential', selectedCredential !== null ? selectedCredential : initialValues.registeredCredential);
@@ -373,6 +368,12 @@ const CredentialInput = ({
                                             clearCredentialParamsValues(selectedCredential);
                                         }
                                         getCredentialParamsApi.request(nodeCredentialName);
+                                    }
+                                }}
+                                onInputChange={(e, value) => {
+                                    if (!value) {
+                                        resetCredentialParams();
+                                        clearCredentialParamsValues('');
                                     }
                                 }}
                                 onBlur={handleBlur}
@@ -403,7 +404,7 @@ const CredentialInput = ({
                             Delete Credential
                         </Button>)}
 
-                        {credentialParams.map((input) => {
+                        {values.credentialMethod && credentialParams.map((input) => {
 
                             if (input.type === 'string' || input.type === 'number') {
 

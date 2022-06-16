@@ -1,6 +1,8 @@
 import { INodeOptionsValue, INodeParams } from '.';
 
-
+/**
+ * Networks
+ */
 export const ETHNetworks = [ 
     {
         label: 'Mainnet',
@@ -82,6 +84,86 @@ export const OptimismNetworks = [
 ] as INodeOptionsValue[];
 
 
+/**
+ * Network Providers
+ */
+export const customNetworkProviders = [
+    {
+        label: 'Custom RPC Endpoint',
+        name: 'customRPC',
+        description: 'HTTP endpoint',
+        parentGroup: 'Custom Nodes'
+    },
+    {
+        label: 'Custom Websocket Endpoint',
+        name: 'customWebsocket',
+        description: 'WSS Endpoint',
+        parentGroup: 'Custom Nodes'
+    },
+] as INodeOptionsValue[];
+
+export const infuraNetworkProviders = [
+    {
+        label: 'Infura',
+        name: 'infura',
+        description: 'Infura RPC/Websocket',
+        parentGroup: 'Private Nodes'
+    },
+] as INodeOptionsValue[];
+
+export const alchemyNetworkProviders = [
+    {
+        label: 'Alchemy',
+        name: 'alchemy',
+        description: 'Alchemy RPC/Websocket',
+        parentGroup: 'Private Nodes'
+    },
+] as INodeOptionsValue[];
+
+export const ethTestNetworkProviders = [
+    ...alchemyNetworkProviders,
+    ...infuraNetworkProviders,
+    ...customNetworkProviders,
+] as INodeOptionsValue[];
+
+export const ethNetworkProviders = [
+    ...alchemyNetworkProviders,
+    {
+        label: 'Cloudfare',
+        name: 'cloudfare',
+        description: 'Public Cloudfare RPC',
+        parentGroup: 'Public Nodes'
+    },
+    ...infuraNetworkProviders,
+    ...customNetworkProviders,
+] as INodeOptionsValue[];
+
+export const polygonNetworkProviders = [
+    ...alchemyNetworkProviders,
+    {
+        label: 'Polygon',
+        name: 'polygon',
+        description: 'Public Polygon RPC/Websocket',
+        parentGroup: 'Public Nodes'
+    },
+    ...infuraNetworkProviders,
+    ...customNetworkProviders,
+] as INodeOptionsValue[];
+
+export const binanceNetworkProviders = [
+    {
+        label: 'Binance',
+        name: 'binance',
+        description: 'Public Binance RPC/Websocket',
+        parentGroup: 'Public Nodes'
+    },
+    ...customNetworkProviders,
+] as INodeOptionsValue[];
+
+
+/**
+ * URLs
+ */
 export const infuraHTTPAPIs = {
     'homestead': 'https://mainnet.infura.io/v3/',
     'rinkeby': 'https://rinkeby.infura.io/v3/',

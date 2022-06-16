@@ -24,6 +24,7 @@
       "@types/localtunnel": "^2.0.1",
       "@types/moment-timezone": "^0.5.30",
       "@types/mongodb": "3.6.0",
+      "axios": "^0.26.1",
       "cors": "^2.8.5",
       "crypto-js": "^4.1.1",
       "dotenv": "^16.0.0",

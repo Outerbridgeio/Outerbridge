@@ -62,6 +62,8 @@ const NavItem = ({ item, level }) => {
             dispatch({ type: MENU_OPEN, id: item.id });
         }
 
+        itemHandler('workflows')
+
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 

@@ -23,6 +23,7 @@ const AsyncSelectWrapper = ({
     description,
     value,
     loadMethod,
+    loadFromDbCollections,
     nodeFlowData,
     error,
     onChange,
@@ -128,7 +129,7 @@ const AsyncSelectWrapper = ({
     const loadOptions = useCallback(
         lodash.debounce( async(inputText, callback) => {
             const nodeInstanceName = nodeFlowData.name;
-            const response = await nodesApi.loadMethodNode(nodeInstanceName, { ...nodeFlowData, loadMethod });
+            const response = await nodesApi.loadMethodNode(nodeInstanceName, { ...nodeFlowData, loadMethod, loadFromDbCollections });
             const options = showHideOptions(response.data || []);
             setAsyncOptions(options);
             callback(options);
@@ -196,6 +197,7 @@ AsyncSelectWrapper.propTypes = {
     description: PropTypes.string,
     value: PropTypes.string,
     loadMethod: PropTypes.string,
+    loadFromDbCollections: PropTypes.array,
     nodeFlowData: PropTypes.object,
     error: PropTypes.string,
     onChange: PropTypes.func,
