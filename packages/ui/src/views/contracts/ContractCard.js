@@ -22,7 +22,7 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
 
 // ===========================|| CONTRACT CARD ||=========================== //
 
-const BridgeCard = ({ isLoading, name, address, network }) => {
+const ContractCard = ({ isLoading, name, address, network, onClick }) => {
     const theme = useTheme();
 
     const chipSX = {
@@ -41,7 +41,7 @@ const BridgeCard = ({ isLoading, name, address, network }) => {
             {isLoading ? (
                 <SkeletonWorkflowCard />
             ) : (
-                <CardWrapper border={false} content={false}>
+                <CardWrapper border={false} content={false} onClick={onClick}>
                     <Box sx={{ p: 2.25 }}>
                         <Grid container direction="column">
                             <Grid item>
@@ -75,11 +75,12 @@ const BridgeCard = ({ isLoading, name, address, network }) => {
     );
 };
 
-BridgeCard.propTypes = {
+ContractCard.propTypes = {
     isLoading: PropTypes.bool,
     name: PropTypes.string,
     address: PropTypes.string,
-    network: PropTypes.string
+    network: PropTypes.string,
+    onClick: PropTypes.func
 };
 
-export default BridgeCard;
+export default ContractCard;

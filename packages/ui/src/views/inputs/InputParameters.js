@@ -207,6 +207,7 @@ const InputParameters = ({
                                             description={input.description}
                                             value={values[inputName]}
                                             loadMethod={input.loadMethod}
+                                            loadFromDbCollections={input.loadFromDbCollections || []}
                                             nodeFlowData={nodeFlowData}
                                             error={JSON.stringify(errors[inputName])}
                                             onChange={(selection) => {

@@ -123,7 +123,7 @@ const EditNodes = ({ node, nodes, edges, workflow, rfInstance, onNodeLabelUpdate
     const paramsChanged = (formParams, paramsType) => {
         const updateNodeDetails = {
             ...nodeDetails,
-            [paramsType]: formParams
+            [paramsType]: [...formParams, ...nodeDetails[paramsType]]
         };
         setNodeDetails(updateNodeDetails);
     };

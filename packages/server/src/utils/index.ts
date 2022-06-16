@@ -344,7 +344,7 @@ export const resolveVariables = (reactFlowNodeData: INodeData, reactFlowNodes: I
  * @param {INodeData} nodeData 
  */
 export const decryptCredentials = async(nodeData: INodeData) => {
-    if (nodeData.credentials) {
+    if (nodeData.credentials && nodeData.credentials.registeredCredential) {
         // @ts-ignore
         const credentialData: string = nodeData.credentials.registeredCredential?.credentialData;
         const encryptKey = await getEncryptionKey();

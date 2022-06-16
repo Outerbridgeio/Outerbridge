@@ -20,14 +20,17 @@ export class Contract implements IContract {
 	@Column()
 	name: string;
 
-	@Column('text', { nullable: true })
+	@Column()
 	abi: string;
 
-	@Column('text', { nullable: true, unique: true })
+	@Column()
 	address: string;
 
 	@Column()
 	network: string;
+
+    @Column('text', { nullable: true })
+	credential: string;
 
 	@CreateDateColumn()
     createdDate: Date;

@@ -1,11 +1,84 @@
 import { Request } from 'express';
 import { CronJob } from 'cron';
+import { ObjectId } from 'mongodb';
 
+/**
+ * Databases
+ */
+ export interface IWorkflow {
+	_id: ObjectId;
+    shortId: string;
+    name: string;
+    flowData: string;
+    deployed: boolean;
+    updatedDate: Date;
+    createdDate: Date;
+}
+
+export interface IExecution {
+	_id: ObjectId;
+    shortId: string;
+    workflowShortId: string;
+    executionData: string;
+    state: ExecutionState;
+    createdDate: Date;
+    stoppedDate?: Date;
+}
+
+export interface ICredential {
+	_id: ObjectId;
+    name: string;
+    nodeCredentialName: string;
+    credentialData: string;
+    updatedDate: Date;
+    createdDate: Date;
+}
+
+export interface IWebhook {
+    _id: ObjectId;
+    workflowShortId: string;
+    webhookEndpoint: string;
+    httpMethod: WebhookMethod;
+    clientId: string;
+    webhookId: string;
+    nodeId: string;
+    updatedDate: Date;
+    createdDate: Date;
+}
+
+export interface IContract {
+    _id: ObjectId;
+    name: string;
+	abi: string;
+	address: string;
+	network: string;
+    credential: string;
+	updatedDate: Date;
+    createdDate: Date;
+}
+
+
+/**
+ * Types
+ */
+export type ExecutionState = 'INPROGRESS' | 'FINISHED' | 'ERROR' | 'TERMINATED' |'TIMEOUT';
+
+export type WebhookMethod = 'GET' | 'POST';
+ 
 export type NodeType = 'action' | 'webhook' | 'trigger';
 
 export type NodeParamsType = 'asyncOptions' | 'options' | 'string' | 'number' | 'array' | 'boolean';
 
-export declare type CommonType = string | number | boolean | undefined | null;
+export type DbCollectionName = 'Contract' | 'Webhook' | 'Workflow' | 'Credential' | 'Execution';
+
+export type CommonType = string | number | boolean | undefined | null;
+
+/**
+ * Others
+ */
+export type IDbCollection = {
+    [key in DbCollectionName]: any[];
+};
 
 export interface ICommonObject {
 	[key: string]: CommonType | ICommonObject | CommonType[] | ICommonObject[];
@@ -33,7 +106,7 @@ export interface INodeParams {
 	options?: Array<INodeOptionsValue>;
     array?: Array<INodeParams>;
     loadMethod?: string;
-    loadFromDbCollection?: string;
+    loadFromDbCollections?: DbCollectionName[];
 	optional?: boolean;
     show?: INodeDisplay;
     hide?: INodeDisplay;
@@ -70,7 +143,7 @@ export interface INode extends INodeProperties {
     networks?: INodeParams[];
     inputParameters?: INodeParams[];
     loadMethods?: {
-        [key: string]: (nodeData: INodeData) => Promise<INodeOptionsValue[]>;
+        [key: string]: (nodeData: INodeData, dbCollection?: IDbCollection) => Promise<INodeOptionsValue[]>;
     };
     webhookMethods?: {
 		createWebhook: (nodeData: INodeData, webhookFullUrl: string) => Promise<string | undefined>;
@@ -93,6 +166,7 @@ export interface INodeData extends INodeProperties {
     inputParameters?: ICommonObject;
 
     loadMethod?: string; // method to load async options
+    loadFromDbCollections?: DbCollectionName[]; // method to load async options
     
     req?: Request; // For webhook
     webhookEndpoint?: string; // For webhook

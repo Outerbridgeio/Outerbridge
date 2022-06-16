@@ -9,6 +9,9 @@ import {
 } from 'outerbridge-components';
 import EventEmitter from 'events';
 
+/**
+ * Databases
+ */
 export interface IWorkflow {
 	_id: ObjectId;
     shortId: string;
@@ -19,13 +22,6 @@ export interface IWorkflow {
     createdDate: Date;
 }
 
-export interface IWorkflowResponse extends IWorkflow {
-    execution: IExecution;
-    executionCount: number;
-}
-
-export type ExecutionState = 'INPROGRESS' | 'FINISHED' | 'ERROR' | 'TERMINATED' |'TIMEOUT';
-
 export interface IExecution {
 	_id: ObjectId;
     shortId: string;
@@ -34,6 +30,53 @@ export interface IExecution {
     state: ExecutionState;
     createdDate: Date;
     stoppedDate?: Date;
+}
+
+export interface ICredential {
+	_id: ObjectId;
+    name: string;
+    nodeCredentialName: string;
+    credentialData: string;
+    updatedDate: Date;
+    createdDate: Date;
+}
+
+export interface IWebhook {
+    _id: ObjectId;
+    workflowShortId: string;
+    webhookEndpoint: string;
+    httpMethod: WebhookMethod;
+    clientId: string;
+    webhookId: string;
+    nodeId: string;
+    updatedDate: Date;
+    createdDate: Date;
+}
+
+export interface IContract {
+    _id: ObjectId;
+    name: string;
+	abi: string;
+	address: string;
+	network: string;
+    credential: string;
+	updatedDate: Date;
+    createdDate: Date;
+}
+
+/**
+ * Types
+ */
+export type ExecutionState = 'INPROGRESS' | 'FINISHED' | 'ERROR' | 'TERMINATED' |'TIMEOUT';
+
+export type WebhookMethod = 'GET' | 'POST';
+
+/**
+ * Others
+ */
+export interface IWorkflowResponse extends IWorkflow {
+    execution: IExecution;
+    executionCount: number;
 }
 
 export interface INode extends INodeComponent {
@@ -54,15 +97,6 @@ export interface IWebhookNode extends INodeComponent {
 
 export interface IComponentNodesPool {
     [key: string]: INode | ITriggerNode
-}
-
-export interface ICredential {
-	_id: ObjectId;
-    name: string;
-    nodeCredentialName: string;
-    credentialData: string;
-    updatedDate: Date;
-    createdDate: Date;
 }
 
 export interface ICredentialBody {
@@ -177,26 +211,8 @@ export interface IRunWorkflowMessageValue {
     workflowExecutedData: IWorkflowExecutedData[];
 }
 
-export type WebhookMethod = 'GET' | 'POST';
-
-export interface IWebhook {
-    _id: ObjectId;
-    workflowShortId: string;
-    webhookEndpoint: string;
-    httpMethod: WebhookMethod;
-    clientId: string;
-    webhookId: string;
-    nodeId: string;
-    updatedDate: Date;
-    createdDate: Date;
-}
-
-export interface IContract {
-    _id: ObjectId;
-    name: string;
-	abi: string;
-	address: string;
-	network: string;
-	updatedDate: Date;
-    createdDate: Date;
+export interface IContractRequestBody {
+    credentials: ICommonObject;
+    networks: ICommonObject;
+    contractInfo: ICommonObject;
 }

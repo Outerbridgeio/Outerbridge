@@ -21,6 +21,7 @@ import { Contract } from './entity/Contract';
 import { 
     IComponentCredentialsPool, 
     IComponentNodesPool, 
+    IContractRequestBody, 
     ICredentialBody, 
     ICredentialResponse, 
     IReactFlowEdge, 
@@ -33,7 +34,7 @@ import {
     IWorkflowResponse, 
     WebhookMethod
 } from "./Interface";
-import { INodeData, INodeOptionsValue } from "outerbridge-components";
+import { INodeData, INodeOptionsValue, IDbCollection } from "outerbridge-components";
 import { CredentialsPool } from './CredentialsPool';
 import { 
     decryptCredentialData, 
@@ -45,6 +46,7 @@ import {
     constructGraphsAndGetStartingNodes
 } from './utils';
 import { DeployedWorkflowPool } from './DeployedWorkflowPool';
+import axios, { AxiosRequestConfig } from 'axios';
 
 process.on('SIGINT', () => {
     console.log('exiting');
@@ -590,8 +592,23 @@ app.post("/api/v1/node-load-method/:name", async (req: Request, res: Response) =
         try {
             const nodeInstance = componentNodes[req.params.name];
             const methodName = body.loadMethod || '';
+            const loadFromDbCollections = body.loadFromDbCollections || [];
+            const dbCollection = {} as IDbCollection;
 
-            const returnOptions: INodeOptionsValue[] = await nodeInstance.loadMethods![methodName]!.call(nodeInstance, body);
+            for (let i = 0; i < loadFromDbCollections.length; i+=1) {
+                let collection: any;
+
+                if (loadFromDbCollections[i] === 'Contract') collection = Contract;
+                else if (loadFromDbCollections[i] === 'Workflow') collection = Workflow;
+                else if (loadFromDbCollections[i] === 'Webhook') collection = Webhook;
+                else if (loadFromDbCollections[i] === 'Execution') collection = Execution;
+                else if (loadFromDbCollections[i] === 'Credential') collection = Credential;
+                
+                const res = await AppDataSource.getMongoRepository(collection).find();
+                dbCollection[loadFromDbCollections[i]] = res;
+            }
+
+            const returnOptions: INodeOptionsValue[] = await nodeInstance.loadMethods![methodName]!.call(nodeInstance, body, loadFromDbCollections.length ? dbCollection : undefined);
             return res.json(returnOptions);
             
         } catch (error) {
@@ -705,29 +722,34 @@ app.get("/api/v1/contracts", async (req: Request, res: Response) => {
     return res.json(contracts);
 });
 
-// Get specific contract via address
-app.get("/api/v1/contracts/:address", async (req: Request, res: Response) => {
+// Get specific contract via id
+app.get("/api/v1/contracts/:id", async (req: Request, res: Response) => {
     const results = await AppDataSource.getMongoRepository(Contract).findOneBy({
-        address: req.params.address,
-    });
+        _id: new ObjectId(req.params.id),
+    });    
     return res.json(results);
 });
 
-// Create new execution
+// Create new contract
 app.post("/api/v1/contracts", async (req: Request, res: Response) => {
-    const body = req.body;
-	const newContract = new Contract();
-	Object.assign(newContract, body);
+    try {
+        const body = req.body;
+        const newContract = new Contract();
+        Object.assign(newContract, body);
 
-    const contract = await AppDataSource.getMongoRepository(Contract).create(newContract);
-    const results = await AppDataSource.getMongoRepository(Contract).save(contract);
-    return res.json(results);
+        const contract = await AppDataSource.getMongoRepository(Contract).create(newContract);
+        const results = await AppDataSource.getMongoRepository(Contract).save(contract);
+        return res.json(results);
+
+    } catch(e) {
+        return res.status(500).send(e);
+    }
 });
 
 // Update contract
-app.put("/api/v1/contracts/:address", async (req: Request, res: Response) => {
+app.put("/api/v1/contracts/:id", async (req: Request, res: Response) => {
     const contract = await AppDataSource.getMongoRepository(Contract).findOneBy({
-        address: req.params.address,
+        _id: new ObjectId(req.params.id),
     });
 
     if (!contract) {
@@ -740,15 +762,57 @@ app.put("/api/v1/contracts/:address", async (req: Request, res: Response) => {
 	Object.assign(updateContract, body);
 
     AppDataSource.getMongoRepository(Contract).merge(contract, updateContract);
-    const results = await AppDataSource.getMongoRepository(Contract).save(contract);
+    try {
+        const results = await AppDataSource.getMongoRepository(Contract).save(contract);
+        return res.json(results);
+    } catch(e) {
+        return res.status(500).send(e);
+    }
+});
+
+// Delete contract via id
+app.delete("/api/v1/contracts/:id", async (req: Request, res: Response) => {
+    const deletQuery = {
+        _id: new ObjectId(req.params.id)
+    } as any;
+    const results = await AppDataSource.getMongoRepository(Contract).delete(deletQuery);
     return res.json(results);
 });
 
-// Delete contract via address
-app.delete("/api/v1/contracts/:address", async (req: Request, res: Response) => {
-    const results = await AppDataSource.getMongoRepository(Contract).delete({ address: req.params.address });
-    return res.json(results);
+// Get contract ABI
+app.post("/api/v1/contracts/getabi", async (req: Request, res: Response) => {
+    
+    const body: IContractRequestBody = req.body;
+
+    if (body.networks === undefined || body.credentials === undefined || body.contractInfo === undefined) {
+        res.status(500).send(`Missing contract details`);
+        return;
+    }
+
+    if (body.credentials && body.credentials.registeredCredential) {
+        // @ts-ignore
+        const credentialData: string = body.credentials.registeredCredential?.credentialData;
+        const encryptKey = await getEncryptionKey();
+
+        // Decrpyt credentialData
+        const decryptedCredentialData = decryptCredentialData(credentialData, encryptKey);
+        body.credentials = decryptedCredentialData;
+    }
+
+    const options: AxiosRequestConfig = {
+        method: "GET",
+        url: `${body.networks.uri}?module=contract&action=getabi&address=${body.contractInfo.address}&apikey=${body.credentials.apiKey}`,
+    };
+
+    try {
+        const response = await axios.request(options);
+        return res.json(response.data);
+    } catch (e) {
+        console.error(e);
+        return res.status(500).send(e);
+    }
 });
+
 
 
 
