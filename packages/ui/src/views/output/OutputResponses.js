@@ -28,7 +28,7 @@ import workflowsApi from "api/workflows";
 import useApi from "hooks/useApi";
 
 // icons
-import { IconExclamationMark, IconCopy, IconArrowUpRightCircle } from '@tabler/icons';
+import { IconExclamationMark, IconCopy, IconArrowUpRightCircle, IconX } from '@tabler/icons';
 
 // const
 import { baseURL } from 'store/constant';
@@ -42,6 +42,7 @@ const OutputResponses = ({ nodeId, nodeParamsType, nodeFlowData, nodes, workflow
     const dispatch = useDispatch();
 
     const [outputResponse, setOutputResponse] = useState([]);
+    const [errorResponse, setErrorResponse] = useState(null);
     const [nodeName, setNodeName] = useState(null);
     const [nodeType, setNodeType] = useState(null);
     const [isTestNodeBtnDisabled, disableTestNodeBtn] = useState(true);
@@ -165,6 +166,7 @@ const OutputResponses = ({ nodeId, nodeParamsType, nodeFlowData, nodes, workflow
         if (testNodeApi.data && nodeType && nodeType !== 'webhook') {
             const testNodeData = testNodeApi.data;
             setOutputResponse(testNodeData);
+            setErrorResponse(null);
             const formValues = {
                 submit: true,
                 needRetest: null,
@@ -175,6 +177,24 @@ const OutputResponses = ({ nodeId, nodeParamsType, nodeFlowData, nodes, workflow
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [testNodeApi.data]);
+
+
+    // Test node error
+    useEffect(() => {
+        if (testNodeApi.error && nodeType && nodeType !== 'webhook') {
+            setErrorResponse(testNodeApi.error.response.data || 'Unexpected Error!');
+            setOutputResponse([]);
+            const formValues = {
+                submit: null,
+                needRetest: null,
+                output: [],
+            };
+            onSubmit(formValues, 'outputResponses')
+        }
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [testNodeApi.error]);
+
 
     // Test node loading
     useEffect(() => {
@@ -202,6 +222,10 @@ const OutputResponses = ({ nodeId, nodeParamsType, nodeFlowData, nodes, workflow
                     </Stack>
                 </Box>
             )}
+            {errorResponse && (<Box sx={{mb: 2}}>
+                <Chip sx={{mb: 2}} icon={<IconX />} label="Error" color="error" />
+                <div style={{color: 'red'}}>{errorResponse}</div>
+            </Box>)}
             <Box>
                 <ReactJson collapsed src={outputResponse} />
             </Box>

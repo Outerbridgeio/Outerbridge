@@ -24,7 +24,8 @@
     "ethers": "^5.6.0",
     "express": "^4.17.3",
     "gulp": "^4.0.2",
-    "nodemailer": "^6.7.5"
+    "nodemailer": "^6.7.5",
+    "vm2": "^3.9.9"
   },
   "devDependencies": {
     "@types/express": "^4.17.13",
