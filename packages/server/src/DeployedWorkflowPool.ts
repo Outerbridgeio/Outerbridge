@@ -24,6 +24,7 @@ import { join as pathJoin } from 'path';
 import { fork } from 'child_process';
 import { AbortController } from "node-abort-controller";
 import dotenv from 'dotenv';
+import lodash from 'lodash';
 dotenv.config();
 
 import { constructGraphs, getStartingNode, decryptCredentials } from "./utils";
@@ -124,6 +125,8 @@ export class DeployedWorkflowPool {
 					);
 				});
 
+				await decryptCredentials(startNode.data);
+
 				const nodeData = {
 					...startNode.data,
 					emitEventKey,
@@ -209,56 +212,68 @@ export class DeployedWorkflowPool {
 		startingNodeIds: string[],
 		graph: INodeDirectedGraph
 	) {
-		// Fetch latest nodes and edges from DB
-		const { reactFlowNodes, reactFlowEdges } = await this.prepareDataForChildProcess(workflowShortId);
-					
-		const controller = new AbortController();
-		const { signal } = controller;
+		try {
+			// Fetch latest nodes and edges from DB
+			const { reactFlowNodes, reactFlowEdges } = await this.prepareDataForChildProcess(workflowShortId);
+						
+			const controller = new AbortController();
+			const { signal } = controller;
 
-		const childProcess = fork(pathJoin(__dirname, 'ChildProcess.js'), [], { signal });
+			const childProcess = fork(pathJoin(__dirname, 'ChildProcess.js'), [], { signal });
 
-		const workflowExecutedData = [{
-			nodeId: startingNodeId,
-			nodeLabel:  startNode.data.label,
-			data: startingNodeExecutedData
-		}] as IWorkflowExecutedData[];
-		const newExecution = await this.addExecution(workflowShortId, workflowExecutedData, controller);
-		const  newExecutionShortId = newExecution === undefined ? '' : newExecution.shortId
+			const workflowExecutedData = [{
+				nodeId: startingNodeId,
+				nodeLabel:  startNode.data.label,
+				data: startingNodeExecutedData
+			}] as IWorkflowExecutedData[];
+			const newExecution = await this.addExecution(workflowShortId, workflowExecutedData, controller);
+			const newExecutionShortId = newExecution === undefined ? '' : newExecution.shortId;
 
-		// Remove starting nodeInstance to avoid error of converting circular structure to JSON
-		const updatedComponentNodes = { ...componentNodes };
-		delete updatedComponentNodes[startNode.data.name];
+			// Remove cronJobs and providers to avoid error of converting circular structure to JSON
+			const clonedComponentNodes = lodash.cloneDeep(componentNodes);
+			for (const nodeInstanceName in clonedComponentNodes) {
+				if (Object.prototype.hasOwnProperty.call(clonedComponentNodes[nodeInstanceName], 'providers')) {
+					delete (clonedComponentNodes[nodeInstanceName] as any)['providers'];
+				}
 
-		const value = {
-			startingNodeIds,
-			componentNodes: updatedComponentNodes,
-			reactFlowNodes,
-			reactFlowEdges,
-			graph,
-			workflowExecutedData
-		} as IRunWorkflowMessageValue;
-		childProcess.send({ key: 'start', value } as IChildProcessMessage);
-	
-		childProcess.on('message', async (message: IChildProcessMessage) => {
-			if (message.key === 'finish') {
-				let updatedWorkflowExecutedData = message.value as IWorkflowExecutedData[];
-				updatedWorkflowExecutedData = updatedWorkflowExecutedData.filter((execData) => execData.nodeId !== startingNodeId);
-				await this.updateExecution(workflowShortId, updatedWorkflowExecutedData, newExecutionShortId, 'FINISHED');
-			}
-			if (message.key === 'start') {
-				if (process.env.EXECUTION_TIMEOUT) {
-					setTimeout(async () => {
-						childProcess.kill();
-						await this.terminateSpecificExecutionAfterTimeout(newExecutionShortId);
-					}, parseInt(process.env.EXECUTION_TIMEOUT, 10));
+				if (Object.prototype.hasOwnProperty.call(clonedComponentNodes[nodeInstanceName], 'cronJobs')) {
+					delete (clonedComponentNodes[nodeInstanceName] as any)['cronJobs'];
 				}
 			}
-			if (message.key === 'error') {
-				let updatedWorkflowExecutedData = message.value as IWorkflowExecutedData[];
-				updatedWorkflowExecutedData = updatedWorkflowExecutedData.filter((execData) => execData.nodeId !== startingNodeId);
-				await this.updateExecution(workflowShortId, updatedWorkflowExecutedData, newExecutionShortId, 'ERROR');
-			}
-		});
+
+			const value = {
+				startingNodeIds,
+				componentNodes: clonedComponentNodes,
+				reactFlowNodes,
+				reactFlowEdges,
+				graph,
+				workflowExecutedData
+			} as IRunWorkflowMessageValue;
+			childProcess.send({ key: 'start', value } as IChildProcessMessage);
+		
+			childProcess.on('message', async (message: IChildProcessMessage) => {
+				if (message.key === 'finish') {
+					let updatedWorkflowExecutedData = message.value as IWorkflowExecutedData[];
+					updatedWorkflowExecutedData = updatedWorkflowExecutedData.filter((execData) => execData.nodeId !== startingNodeId);
+					await this.updateExecution(workflowShortId, updatedWorkflowExecutedData, newExecutionShortId, 'FINISHED');
+				}
+				if (message.key === 'start') {
+					if (process.env.EXECUTION_TIMEOUT) {
+						setTimeout(async () => {
+							childProcess.kill();
+							await this.terminateSpecificExecutionAfterTimeout(newExecutionShortId);
+						}, parseInt(process.env.EXECUTION_TIMEOUT, 10));
+					}
+				}
+				if (message.key === 'error') {
+					let updatedWorkflowExecutedData = message.value as IWorkflowExecutedData[];
+					updatedWorkflowExecutedData = updatedWorkflowExecutedData.filter((execData) => execData.nodeId !== startingNodeId);
+					await this.updateExecution(workflowShortId, updatedWorkflowExecutedData, newExecutionShortId, 'ERROR');
+				}
+			});
+		} catch (err) {
+			console.error(err);
+		}
 	}
 
 	/**

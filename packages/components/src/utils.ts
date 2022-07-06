@@ -19,7 +19,10 @@ import {
 	}
 
 	responseData.forEach((data) => {
-		returnData.push({ data });
+		const obj = { data } as ICommonObject;
+		if (data.attachments) obj.attachments = data.attachments;
+		if (data.html) obj.html = data.html;
+		returnData.push(obj);
 	});
 
 	return returnData;

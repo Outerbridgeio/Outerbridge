@@ -58,6 +58,12 @@ process.on('exit', () => {
     process.exit(); 
 });
 
+// Prevent throw new Error from crashing the app
+// TODO: Get rid of this and send proper error message to ui
+process.on('uncaughtException', (err) => {
+    console.error('uncaughtException: ', err);
+});
+ 
 let componentNodes: IComponentNodesPool = {};
 let componentCredentials: IComponentCredentialsPool = {};
 let deployedWorkflowsPool: DeployedWorkflowPool;
@@ -104,7 +110,9 @@ AppDataSource
 // Initialize express
 const app: Express = express();
 const port = process.env.PORT;
-app.use(express.json())
+app.use(express.json({limit: '50mb'}));
+app.use(express.urlencoded({limit: '50mb'}));
+
 if (process.env['NODE_ENV'] !== 'production') {
     app.use(cors({credentials: true, origin: 'http://localhost:8080'}));
 }
@@ -318,8 +326,42 @@ app.put("/api/v1/workflows/:shortId", async (req: Request, res: Response) => {
 
 // Delete workflow via shortId
 app.delete("/api/v1/workflows/:shortId", async (req: Request, res: Response) => {
+    const workflow = await AppDataSource.getMongoRepository(Workflow).findOneBy({
+        shortId: req.params.shortId,
+    });
+
+    if (!workflow) {
+        res.status(404).send(`Workflow ${req.params.shortId} not found`);
+        return;
+    }
+
+    // If workflow is deployed, remove from deployedWorkflowsPool
+    if (workflow.deployed && workflow.flowData) {
+        try {
+            const flowDataString = workflow.flowData;
+            const flowData: IReactFlowObject = JSON.parse(flowDataString);
+            const reactFlowNodes = flowData.nodes as IReactFlowNode[];
+            const reactFlowEdges = flowData.edges as IReactFlowEdge[];
+            const workflowShortId = workflow.shortId;
+
+            const response = constructGraphsAndGetStartingNodes(res, reactFlowNodes, reactFlowEdges);
+            if (response === undefined) return;
+
+            const { graph, startingNodeIds } = response;
+
+            await deployedWorkflowsPool.remove(
+                startingNodeIds, 
+                reactFlowNodes, 
+                componentNodes, 
+                workflowShortId
+            );
+        } catch(e) {
+            return res.status(500).send(e);
+        }
+    }
     const results = await AppDataSource.getMongoRepository(Workflow).delete({ shortId: req.params.shortId });
     await AppDataSource.getMongoRepository(Webhook).delete({ workflowShortId: req.params.shortId });
+    await AppDataSource.getMongoRepository(Execution).delete({ workflowShortId: req.params.shortId });
     return res.json(results);
 });
 
@@ -539,7 +581,7 @@ app.post("/api/v1/node-test/:name", async (req: Request, res: Response) => {
                     return res.json(result);
                 });
                 await triggerNodeInstance.runTrigger!.call(triggerNodeInstance, nodeData);
-
+                
             } else if (nodeType === 'webhook') {
                 const webhookNodeInstance = nodeInstance as IWebhookNode;
                 const clientId = body.clientId;

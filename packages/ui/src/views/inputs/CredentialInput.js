@@ -12,6 +12,7 @@ import {
     TextField,
     Typography,
     IconButton,
+    Switch,
     Tooltip
 } from '@mui/material';
 import { Info } from '@mui/icons-material';
@@ -406,7 +407,7 @@ const CredentialInput = ({
 
                         {values.credentialMethod && credentialParams.map((input) => {
 
-                            if (input.type === 'string' || input.type === 'number') {
+                            if (input.type === 'string' || input.type === 'password' || input.type === 'number') {
 
                                 const inputName = input.name;
 
@@ -427,7 +428,7 @@ const CredentialInput = ({
                                     </Stack>
                                     <OutlinedInput
                                         id={inputName}
-                                        type={input.type === 'number' ? 'number' : 'text'}
+                                        type={input.type === 'string' ? 'text' : input.type}
                                         value={values[inputName] || ''}
                                         name={inputName}
                                         onBlur={e => {
@@ -439,7 +440,41 @@ const CredentialInput = ({
                                     {errors[inputName] && <span style={{ color: 'red', fontSize: '0.7rem', fontStyle: 'italic' }}>*{errors[inputName]}</span>}
                                 </FormControl>
                                 )
-                            } 
+                            }
+
+                            if (input.type === 'boolean') {
+
+                                const inputName = input.name;
+
+                                return (
+                                <FormControl 
+                                    key={inputName}
+                                    fullWidth 
+                                    sx={{ mb: 1, mt: 1 }}
+                                    error={Boolean(errors[inputName])}
+                                >
+                                    <Stack direction="row">
+                                        <Typography variant="overline">{input.label}</Typography>
+                                        {input.description && (
+                                        <Tooltip title={input.description} placement="right">
+                                            <IconButton ><Info style={{ height: 18, width: 18 }}/></IconButton>
+                                        </Tooltip>
+                                        )}
+                                    </Stack>
+                                    <Switch
+                                        checked={!!values[inputName]}
+                                        onChange={(event) => {
+                                            setFieldValue(inputName, event.target.checked);
+                                            const overwriteValues = {
+                                                ...values,
+                                                [inputName]: event.target.checked
+                                            };
+                                            onChanged(overwriteValues);
+                                        }}
+                                        inputProps={{ 'aria-label': 'controlled' }}
+                                    />
+                                </FormControl>)
+                            }
 
                             if (input.type === 'options') {
 

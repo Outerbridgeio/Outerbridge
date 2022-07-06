@@ -19,6 +19,8 @@ import socketIOClient from "socket.io-client";
 
 // project imports
 import AnimateButton from 'ui-component/extended/AnimateButton';
+import AttachmentDialog from 'ui-component/dialog/AttachmentDialog';
+import HTMLDialog from 'ui-component/dialog/HTMLDialog';
 
 // API
 import nodesApi from "api/nodes";
@@ -47,6 +49,11 @@ const OutputResponses = ({ nodeId, nodeParamsType, nodeFlowData, nodes, workflow
     const [nodeType, setNodeType] = useState(null);
     const [isTestNodeBtnDisabled, disableTestNodeBtn] = useState(true);
     const [testNodeLoading, setTestNodeLoading] = useState(null);
+    const [showHTMLDialog, setShowHTMLDialog] = useState(false);
+    const [HTMLDialogProps, setHTMLDialogProps] = useState({});
+    const [showAttachmentDialog, setShowAttachmentDialog] = useState(false);
+    const [attachmentDialogProps, setAttachmentDialogProps] = useState({});
+
     const testNodeApi = useApi(nodesApi.testNode);
 
     const onTestWebhookClick = () => {
@@ -112,6 +119,8 @@ const OutputResponses = ({ nodeId, nodeParamsType, nodeFlowData, nodes, workflow
 
         } catch(error) {
             setTestNodeLoading(false);
+            setOutputResponse([]);
+            setErrorResponse(error);
             console.error(error);
         }
     }
@@ -134,6 +143,24 @@ const OutputResponses = ({ nodeId, nodeParamsType, nodeFlowData, nodes, workflow
             }
         }
         return false;
+    };
+
+    const openAttachmentDialog = (outputResponse) => {
+        const dialogProp = {
+            title: 'Attachments',
+            executionData: outputResponse
+        };
+        setAttachmentDialogProps(dialogProp);
+        setShowAttachmentDialog(true);
+    };
+
+    const openHTMLDialog = (executionData) => {
+        const dialogProp = {
+            title: 'HTML',
+            executionData
+        };
+        setHTMLDialogProps(dialogProp);
+        setShowHTMLDialog(true);
     };
 
     useEffect(() => {
@@ -182,7 +209,17 @@ const OutputResponses = ({ nodeId, nodeParamsType, nodeFlowData, nodes, workflow
     // Test node error
     useEffect(() => {
         if (testNodeApi.error && nodeType && nodeType !== 'webhook') {
-            setErrorResponse(testNodeApi.error.response.data || 'Unexpected Error!');
+          
+            let errorMessage = 'Unexpected Error!';
+
+            if (testNodeApi.error.response && testNodeApi.error.response.data) {
+                errorMessage = testNodeApi.error.response.data;
+
+            } else if (testNodeApi.error.message) {
+                errorMessage = testNodeApi.error.message;
+            }
+            
+            setErrorResponse(errorMessage);
             setOutputResponse([]);
             const formValues = {
                 submit: null,
@@ -228,6 +265,39 @@ const OutputResponses = ({ nodeId, nodeParamsType, nodeFlowData, nodes, workflow
             </Box>)}
             <Box>
                 <ReactJson collapsed src={outputResponse} />
+                <div>
+                    {outputResponse.map((respObj, respObjIndex) =>
+                        <div key={respObjIndex}>
+
+                            {respObj.html && (
+                            <Typography sx={{p: 1, mt: 2}} variant="h5">
+                                HTML
+                            </Typography>)}
+                            {respObj.html && <div style={{ width: '100%', height: '100%', maxHeight: 400, overflow: 'auto', backgroundColor: 'white', borderRadius: 5 }} dangerouslySetInnerHTML={{ __html: respObj.html }} />}
+                            {respObj.html && <Button sx={{ mt: 1}} size="small" variant="contained" onClick={() => openHTMLDialog(outputResponse)}>View HTML</Button>}
+
+                            {respObj.attachments && (
+                            <Typography sx={{p: 1, mt: 2, pb: 0}} variant="h5">
+                                Attachments
+                            </Typography>)}
+                            {respObj.attachments && respObj.attachments.map((attachment, attchIndex) =>
+                                <div key={attchIndex}>
+                                    <Typography sx={{p: 1}} variant="h6">
+                                        Item {respObjIndex} | {attachment.filename ? attachment.filename : `Attachment ${attchIndex}`}
+                                    </Typography>
+                                    <embed
+                                        src={attachment.content}
+                                        width="100%"
+                                        height="100%"
+                                        style={{ borderStyle: "solid" }}
+                                        type={attachment.contentType}
+                                    />
+                                    <Button size="small" variant="contained" onClick={() => openAttachmentDialog(outputResponse)}>View Attachment</Button>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
             </Box>
             <Box sx={{ mt: 2, position: 'relative' }}>
                 <AnimateButton>
@@ -257,6 +327,16 @@ const OutputResponses = ({ nodeId, nodeParamsType, nodeFlowData, nodes, workflow
                 />)}
             </Box>
         </Box>
+        <AttachmentDialog
+            show={showAttachmentDialog}
+            dialogProps={attachmentDialogProps}
+            onCancel={() => setShowAttachmentDialog(false)}
+        ></AttachmentDialog>
+        <HTMLDialog
+            show={showHTMLDialog}
+            dialogProps={HTMLDialogProps}
+            onCancel={() => setShowHTMLDialog(false)}
+        ></HTMLDialog>
         </>
     );
 };

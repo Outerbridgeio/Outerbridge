@@ -18,12 +18,17 @@
   "license": "SEE LICENSE IN LICENSE.md",
   "dependencies": {
     "@types/cron": "^1.7.3",
+    "@types/imap": "^0.8.35",
+    "@types/mailparser": "^3.4.0",
     "axios": "^0.26.1",
     "cron": "^1.8.3",
     "dotenv": "^16.0.0",
     "ethers": "^5.6.0",
     "express": "^4.17.3",
     "gulp": "^4.0.2",
+    "imap": "^0.8.19",
+    "mailparser": "^3.5.0",
+    "moment": "^2.29.3",
     "nodemailer": "^6.7.5",
     "vm2": "^3.9.9"
   },
