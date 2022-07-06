@@ -121,7 +121,7 @@ const InputParameters = ({
                     <form noValidate onSubmit={handleSubmit} {...others}>
                         {params.map((input) => {
 
-                            if (input.type === 'string' || input.type === 'number') {
+                            if (input.type === 'string' || input.type === 'password' || input.type === 'number') {
 
                                 const inputName = input.name;
 
@@ -142,7 +142,7 @@ const InputParameters = ({
                                     </Stack>
                                     <OutlinedInput
                                         id={inputName}
-                                        type={input.type === 'number' ? 'number' : 'text'}
+                                        type={input.type === 'string' ? 'text' : input.type}
                                         multiline={!!input.rows}
                                         maxRows={input.rows || 0}
                                         minRows={input.rows || 0}

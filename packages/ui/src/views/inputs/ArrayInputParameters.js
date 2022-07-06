@@ -134,7 +134,7 @@ const ArrayInputParameters = ({
 
                     {params.map((input, paramIndex) => {
 
-                        if (input.type === 'string' || input.type === 'number') {
+                        if (input.type === 'string' || input.type === 'password' || input.type === 'number') {
 
                             const inputName = input.name;
 
@@ -157,7 +157,7 @@ const ArrayInputParameters = ({
                                 </Stack>
                                 <OutlinedInput
                                     id={inputName}
-                                    type={input.type === 'number' ? 'number' : 'text'}
+                                    type={input.type === 'string' ? 'text' : input.type}
                                     value={values[inputName] || ''}
                                     name={inputName}
                                     onBlur={(e) => {

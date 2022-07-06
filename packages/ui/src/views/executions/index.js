@@ -16,6 +16,7 @@ import {
     Chip,
     Stack,
     Typography,
+    Button
 } from '@mui/material';
 
 // third-party
@@ -26,6 +27,8 @@ import ReactJson from 'react-json-view'
 // project imports
 import MainCard from 'ui-component/cards/MainCard';
 import Transitions from 'ui-component/extended/Transitions';
+import AttachmentDialog from 'ui-component/dialog/AttachmentDialog';
+import HTMLDialog from 'ui-component/dialog/HTMLDialog';
 
 // icons
 import { IconX } from '@tabler/icons';
@@ -36,6 +39,11 @@ const Executions = ({ execution, executionCount, isExecutionOpen, anchorEl, hand
     const theme = useTheme();
     const [expanded, setExpanded] = useState(false);
     const [open, setOpen] = useState(false);
+    const [showHTMLDialog, setShowHTMLDialog] = useState(false);
+    const [HTMLDialogProps, setHTMLDialogProps] = useState({});
+    const [showAttachmentDialog, setShowAttachmentDialog] = useState(false);
+    const [attachmentDialogProps, setAttachmentDialogProps] = useState({});
+
     const varPrevOpen = useRef(open);
 
     const handleAccordionChange = (executionShortId) => (event, isExpanded) => {
@@ -57,6 +65,24 @@ const Executions = ({ execution, executionCount, isExecutionOpen, anchorEl, hand
         if (execState === 'TERMINATED' || execState === 'TIMEOUT') return theme.palette.grey['300'];
         return theme.palette.primary.light;
     }
+
+    const openAttachmentDialog = (executionData) => {
+        const dialogProp = {
+            title: 'Attachments',
+            executionData
+        };
+        setAttachmentDialogProps(dialogProp);
+        setShowAttachmentDialog(true);
+    };
+
+    const openHTMLDialog = (executionData) => {
+        const dialogProp = {
+            title: 'HTML',
+            executionData
+        };
+        setHTMLDialogProps(dialogProp);
+        setShowHTMLDialog(true);
+    };
 
     // Handle Accordian
     useEffect(() => {
@@ -171,8 +197,7 @@ const Executions = ({ execution, executionCount, isExecutionOpen, anchorEl, hand
                                                         <AccordionDetails key={execDataIndex}>
                                                             <Box 
                                                                 sx={{
-                                                                    p: 2, 
-                                                                 
+                                                                    p: 2,
                                                                     backgroundColor: theme.palette.secondary.light, 
                                                                     borderRadius: `15px`,
                                                                     position: 'relative'
@@ -186,6 +211,39 @@ const Executions = ({ execution, executionCount, isExecutionOpen, anchorEl, hand
                                                                     collapsed 
                                                                     src={execData.data}
                                                                 />
+                                                                <div>
+                                                                    {execData.data.map((execObj, execObjIndex) =>
+                                                                        <div key={execObjIndex}>
+
+                                                                            {execObj.html && (
+                                                                            <Typography sx={{p: 1, mt: 2}} variant="h5">
+                                                                                HTML
+                                                                            </Typography>)}
+                                                                            {execObj.html && <div style={{ width: '100%', height: '100%', maxHeight: 400, overflow: 'auto', backgroundColor: 'white', borderRadius: 5 }} dangerouslySetInnerHTML={{ __html: execObj.html }} />}
+                                                                            {execObj.html && <Button sx={{ mt: 1}} size="small" variant="contained" onClick={() => openHTMLDialog(execData.data)}>View HTML</Button>}
+
+                                                                            {execObj.attachments && (
+                                                                            <Typography sx={{p: 1, pb: 0, mt: 2}} variant="h5">
+                                                                                Attachments
+                                                                            </Typography>)}
+                                                                            {execObj.attachments && execObj.attachments.map((attachment, attchIndex) =>
+                                                                                <div key={attchIndex}>
+                                                                                    <Typography sx={{p: 1}} variant="h6">
+                                                                                        Item {execObjIndex} | {attachment.filename ? attachment.filename : `Attachment ${attchIndex}`}
+                                                                                    </Typography>
+                                                                                    <embed
+                                                                                        src={attachment.content}
+                                                                                        width="100%"
+                                                                                        height="100%"
+                                                                                        style={{ borderStyle: "solid" }}
+                                                                                        type={attachment.contentType}
+                                                                                    />
+                                                                                    <Button size="small" variant="contained" onClick={() => openAttachmentDialog(execData.data)}>View Attachment</Button>
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+                                                                    )}
+                                                                </div>
                                                             </Box>
                                                         </AccordionDetails>
                                                         ))}
@@ -201,6 +259,16 @@ const Executions = ({ execution, executionCount, isExecutionOpen, anchorEl, hand
                     </Transitions>
                 )}
             </Popper>
+            <AttachmentDialog
+                show={showAttachmentDialog}
+                dialogProps={attachmentDialogProps}
+                onCancel={() => setShowAttachmentDialog(false)}
+            ></AttachmentDialog>
+            <HTMLDialog
+                show={showHTMLDialog}
+                dialogProps={HTMLDialogProps}
+                onCancel={() => setShowHTMLDialog(false)}
+            ></HTMLDialog>
         </>
     );
 };
