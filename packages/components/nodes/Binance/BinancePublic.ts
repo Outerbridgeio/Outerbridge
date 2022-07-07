@@ -10,8 +10,7 @@ import {
 import {
     returnNodeExecutionData
 } from '../../src/utils';
-
-const axios = require('axios').default;
+import axios from 'axios';
 
 class BinancePublic implements INode {
 
@@ -104,8 +103,8 @@ class BinancePublic implements INode {
                 endpoint = `/api/v3/depth`;
                 query['symbol'] = symbol;
 
-                responseData = await axios.get(`https://api.binance.com${endpoint}`, { params: query });
-                responseData = responseData.data;
+                const response = await axios.get(`https://api.binance.com${endpoint}`, { params: query });
+                responseData = response.data;
             }
         }
         catch (error) {
