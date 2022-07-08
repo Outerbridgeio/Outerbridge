@@ -430,6 +430,7 @@ const CredentialInput = ({
                                         id={inputName}
                                         type={input.type === 'string' ? 'text' : input.type}
                                         value={values[inputName] || ''}
+                                        placeholder={input.placeholder}
                                         name={inputName}
                                         onBlur={e => {
                                             handleBlur(e);

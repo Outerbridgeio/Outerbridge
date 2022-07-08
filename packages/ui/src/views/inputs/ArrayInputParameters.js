@@ -159,6 +159,7 @@ const ArrayInputParameters = ({
                                     id={inputName}
                                     type={input.type === 'string' ? 'text' : input.type}
                                     value={values[inputName] || ''}
+                                    placeholder={input.placeholder}
                                     name={inputName}
                                     onBlur={(e) => {
                                         const inputValue = e.target.value;

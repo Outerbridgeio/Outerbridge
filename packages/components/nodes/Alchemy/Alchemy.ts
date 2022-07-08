@@ -8,7 +8,7 @@ import {
     NodeType,
 } from '../../src/Interface';
 import {
-    returnNodeExecutionData
+    returnNodeExecutionData, serializeQueryParams
 } from '../../src/utils';
 import { alchemyHTTPAPIs, ETHNetworks, PolygonNetworks, OptimismNetworks, ArbitrumNetworks } from "../../src/ChainNetwork";
 import { ethOperations, IETHOperation, polygonOperations } from "../../src/ETHOperations";
@@ -196,18 +196,7 @@ class Alchemy implements INode {
 				return returnData;
 			} 
 			else if (api === 'nftAPI') {
-
-				let totalOperations: INodeOptionsValue[] = [];
-
-				const filteredOperations = NFTOperationsOptions.filter((op: INodeOptionsValue) => op.name !== 'getOwnersForToken');
-				if (network === 'homestead') {
-					const homesteadNFTOperations = NFTOperationsOptions.filter((op: INodeOptionsValue) => op.name === 'getOwnersForToken');
-					totalOperations = [...filteredOperations, ...homesteadNFTOperations];
-				} else {
-					totalOperations = filteredOperations;
-				}
-
-				return totalOperations;
+				return NFTOperationsOptions;
 			} 
 			else if (api === 'txReceiptsAPI') {
 				for (const op of transactionReceiptsOperations) {
@@ -336,21 +325,7 @@ class Alchemy implements INode {
 				const owner = inputParametersData.owner as string;
 				const pageKey = inputParametersData.pageKey as string;
 				const withMetadata = inputParametersData.withMetadata as boolean;
-				
-				/* Disable for now, not working
-				let contractAddresses = this.getNodeParameter('contractAddresses', 0) as string || '';
-				contractAddresses = contractAddresses.replace(/\s/g, '');
-
-				if (contractAddresses) {
-					try {
-						const contractAddressesArray = JSON.parse(contractAddresses);
-						contractAddresses = contractAddressesArray.map((address: string) => `contractAddresses[]=${address}`).join('&');
-						uri += `?${contractAddresses}`
-					} catch(error) {
-						throw error;
-					}
-				}*/
-
+			
 				queryParameters['owner'] = owner;
 				queryParameters['withMetadata'] = withMetadata;
 				if (pageKey) queryParameters['pageKey'] = pageKey;
@@ -370,25 +345,20 @@ class Alchemy implements INode {
 				const contractAddress = inputParametersData.contractAddress as string;
 				const startToken = inputParametersData.startToken as string;
 				const withMetadata = inputParametersData.withMetadata as boolean;
+				const limit = inputParametersData.limit as number;
 				
 				queryParameters['contractAddress'] = contractAddress;
 				queryParameters['startToken'] = startToken;
 				queryParameters['withMetadata'] = withMetadata;
-			}
-			else if (operation === 'getOwnersForToken') {
-				const contractAddress = inputParametersData.contractAddress as string;
-				const tokenId = inputParametersData.tokenId as string;
-				
-				queryParameters['contractAddress'] = contractAddress;
-				queryParameters['tokenId'] = tokenId;
+				queryParameters['limit'] = limit;
 			}
 			
 			try {
-
 				const axiosConfig: AxiosRequestConfig = {
 					method : 'GET',
 					url: uri,
 					params: queryParameters,
+					paramsSerializer: params => serializeQueryParams(params),
 					headers: {
 						'Content-Type': 'application/json',
 					},

@@ -22,7 +22,7 @@ class EmailSendSmtp implements INodeCredential {
 			{
 				label: 'Password',
 				name: 'password',
-				type: 'string',
+				type: 'password',
 				default: '',
 			},
 			{

@@ -111,6 +111,7 @@ export interface INodeParams {
     show?: INodeDisplay;
     hide?: INodeDisplay;
     rows?: number;
+    placeholder?: string;
 }
 
 export interface INodeExecutionData {

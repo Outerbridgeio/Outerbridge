@@ -143,6 +143,7 @@ const InputParameters = ({
                                     <OutlinedInput
                                         id={inputName}
                                         type={input.type === 'string' ? 'text' : input.type}
+                                        placeholder={input.placeholder}
                                         multiline={!!input.rows}
                                         maxRows={input.rows || 0}
                                         minRows={input.rows || 0}

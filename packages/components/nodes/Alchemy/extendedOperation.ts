@@ -13,9 +13,12 @@ export const NFTOperationsOptions = [
         description: 'Gets the metadata associated with a given NFT',
     },
     {
-        name: 'getNFTsForCollection (BETA)',
-        value: 'getNFTsForCollection ',
+        label: 'Get NFTs For Collection',
+        name: 'getNFTsForCollection',
         description: 'Gets all NFTs for a given NFT contract',
+        show: {
+            'networks.network': ['homestead', 'goerli', 'matic', 'maticmum']
+        }
     },
 ] as INodeOptionsValue[];
 
@@ -117,6 +120,7 @@ export const getNFTsForCollectionProperties = [
         type: 'string',
         description: 'An offset used for pagination. Can be a hex string, or a decimal.',
         default: '',
+        optional: true,
         show: {
             'inputParameters.operation': ['getNFTsForCollection']
         }
@@ -127,6 +131,18 @@ export const getNFTsForCollectionProperties = [
         type: 'boolean',
         description: 'If set to true, returns NFT metadata; otherwise will only return tokenIds',
         default: true,
+        optional: true,
+        show: {
+            'inputParameters.operation': ['getNFTsForCollection']
+        }
+    },
+    {
+        label: 'Limit',
+        name: 'limit',
+        type: 'number',
+        description: 'Sets the total number of NFTs returned in the response. Defaults to 100.',
+        default: 100,
+        optional: true,
         show: {
             'inputParameters.operation': ['getNFTsForCollection']
         }
