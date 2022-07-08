@@ -42,11 +42,25 @@ const AddNodes = ({ nodesData, node }) => {
     const theme = useTheme();
     const customization = useSelector((state) => state.customization);
 
-    const [value, setValue] = useState('');
+    const [searchValue, setSearchValue] = useState('');
+    const [nodes, setNodes] = useState([]);
     const [open, setOpen] = useState(false);
 
     const anchorRef = useRef(null);
     const prevOpen = useRef(open);
+
+    const filterSearch = (value) => {
+        setSearchValue(value);
+        setTimeout(() => {
+            if (value) {
+                const returnData = nodesData.filter((nd) => nd.name.toLowerCase().includes(value.toLowerCase()));
+                setNodes(returnData);
+
+            } else if (value === '') {
+                setNodes(nodesData);
+            }
+        }, 500);
+    }
 
     const handleClose = (event) => {
         if (anchorRef.current && anchorRef.current.contains(event.target)) {
@@ -75,6 +89,10 @@ const AddNodes = ({ nodesData, node }) => {
     useEffect(() => {
         if (node) setOpen(false);
     }, [node]);
+
+    useEffect(() => {
+        if (nodesData) setNodes(nodesData);
+    }, [nodesData]);
 
     return (
         <>
@@ -120,8 +138,8 @@ const AddNodes = ({ nodesData, node }) => {
                                         <OutlinedInput
                                             sx={{ width: '100%', pr: 1, pl: 2, my: 2 }}
                                             id="input-search-node"
-                                            value={value}
-                                            onChange={(e) => setValue(e.target.value)}
+                                            value={searchValue}
+                                            onChange={(e) => filterSearch(e.target.value)}
                                             placeholder="Search nodes"
                                             startAdornment={
                                                 <InputAdornment position="start">
@@ -157,7 +175,7 @@ const AddNodes = ({ nodesData, node }) => {
                                                     }
                                                 }}
                                             >
-                                                {nodesData.map((node) => (
+                                                {nodes.map((node) => (
                                                     <div key={node.name} onDragStart={(event) => onDragStart(event, node)} draggable>
                                                         <ListItemButton
                                                             sx={{ p: 0, borderRadius: `${customization.borderRadius}px`, cursor: 'move' }}

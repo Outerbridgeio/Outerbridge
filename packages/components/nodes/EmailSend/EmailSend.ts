@@ -62,6 +62,7 @@ class EmailSend implements INode {
 				type: 'string',
 				default: '',
 				description: 'Email address of the recipient. Multiple emails can be comma-separated.',
+				optional: true
 			},
 			{
 				label: 'CC Email',
@@ -69,6 +70,7 @@ class EmailSend implements INode {
 				type: 'string',
 				default: '',
 				description: 'Email address of CC recipient. Multiple emails can be comma-separated.',
+				optional: true
 			},
 			{
 				label: 'Subject',

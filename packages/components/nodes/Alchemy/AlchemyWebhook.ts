@@ -105,14 +105,7 @@ class AlchemyWebhook implements INode {
 				default: 'alchemyApi',
 			},
 		] as INodeParams[];
-		this.inputParameters = [
-			{
-				label: 'App ID',
-				name: 'app_id',
-				type: 'string',
-				default: '',
-				description: 'App ID can be found within the URL of your specific app. For example, given the URL https://dashboard.alchemyapi.io/apps/xfu8frt3wf94j7h5 your App ID would be xfu8frt3wf94j7h5'
-			},
+		this.actions = [
 			{
 				label: 'Event',
 				name: 'webhook_type',
@@ -133,13 +126,31 @@ class AlchemyWebhook implements INode {
 						name: 'ADDRESS_ACTIVITY',
 						description: `The Address Activity Webhook allows you to track all ETH, ERC20 and ERC721 transfer events for as many Ethereum addresses as you'd like.`,
 					},
-					{
-						label: 'Gas Price',
-						name: 'GAS_PRICE',
-						description: `Triggered every minute when the Mainnet gas price rises above or drops below a certain threshold`,
-					},
 				],
 				default: 'MINED_TRANSACTION',
+			},
+		] as INodeParams[];
+		this.inputParameters = [
+			{
+				label: 'App ID',
+				name: 'app_id',
+				type: 'string',
+				default: '',
+				description: 'App ID can be found within the URL of your specific app. For example, given the URL https://dashboard.alchemyapi.io/apps/xfu8frt3wf94j7h5 your App ID would be xfu8frt3wf94j7h5',
+				show: {
+					'actions.webhook_type': ['MINED_TRANSACTION', 'DROPPED_TRANSACTION']
+				}
+			},
+			{
+				label: 'Ethereum Addresses',
+				name: 'addresses',
+				type: 'string',
+				default: '',
+				description: 'Ethereum addresses to track the transfer events',
+				placeholder: '["<your-Ethereum-Address>"]',
+				show: {
+					'actions.webhook_type': ['ADDRESS_ACTIVITY']
+				}
 			},
 		] as INodeParams[];
 	};
@@ -150,8 +161,10 @@ class AlchemyWebhook implements INode {
 			// Check if webhook exists
 			const credentials = nodeData.credentials;
 			const inputParametersData = nodeData.inputParameters;
+			const networksData = nodeData.networks;
+			const actionsData = nodeData.actions;
 
-			if (inputParametersData === undefined) {
+			if (inputParametersData === undefined || actionsData === undefined || networksData === undefined) {
 				throw new Error('Required data missing');
 			}
 
@@ -170,12 +183,20 @@ class AlchemyWebhook implements INode {
 				let responseData = await axios(axiosConfig);
 				responseData = responseData.data;
 				const webhooks = responseData.data;
-				const app_id = inputParametersData.app_id as string;
-				const webhook_type = inputParametersData.webhook_type as string;
+				const network = networksData.network as string;
+				const webhook_type = actionsData.webhook_type as string;
 				let webhookExist = false;
 
 				for (const webhook of webhooks) {
-					if (webhook.app_id === app_id && webhook.webhook_type === webhook_type && webhook.webhook_url === webhookFullUrl) {
+					if (webhook.webhook_type === webhook_type && webhook.webhook_url === webhookFullUrl) {
+						if (webhook_type !== 'ADDRESS_ACTIVITY')  {
+							const app_id = inputParametersData.app_id as string || '';
+							if (webhook.app_id === app_id) {
+								webhookExist = true;
+								break;
+							}
+							continue;
+						}
 						webhookExist = true;
 						break;
 					}
@@ -183,10 +204,20 @@ class AlchemyWebhook implements INode {
 
 				if (!webhookExist) {
 					const data: ICommonObject = {
-						app_id,
 						webhook_type,
+						network,
 						webhook_url: webhookFullUrl,
 					};
+					if (webhook_type === 'ADDRESS_ACTIVITY') {
+						let addresses = inputParametersData.addresses as string || '[]';
+						//Remove whitespaces
+						addresses = addresses.replace(/\s/g, '');
+						if (addresses) data.addresses = JSON.parse(addresses);
+					} else {
+						const app_id = inputParametersData.app_id as string || '';
+						data.app_id = app_id;
+					}
+
 					const axiosCreateConfig: AxiosRequestConfig = {
 						method: 'POST' as Method,
 						url: `https://dashboard.alchemyapi.io/api/create-webhook`,
