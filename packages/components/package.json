@@ -30,6 +30,7 @@
     "mailparser": "^3.5.0",
     "moment": "^2.29.3",
     "nodemailer": "^6.7.5",
+    "twitter-api-v2": "^1.12.3",
     "vm2": "^3.9.9"
   },
   "devDependencies": {
