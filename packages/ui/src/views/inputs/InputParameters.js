@@ -23,6 +23,11 @@ import * as Yup from 'yup';
 import { Formik } from 'formik';
 import JSONInput from "react-json-editor-ajrm";
 import locale from "react-json-editor-ajrm/locale/en";
+import Editor from 'react-simple-code-editor';
+import { highlight, languages } from 'prismjs/components/prism-core';
+import 'prismjs/components/prism-clike';
+import 'prismjs/components/prism-javascript';
+import 'prismjs/themes/prism.css';
 
 // project imports
 import useScriptRef from 'hooks/useScriptRef';
@@ -173,6 +178,49 @@ const InputParameters = ({
                                             }
                                         }}
                                         onChange={() => setVariableSelectorState(false)}
+                                    />
+                                    {errors[inputName] && <span style={{ color: 'red', fontSize: '0.7rem', fontStyle: 'italic' }}>*{errors[inputName]}</span>}
+                                </FormControl>)
+                            }
+
+                            if (input.type === 'code') {
+
+                                const inputName = input.name;
+   
+                                return (
+                                <FormControl 
+                                    key={inputName}
+                                    fullWidth 
+                                    sx={{ mb: 1, mt: 1 }}
+                                    error={Boolean(errors[inputName])}
+                                >
+                                    <Stack direction="row">
+                                        <Typography variant="overline">{input.label}</Typography>
+                                        {input.description && (
+                                        <Tooltip title={input.description} placement="right">
+                                            <IconButton ><Info style={{ height: 18, width: 18 }}/></IconButton>
+                                        </Tooltip>
+                                        )}
+                                    </Stack>
+                                    <Editor
+                                        value={values[inputName] || ''}
+                                        onValueChange={code => {
+                                            setVariableSelectorState(false);
+                                            setFieldValue(inputName, code);
+                                            const overwriteValues = {
+                                                ...values,
+                                                [inputName]: code
+                                            };
+                                            onChanged(overwriteValues);
+                                        }}
+                                        highlight={code => highlight(code, languages.js)}
+                                        padding={10}
+                                        style={{
+                                            fontSize: '0.875rem',
+                                            border: '1px solid',
+                                            borderColor: theme.palette.grey['500'],
+                                            borderRadius: '12px',
+                                        }}
                                     />
                                     {errors[inputName] && <span style={{ color: 'red', fontSize: '0.7rem', fontStyle: 'italic' }}>*{errors[inputName]}</span>}
                                 </FormControl>)
