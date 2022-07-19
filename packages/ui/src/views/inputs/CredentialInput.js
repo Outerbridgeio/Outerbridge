@@ -106,8 +106,9 @@ const CredentialInput = ({
     };
 
     const resetCredentialParams = () => {
+        const updateParams = initialParams.filter(item => credentialParams.every(paramItem => item.name !== paramItem.name));
         setCredentialParams([]);
-        paramsChanged([], paramsType);
+        paramsChanged(updateParams, paramsType);
     }
 
     const clearCredentialParamsValues = (value) => {
@@ -146,7 +147,9 @@ const CredentialInput = ({
                 }
             ];
             setCredentialOptions(credentialOptions);
-            updateYupValidation('registeredCredential', 'name');
+            if (initialParams.find((prm) => prm.name === 'registeredCredential')) {
+                updateYupValidation('registeredCredential', 'name');
+            }
         }
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -169,7 +172,7 @@ const CredentialInput = ({
 
             setCredentialParams(newCredentialParams);
 
-            const updateParams = [];
+            const updateParams = initialParams;
 
             for (let i = 0; i < newCredentialParams.length; i+=1 ) {
                 const credParamName = newCredentialParams[i].name;
@@ -297,10 +300,10 @@ const CredentialInput = ({
                                             const value = selection ? selection.name : "";
                                             setFieldValue(inputName, value);
                                             const overwriteValues = {
-                                                ...values,
                                                 [inputName]: value
                                             };
                                             onChanged(overwriteValues);
+                                            resetCredentialParams();
                                             if (selection) {
                                                 getRegisteredCredentialsApi.request(value);
                                                 setNodeCredentialName(value);

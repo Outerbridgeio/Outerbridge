@@ -180,8 +180,8 @@ class AlchemyWebhook implements INode {
 			}
 
 			try {
-				let responseData = await axios(axiosConfig);
-				responseData = responseData.data;
+				const response = await axios(axiosConfig);
+				const responseData = response.data;
 				const webhooks = responseData.data;
 				const network = networksData.network as string;
 				const webhook_type = actionsData.webhook_type as string;
@@ -253,8 +253,7 @@ class AlchemyWebhook implements INode {
 			}
 
 			try {
-				let responseData = await axios(axiosConfig);
-				responseData = responseData.data;
+				await axios(axiosConfig);
 			} catch (error) {
 				console.error(error);
 				return false;

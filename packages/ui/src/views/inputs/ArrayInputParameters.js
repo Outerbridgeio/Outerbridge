@@ -22,6 +22,10 @@ import { useTheme, styled } from '@mui/material/styles';
 // icons
 import { IconX } from '@tabler/icons';
 
+// third party
+import JSONInput from "react-json-editor-ajrm";
+import locale from "react-json-editor-ajrm/locale/en";
+
 const StyledPopper = styled(Popper)({
     boxShadow: '0px 8px 10px -5px rgb(0 0 0 / 20%), 0px 16px 24px 2px rgb(0 0 0 / 14%), 0px 6px 30px 5px rgb(0 0 0 / 12%)',
     borderRadius: '10px',
@@ -107,7 +111,6 @@ const ArrayInputParameters = ({
                     <Box 
                         sx={{
                             p: 2, 
-                            mt: 2, 
                             mb: 2, 
                             backgroundColor: theme.palette.secondary.light, 
                             borderRadius: `${customization.borderRadius}px`,
@@ -133,6 +136,54 @@ const ArrayInputParameters = ({
                         )}
 
                     {params.map((input, paramIndex) => {
+
+                        if (input.type === 'json') {
+
+                            const inputName = input.name;
+
+                            return (
+                            <FormControl 
+                                key={inputName}
+                                fullWidth 
+                                sx={{ mb: 1, mt: 1 }}
+                                error={errors && errors.length > 0 && errors[index] ?
+                                    Boolean(errors[index][inputName]) : false
+                                }
+                            >
+                                <Stack direction="row">
+                                    <Typography variant="overline">{input.label}</Typography>
+                                    {input.description && (
+                                    <Tooltip title={input.description} placement="right">
+                                        <IconButton ><Info style={{ height: 18, width: 18 }}/></IconButton>
+                                    </Tooltip>
+                                    )}
+                                </Stack>
+                                <JSONInput
+                                    id={inputName}
+                                    placeholder={JSON.parse(values[inputName] || '{}') || JSON.parse(input.default || '{}') || {}}
+                                    theme="light_mitsuketa_tribute"
+                                    locale={locale}
+                                    height="200px"
+                                    width="100%"
+                                    style={{
+                                        container: {
+                                            border: '1px solid',
+                                            borderColor: theme.palette.grey['500'],
+                                            borderRadius: '12px',
+                                        },
+                                        body: {
+                                            fontSize: '0.875rem'
+                                        }
+                                    }}
+                                    onBlur={e => {
+                                        if (!e.error) {
+                                            const inputValue = e.json;
+                                            onInputBlur(inputValue, inputName, values, index);
+                                        }
+                                    }}
+                                />
+                            </FormControl>)
+                        }
 
                         if (input.type === 'string' || input.type === 'password' || input.type === 'number') {
 
@@ -271,7 +322,7 @@ const ArrayInputParameters = ({
 };
 
 ArrayInputParameters.propTypes = {
-    initialValues: PropTypes.object, 
+    initialValues: PropTypes.array, 
     arrayParams: PropTypes.array,
     paramsType: PropTypes.string,
     arrayGroupName: PropTypes.string,

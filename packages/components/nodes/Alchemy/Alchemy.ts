@@ -112,9 +112,10 @@ class Alchemy implements INode {
 			{
 				label: 'Parameters',
 				name: 'parameters',
-				type: 'string',
-				default: '',
+				type: 'json',
+				default: '[]',
 				optional: true,
+				description: 'Operation parameters in array. Ex: ["param1", "param2"]',
 				show: {
 					'actions.api': [
 						'chainAPI',
@@ -122,7 +123,6 @@ class Alchemy implements INode {
 						'tokenAPI'
 					]
 				},
-				rows: 5
 			},
 		] as INodeParams[];
 	}
@@ -297,8 +297,8 @@ class Alchemy implements INode {
 					},
 				}
 
-				responseData = await axios(axiosConfig);
-				responseData = responseData.data;
+				const response = await axios(axiosConfig);
+				responseData = response.data;
 			}
 			catch (error) {
 				console.error(error);
@@ -364,8 +364,8 @@ class Alchemy implements INode {
 					},
 				}
 
-				responseData = await axios(axiosConfig);
-				responseData = responseData.data;
+				const response = await axios(axiosConfig);
+				responseData = response.data;
 			}
 			catch (error) {
 				throw error;
