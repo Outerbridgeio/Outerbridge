@@ -71,9 +71,8 @@ class ContractFunctionTrigger extends EventEmitter implements INode {
 			{
 				label: 'Function Parameters',
 				name: 'funcParameters',
-				type: 'string',
-				rows: 5,
-				default: '',
+				type: 'json',
+				default: '[]',
 				description: 'Function parameters in array. Ex: ["param1", "param2"]',
 				optional: true
 			},

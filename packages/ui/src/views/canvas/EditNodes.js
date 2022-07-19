@@ -123,7 +123,7 @@ const EditNodes = ({ node, nodes, edges, workflow, rfInstance, onNodeLabelUpdate
     const paramsChanged = (formParams, paramsType) => {
         const updateNodeDetails = {
             ...nodeDetails,
-            [paramsType]: [...formParams, ...nodeDetails[paramsType]]
+            [paramsType]: formParams
         };
         setNodeDetails(updateNodeDetails);
     };
@@ -281,6 +281,26 @@ const EditNodes = ({ node, nodes, edges, workflow, rfInstance, onNodeLabelUpdate
         return clonedParams;
     };
 
+    const isHideRegisteredCredential = (params, paramsType) => {
+
+        if (!nodeFlowData[paramsType]['credentialMethod']) return undefined;
+      
+        let clonedParams = params;
+
+        for (let i = 0; i < clonedParams.length; i+= 1) {
+            const input = clonedParams[i];
+            if (input.type === 'options') {
+                const selectedCredentialMethodOption = input.options.find((opt) => opt.name === nodeFlowData[paramsType]['credentialMethod']);
+                if (selectedCredentialMethodOption && 
+                    selectedCredentialMethodOption !== undefined && 
+                    selectedCredentialMethodOption.hideRegisteredCredential
+                ) return true;
+            }
+        }
+        
+        return false;
+    };
+
     const setYupValidation = (params) => {
         const validationSchema = {};
         for (let i = 0; i < params.length; i+= 1) {
@@ -309,16 +329,25 @@ const EditNodes = ({ node, nodes, edges, workflow, rfInstance, onNodeLabelUpdate
         const initialValues = {};
 
         const reorganizedParams = displayParameters(nodeDetails[paramsType] || [], paramsType, 0);
-        const nodeParams = displayOptions(lodash.cloneDeep(reorganizedParams), paramsType, 0);
+        let nodeParams = displayOptions(lodash.cloneDeep(reorganizedParams), paramsType, 0);
 
         // Add hard-coded registeredCredential params
         if (paramsType === 'credentials' && 
             nodeParams.find((nPrm) => nPrm.name === 'registeredCredential') === undefined &&
-            nodeParams.find((nPrm) => nPrm.name === 'credentialMethod') !== undefined
+            nodeParams.find((nPrm) => nPrm.name === 'credentialMethod') !== undefined &&
+            !isHideRegisteredCredential(lodash.cloneDeep(reorganizedParams), paramsType)
         ) {
             nodeParams.push({
                 name: 'registeredCredential',
-            })
+            });
+
+        } else if (paramsType === 'credentials' && 
+            nodeParams.find((nPrm) => nPrm.name === 'registeredCredential') !== undefined &&
+            nodeParams.find((nPrm) => nPrm.name === 'credentialMethod') !== undefined &&
+            isHideRegisteredCredential(lodash.cloneDeep(reorganizedParams), paramsType)
+        ) {
+            // Delete registeredCredential params
+            nodeParams = nodeParams.filter((prm) => prm.name !== 'registeredCredential');
         }
        
         for (let i = 0; i < nodeParams.length; i+= 1) {

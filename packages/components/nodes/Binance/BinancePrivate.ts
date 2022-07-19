@@ -136,8 +136,8 @@ class BinancePrivate implements INode {
 					headers: headers as AxiosRequestHeaders
 				}
 
-                responseData = await axios(axiosConfig);
-                responseData = responseData.data;
+                const response = await axios(axiosConfig);
+                responseData = response.data;
             }
 
 			else if (operation === 'getAccountInformation') {
@@ -155,8 +155,8 @@ class BinancePrivate implements INode {
 					headers: headers as AxiosRequestHeaders
 				}
 
-                responseData = await axios(axiosConfig);
-                responseData = responseData.data;
+                const response = await axios(axiosConfig);
+                responseData = response.data;
             }
         }
         catch (error) {

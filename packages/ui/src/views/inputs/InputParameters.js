@@ -16,11 +16,13 @@ import {
 } from '@mui/material';
 import { Info } from '@mui/icons-material';
 import Autocomplete, { autocompleteClasses } from '@mui/material/Autocomplete';
-import { styled } from '@mui/material/styles';
+import { styled, useTheme } from '@mui/material/styles';
 
 // third party
 import * as Yup from 'yup';
 import { Formik } from 'formik';
+import JSONInput from "react-json-editor-ajrm";
+import locale from "react-json-editor-ajrm/locale/en";
 
 // project imports
 import useScriptRef from 'hooks/useScriptRef';
@@ -57,6 +59,8 @@ const InputParameters = ({
     setVariableSelectorState,
     ...others 
 }) => {
+    const theme = useTheme();
+
     const scriptedRef = useScriptRef();
 
     const onChanged = (values) => {
@@ -120,6 +124,59 @@ const InputParameters = ({
                 {({ errors, handleBlur, handleChange, handleSubmit, setFieldValue, isSubmitting, values }) => (
                     <form noValidate onSubmit={handleSubmit} {...others}>
                         {params.map((input) => {
+
+                            if (input.type === 'json') {
+
+                                const inputName = input.name;
+   
+                                return (
+                                <FormControl 
+                                    key={inputName}
+                                    fullWidth 
+                                    sx={{ mb: 1, mt: 1 }}
+                                    error={Boolean(errors[inputName])}
+                                >
+                                    <Stack direction="row">
+                                        <Typography variant="overline">{input.label}</Typography>
+                                        {input.description && (
+                                        <Tooltip title={input.description} placement="right">
+                                            <IconButton ><Info style={{ height: 18, width: 18 }}/></IconButton>
+                                        </Tooltip>
+                                        )}
+                                    </Stack>
+                                    <JSONInput
+                                        id={inputName}
+                                        placeholder={JSON.parse(values[inputName] || '{}') || JSON.parse(input.default || '{}') || {}}
+                                        theme="light_mitsuketa_tribute"
+                                        locale={locale}
+                                        height="200px"
+                                        width="100%"
+                                        style={{
+                                            container: {
+                                                border: '1px solid',
+                                                borderColor: theme.palette.grey['500'],
+                                                borderRadius: '12px',
+                                            },
+                                            body: {
+                                                fontSize: '0.875rem'
+                                            }
+                                        }}
+                                        onBlur={e => {
+                                            if (!e.error) {
+                                                const value = e.json;
+                                                setFieldValue(inputName, value);
+                                                const overwriteValues = {
+                                                    ...values,
+                                                    [inputName]: value
+                                                };
+                                                onChanged(overwriteValues);
+                                            }
+                                        }}
+                                        onChange={() => setVariableSelectorState(false)}
+                                    />
+                                    {errors[inputName] && <span style={{ color: 'red', fontSize: '0.7rem', fontStyle: 'italic' }}>*{errors[inputName]}</span>}
+                                </FormControl>)
+                            }
 
                             if (input.type === 'string' || input.type === 'password' || input.type === 'number') {
 
@@ -302,13 +359,21 @@ const InputParameters = ({
                                 const arrayItemsValues = values[inputName] || [];
 
                                 return (
-                                    <Stack key={inputName}>
+                                    <Stack sx={{mt: 1}} key={inputName}>
+                                        <Stack direction="row">
+                                            <Typography variant="overline">{input.label}</Typography>
+                                            {input.description && (
+                                            <Tooltip title={input.description} placement="right">
+                                                <IconButton ><Info style={{ height: 18, width: 18 }}/></IconButton>
+                                            </Tooltip>
+                                            )}
+                                        </Stack>
                                         <ArrayInputParameters 
                                             initialValues={arrayItemsValues}
                                             arrayParams={arrayParamItems}
                                             paramsType={paramsType}
                                             arrayGroupName={inputName}
-                                            errors={errors[inputName] ? errors[inputName] : {}} 
+                                            errors={errors[inputName] ? errors[inputName] : []} 
                                             onArrayInputChange={(updateInitialValues) => {
                                                 setFieldValue(inputName, updateInitialValues);
                                             }}
@@ -333,7 +398,7 @@ const InputParameters = ({
                                                 else setVariableSelectorState(variableState);
                                             }}
                                         />
-                                        <Box key={inputName} sx={{ mt: 1, mb: 5 }}>
+                                        <Box key={inputName} sx={{ mb: 2 }}>
                                             <AnimateButton>
                                                 <Button
                                                     disableElevation

@@ -351,7 +351,7 @@ export const decryptCredentials = async(nodeData: INodeData) => {
 
         // Decrpyt credentialData
         const decryptedCredentialData = decryptCredentialData(credentialData, encryptKey);
-        nodeData.credentials = decryptedCredentialData;
+        nodeData.credentials = { ...nodeData.credentials, ...decryptedCredentialData };
     }
 }
 

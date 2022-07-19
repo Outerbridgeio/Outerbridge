@@ -67,7 +67,7 @@ export type WebhookMethod = 'GET' | 'POST';
  
 export type NodeType = 'action' | 'webhook' | 'trigger';
 
-export type NodeParamsType = 'asyncOptions' | 'options' | 'string' | 'number' | 'array' | 'boolean' | 'password';
+export type NodeParamsType = 'asyncOptions' | 'options' | 'string' | 'number' | 'array' | 'boolean' | 'password' | 'json';
 
 export type DbCollectionName = 'Contract' | 'Webhook' | 'Workflow' | 'Credential' | 'Execution';
 
@@ -95,6 +95,11 @@ export interface INodeOptionsValue {
     exampleResponse?: ICommonObject;
     show?: INodeDisplay;
     hide?: INodeDisplay;
+    /*
+     * Only used on credentialMethod option to hide registeredCredentials
+     * For example: noAuth
+    */
+    hideRegisteredCredential?: boolean 
 }
 
 export interface INodeParams {
