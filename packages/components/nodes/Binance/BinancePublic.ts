@@ -3,6 +3,7 @@ import {
 	INode, 
     INodeData, 
     INodeExecutionData, 
+    INodeOptionsValue, 
     INodeParams, 
     NodeType,
 } from '../../src/Interface';
@@ -89,18 +90,8 @@ class BinancePublic implements INode {
             {
 				label: 'Pair',
 				name: 'pair',
-				type: 'options',
-				options: [
-					{
-						label: 'ETH BTC',
-						name: 'ETHBTC',
-					},
-					{
-						label: 'ETH USDT',
-						name: 'ETHUSDT',
-					},
-				],
-				default: 'ETHBTC',
+				type: 'asyncOptions',
+				loadMethod: 'getSupportedSymbols',
                 show: {
                     'actions.operation': [
                         'getOrderBook',
@@ -241,6 +232,31 @@ class BinancePublic implements INode {
                 }
 			},
         ] as INodeParams[];
+    }
+
+    loadMethods = {
+        async getSupportedSymbols(): Promise<INodeOptionsValue[]> {
+            const returnData: INodeOptionsValue[] = [];
+
+            const axiosConfig: AxiosRequestConfig = {
+                method: 'GET',
+                url: 'https://api.binance.com/api/v3/exchangeInfo',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }
+
+            const response = await axios(axiosConfig);
+			const responseData = response.data;
+            for (const s of responseData['symbols']) {
+                returnData.push({
+                    label: s.symbol,
+                    name: s.symbol,
+                });
+            }
+
+            return returnData;
+        }
     }
 
     async run(nodeData: INodeData): Promise<INodeExecutionData[] | null> {
