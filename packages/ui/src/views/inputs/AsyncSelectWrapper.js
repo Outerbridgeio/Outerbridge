@@ -13,6 +13,9 @@ import OptionParamsResponse from './OptionParamsResponse';
 import lodash from 'lodash';
 import AsyncSelect from 'react-select/async';
 
+// icons
+import { IconX } from '@tabler/icons';
+
 // API
 import nodesApi from "api/nodes";
 
@@ -170,19 +173,41 @@ const AsyncSelectWrapper = ({
                     <IconButton ><Info style={{ height: 18, width: 18 }}/></IconButton>
                 </Tooltip>
                 )}
-            </Stack>    
-            <AsyncSelect
-                key={JSON.stringify(nodeFlowData)} // to reload async select whenever flowdata changed
-                styles={customStyles}
-                value={getSelectedValue(value) || getDefaultOptionValue()}
-                formatOptionLabel={formatOptionLabel}
-                getOptionLabel={(option) => option.label}
-                getOptionValue={(option) => option.name}
-                loadOptions={loadOptions}
-                defaultOptions
-                onChange={onChange}
-                onMenuOpen={onMenuOpen}
-            />
+            </Stack>
+            <div style={{position: 'relative'}}>
+                <AsyncSelect
+                    key={JSON.stringify(nodeFlowData)} // to reload async select whenever flowdata changed
+                    styles={customStyles}
+                    value={getSelectedValue(value) || getDefaultOptionValue()}
+                    formatOptionLabel={formatOptionLabel}
+                    getOptionLabel={(option) => option.label}
+                    getOptionValue={(option) => option.name}
+                    loadOptions={loadOptions}
+                    defaultOptions
+                    onChange={onChange}
+                    onMenuOpen={onMenuOpen}
+                />
+                <button 
+                    style={{ 
+                        minHeight: 10, 
+                        height: 27, width: 30, 
+                        backgroundColor: '#FAFAFA',
+                        color: theme.palette.grey['500'], 
+                        position: 'absolute',
+                        right: 10,
+                        top: 0,
+                        bottom: 0,
+                        margin: 'auto',
+                        border: 'none',
+                        cursor: 'pointer'                        
+                    }} 
+                    title="Clear Selection"
+                    type='button'
+                    onClick={() => onChange(null)}
+                >
+                    <IconX />
+                </button>
+            </div> 
             {error && (
                 <span style={{ color: 'red', fontSize: '0.7rem', fontStyle: 'italic' }}>{formatErrorMessage(error)}</span>
             )}

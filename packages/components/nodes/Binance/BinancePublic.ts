@@ -8,6 +8,7 @@ import {
     NodeType,
 } from '../../src/Interface';
 import {
+    handleErrorMessage,
     returnNodeExecutionData,
     serializeQueryParams
 } from '../../src/utils';
@@ -38,6 +39,25 @@ class BinancePublic implements INode {
         this.outgoing = 1;
         this.actions = [
             {
+				label: 'Network',
+				name: 'network',
+				type: 'options',
+				description: 'Network to execute API: Test or Real',
+				options: [
+					{
+						label: 'TEST',
+						name: 'test',
+						description: 'Test network: https://testnet.binance.vision/'
+					},
+					{
+						label: 'LIVE',
+						name: 'live',
+						description: 'Live network: https://api.binance.com/'
+					},
+				],
+				default: 'test',
+			},
+            {
 				label: 'Operation',
 				name: 'operation',
 				type: 'options',
@@ -46,6 +66,11 @@ class BinancePublic implements INode {
 						label: 'Get Order Book',
 						name: 'getOrderBook',
                         description: 'Get order book.'
+					},
+                    {
+						label: 'Get Exchange Information',
+						name: 'getExchangeInfo',
+                        description: 'Get current exchange trading rules and symbol information.'
 					},
                     {
 						label: 'Get Recent Trades List',
@@ -88,9 +113,14 @@ class BinancePublic implements INode {
         ] as INodeParams[];
         this.inputParameters = [
             {
-				label: 'Pair',
-				name: 'pair',
+				label: 'Symbol',
+				name: 'symbol',
 				type: 'asyncOptions',
+                optional: {
+                    'actions.operation': [
+                        'getExchangeInfo'
+                    ]
+                },
 				loadMethod: 'getSupportedSymbols',
                 show: {
                     'actions.operation': [
@@ -101,7 +131,8 @@ class BinancePublic implements INode {
                         'getAvgPrice',
                         'get24hrTickerPrice',
                         'getTickerPrice',
-                        'getBookTicker'
+                        'getBookTicker',
+                        'getExchangeInfo'
                     ]
                 }
 			},
@@ -233,12 +264,21 @@ class BinancePublic implements INode {
     }
 
     loadMethods = {
-        async getSupportedSymbols(): Promise<INodeOptionsValue[]> {
+        async getSupportedSymbols(nodeData: INodeData): Promise<INodeOptionsValue[]> {
             const returnData: INodeOptionsValue[] = [];
+
+			const actionData = nodeData.actions;
+
+			let apiUrl = '';
+			if (actionData !== undefined && actionData.network as string === 'test') {
+				apiUrl = 'https://testnet.binance.vision/api';
+			} else {
+				apiUrl = 'https://api.binance.com/api';
+			}
 
             const axiosConfig: AxiosRequestConfig = {
                 method: 'GET',
-                url: 'https://api.binance.com/api/v3/exchangeInfo',
+                url: `${apiUrl}/v3/exchangeInfo`,
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -266,11 +306,18 @@ class BinancePublic implements INode {
             throw new Error('Required data missing');
         }
 
+        const network = actionData.network as string;
         const operation = actionData.operation as string;
        
 		const returnData: ICommonObject[] = [];
-
         let responseData: any; // tslint:disable-line: no-any
+
+        let apiUrl = '';
+		if (network === 'test') {
+			apiUrl = 'https://testnet.binance.vision/api';
+		} else if (network === 'live') {
+			apiUrl = 'https://api.binance.com/api';
+		}
 
         let url = '';
         let queryParameters: ICommonObject = {};
@@ -280,35 +327,43 @@ class BinancePublic implements INode {
         try {
             if (operation === 'getOrderBook') {
 
-                const symbol = inputParametersData.pair as string;
+                const symbol = inputParametersData.symbol as string;
                 const limit = inputParametersData.limit as number;
 
-                url = `https://api.binance.com/api/v3/depth`;
+                url = `${apiUrl}/v3/depth`;
                 queryParameters['symbol'] = symbol;
                 queryParameters['limit'] = limit;
                 method = 'GET';
             }
 
-            if (operation === 'getRecentTradesList') {
+            else if (operation === 'getExchangeInfo') {
 
-                const symbol = inputParametersData.pair as string;
+                const symbol = inputParametersData.symbol as string;
+                if (symbol) queryParameters['symbol'] = symbol;
+                url = `${apiUrl}/v3/exchangeInfo`;
+                method = 'GET';
+            }
+
+            else if (operation === 'getRecentTradesList') {
+
+                const symbol = inputParametersData.symbol as string;
                 const limit = inputParametersData.limit as number;
 
-                url = `https://api.binance.com/api/v3/trades`;
+                url = `${apiUrl}/v3/trades`;
                 queryParameters['symbol'] = symbol;
                 queryParameters['limit'] = limit;
                 method = 'GET';
             }
 
-            if (operation === 'getAggTrades') {
+            else if (operation === 'getAggTrades') {
 
-                const symbol = inputParametersData.pair as string;
+                const symbol = inputParametersData.symbol as string;
                 const limit = inputParametersData.limit as number;
                 const fromId = inputParametersData.fromId as number;
                 const startTime = Date.parse(inputParametersData.startTime as string);
                 const endTime = Date.parse(inputParametersData.endTime as string);
 
-                url = `https://api.binance.com/api/v3/aggTrades`;
+                url = `${apiUrl}/v3/aggTrades`;
                 queryParameters['symbol'] = symbol;
                 queryParameters['limit'] = limit;
                 if (fromId) queryParameters['fromId'] = fromId;
@@ -317,15 +372,15 @@ class BinancePublic implements INode {
                 method = 'GET';
             }
 
-            if (operation === 'getKlines') {
+            else if (operation === 'getKlines') {
 
-                const symbol = inputParametersData.pair as string;
+                const symbol = inputParametersData.symbol as string;
                 const limit = inputParametersData.limit as number;
                 const interval = inputParametersData.interval as string;
                 const startTime = Date.parse(inputParametersData.startTime as string);
                 const endTime = Date.parse(inputParametersData.endTime as string);
 
-                url = `https://api.binance.com/api/v3/klines`;
+                url = `${apiUrl}/v3/klines`;
                 queryParameters['symbol'] = symbol;
                 queryParameters['limit'] = limit;
                 queryParameters['interval'] = interval;
@@ -334,38 +389,38 @@ class BinancePublic implements INode {
                 method = 'GET';
             }
 
-            if (operation === 'getAvgPrice') {
+            else if (operation === 'getAvgPrice') {
 
-                const symbol = inputParametersData.pair as string;
+                const symbol = inputParametersData.symbol as string;
 
-                url = `https://api.binance.com/api/v3/avgPrice`;
+                url = `${apiUrl}/v3/avgPrice`;
                 queryParameters['symbol'] = symbol;
                 method = 'GET';
             }
 
-            if (operation === 'get24hrTickerPrice') {
+            else if (operation === 'get24hrTickerPrice') {
 
-                const symbol = inputParametersData.pair as string;
+                const symbol = inputParametersData.symbol as string;
 
-                url = `https://api.binance.com/api/v3/ticker/24hr`;
+                url = `${apiUrl}/v3/ticker/24hr`;
                 queryParameters['symbol'] = symbol;
                 method = 'GET';
             }
 
-            if (operation === 'getTickerPrice') {
+            else if (operation === 'getTickerPrice') {
 
-                const symbol = inputParametersData.pair as string;
+                const symbol = inputParametersData.symbol as string;
 
-                url = `https://api.binance.com/api/v3/ticker/price`;
+                url = `${apiUrl}/v3/ticker/price`;
                 queryParameters['symbol'] = symbol;
                 method = 'GET';
             }
 
-            if (operation === 'getBookTicker') {
+            else if (operation === 'getBookTicker') {
 
-                const symbol = inputParametersData.pair as string;
+                const symbol = inputParametersData.symbol as string;
 
-                url = `https://api.binance.com/api/v3/ticker/bookTicker`;
+                url = `${apiUrl}/v3/ticker/bookTicker`;
                 queryParameters['symbol'] = symbol;
                 method = 'GET';
             }
@@ -388,7 +443,7 @@ class BinancePublic implements INode {
 			responseData = response.data;
         }
         catch (error) {
-            throw error;
+            throw handleErrorMessage(error);
         }
 
         if (Array.isArray(responseData)) returnData.push(...responseData);

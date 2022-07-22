@@ -720,8 +720,6 @@ class BinancePrivate implements INode {
                 axiosConfig.data = queryBody;
             }
 
-			console.log('axiosConfig = ', axiosConfig)
-
             const response = await axios(axiosConfig);
 			responseData = response.data;
         }
