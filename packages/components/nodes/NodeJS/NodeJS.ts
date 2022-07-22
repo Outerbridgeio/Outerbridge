@@ -75,7 +75,10 @@ class NodeJS implements INode {
 		let responseData: any; // tslint:disable-line: no-any
 
 		try {
-			responseData = (await vm.run(`module.exports = async function() {${code}}()`, __dirname));
+			if (!code) responseData = [];
+			else {
+				responseData = (await vm.run(`module.exports = async function() {${code}}()`, __dirname));
+			}
 		} catch (e) {
 			return Promise.reject(e);
 		}
