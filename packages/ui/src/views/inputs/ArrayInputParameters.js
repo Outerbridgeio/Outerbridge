@@ -1,5 +1,6 @@
 import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
+import { forwardRef } from 'react';
 
 // material-ui
 import {
@@ -25,6 +26,11 @@ import { IconX } from '@tabler/icons';
 // third party
 import JSONInput from "react-json-editor-ajrm";
 import locale from "react-json-editor-ajrm/locale/en";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+
+// utils
+import { convertDateStringToDateObject } from 'utils/genericHelper';
 
 const StyledPopper = styled(Popper)({
     boxShadow: '0px 8px 10px -5px rgb(0 0 0 / 20%), 0px 16px 24px 2px rgb(0 0 0 / 14%), 0px 6px 30px 5px rgb(0 0 0 / 12%)',
@@ -37,6 +43,37 @@ const StyledPopper = styled(Popper)({
         },
     },
 });
+
+const DateCustomInput = forwardRef(({ value, onClick }, ref) => (
+    <button 
+        style={{
+            backgroundColor: '#fafafa',
+            paddingTop: 8,
+            paddingBottom: 8,
+            paddingRight: 12,
+            paddingLeft: 12,
+            borderRadius: 12,
+            width: '100%',
+            height: 50,
+            border: `1px solid #BDBDBD`,
+            cursor: 'pointer',
+            fontWeight: 'bold',
+            textAlign: 'start',
+            color: '#212121',
+            opacity: 0.9
+        }}
+        type='button'
+        onClick={onClick}
+        ref={ref}
+    >
+    {value}
+    </button>
+));
+
+DateCustomInput.propTypes = {
+    value: PropTypes.string, 
+    onClick: PropTypes.func, 
+};
 
 // ==============================|| ARRAY INPUT PARAMETERS ||============================== //
 
@@ -143,7 +180,7 @@ const ArrayInputParameters = ({
 
                             return (
                             <FormControl 
-                                key={inputName}
+                                key={`${inputName}_${paramIndex}`}
                                 fullWidth 
                                 sx={{ mb: 1, mt: 1 }}
                                 error={errors && errors.length > 0 && errors[index] ?
@@ -185,6 +222,42 @@ const ArrayInputParameters = ({
                             </FormControl>)
                         }
 
+                        if (input.type === 'date') {
+
+                            const inputName = input.name;
+
+                            return (
+                            <FormControl 
+                                key={`${inputName}_${paramIndex}`}
+                                fullWidth 
+                                sx={{ mb: 1, mt: 1 }}
+                                error={errors && errors.length > 0 && errors[index] ?
+                                    Boolean(errors[index][inputName]) : false
+                                }
+                            >
+                                <Stack direction="row">
+                                    <Typography variant="overline">{input.label}</Typography>
+                                    {input.description && (
+                                    <Tooltip title={input.description} placement="right">
+                                        <IconButton ><Info style={{ height: 18, width: 18 }}/></IconButton>
+                                    </Tooltip>
+                                    )}
+                                </Stack>
+                                <DatePicker 
+                                    customInput={<DateCustomInput />}
+                                    selected={convertDateStringToDateObject(values[inputName]) || null} 
+                                    showTimeSelect
+                                    isClearable
+                                    timeInputLabel="Time:"
+                                    dateFormat="MM/dd/yyyy h:mm aa"
+                                    onChange={(date) => {
+                                        const inputValue = date ? date.toISOString() : null;
+                                        onInputChange(inputValue, inputName, values, index);
+                                    }}
+                                />
+                            </FormControl>)
+                        }
+
                         if (input.type === 'string' || input.type === 'password' || input.type === 'number') {
 
                             const inputName = input.name;
@@ -208,7 +281,7 @@ const ArrayInputParameters = ({
                                 </Stack>
                                 <OutlinedInput
                                     id={inputName}
-                                    type={input.type === 'string' ? 'text' : input.type}
+                                    type={input.type === 'string' || input.type === 'number' ? 'text' : input.type}
                                     value={values[inputName] || ''}
                                     placeholder={input.placeholder}
                                     name={inputName}
@@ -231,7 +304,7 @@ const ArrayInputParameters = ({
 
                             return (
                             <FormControl 
-                                key={inputName}
+                                key={`${inputName}_${paramIndex}`}
                                 fullWidth 
                                 sx={{ mb: 1, mt: 1 }}
                                 error={errors && errors.length > 0 && errors[index] ?

@@ -135,9 +135,8 @@ class BinancePublic implements INode {
             {
 				label: 'Start Time',
 				name: 'startTime',
-				type: 'number',
+				type: 'date',
                 optional: true,
-                description: 'Timestamp in ms',
                 show: {
                     'actions.operation': [
                         'getAggTrades',
@@ -148,9 +147,8 @@ class BinancePublic implements INode {
             {
 				label: 'End Time',
 				name: 'endTime',
-				type: 'number',
+				type: 'date',
                 optional: true,
-                description: 'Timestamp in ms',
                 show: {
                     'actions.operation': [
                         'getAggTrades',
@@ -307,8 +305,8 @@ class BinancePublic implements INode {
                 const symbol = inputParametersData.pair as string;
                 const limit = inputParametersData.limit as number;
                 const fromId = inputParametersData.fromId as number;
-                const startTime = inputParametersData.startTime as number;
-                const endTime = inputParametersData.endTime as number;
+                const startTime = Date.parse(inputParametersData.startTime as string);
+                const endTime = Date.parse(inputParametersData.endTime as string);
 
                 url = `https://api.binance.com/api/v3/aggTrades`;
                 queryParameters['symbol'] = symbol;
@@ -324,8 +322,8 @@ class BinancePublic implements INode {
                 const symbol = inputParametersData.pair as string;
                 const limit = inputParametersData.limit as number;
                 const interval = inputParametersData.interval as string;
-                const startTime = inputParametersData.startTime as number;
-                const endTime = inputParametersData.endTime as number;
+                const startTime = Date.parse(inputParametersData.startTime as string);
+                const endTime = Date.parse(inputParametersData.endTime as string);
 
                 url = `https://api.binance.com/api/v3/klines`;
                 queryParameters['symbol'] = symbol;

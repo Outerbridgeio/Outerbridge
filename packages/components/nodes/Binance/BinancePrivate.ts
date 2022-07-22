@@ -10,7 +10,7 @@ import {
 import {
 	notEmptyRegex,
 	handleErrorMessage,
-	numberRegex,
+	numberOrExpressionRegex,
     returnNodeExecutionData, serializeQueryParams
 } from '../../src/utils';
 
@@ -257,11 +257,12 @@ class BinancePrivate implements INode {
 				label: 'Quantity',
 				name: 'quantity',
 				type: 'number',
+				description: 'For MARKET order type, Quantity or Quote Order Quantity is mandatory.',
 				optional: {
 					'inputParameters.type': [
 						'MARKET',
 					],
-					'inputParameters.quoteOrderQty': numberRegex
+					'inputParameters.quoteOrderQty': numberOrExpressionRegex
 				},
 				show: {
                     'actions.operation': [
@@ -274,9 +275,9 @@ class BinancePrivate implements INode {
 				label: 'Quote Order Quantity',
 				name: 'quoteOrderQty',
 				type: 'number',
-				description: 'Specifies the amount the user wants to spend (when buying) or receive (when selling).',
+				description: 'Specifies the amount the user wants to spend (when buying) or receive (when selling). For MARKET order type, Quantity or Quote Order Quantity is mandatory.',
 				optional: {
-					'inputParameters.quantity': numberRegex
+					'inputParameters.quantity': numberOrExpressionRegex
 				},
 				show: {
                     'actions.operation': [
@@ -323,8 +324,9 @@ class BinancePrivate implements INode {
 				label: 'Stop Price',
 				name: 'stopPrice',
 				type: 'number',
+				description: 'For [STOP_LOSS, STOP_LOSS_LIMIT, TAKE_PROFIT, TAKE_PROFIT_LIMIT] order type, Stop Price or Trailing Delta is mandatory.',
 				optional: {
-                    'inputParameters.trailingDelta': numberRegex
+                    'inputParameters.trailingDelta': numberOrExpressionRegex
                 },
 				show: {
                     'inputParameters.type': [
@@ -343,8 +345,9 @@ class BinancePrivate implements INode {
 				label: 'Trailing Delta',
 				name: 'trailingDelta',
 				type: 'number',
+				description: 'For [STOP_LOSS, STOP_LOSS_LIMIT, TAKE_PROFIT, TAKE_PROFIT_LIMIT] order type, Stop Price or Trailing Delta is mandatory.',
 				optional: {
-                    'inputParameters.stopPrice': numberRegex
+                    'inputParameters.stopPrice': numberOrExpressionRegex
                 },
 				show: {
                     'inputParameters.type': [
@@ -407,6 +410,7 @@ class BinancePrivate implements INode {
 				label: 'Order Id',
 				name: 'orderId',
 				type: 'number',
+				description: 'Order Id or Orig Client Order Id is mandatory.',
 				optional: {
                     'inputParameters.origClientOrderId': notEmptyRegex
                 },
@@ -421,8 +425,9 @@ class BinancePrivate implements INode {
 				label: 'Orig Client Order Id',
 				name: 'origClientOrderId',
 				type: 'string',
+				description: 'Order Id or Orig Client Order Id is mandatory.',
 				optional: {
-                    'inputParameters.orderId': numberRegex
+                    'inputParameters.orderId': numberOrExpressionRegex
                 },
 				show: {
                     'actions.operation': [
@@ -435,6 +440,7 @@ class BinancePrivate implements INode {
 				label: 'Order Id',
 				name: 'orderId',
 				type: 'number',
+				description: 'Get orders >= Order Id. Otherwise most recent orders are returned. Not needed if Start Time and/or End Time provided.',
 				optional: true,
 				show: {
                     'actions.operation': [
@@ -446,9 +452,8 @@ class BinancePrivate implements INode {
 			{
 				label: 'Start Time',
 				name: 'startTime',
-				type: 'number',
+				type: 'date',
                 optional: true,
-                description: 'Timestamp in ms',
                 show: {
                     'actions.operation': [
                         'getAllOrders',
@@ -459,9 +464,8 @@ class BinancePrivate implements INode {
             {
 				label: 'End Time',
 				name: 'endTime',
-				type: 'number',
+				type: 'date',
                 optional: true,
-                description: 'Timestamp in ms',
                 show: {
                     'actions.operation': [
                         'getAllOrders',
@@ -659,8 +663,8 @@ class BinancePrivate implements INode {
 
 				const symbol = inputParametersData.symbol as string;
 				const orderId = inputParametersData.orderId as number;
-				const startTime = inputParametersData.startTime as number;
-				const endTime = inputParametersData.endTime as number;
+				const startTime = Date.parse(inputParametersData.startTime as string);
+				const endTime = Date.parse(inputParametersData.endTime as string);
 				const limit = inputParametersData.limit as number;
 				const fromId = inputParametersData.fromId as number;
 			

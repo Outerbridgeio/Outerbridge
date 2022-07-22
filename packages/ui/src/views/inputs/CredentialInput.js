@@ -431,7 +431,7 @@ const CredentialInput = ({
                                     </Stack>
                                     <OutlinedInput
                                         id={inputName}
-                                        type={input.type === 'string' ? 'text' : input.type}
+                                        type={input.type === 'string' || input.type === 'number' ? 'text' : input.type}
                                         value={values[inputName] || ''}
                                         placeholder={input.placeholder}
                                         name={inputName}

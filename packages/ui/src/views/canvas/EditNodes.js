@@ -43,7 +43,7 @@ import useApi from "hooks/useApi";
 import { IconPencil, IconMinus, IconCheck } from '@tabler/icons';
 
 // utils
-import { getAvailableNodeIdsForVariable } from 'utils/genericHelper';
+import { getAvailableNodeIdsForVariable, numberOrExpressionRegex } from 'utils/genericHelper';
 
 // ==============================|| EDIT NODES||============================== //
 
@@ -338,13 +338,24 @@ const EditNodes = ({ node, nodes, edges, workflow, rfInstance, onNodeLabelUpdate
                 }
             }
 
-            if (input.type === 'string' && !inputOptional) {
-                validationSchema[input.name] = Yup.string().required(`${input.label} is required`);
+            if ((
+                input.type === 'string' || 
+                input.type === 'password' || 
+                input.type === 'date' || 
+                input.type === 'code' || 
+                input.type === 'json' || 
+                input.type === 'options' || 
+                input.type === 'asyncOptions'
+                ) && !inputOptional ) {
+                validationSchema[input.name] = Yup.string().required(`${input.label} is required. Type: ${input.type}`);
+
             } else if (input.type === 'number' && !inputOptional) {
-                validationSchema[input.name] = Yup.number().required(`${input.label} is required`);
-            } else if ((input.type === 'options' || input.type === 'asyncOptions') && !inputOptional) {
-                validationSchema[input.name] = Yup.string().required(`${input.label} is required`);
-            } else if (input.type === 'array' && !inputOptional) {
+                validationSchema[input.name] = Yup.string().required(`${input.label} is required. Type: ${input.type}`).matches(
+                    numberOrExpressionRegex,
+                    `${input.label} must be numbers or a variable expression.`
+                );
+
+            }  else if (input.type === 'array' && !inputOptional) {
                 /*
                 ************
                 * Limitation on different object shape within array: https://github.com/jquense/yup/issues/757

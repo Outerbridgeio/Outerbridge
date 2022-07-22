@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import { forwardRef } from 'react';
 
 // material-ui
 import {
@@ -28,6 +29,8 @@ import { highlight, languages } from 'prismjs/components/prism-core';
 import 'prismjs/components/prism-clike';
 import 'prismjs/components/prism-javascript';
 import 'prismjs/themes/prism.css';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 // project imports
 import useScriptRef from 'hooks/useScriptRef';
@@ -38,6 +41,9 @@ import AsyncSelectWrapper from './AsyncSelectWrapper';
 
 // icons
 import { IconPlus } from '@tabler/icons';
+
+// utils
+import { convertDateStringToDateObject } from 'utils/genericHelper';
 
 const StyledPopper = styled(Popper)({
     boxShadow: '0px 8px 10px -5px rgb(0 0 0 / 20%), 0px 16px 24px 2px rgb(0 0 0 / 14%), 0px 6px 30px 5px rgb(0 0 0 / 12%)',
@@ -50,6 +56,38 @@ const StyledPopper = styled(Popper)({
         },
     },
 });
+
+
+const DateCustomInput = forwardRef(({ value, onClick }, ref) => (
+    <button 
+        style={{
+            backgroundColor: '#fafafa',
+            paddingTop: 8,
+            paddingBottom: 8,
+            paddingRight: 12,
+            paddingLeft: 12,
+            borderRadius: 12,
+            width: '100%',
+            height: 50,
+            border: `1px solid #BDBDBD`,
+            cursor: 'pointer',
+            fontWeight: 'bold',
+            textAlign: 'start',
+            color: '#212121',
+            opacity: 0.9
+        }}
+        type='button'
+        onClick={onClick}
+        ref={ref}
+    >
+    {value}
+    </button>
+));
+
+DateCustomInput.propTypes = {
+    value: PropTypes.string, 
+    onClick: PropTypes.func, 
+};
 
 // ==============================|| INPUT PARAMETERS ||============================== //
 
@@ -226,6 +264,47 @@ const InputParameters = ({
                                 </FormControl>)
                             }
 
+                            if (input.type === 'date') {
+
+                                const inputName = input.name;
+   
+                                return (
+                                <FormControl 
+                                    key={inputName}
+                                    fullWidth 
+                                    sx={{ mb: 1, mt: 1 }}
+                                    error={Boolean(errors[inputName])}
+                                >
+                                    <Stack direction="row">
+                                        <Typography variant="overline">{input.label}</Typography>
+                                        {input.description && (
+                                        <Tooltip title={input.description} placement="right">
+                                            <IconButton ><Info style={{ height: 18, width: 18 }}/></IconButton>
+                                        </Tooltip>
+                                        )}
+                                    </Stack>
+                                    <DatePicker 
+                                        customInput={<DateCustomInput />}
+                                        selected={convertDateStringToDateObject(values[inputName]) || null} 
+                                        showTimeSelect
+                                        isClearable
+                                        timeInputLabel="Time:"
+                                        dateFormat="MM/dd/yyyy h:mm aa"
+                                        onChange={(date) => {
+                                            const value = date ? date.toISOString() : null;
+                                            setVariableSelectorState(false);
+                                            setFieldValue(inputName, value);
+                                            const overwriteValues = {
+                                                ...values,
+                                                [inputName]: value
+                                            };
+                                            onChanged(overwriteValues);
+                                        }}
+                                    />
+                                    {errors[inputName] && <span style={{ color: 'red', fontSize: '0.7rem', fontStyle: 'italic' }}>*{errors[inputName]}</span>}
+                                </FormControl>)
+                            }
+                           
                             if (input.type === 'string' || input.type === 'password' || input.type === 'number') {
 
                                 const inputName = input.name;
@@ -247,7 +326,7 @@ const InputParameters = ({
                                     </Stack>
                                     <OutlinedInput
                                         id={inputName}
-                                        type={input.type === 'string' ? 'text' : input.type}
+                                        type={input.type === 'string' || input.type === 'number' ? 'text' : input.type}
                                         placeholder={input.placeholder}
                                         multiline={!!input.rows}
                                         maxRows={input.rows || 0}

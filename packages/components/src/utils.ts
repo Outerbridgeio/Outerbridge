@@ -4,7 +4,7 @@ import {
 	IWebhookNodeExecutionData
 } from './Interface';
 
-export const numberRegex = '^\\d+\\.?\\d*$'; //return true if string consists only numbers
+export const numberOrExpressionRegex = '^(\\d+\\.?\\d*|{{.*}})$'; //return true if string consists only numbers OR expression {{}}
 export const notEmptyRegex = '(.|\\s)*\\S(.|\\s)*'; //return true if string is not empty or blank
 
 /**
