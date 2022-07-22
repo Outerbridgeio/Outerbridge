@@ -4,6 +4,9 @@ import {
 	IWebhookNodeExecutionData
 } from './Interface';
 
+export const numberOrExpressionRegex = '^(\\d+\\.?\\d*|{{.*}})$'; //return true if string consists only numbers OR expression {{}}
+export const notEmptyRegex = '(.|\\s)*\\S(.|\\s)*'; //return true if string is not empty or blank
+
 /**
  * Return responses as INodeExecutionData
  *
@@ -102,4 +105,28 @@ export function serializeQueryParams(params: any) {
 	})
 
 	return parts.join('&');
+}
+
+/**
+ * Handle error from try catch
+ *
+ * @export
+ * @param {(any)} error
+ * @returns {any}
+ */
+export function handleErrorMessage(error: any) {
+	let errorMessage = '';
+
+	if(error.message){
+		errorMessage += error.message + '. ';
+	}
+
+	if(error.response && error.response.data){
+		if (error.response.data.error) errorMessage += error.response.data.error + '. ';
+		else if (error.response.data.msg) errorMessage += error.response.data.msg + '. ';
+	}
+
+	if (!errorMessage) errorMessage = 'Unexpected Error.'
+
+	return errorMessage;
 }

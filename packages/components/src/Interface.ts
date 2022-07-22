@@ -67,7 +67,7 @@ export type WebhookMethod = 'GET' | 'POST';
  
 export type NodeType = 'action' | 'webhook' | 'trigger';
 
-export type NodeParamsType = 'asyncOptions' | 'options' | 'string' | 'number' | 'array' | 'boolean' | 'password' | 'json' | 'code';
+export type NodeParamsType = 'asyncOptions' | 'options' | 'string' | 'number' | 'array' | 'boolean' | 'password' | 'json' | 'code' | 'date';
 
 export type DbCollectionName = 'Contract' | 'Webhook' | 'Workflow' | 'Credential' | 'Execution';
 
@@ -112,7 +112,7 @@ export interface INodeParams {
     array?: Array<INodeParams>;
     loadMethod?: string;
     loadFromDbCollections?: DbCollectionName[];
-	optional?: boolean;
+	optional?: boolean | INodeDisplay;
     show?: INodeDisplay;
     hide?: INodeDisplay;
     rows?: number;
@@ -129,7 +129,7 @@ export interface IWebhookNodeExecutionData {
 }
 
 export interface INodeDisplay {
-	[key: string]: string[];
+	[key: string]: string[] | string;
 }
 
 export interface INodeProperties {

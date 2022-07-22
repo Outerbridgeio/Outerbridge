@@ -335,11 +335,11 @@ const ContractDialog = ({
         for (let i = 0; i < params.length; i+= 1) {
             const input = params[i];
             if (input.type === 'string' && !input.optional) {
-                validationSchema[input.name] = Yup.string().required(`${input.label} is required`);
+                validationSchema[input.name] = Yup.string().required(`${input.label} is required. Type: ${input.type}`);
             } else if (input.type === 'number' && !input.optional) {
-                validationSchema[input.name] = Yup.number().required(`${input.label} is required`);
+                validationSchema[input.name] = Yup.number().required(`${input.label} is required. Type: ${input.type}`);
             } else if ((input.type === 'options' || input.type === 'asyncOptions') && !input.optional) {
-                validationSchema[input.name] = Yup.string().required(`${input.label} is required`);
+                validationSchema[input.name] = Yup.string().required(`${input.label} is required. Type: ${input.type}`);
             }
         }
         return validationSchema;

@@ -1,4 +1,7 @@
 import lodash from 'lodash';
+import moment from 'moment';
+
+export const numberOrExpressionRegex = /^(\d+\.?\d*|{{.*}})$/; //return true if string consists only numbers OR expression {{}}
 
 export const constructNodeDirectedGraph = (nodes, edges) => {
 
@@ -231,3 +234,13 @@ export const checkMultipleTriggers = (nodes) => {
     }
     return false;
 };
+
+export const convertDateStringToDateObject = (dateString) => {
+    if (dateString === undefined || !dateString) return undefined;
+
+    const date = moment(dateString);
+    if (!date.isValid) return undefined;
+
+    // Sat Sep 24 2022 07:30:14
+    return new Date(date.year(), date.month(), date.date(), date.hours(), date.minutes());
+}
