@@ -187,6 +187,13 @@ const EditNodes = ({ node, nodes, edges, workflow, rfInstance, onNodeLabelUpdate
                 if (displayType === 'hide' && comparisonValue.includes(groundValue)) {
                     toBeDeleteParams.push(input);
                 }
+            } else if (typeof comparisonValue === 'string') {
+                if (displayType === 'show' && !((comparisonValue === groundValue) || (new RegExp(comparisonValue).test(groundValue)))) {
+                    toBeDeleteParams.push(input);
+                }
+                if (displayType === 'hide' && ((comparisonValue === groundValue) || (new RegExp(comparisonValue).test(groundValue)))) {
+                    toBeDeleteParams.push(input);
+                }
             }
         });
     }
@@ -242,6 +249,13 @@ const EditNodes = ({ node, nodes, edges, workflow, rfInstance, onNodeLabelUpdate
                             toBeDeleteOptions.push(option);
                         }
                         if (displayType === 'hide' && comparisonValue.includes(groundValue)) {
+                            toBeDeleteOptions.push(option);
+                        }
+                    } else if (typeof comparisonValue === 'string') {
+                        if (displayType === 'show' && !((comparisonValue === groundValue) || (new RegExp(comparisonValue).test(groundValue)))) {
+                            toBeDeleteOptions.push(option);
+                        }
+                        if (displayType === 'hide' && ((comparisonValue === groundValue) || (new RegExp(comparisonValue).test(groundValue)))) {
                             toBeDeleteOptions.push(option);
                         }
                     }
@@ -305,13 +319,32 @@ const EditNodes = ({ node, nodes, edges, workflow, rfInstance, onNodeLabelUpdate
         const validationSchema = {};
         for (let i = 0; i < params.length; i+= 1) {
             const input = params[i];
-            if (input.type === 'string' && !input.optional) {
+            let inputOptional = input.optional;
+
+            if (typeof input.optional === 'object' && input.optional !== null) {
+                const keys = Object.keys(input.optional);
+                inputOptional = true;
+                for (let j = 0; j < keys.length; j+= 1) {
+                    const path = keys[j];
+                    const comparisonValue = input.optional[path];
+                    const groundValue = lodash.get(nodeFlowData, path, '');
+
+                    if (Array.isArray(comparisonValue)) {
+                        inputOptional = inputOptional && comparisonValue.includes(groundValue);
+                        
+                    } else if (typeof comparisonValue === 'string') {
+                        inputOptional = inputOptional && ((comparisonValue === groundValue) || (new RegExp(comparisonValue).test(groundValue)));
+                    }
+                }
+            }
+
+            if (input.type === 'string' && !inputOptional) {
                 validationSchema[input.name] = Yup.string().required(`${input.label} is required`);
-            } else if (input.type === 'number' && !input.optional) {
+            } else if (input.type === 'number' && !inputOptional) {
                 validationSchema[input.name] = Yup.number().required(`${input.label} is required`);
-            } else if ((input.type === 'options' || input.type === 'asyncOptions') && !input.optional) {
+            } else if ((input.type === 'options' || input.type === 'asyncOptions') && !inputOptional) {
                 validationSchema[input.name] = Yup.string().required(`${input.label} is required`);
-            } else if (input.type === 'array' && !input.optional) {
+            } else if (input.type === 'array' && !inputOptional) {
                 /*
                 ************
                 * Limitation on different object shape within array: https://github.com/jquense/yup/issues/757

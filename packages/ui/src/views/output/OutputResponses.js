@@ -209,8 +209,8 @@ const OutputResponses = ({ nodeId, nodeParamsType, nodeFlowData, nodes, workflow
     // Test node error
     useEffect(() => {
         if (testNodeApi.error && nodeType && nodeType !== 'webhook') {
-          
-            let errorMessage = 'Unexpected Error!';
+
+            let errorMessage = 'Unexpected Error.';
 
             if (testNodeApi.error.response && testNodeApi.error.response.data) {
                 errorMessage = testNodeApi.error.response.data;
