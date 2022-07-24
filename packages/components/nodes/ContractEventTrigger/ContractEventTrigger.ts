@@ -10,7 +10,7 @@ import {
     IProviders, 
     NodeType,
 } from '../../src/Interface';
-import { returnNodeExecutionData } from '../../src/utils';
+import { handleErrorMessage, returnNodeExecutionData } from '../../src/utils';
 import EventEmitter from 'events';
 import { 
 	binanceMainnetChainID, 
@@ -384,7 +384,7 @@ class ContractEventTrigger extends EventEmitter implements INode {
 			this.providers[emitEventKey] = { provider, filter };
 
 		} catch(e) {
-			throw new Error(e);
+			throw handleErrorMessage(e);
 		}
 	}
 

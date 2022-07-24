@@ -76,4 +76,5 @@ For development build, run: `yarn run dev`. Any code changes will reload the app
 - E2E Unit tests coverage
 
 ## License
+Free for personal use and limited commercial use (max 25 users).
 [Fair Source License, version 0.9](LICENSE.md)

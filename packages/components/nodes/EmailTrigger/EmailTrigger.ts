@@ -5,7 +5,7 @@ import {
     IProviders, 
     NodeType,
 } from '../../src/Interface';
-import { returnNodeExecutionData } from '../../src/utils';
+import { handleErrorMessage, returnNodeExecutionData } from '../../src/utils';
 import EventEmitter from 'events';
 import Imap from 'imap';
 import moment from 'moment';
@@ -76,12 +76,12 @@ class EmailTrigger extends EventEmitter implements INode {
 		imap.once('ready', () => {
 
 			openInbox((err: any, box: Imap.Box) => {
-				if (err) throw err;
+				if (err) throw handleErrorMessage(err);
 
 				imap.on('mail', () => {
 					try {
 						imap.search([ 'NEW', ['SINCE', moment().format('MMMM D, YYYY')] ], (err, results) => {
-							if (err) throw err;
+							if (err) throw handleErrorMessage(err);
 
 							if(!results || !results.length) {
 								this.emit(emitEventKey, returnNodeExecutionData({ message: 'No new unread emails' }));
@@ -93,7 +93,7 @@ class EmailTrigger extends EventEmitter implements INode {
 
 								msg.on('body', (stream) => {
 									simpleParser(stream, (err, mail) => {
-										if (err) throw err;
+										if (err) throw handleErrorMessage(err);
 										const returnData = {
 											from: mail.headers.get('from'),
 											to: mail.headers.get('to'),
