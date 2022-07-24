@@ -154,6 +154,7 @@ export const transactionReceiptsOperations = [
         name: 'alchemy_getTransactionReceipts',
         value: 'alchemy_getTransactionReceipts',
         description: 'Fetch all transaction receipts for a block number or a block hash in one API call ',
+        providers: ['alchemy'],
         networks: ['homestead', 'rinkeby', 'goerli', 'ropsten', 'kovan', 'matic', 'maticmum', 'arbitrum', 'arbitrum-rinkeby'],
         method: 'POST',
         body: {
@@ -221,6 +222,7 @@ export const tokenAPIOperations = [
         name: 'alchemy_getTokenAllowance',
         value: 'alchemy_getTokenAllowance',
         description: 'Returns the amount which the spender is allowed to withdraw from the owner.',
+        providers: ['alchemy'],
         networks: ['homestead', 'matic', 'maticmum', 'arbitrum', 'arbitrum-rinkeby', 'optimism', 'optimism-kovan'],
         method: 'POST',
         body: {
@@ -255,6 +257,7 @@ export const tokenAPIOperations = [
         name: 'alchemy_getTokenBalances',
         value: 'alchemy_getTokenBalances',
         description: 'Returns token balances for a specific address given a list of contracts.',
+        providers: ['alchemy'],
         networks: ['homestead', 'matic', 'maticmum', 'arbitrum', 'arbitrum-rinkeby', 'optimism', 'optimism-kovan'],
         method: 'POST',
         body: {
@@ -301,6 +304,7 @@ export const tokenAPIOperations = [
         name: 'alchemy_getTokenMetadata',
         value: 'alchemy_getTokenMetadata',
         description: 'Returns metadata (name, symbol, decimals, logo) for a given token contract address.',
+        providers: ['alchemy'],
         networks: ['homestead', 'matic', 'maticmum', 'arbitrum', 'arbitrum-rinkeby', 'optimism', 'optimism-kovan'],
         method: 'POST',
         body: {

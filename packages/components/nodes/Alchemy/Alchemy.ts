@@ -176,7 +176,7 @@ class Alchemy implements INode {
 
 				let totalOperations: IETHOperation[] = [];
 
-				const filteredOperations = ethOperations.filter((op: IETHOperation) => op.networks.includes(network));
+				const filteredOperations = ethOperations.filter((op: IETHOperation) => op.networks.includes(network) && op.providers.includes('alchemy'));
 				if (network === 'matic' || network === 'maticmum') {
 					totalOperations = [...polygonOperations, ...filteredOperations];
 				} else {

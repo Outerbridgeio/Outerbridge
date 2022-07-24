@@ -122,8 +122,15 @@ export function handleErrorMessage(error: any) {
 	}
 
 	if(error.response && error.response.data){
-		if (error.response.data.error) errorMessage += error.response.data.error + '. ';
+		if (error.response.data.error) {
+			if (typeof error.response.data.error === 'object')
+				errorMessage += JSON.stringify(error.response.data.error) + '. ';
+			else if (typeof error.response.data.error === 'string')
+				errorMessage += error.response.data.error + '. ';
+		}
 		else if (error.response.data.msg) errorMessage += error.response.data.msg + '. ';
+		else if (error.response.data.Message) errorMessage += error.response.data.Message + '. ';
+		else if (typeof error.response.data === 'string') errorMessage += error.response.data + '. ';
 	}
 
 	if (!errorMessage) errorMessage = 'Unexpected Error.'

@@ -93,9 +93,14 @@ const AttachmentDialog = ({
                     <TabPanel key={execObjIndex} value={value} index={execObjIndex}>
                         {execObj.attachments && execObj.attachments.map((attachment, attchIndex) =>
                             <div key={attchIndex} style={{ marginBottom: 10 }}>
-                                <Typography sx={{p: 1}} variant="h5">
-                                    {attachment.filename ? attachment.filename : `Attachment ${attchIndex}`} | {formatBytes(attachment.size)} | {attachment.contentType}
-                                </Typography>
+                                <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
+                                    <Typography sx={{p: 1}} variant="h5">
+                                        {attachment.filename ? attachment.filename : `Attachment ${attchIndex}`} | {attachment.contentType} {attachment.size ? ` | ${formatBytes(attachment.size)}` : '' }
+                                    </Typography>
+                                    <a href={attachment.content} download rel="noopener noreferrer" target="_blank">
+                                        Download File
+                                    </a>
+                                </div>
                                 <embed
                                     src={attachment.content}
                                     width="100%"

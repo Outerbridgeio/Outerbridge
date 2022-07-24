@@ -40,10 +40,10 @@ import OptionParamsResponse from './OptionParamsResponse';
 import AsyncSelectWrapper from './AsyncSelectWrapper';
 
 // icons
-import { IconPlus } from '@tabler/icons';
+import { IconPlus, IconUpload } from '@tabler/icons';
 
 // utils
-import { convertDateStringToDateObject } from 'utils/genericHelper';
+import { convertDateStringToDateObject, getFileName } from 'utils/genericHelper';
 
 const StyledPopper = styled(Popper)({
     boxShadow: '0px 8px 10px -5px rgb(0 0 0 / 20%), 0px 16px 24px 2px rgb(0 0 0 / 14%), 0px 6px 30px 5px rgb(0 0 0 / 12%)',
@@ -134,6 +134,35 @@ const InputParameters = ({
         valueChanged(updateValues, paramsType);
     };
 
+    const handleFileUpload = (e, setFieldValue, values, inputName) => {
+
+        setVariableSelectorState(false);
+
+        if (!e.target.files) {
+          return;
+        }
+
+        const file = e.target.files[0];
+        const { name } = file;
+    
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+            if (!evt?.target?.result) {
+                return;
+            }
+            const { result } = evt.target;
+
+            const value = result + `,filename:${name}`;
+            setFieldValue(inputName, value);
+            const overwriteValues = {
+                ...values,
+                [inputName]: value
+            };
+            onChanged(overwriteValues);
+        };
+        reader.readAsDataURL(file);
+    };
+
     const findMatchingOptions = (options = [], value) => options.find((option) => option.name === value);
 
     const getDefaultOptionValue = () => ('');
@@ -167,6 +196,44 @@ const InputParameters = ({
                 {({ errors, handleBlur, handleChange, handleSubmit, setFieldValue, isSubmitting, values }) => (
                     <form noValidate onSubmit={handleSubmit} {...others}>
                         {params.map((input) => {
+
+                            if (input.type === 'file') {
+
+                                const inputName = input.name;
+
+                                return (
+                                <FormControl 
+                                    key={inputName}
+                                    fullWidth 
+                                    sx={{ mb: 1, mt: 1 }}
+                                    error={Boolean(errors[inputName])}
+                                >
+                                    <Stack direction="row">
+                                        <Typography variant="overline">{input.label}</Typography>
+                                        {input.description && (
+                                        <Tooltip title={input.description} placement="right">
+                                            <IconButton ><Info style={{ height: 18, width: 18 }}/></IconButton>
+                                        </Tooltip>
+                                        )}
+                                    </Stack>
+                                    <span style={{ fontWeight: 'bold', color: theme.palette.grey['800'], marginBottom: '1rem' }} >{values[inputName] ? getFileName(values[inputName]) : 'Choose a file to upload' }</span>
+                                    <Button
+                                        variant="outlined"
+                                        component="label"
+                                        fullWidth
+                                        startIcon={<IconUpload />}
+                                        sx={{ marginRight: "1rem" }}
+                                    >
+                                        Upload File
+                                        <input
+                                            type="file"
+                                            hidden
+                                            onChange={(e) => handleFileUpload(e, setFieldValue, values, inputName)}
+                                        />
+                                    </Button>
+                                    {errors[inputName] && <span style={{ color: 'red', fontSize: '0.7rem', fontStyle: 'italic' }}>*{errors[inputName]}</span>}
+                                </FormControl>)
+                            }
 
                             if (input.type === 'json') {
 

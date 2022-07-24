@@ -8,7 +8,6 @@ import {
 import { returnNodeExecutionData } from '../../src/utils';
 import EventEmitter from 'events';
 import Imap from 'imap';
-import util from 'util'
 import moment from 'moment';
 import { simpleParser } from 'mailparser';
 
