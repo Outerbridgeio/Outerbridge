@@ -39,7 +39,7 @@ class ERC20TransferTrigger extends EventEmitter implements INode {
 		super();
 		this.label = 'ERC20 Transfer Trigger';
 		this.name = 'ERC20TransferTrigger';
-		this.icon = 'ethereum.png';
+		this.icon = 'ethereum.svg';
 		this.type = 'trigger';
 		this.version = 1.0;
 		this.description = 'Start workflow whenever an ERC20 transfer event happened';

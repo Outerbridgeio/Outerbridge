@@ -35,7 +35,7 @@ class BNBBalanceTrigger extends EventEmitter implements INode {
 		super();
 		this.label = 'BNB Balance Trigger';
 		this.name = 'BNBBalanceTrigger';
-		this.icon = 'bnb-balance-trigger.png';
+		this.icon = 'bnb.svg';
 		this.type = 'trigger';
 		this.version = 1.0;
 		this.description = 'Triggers whenever BNB balance in wallet changes';

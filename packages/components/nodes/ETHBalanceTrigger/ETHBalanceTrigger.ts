@@ -33,7 +33,7 @@ class ETHBalanceTrigger extends EventEmitter implements INode {
 		super();
 		this.label = 'ETH Balance Trigger';
 		this.name =  'ETHBalanceTrigger';
-		this.icon = 'ethereum.png';
+		this.icon = 'ethereum.svg';
 		this.type = 'trigger';
 		this.version = 1.0;
 		this.description = 'Start workflow whenever ETH balance in wallet changes';
