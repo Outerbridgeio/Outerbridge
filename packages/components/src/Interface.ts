@@ -67,7 +67,7 @@ export type WebhookMethod = 'GET' | 'POST';
  
 export type NodeType = 'action' | 'webhook' | 'trigger';
 
-export type NodeParamsType = 'asyncOptions' | 'options' | 'string' | 'number' | 'array' | 'boolean' | 'password' | 'json' | 'code' | 'date';
+export type NodeParamsType = 'asyncOptions' | 'options' | 'string' | 'number' | 'array' | 'boolean' | 'password' | 'json' | 'code' | 'date' | 'file';
 
 export type DbCollectionName = 'Contract' | 'Webhook' | 'Workflow' | 'Credential' | 'Execution';
 
@@ -82,6 +82,13 @@ export type IDbCollection = {
 
 export interface ICommonObject {
 	[key: string]: CommonType | ICommonObject | CommonType[] | ICommonObject[];
+}
+
+export interface IAttachment {
+    content: string,
+    contentType: string,
+    size?: number;
+    filename?: string
 }
 
 export interface INodeOptionsValue {

@@ -15,13 +15,14 @@ import {
     Typography,
     Stack,
     IconButton,
+    Button,
 } from '@mui/material';
 import { Info } from '@mui/icons-material';
 import Autocomplete, { autocompleteClasses } from '@mui/material/Autocomplete';
 import { useTheme, styled } from '@mui/material/styles';
 
 // icons
-import { IconX } from '@tabler/icons';
+import { IconX, IconUpload } from '@tabler/icons';
 
 // third party
 import JSONInput from "react-json-editor-ajrm";
@@ -35,7 +36,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 // utils
-import { convertDateStringToDateObject } from 'utils/genericHelper';
+import { convertDateStringToDateObject, getFileName } from 'utils/genericHelper';
 
 const StyledPopper = styled(Popper)({
     boxShadow: '0px 8px 10px -5px rgb(0 0 0 / 20%), 0px 16px 24px 2px rgb(0 0 0 / 14%), 0px 6px 30px 5px rgb(0 0 0 / 12%)',
@@ -138,6 +139,27 @@ const ArrayInputParameters = ({
         onArrayItemMouseUp(true, body);
     }
 
+    const handleFileUpload = (e, onInputChange, values, inputName, index) => {
+
+        if (!e.target.files) {
+          return;
+        }
+
+        const file = e.target.files[0];
+        const { name } = file;
+    
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+            if (!evt?.target?.result) {
+                return;
+            }
+            const { result } = evt.target;
+            const value = result + `,filename:${name}`;
+            onInputChange(value, inputName, values, index)
+        };
+        reader.readAsDataURL(file);
+    };
+
     const findMatchingOptions = (options, value) => options.find((option) => option.name === value);
 
     const getDefaultOptionValue = () => ('');
@@ -178,6 +200,45 @@ const ArrayInputParameters = ({
                         )}
 
                     {params.map((input, paramIndex) => {
+
+                        if (input.type === 'file') {
+
+                            const inputName = input.name;
+
+                            return (
+                            <FormControl 
+                                key={`${inputName}_${paramIndex}`}
+                                fullWidth 
+                                sx={{ mb: 1, mt: 1 }}
+                                error={errors && errors.length > 0 && errors[index] ?
+                                    Boolean(errors[index][inputName]) : false
+                                }
+                            >
+                                <Stack direction="row">
+                                    <Typography variant="overline">{input.label}</Typography>
+                                    {input.description && (
+                                    <Tooltip title={input.description} placement="right">
+                                        <IconButton ><Info style={{ height: 18, width: 18 }}/></IconButton>
+                                    </Tooltip>
+                                    )}
+                                </Stack>
+                                <span style={{ fontWeight: 'bold', color: theme.palette.grey['800'], marginBottom: '1rem' }} >{values[inputName] ? getFileName(values[inputName]) : 'Choose a file to upload' }</span>
+                                <Button
+                                    variant="outlined"
+                                    component="label"
+                                    fullWidth
+                                    startIcon={<IconUpload />}
+                                    sx={{ marginRight: "1rem" }}
+                                >
+                                    Upload File
+                                    <input
+                                        type="file"
+                                        hidden
+                                        onChange={(e) => handleFileUpload(e, onInputChange, values, inputName, index)}
+                                    />
+                                </Button>
+                            </FormControl>)
+                        }
 
                         if (input.type === 'json') {
 

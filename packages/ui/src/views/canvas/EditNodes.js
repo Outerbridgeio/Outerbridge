@@ -344,6 +344,7 @@ const EditNodes = ({ node, nodes, edges, workflow, rfInstance, onNodeLabelUpdate
                 input.type === 'date' || 
                 input.type === 'code' || 
                 input.type === 'json' || 
+                input.type === 'file' || 
                 input.type === 'options' || 
                 input.type === 'asyncOptions'
                 ) && !inputOptional ) {

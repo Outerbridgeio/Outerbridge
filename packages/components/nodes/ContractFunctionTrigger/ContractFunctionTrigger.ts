@@ -307,8 +307,8 @@ class ContractFunctionTrigger extends EventEmitter implements INode {
 
 			} else if (networkProvider === 'infura') {
 				provider = new ethers.providers.InfuraProvider(network, {
-					projectId: credentials!.projectID,
-					projectSecret: credentials!.projectSecret
+					apiKey: credentials!.apiKey,
+					secretKey: credentials!.secretKey
 				});
 
 			} else if (networkProvider === 'cloudfare') {

@@ -14,14 +14,14 @@ class InfuraApi implements INodeCredential {
 		this.version = 1.0;
 		this.credentials = [
 			{
-				label: 'Project ID',
-				name: 'projectID',
+				label: 'API Key',
+				name: 'apiKey',
 				type: 'string',
 				default: '',
 			},
 			{
-				label: 'Project Secret',
-				name: 'projectSecret',
+				label: 'Secret Key',
+				name: 'secretKey',
 				type: 'string',
 				default: '',
 			},

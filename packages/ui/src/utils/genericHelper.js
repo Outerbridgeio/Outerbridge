@@ -3,7 +3,7 @@ import moment from 'moment';
 
 export const numberOrExpressionRegex = /^(\d+\.?\d*|{{.*}})$/; //return true if string consists only numbers OR expression {{}}
 
-export const constructNodeDirectedGraph = (nodes, edges) => {
+export const constructNodeDirectedGraph = (nodes, edges, reverse=false) => {
 
     const graph = {};
     const nodeDependencies = {};
@@ -23,6 +23,14 @@ export const constructNodeDirectedGraph = (nodes, edges) => {
             graph[source].push(target);
         } else {
             graph[source] = [target];
+        }
+
+        if (reverse) {
+            if (Object.prototype.hasOwnProperty.call(graph, target)) {
+                graph[target].push(source);
+            } else {
+                graph[target] = [source];
+            }
         }
 
         nodeDependencies[target] += 1;
@@ -75,21 +83,47 @@ export const getAllPathsFromStartToTarget = (startNodeId, targetNodeId, graph) =
     return paths;
 }
 
+// Breadth First Search to get all connected parent nodes from target
+export const getAllConnectedNodesFromTarget = (targetNodeId, edges, graph) => {
+
+    const nodeQueue = [];
+    const exploredNodes = [];
+
+    nodeQueue.push(targetNodeId);
+    exploredNodes.push(targetNodeId);
+
+    while (nodeQueue.length) {
+
+        const nodeId = nodeQueue.shift() || '';
+        const parentNodeIds = [];
+
+        const inputEdges = edges.filter((edg) => (edg.target === nodeId && edg.targetHandle.includes('-input-')));
+        if (inputEdges && inputEdges.length) {
+            for (let j = 0; j < inputEdges.length; j+=1 ) {
+                parentNodeIds.push(inputEdges[j].source);
+            }
+        }
+
+        const neighbourNodeIds = graph[nodeId];
+
+        for (let i = 0; i < neighbourNodeIds.length; i+=1 ) {
+            const neighNodeId = neighbourNodeIds[i];
+            if (parentNodeIds.includes(neighNodeId)) {
+                if (!exploredNodes.includes(neighNodeId)) {
+                    exploredNodes.push(neighNodeId);
+                    nodeQueue.push(neighNodeId);
+                }
+            }
+        }
+    };
+    return exploredNodes;
+}
+
 export const getAvailableNodeIdsForVariable = (nodes, edges, targetNodeId) => {
-    const { graph, nodeDependencies } = constructNodeDirectedGraph(nodes, edges);
-    const startingNodeIds = findStartingNodeIds(nodes, nodeDependencies);
-
-    const combinationPath = [];
-
-    for (let i = 0; i < startingNodeIds.length; i+=1 ) {
-        const startNodeId = startingNodeIds[i];
-        const paths = getAllPathsFromStartToTarget(startNodeId, targetNodeId, graph).flat();
-        combinationPath.push(paths);
-    }
-
-    const setPath = new Set(combinationPath.flat());
+    const { graph } = constructNodeDirectedGraph(nodes, edges, true);
+    const exploreNodes = getAllConnectedNodesFromTarget(targetNodeId, edges, graph);
+    const setPath = new Set(exploreNodes);
     setPath.delete(targetNodeId);
-
     return [...setPath];
 }
 
@@ -243,4 +277,10 @@ export const convertDateStringToDateObject = (dateString) => {
 
     // Sat Sep 24 2022 07:30:14
     return new Date(date.year(), date.month(), date.date(), date.hours(), date.minutes());
+}
+
+export const getFileName = (fileBase64) => {
+    const splitDataURI = fileBase64.split(',');
+    const filename = splitDataURI[2].split(':')[1];
+    return filename;
 }
