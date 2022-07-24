@@ -34,7 +34,7 @@ class BEP20TransferTrigger extends EventEmitter implements INode {
 		super();
 		this.label = 'BEP20 Transfer Trigger';
 		this.name = 'BEP20TransferTrigger';
-		this.icon = 'bep20-transfer-trigger.png';
+		this.icon = 'bnb.svg';
 		this.type = 'trigger';
 		this.version = 1.0;
 		this.description = 'Triggers whenever a BEP20 transfer event happened';

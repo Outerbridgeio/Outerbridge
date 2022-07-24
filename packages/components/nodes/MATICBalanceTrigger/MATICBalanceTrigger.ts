@@ -35,7 +35,7 @@ class MATICBalanceTrigger extends EventEmitter implements INode {
 		super();
 		this.label = 'MATIC Balance Trigger';
 		this.name = 'MATICBalanceTrigger';
-		this.icon = 'polygon.png';
+		this.icon = 'polygon.svg';
 		this.type = 'trigger';
 		this.version = 1.0;
 		this.description = 'Start workflow whenever MATIC balance in wallet changes';

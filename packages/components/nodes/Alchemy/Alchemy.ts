@@ -43,7 +43,7 @@ class Alchemy implements INode {
 
 		this.label = 'Alchemy';
 		this.name = 'alchemy';
-		this.icon = 'alchemy.png';
+		this.icon = 'alchemy.svg';
 		this.type = 'action';
 		this.version = 1.0;
 		this.description = 'Perform Alchemy onchain operations';

@@ -182,9 +182,11 @@ const AddNodes = ({ nodesData, node }) => {
                                                         >
                                                             <ListItem alignItems="center">
                                                                 <ListItemAvatar>
-                                                                    <Avatar style={{backgroundColor: 'white'}} alt={node.name} src={`${baseURL}/api/v1/node-icon/${node.name}`} />
+                                                                    <div style={{ width: 50, height: 50, borderRadius: '50%', backgroundColor: 'white' }}>
+                                                                        <img style={{ width: '100%', height: '100%', padding: 10, objectFit: 'contain' }} alt={node.name} src={`${baseURL}/api/v1/node-icon/${node.name}`} />
+                                                                    </div>
                                                                 </ListItemAvatar>
-                                                                <ListItemText primary={node.label} secondary={node.description} />
+                                                                <ListItemText sx={{ ml: 1 }} primary={node.label} secondary={node.description} />
                                                             </ListItem>
                                                         </ListItemButton>
                                                         <Divider />

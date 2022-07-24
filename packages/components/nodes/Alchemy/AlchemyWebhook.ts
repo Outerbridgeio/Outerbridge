@@ -31,7 +31,7 @@ class AlchemyWebhook implements INode {
 
 		this.label = 'Alchemy Webhook';
 		this.name = 'AlchemyWebhook';
-		this.icon = 'alchemy.png';
+		this.icon = 'alchemy.svg';
 		this.type = 'webhook';
 		this.version = 1.0;
 		this.description = 'Start workflow whenever Alchemy webhook event happened';
