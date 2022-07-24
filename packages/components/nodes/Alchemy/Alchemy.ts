@@ -8,7 +8,9 @@ import {
     NodeType,
 } from '../../src/Interface';
 import {
-    returnNodeExecutionData, serializeQueryParams
+	handleErrorMessage,
+    returnNodeExecutionData,
+	serializeQueryParams
 } from '../../src/utils';
 import { alchemyHTTPAPIs, ETHNetworks, PolygonNetworks, OptimismNetworks, ArbitrumNetworks } from "../../src/ChainNetwork";
 import { ethOperations, IETHOperation, polygonOperations } from "../../src/ETHOperations";
@@ -269,7 +271,7 @@ class Alchemy implements INode {
 				try {
 					bodyParameters = JSON.parse(parameters);
 				} catch(error) {
-					throw error;
+					throw handleErrorMessage(error);
 				}
 			}
 
@@ -301,8 +303,7 @@ class Alchemy implements INode {
 				responseData = response.data;
 			}
 			catch (error) {
-				console.error(error);
-				throw error;
+				throw handleErrorMessage(error);
 			}
 
 			if (Array.isArray(responseData)) returnData.push(...responseData);
@@ -368,7 +369,7 @@ class Alchemy implements INode {
 				responseData = response.data;
 			}
 			catch (error) {
-				throw error;
+				throw handleErrorMessage(error);
 			}
 
 			if (Array.isArray(responseData)) returnData.push(...responseData);

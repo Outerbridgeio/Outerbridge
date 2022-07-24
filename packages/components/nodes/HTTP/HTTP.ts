@@ -8,7 +8,9 @@ import {
     NodeType,
 } from '../../src/Interface';
 import {
-    returnNodeExecutionData, serializeQueryParams
+	handleErrorMessage,
+    returnNodeExecutionData,
+	serializeQueryParams
 } from '../../src/utils';
 import axios, { AxiosRequestConfig, AxiosRequestHeaders, Method } from 'axios';
 
@@ -252,7 +254,7 @@ class HTTP implements INode {
             returnData['headers'] = response.headers;
         }
         catch (error) {
-            throw error;
+            throw handleErrorMessage(error);
         }
 
         return returnNodeExecutionData(returnData);

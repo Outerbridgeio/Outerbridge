@@ -7,6 +7,7 @@ import {
     NodeType,
 } from '../../src/Interface';
 import {
+	handleErrorMessage,
     returnNodeExecutionData
 } from '../../src/utils';
 import axios, { AxiosRequestConfig, Method } from 'axios';
@@ -98,7 +99,7 @@ class Teams implements INode {
 					});
 					continue;
 				}
-				throw error;
+				throw handleErrorMessage(error);
 			}
 		} while (--maxRetries);
 

@@ -10,7 +10,7 @@ import {
     INodeParams, 
     NodeType,
 } from '../../src/Interface';
-import { returnNodeExecutionData } from '../../src/utils';
+import { handleErrorMessage, returnNodeExecutionData } from '../../src/utils';
 import EventEmitter from 'events';
 import { 
 	binanceMainnetChainID, 
@@ -415,7 +415,7 @@ class ContractFunctionTrigger extends EventEmitter implements INode {
 				try {
 					contractParameters = JSON.parse(inputParameters);
 				} catch(error) {
-					throw error;
+					throw handleErrorMessage(error);
 				}
 			}
 
@@ -465,7 +465,7 @@ class ContractFunctionTrigger extends EventEmitter implements INode {
 				}
 			}
 		} catch(e) {
-			throw new Error(e);
+			throw handleErrorMessage(e);
 		}
 	}
 
