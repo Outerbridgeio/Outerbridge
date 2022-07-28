@@ -10,7 +10,10 @@ import {
 import { returnNodeExecutionData } from '../../src/utils';
 import EventEmitter from 'events';
 import { 
+	alchemyNetworkProviders,
+	customNetworkProviders,
 	ETHNetworks, 
+	infuraNetworkProviders, 
 	networkExplorers,
 } from '../../src/ChainNetwork';
 
@@ -55,12 +58,8 @@ class ETHBalanceTrigger extends EventEmitter implements INode {
 				name: 'networkProvider',
 				type: 'options',
 				options: [
-					{
-						label: 'Alchemy',
-						name: 'alchemy',
-						description: 'Avg 1K CUs/min',
-						parentGroup: 'Private Nodes'
-					},
+					...alchemyNetworkProviders,
+					...infuraNetworkProviders,
 					{
 						label: 'Cloudfare',
 						name: 'cloudfare',
@@ -70,24 +69,7 @@ class ETHBalanceTrigger extends EventEmitter implements INode {
 							'networks.network': ['homestead']
 						}
 					},
-					{
-						label: 'Infura',
-						name: 'infura',
-						description: 'Avg 20 requests/min',
-						parentGroup: 'Private Nodes'
-					},
-					{
-						label: 'Custom RPC Endpoint',
-						name: 'customRPC',
-						description: 'HTTP endpoint',
-						parentGroup: 'Custom Nodes'
-					},
-					{
-						label: 'Custom Websocket Endpoint',
-						name: 'customWebsocket',
-						description: 'WSS Endpoint',
-						parentGroup: 'Custom Nodes'
-					},
+					...customNetworkProviders
 				],
 				default: '',
 			},

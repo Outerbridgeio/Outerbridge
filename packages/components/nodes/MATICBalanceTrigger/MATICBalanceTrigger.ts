@@ -13,7 +13,8 @@ import {
 	PolygonNetworks,
 	networkExplorers, 
 	polygonMainnetRPC, 
-	polygonMumbaiRPC
+	polygonMumbaiRPC,
+	polygonNetworkProviders
 } from '../../src/ChainNetwork';
 
 class MATICBalanceTrigger extends EventEmitter implements INode {
@@ -57,36 +58,7 @@ class MATICBalanceTrigger extends EventEmitter implements INode {
 				name: 'networkProvider',
 				type: 'options',
 				options: [
-					{
-						label: 'Polygon',
-						name: 'polygon',
-						description: 'Public Polygon RPC/Websocket',
-						parentGroup: 'Public Nodes'
-					},
-					{
-						label: 'Alchemy',
-						name: 'alchemy',
-						description: 'Avg 1K CUs/min',
-						parentGroup: 'Private Nodes'
-					},
-					{
-						label: 'Infura',
-						name: 'infura',
-						description: 'Avg 20 requests/min',
-						parentGroup: 'Private Nodes'
-					},
-					{
-						label: 'Custom RPC Endpoint',
-						name: 'customRPC',
-						description: 'HTTP endpoint',
-						parentGroup: 'Custom Nodes'
-					},
-					{
-						label: 'Custom Websocket Endpoint',
-						name: 'customWebsocket',
-						description: 'WSS Endpoint',
-						parentGroup: 'Custom Nodes'
-					},
+					...polygonNetworkProviders
 				],
 				default: 'polygon',
 			},

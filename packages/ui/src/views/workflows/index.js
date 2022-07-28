@@ -6,8 +6,8 @@ import { Grid, Button, Box, Stack } from '@mui/material';
 
 // project imports
 import MainCard from 'ui-component/cards/MainCard';
+import ItemCard from 'ui-component/cards/ItemCard';
 import { gridSpacing } from 'store/constant';
-import WorkflowCard from './WorkflowCard';
 import WorkflowEmptySVG from 'assets/images/workflow_empty.svg';
 
 // API
@@ -62,7 +62,7 @@ const Workflows = () => {
             <Grid container spacing={gridSpacing}>
                 {!isLoading && getAllWorkflowsApi.data && getAllWorkflowsApi.data.map((data, index) => (
                     <Grid key={index} item lg={4} md={6} sm={6} xs={12}>
-                        <WorkflowCard 
+                        <ItemCard 
                             onClick={() => goToCanvas(data)} 
                             data={data}
                         />

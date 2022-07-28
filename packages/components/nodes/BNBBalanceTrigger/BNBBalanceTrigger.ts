@@ -11,6 +11,7 @@ import { returnNodeExecutionData } from '../../src/utils';
 import EventEmitter from 'events';
 import { 
 	binanceMainnetRPC,
+	binanceNetworkProviders,
 	binanceTestnetRPC,
 	BSCNetworks,
 	networkExplorers,
@@ -57,24 +58,7 @@ class BNBBalanceTrigger extends EventEmitter implements INode {
 				name: 'networkProvider',
 				type: 'options',
 				options: [
-					{
-						label: 'Binance',
-						name: 'binance',
-						description: 'Public Binance RPC/Websocket',
-						parentGroup: 'Public Nodes'
-					},
-					{
-						label: 'Custom RPC Endpoint',
-						name: 'customRPC',
-						description: 'HTTP endpoint',
-						parentGroup: 'Custom Nodes'
-					},
-					{
-						label: 'Custom Websocket Endpoint',
-						name: 'customWebsocket',
-						description: 'WSS Endpoint',
-						parentGroup: 'Custom Nodes'
-					},
+					...binanceNetworkProviders
 				],
 				default: 'binance',
 			},

@@ -10,6 +10,9 @@ const Workflows = Loadable(lazy(() => import('views/workflows')));
 // contracts routing
 const Contracts = Loadable(lazy(() => import('views/contracts')));
 
+// wallets routing
+const Wallets = Loadable(lazy(() => import('views/wallets')));
+
 // ==============================|| MAIN ROUTING ||============================== //
 
 const MainRoutes = {
@@ -27,6 +30,10 @@ const MainRoutes = {
         {
             path: '/contracts',
             element: <Contracts />
+        },
+        {
+            path: '/wallets',
+            element: <Wallets />
         }
     ]
 };

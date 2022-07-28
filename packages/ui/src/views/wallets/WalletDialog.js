@@ -14,7 +14,6 @@ import {
     AccordionDetails,
     Box,
     Divider,
-    Chip,
     Typography,
     Button, 
     Dialog, 
@@ -30,27 +29,26 @@ import { useTheme } from '@mui/material/styles';
 // third-party
 import * as Yup from 'yup';
 import lodash from 'lodash';
-import { ethers } from 'ethers';
 
 // project imports
 import InputParameters from 'views/inputs/InputParameters';
 import CredentialInput from 'views/inputs/CredentialInput';
 
 // Icons
-import { IconExclamationMark, IconCheck, IconX, IconArrowUpRightCircle, IconCopy } from '@tabler/icons';
+import { IconCheck, IconX, IconArrowUpRightCircle, IconCopy, IconKey } from '@tabler/icons';
 
 // API
-import contractsApi from "api/contracts";
+import walletsApi from "api/wallets";
 
 // Hooks
 import useApi from "hooks/useApi";
 
 // Const
-import { contract_details, networks, networkExplorers } from "store/constant";
+import { wallet_details, networkExplorers } from "store/constant";
 
 import useNotifier from 'utils/useNotifier';
 
-const ContractDialog = ({
+const WalletDialog = ({
     show,
     dialogProps,
     onCancel,
@@ -68,36 +66,37 @@ const ContractDialog = ({
     const enqueueSnackbar = (...args) => dispatch(enqueueSnackbarAction(...args));
     const closeSnackbar = (...args) => dispatch(closeSnackbarAction(...args));
 
-    const [contractDetails, setContractDetails] = useState(contract_details);
-    const [contractData, setContractData] = useState({});
-    const [contractParams, setContractParams] = useState([]);
-    const [contractValues, setContractValues] = useState({});
-    const [contractValidation, setContractValidation] = useState({});
+    const [walletDetails, setWalletDetails] = useState(wallet_details);
+    const [walletData, setWalletData] = useState({});
+    const [walletParams, setWalletParams] = useState([]);
+    const [walletValues, setWalletValues] = useState({});
+    const [walletValidation, setWalletValidation] = useState({});
+    const [walletCredential, setWalletCredential] = useState({});
     const [expanded, setExpanded] = useState(false);
-    const [invalidAddress, setInvalidAddress] = useState(false);
     const [isReadyToAdd, setIsReadyToAdd] = useState(false);
-    const contractParamsType = ['networks', 'credentials', 'contractInfo'];
+    const walletParamsType = ['networks', 'credentials', 'walletInfo'];
 
-    const getSpecificContractApi = useApi(contractsApi.getSpecificContract);
-    
+    const getSpecificWalletApi = useApi(walletsApi.getSpecificWallet);
+    const getWalletCredentialApi = useApi(walletsApi.getWalletCredential);
+
     const handleAccordionChange = (expanded) => (event, isExpanded) => {
         setExpanded(isExpanded ? expanded : false);
     };
 
     const reset = () => {
-        setContractData({});
-        setContractParams([]);
-        setContractValues({});
-        setContractValidation({});
-        setInvalidAddress(false);
+        setWalletData({});
+        setWalletParams([]);
+        setWalletValues({});
+        setWalletValidation({});
+        setWalletCredential({});
         setIsReadyToAdd(false);
         setExpanded(false);
     }
 
     const checkIsReadyToAdd = () => {
-        for (let i = 0; i < contractParamsType.length; i+= 1) {
-            const paramType = contractParamsType[i];
-            if (!contractData[paramType] || !contractData[paramType].submit) {
+        for (let i = 0; i < walletParamsType.length; i+= 1) {
+            const paramType = walletParamsType[i];
+            if (!walletData[paramType] || !walletData[paramType].submit) {
                 setIsReadyToAdd(false);
                 return;
             }
@@ -105,18 +104,16 @@ const ContractDialog = ({
         setIsReadyToAdd(true);
     };
 
-    const addNewContract = async() => {
-        const createNewContractBody = {
-            network: contractData.networks.network,
-            name: contractData.contractInfo.name,
-            abi: contractData.contractInfo.abi,
-            address: contractData.contractInfo.address,
-            providerCredential: JSON.stringify(contractData.credentials)
+    const addNewWallet = async() => {
+        const createNewWalletBody = {
+            network: walletData.networks.network,
+            name: walletData.walletInfo.name,
+            providerCredential: JSON.stringify(walletData.credentials)
         }
-        const createResp = await contractsApi.createNewContract(createNewContractBody);
+        const createResp = await walletsApi.createNewWallet(createNewWalletBody);
         if (createResp.data) {
             enqueueSnackbar({
-                message: 'New contract added',
+                message: 'New wallet added',
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'success',
@@ -130,7 +127,7 @@ const ContractDialog = ({
             onConfirm();
         } else {
             enqueueSnackbar({
-                message: 'Failed to add new contract',
+                message: 'Failed to add new wallet',
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
@@ -146,18 +143,16 @@ const ContractDialog = ({
         }
     }
 
-    const saveContract = async() => {
-        const saveContractBody = {
-            network: contractData.networks.network,
-            name: contractData.contractInfo.name,
-            abi: contractData.contractInfo.abi,
-            address: contractData.contractInfo.address,
-            providerCredential: JSON.stringify(contractData.credentials)
+    const saveWallet = async() => {
+        const saveWalletBody = {
+            network: walletData.networks.network,
+            name: walletData.walletInfo.name,
+            providerCredential: JSON.stringify(walletData.credentials)
         }
-        const saveResp = await contractsApi.updateContract(dialogProps.id, saveContractBody);
+        const saveResp = await walletsApi.updateWallet(dialogProps.id, saveWalletBody);
         if (saveResp.data) {
             enqueueSnackbar({
-                message: 'Contract saved',
+                message: 'Wallet saved',
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'success',
@@ -171,7 +166,7 @@ const ContractDialog = ({
             onConfirm();
         } else {
             enqueueSnackbar({
-                message: 'Failed to save contract',
+                message: 'Failed to save wallet',
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
@@ -187,11 +182,11 @@ const ContractDialog = ({
         }
     }
 
-    const deleteContract = async() => {
-        const deleteResp = await contractsApi.deleteContract(dialogProps.id);
+    const deleteWallet = async() => {
+        const deleteResp = await walletsApi.deleteWallet(dialogProps.id);
         if (deleteResp.data) {
             enqueueSnackbar({
-                message: 'Contract deleted',
+                message: 'Wallet deleted',
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'success',
@@ -205,7 +200,7 @@ const ContractDialog = ({
             onConfirm();
         } else {
             enqueueSnackbar({
-                message: 'Failed to delete contract',
+                message: 'Failed to delete wallet',
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
@@ -221,47 +216,21 @@ const ContractDialog = ({
         }
     }
 
-    const fetchABI = async(formValues, paramsType) => {
-        const selectedNetwork = networks.find((network) => network.name === contractData.networks.network);
-        if (!selectedNetwork) return;
-
-        const body = {
-            ...contractData,
-            networks: {
-                ...contractData.networks,
-                uri: selectedNetwork.uri || ''
-            }
-        }
-
-        const resp = await contractsApi.getContractABI(body);
-        if (!resp.data) {
-            const updateContractData = {
-                ...contractData,
-                [paramsType]: {...formValues, submit: null}
-            };
-            setContractData(updateContractData);
-            return;
-        } else {
-            const abi = resp.data.result;
-            return abi === 'Invalid API Key' ? undefined : abi;
-        }
-    }
-    
     const valueChanged = (formValues, paramsType) => {
-        const updateContractData = {
-            ...contractData,
+        const updateWalletData = {
+            ...walletData,
             [paramsType]: formValues
         };
 
-        const index = contractParamsType.indexOf(paramsType);
-        if (index >= 0 && index !== contractParamsType.length - 1) {
-            for (let i = index+1; i < contractParamsType.length; i+= 1) {
-                const paramType = contractParamsType[i];
-                if (updateContractData[paramType]) updateContractData[paramType].submit = null;
+        const index = walletParamsType.indexOf(paramsType);
+        if (index >= 0 && index !== walletParamsType.length - 1) {
+            for (let i = index+1; i < walletParamsType.length; i+= 1) {
+                const paramType = walletParamsType[i];
+                if (updateWalletData[paramType]) updateWalletData[paramType].submit = null;
             }
         }
         
-        setContractData(updateContractData);
+        setWalletData(updateWalletData);
     };
 
     const paramsChanged = (formParams, paramsType) => {
@@ -273,63 +242,31 @@ const ContractDialog = ({
         const credentialMethodParamIndex = formParams.findIndex((param) => param.name === 'credentialMethod');
         
         if (credentialMethodParam !== undefined) {
-            const originalParam = contractDetails[paramsType].find((param) => param.name === 'credentialMethod');
+            const originalParam = walletDetails[paramsType].find((param) => param.name === 'credentialMethod');
             if (originalParam !== undefined) {
                 formParams[credentialMethodParamIndex]['options'] = originalParam.options;
             }
         }
 
-        const updateContractDetails = {
-            ...contractDetails,
+        const updateWalletDetails = {
+            ...walletDetails,
             [paramsType]: formParams
         };
-        setContractDetails(updateContractDetails);
+        setWalletDetails(updateWalletDetails);
     };
 
     const onSubmit = async(formValues, paramsType) => {
-        if (formValues.address) {
-            if (ethers.utils.isAddress(formValues.address)) {
-                setInvalidAddress(false);
-                const abi = await fetchABI(formValues, paramsType);
-                if (abi) {
-                    const updateFormValues = {
-                        submit: true,
-                        ...formValues
-                    };
-                    updateFormValues.abi = abi;
-                    const updateContractData = {
-                        ...contractData,
-                        [paramsType]: updateFormValues
-                    };
-                    setContractData(updateContractData);
-                } else {
-                    setInvalidAddress(true);
-                    const updateContractData = {
-                        ...contractData,
-                        [paramsType]: {...formValues, submit: null}
-                    };
-                    setContractData(updateContractData);
-                }
-            }
-            else {
-                setInvalidAddress(true);
-                const updateContractData = {
-                    ...contractData,
-                    [paramsType]: {...formValues, submit: null}
-                };
-                setContractData(updateContractData);
-            }
-        } else {
-            const updateContractData = {
-                ...contractData,
-                [paramsType]: formValues
-            };
-            setContractData(updateContractData);
-        }
-
-        const index = contractParamsType.indexOf(paramsType);
-        if (index >= 0 && index !== contractParamsType.length - 1) {
-            setExpanded(contractParamsType[index+1]);
+        const updateWalletData = {
+            ...walletData,
+            [paramsType]: formValues
+        };
+        setWalletData(updateWalletData);
+        
+        const index = walletParamsType.indexOf(paramsType);
+        if (index >= 0 && index !== walletParamsType.length - 1) {
+            setExpanded(walletParamsType[index+1]);
+        } else if (index === walletParamsType.length - 1) {
+            setExpanded(false);
         }
     };
 
@@ -344,8 +281,10 @@ const ContractDialog = ({
 
             if (displayOptions) {
                 Object.keys(displayOptions).forEach((path) => {
+
                     const comparisonValue = displayOptions[path];
-                    const groundValue = lodash.get(contractData, path, '');
+                    const groundValue = lodash.get(walletData, path, '');
+                   
                     if (Array.isArray(comparisonValue)) {
                         if (displayType === 'show' && !comparisonValue.includes(groundValue)) {
                             toBeDeleteOptions.push(option);
@@ -398,24 +337,24 @@ const ContractDialog = ({
     const initializeFormValuesAndParams = (paramsType) => {
 
         const initialValues = {};
-        const contractParams = displayOptions(lodash.cloneDeep(contractDetails[paramsType] || []));
+        const walletParams = displayOptions(lodash.cloneDeep(walletDetails[paramsType] || []));
 
         // Add hard-coded registeredCredential params
         if (paramsType === 'credentials' && 
-            contractParams.find((nPrm) => nPrm.name === 'registeredCredential') === undefined &&
-            contractParams.find((nPrm) => nPrm.name === 'credentialMethod') !== undefined
+            walletParams.find((nPrm) => nPrm.name === 'registeredCredential') === undefined &&
+            walletParams.find((nPrm) => nPrm.name === 'credentialMethod') !== undefined
         ) {
-            contractParams.push({
+            walletParams.push({
                 name: 'registeredCredential',
-            })
+            });
         }
        
-        for (let i = 0; i < contractParams.length; i+= 1) {
-            const input = contractParams[i];
+        for (let i = 0; i < walletParams.length; i+= 1) {
+            const input = walletParams[i];
 
-            // Load from contractData values
-            if (paramsType in contractData && input.name in contractData[paramsType]) {
-                initialValues[input.name] = contractData[paramsType][input.name];
+            // Load from walletData values
+            if (paramsType in walletData && input.name in walletData[paramsType]) {
+                initialValues[input.name] = walletData[paramsType][input.name];
          
                 // Check if option value is still available from the list of options
                 if (input.type === 'options') {
@@ -423,46 +362,56 @@ const ContractDialog = ({
                     if (!optionVal) delete initialValues[input.name];
                 }
             } else {
-                // Load from contractParams default values
+                // Load from walletParams default values
                 initialValues[input.name] = input.default || '';
             }
         }
         
         initialValues.submit = null;
         
-        setContractValues(initialValues);
-        setContractValidation(setYupValidation(contractParams));
-        setContractParams(contractParams);
+        setWalletValues(initialValues);
+        setWalletValidation(setYupValidation(walletParams));
+        setWalletParams(walletParams);
     };
 
-    const transformContractResponse = (contractResponseData) => {
-        const contractData = {
+    const transformWalletResponse = (walletResponseData) => {
+        const walletData = {
             networks: {},
             credentials: {},
-            contractInfo: {}
+            walletInfo: {}
         }
 
-        contractData.networks = { network: contractResponseData.network, submit: true };
-        contractData.contractInfo = { ...contractResponseData, submit: true };
-        if (contractResponseData.providerCredential) {
+        walletData.networks = { network: walletResponseData.network, submit: true };
+        walletData.walletInfo = { ...walletResponseData, submit: true };
+        if (walletResponseData.providerCredential) {
             try {
-                contractData.credentials = JSON.parse(contractResponseData.providerCredential);
+                walletData.credentials = JSON.parse(walletResponseData.providerCredential);
             } catch(e) { 
                 console.error(e); 
             }
         }
-        return contractData;
+        return walletData;
     }
 
-    // Get Contract Details from API
+    // Get Wallet Details from API
     useEffect(() => {
-        if (getSpecificContractApi.data) {
-            const contractResponseData = getSpecificContractApi.data;
-            setContractData(transformContractResponse(contractResponseData));
+        if (getSpecificWalletApi.data) {
+            const walletResponseData = getSpecificWalletApi.data;
+            setWalletData(transformWalletResponse(walletResponseData));
             setExpanded('networks');
         }
 
-    }, [getSpecificContractApi.data]); 
+    }, [getSpecificWalletApi.data]); 
+
+
+    // Get Wallet Credential from API
+    useEffect(() => {
+        if (getWalletCredentialApi.data) {
+            const walletCredResponseData = getWalletCredentialApi.data;
+            setWalletCredential(walletCredResponseData);
+        }
+
+    }, [getWalletCredentialApi.data]); 
 
 
     // Initialization
@@ -473,7 +422,7 @@ const ContractDialog = ({
 
         } else if (show && dialogProps.type === 'EDIT' && dialogProps.id) {
             reset();
-            getSpecificContractApi.request(dialogProps.id);
+            getSpecificWalletApi.request(dialogProps.id);
         }
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -482,13 +431,13 @@ const ContractDialog = ({
     
     // Initialize Parameters Initial Values & Validation
     useEffect(() => {
-        if (contractDetails && contractData && expanded) {
+        if (walletDetails && walletData && expanded) {
             initializeFormValuesAndParams(expanded);
             checkIsReadyToAdd();
         }
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [contractDetails, contractData, expanded]);
+    }, [walletDetails, walletData, expanded]);
 
 
     const component = show ? (
@@ -503,20 +452,43 @@ const ContractDialog = ({
             </DialogTitle>
             <DialogContent>
 
-                {dialogProps.type === 'ADD' && <Chip sx={{mb: 1}} icon={<IconExclamationMark />} label="You can only add contract which has been publicly verified" color="warning" />}
-                
-                {contractData && contractData.contractInfo && contractData.contractInfo.address && dialogProps.type === 'EDIT' && 
+                {walletData && walletData.walletInfo && walletData.walletInfo.address && dialogProps.type === 'EDIT' && 
                 <Box sx={{ p: 2 }}>
+                    <Typography sx={{ p: 1 }} variant="overline">BALANCE</Typography>
+                    <Typography sx={{ p: 1, mb: 1 }} variant="h3">{walletData.walletInfo.balance}</Typography>
                     <Typography sx={{ p: 1 }} variant="overline">ADDRESS</Typography>
-                    <Stack direction="row" sx={{ p: 1 }}>
-                        <Typography sx={{ p: 1, borderRadius: 10, backgroundColor: theme.palette.primary.light, width: 'max-content', height: 'max-content' }} variant="h5">{contractData.contractInfo.address}</Typography>
-                        <IconButton title="Copy Address" color="primary" onClick={() => navigator.clipboard.writeText(contractData.contractInfo.address)}>
+                    <Stack direction="row" sx={{ p: 1, mb: 1}}>
+                        <Typography sx={{ p: 1, borderRadius: 10, backgroundColor: theme.palette.primary.light, width: 'max-content', height: 'max-content' }} variant="h5">{walletData.walletInfo.address}</Typography>
+                        <IconButton title="Copy Address" color="primary" onClick={() => navigator.clipboard.writeText(walletData.walletInfo.address)}>
                             <IconCopy />
                         </IconButton>
-                        <IconButton title="Open in Block Explorer" color="primary" onClick={() => window.open(`${networkExplorers[contractData.networks.network]}/address/${contractData.contractInfo.address}`, "_blank")}>
+                        <IconButton title="Open in Block Explorer" color="primary" onClick={() => window.open(`${networkExplorers[walletData.networks.network]}/address/${walletData.walletInfo.address}`, "_blank")}>
                             <IconArrowUpRightCircle />
                         </IconButton>
                     </Stack>
+                    {walletCredential && walletCredential.privateKey && 
+                    <>
+                        <Typography sx={{ p: 1 }} variant="overline">PRIVATE KEY</Typography>
+                        <Stack direction="row" sx={{ p: 1, mb: 1}}>
+                            <Typography sx={{ p: 1, borderRadius: 10, backgroundColor: theme.palette.primary.light, width: 'max-content', height: 'max-content' }} variant="h5">{walletCredential.privateKey}</Typography>
+                            <IconButton title="Copy Key" color="primary" onClick={() => navigator.clipboard.writeText(walletCredential.privateKey)}>
+                                <IconCopy />
+                            </IconButton>
+                        </Stack>
+                    </>}
+                    {walletCredential && walletCredential.mnemonic && 
+                    <>
+                        <Typography sx={{ p: 1 }} variant="overline">mnemonic</Typography>
+                        <Stack direction="row" sx={{ p: 1, mb: 1}}>
+                            <Typography sx={{ p: 1, borderRadius: 10, backgroundColor: theme.palette.primary.light, width: 'max-content', height: 'max-content' }} variant="h5">{walletCredential.mnemonic}</Typography>
+                            <IconButton title="Copy Mnemonic" color="primary" onClick={() => navigator.clipboard.writeText(walletCredential.mnemonic)}>
+                                <IconCopy />
+                            </IconButton>
+                        </Stack>
+                    </>}
+                    {!Object.keys(walletCredential).length && <Button size="small" sx={{ml: 1}} variant="contained" startIcon={<IconKey />} onClick={() => getWalletCredentialApi.request(dialogProps.id)}>
+                        View PrivateKey and Mnemonic
+                    </Button>}
                 </Box>}
 
                 {/* networks */}
@@ -530,7 +502,7 @@ const ContractDialog = ({
                             <Typography variant="h4">
                                 Networks
                             </Typography>
-                            {contractData && contractData.networks && contractData.networks.submit &&
+                            {walletData && walletData.networks && walletData.networks.submit &&
                             (<Avatar
                                 variant="rounded"
                                 sx={{
@@ -547,9 +519,9 @@ const ContractDialog = ({
                         <AccordionDetails>
                             <InputParameters 
                                 paramsType="networks"
-                                params={contractParams} 
-                                initialValues={contractValues} 
-                                nodeParamsValidation={contractValidation}
+                                params={walletParams} 
+                                initialValues={walletValues} 
+                                nodeParamsValidation={walletValidation}
                                 valueChanged={valueChanged}
                                 onSubmit={onSubmit}
                                 setVariableSelectorState={() => null}
@@ -570,7 +542,7 @@ const ContractDialog = ({
                             <Typography variant="h4">
                                 Credentials
                             </Typography>
-                            {contractData && contractData.credentials && contractData.credentials.submit &&
+                            {walletData && walletData.credentials && walletData.credentials.submit &&
                             (<Avatar
                                 variant="rounded"
                                 sx={{
@@ -587,9 +559,9 @@ const ContractDialog = ({
                         <AccordionDetails>
                             <CredentialInput 
                                 paramsType="credentials"
-                                initialParams={contractParams} 
-                                initialValues={contractValues} 
-                                initialValidation={contractValidation}
+                                initialParams={walletParams} 
+                                initialValues={walletValues} 
+                                initialValidation={walletValidation}
                                 valueChanged={valueChanged}
                                 paramsChanged={paramsChanged}
                                 onSubmit={onSubmit}
@@ -599,18 +571,18 @@ const ContractDialog = ({
                     <Divider />
                 </Box>
 
-                {/* contractInfo */}
+                {/* walletInfo */}
                 <Box sx={{ p: 2 }}>
-                    <Accordion expanded={expanded === 'contractInfo'} onChange={handleAccordionChange('contractInfo')}>
+                    <Accordion expanded={expanded === 'walletInfo'} onChange={handleAccordionChange('walletInfo')}>
                         <AccordionSummary
                             expandIcon={<ExpandMoreIcon />}
-                            aria-controls="contractInfo-content"
-                            id="contractInfo-header" 
+                            aria-controls="walletInfo-content"
+                            id="walletInfo-header" 
                         >
                             <Typography variant="h4">
-                                Contract Details
+                                Wallet Details
                             </Typography>
-                            {contractData && contractData.contractInfo && contractData.contractInfo.submit &&
+                            {walletData && walletData.walletInfo && walletData.walletInfo.submit &&
                             (<Avatar
                                 variant="rounded"
                                 sx={{
@@ -625,14 +597,11 @@ const ContractDialog = ({
                             </Avatar>)}
                         </AccordionSummary>
                         <AccordionDetails>
-                           
-                            {invalidAddress && <Chip sx={{mb: 2}} icon={<IconX />} label="Invalid Contract Address" color="error" />}
-                
                             <InputParameters 
-                                paramsType="contractInfo"
-                                params={contractParams} 
-                                initialValues={contractValues}
-                                nodeParamsValidation={contractValidation}
+                                paramsType="walletInfo"
+                                params={walletParams} 
+                                initialValues={walletValues}
+                                nodeParamsValidation={walletValidation}
                                 valueChanged={valueChanged}
                                 onSubmit={onSubmit}
                                 setVariableSelectorState={() => null}
@@ -649,14 +618,14 @@ const ContractDialog = ({
                 {dialogProps.type === 'EDIT' && <Button 
                     variant="contained"
                     color="error"
-                    onClick={() => deleteContract()}
+                    onClick={() => deleteWallet()}
                 >
                     Delete
                 </Button>}
                 <Button 
                     variant="contained" 
                     disabled={!isReadyToAdd} 
-                    onClick={() => dialogProps.type === 'ADD' ? addNewContract() : saveContract()}
+                    onClick={() => dialogProps.type === 'ADD' ? addNewWallet() : saveWallet()}
                 >
                     {dialogProps.confirmButtonName}
                 </Button>
@@ -667,12 +636,12 @@ const ContractDialog = ({
     return createPortal(component, portalElement);
 }
 
-ContractDialog.propTypes = {
+WalletDialog.propTypes = {
     show: PropTypes.bool, 
     dialogProps: PropTypes.object,
     onCancel: PropTypes.func,
     onConfirm: PropTypes.func,
 };
 
-export default ContractDialog;
+export default WalletDialog;
 

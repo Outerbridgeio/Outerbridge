@@ -12,7 +12,8 @@ import {
 	networkExplorers,
 	BSCNetworks,
 	binanceMainnetRPC,
-	binanceTestnetRPC
+	binanceTestnetRPC,
+	binanceNetworkProviders
 } from '../../src/ChainNetwork';
 
 class BEP20TransferTrigger extends EventEmitter implements INode {
@@ -56,24 +57,7 @@ class BEP20TransferTrigger extends EventEmitter implements INode {
 				name: 'networkProvider',
 				type: 'options',
 				options: [
-					{
-						label: 'Binance',
-						name: 'binance',
-						description: 'Public Binance RPC/Websocket',
-						parentGroup: 'Public Nodes'
-					},
-					{
-						label: 'Custom RPC Endpoint',
-						name: 'customRPC',
-						description: 'HTTP endpoint',
-						parentGroup: 'Custom Nodes'
-					},
-					{
-						label: 'Custom Websocket Endpoint',
-						name: 'customWebsocket',
-						description: 'WSS Endpoint',
-						parentGroup: 'Custom Nodes'
-					},
+					...binanceNetworkProviders
 				],
 				default: 'binance',
 			},

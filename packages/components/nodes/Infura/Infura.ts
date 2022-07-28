@@ -228,7 +228,7 @@ class Infura implements INode {
 				try {
 					bodyParameters = JSON.parse(parameters);
 				} catch(error) {
-					throw error;
+					throw handleErrorMessage(error);
 				}
 			}
 

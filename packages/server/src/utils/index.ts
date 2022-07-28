@@ -20,7 +20,7 @@ import {
     WebhookMethod,
 } from '../Interface';
 import lodash from 'lodash';
-import { ICommonObject, INodeData } from 'outerbridge-components';
+import { ICommonObject, INodeData, IWallet } from 'outerbridge-components';
 import { Workflow } from "../entity/Workflow";
 import { Credential } from "../entity/Credential";
 import { Webhook } from '../entity/Webhook';
@@ -352,6 +352,37 @@ export const decryptCredentials = async(nodeData: INodeData) => {
         // Decrpyt credentialData
         const decryptedCredentialData = decryptCredentialData(credentialData, encryptKey);
         nodeData.credentials = { ...nodeData.credentials, ...decryptedCredentialData };
+    }
+    await decryptWalletCredentials(nodeData);
+}
+
+/**
+ * Decrypt encrypted wallet credentials with encryption key
+ * @param {INodeData} nodeData 
+ */
+ export const decryptWalletCredentials = async(nodeData: INodeData) => {
+    try {
+        const filters = ['actions', 'credentials', 'networks', 'inputParameters']
+        for (const key in nodeData) {
+            if (filters.includes(key)) {
+                // Iterate object to find wallet
+                for (const paramName in (nodeData as any)[key]) {
+                    if (paramName === 'wallet') {
+                        const walletString = (nodeData as any)[key][paramName];
+                        const walletDetails: IWallet = JSON.parse(walletString);
+                        const walletEncryptedString = walletDetails.walletCredential;
+                        const encryptKey = await getEncryptionKey();
+                
+                        // Decrpyt credentialData
+                        const decryptedCredentialData = decryptCredentialData(walletEncryptedString, encryptKey);
+                        walletDetails.walletCredential = JSON.stringify(decryptedCredentialData);
+                        (nodeData as any)[key][paramName] = JSON.stringify(walletDetails);
+                    }
+                }
+            }
+        }
+    } catch (e) {
+        return;
     }
 }
 

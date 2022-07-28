@@ -1,8 +1,8 @@
 // assets
-import { IconHierarchy, IconEditCircle } from '@tabler/icons';
+import { IconHierarchy, IconEditCircle, IconWallet } from '@tabler/icons';
 
 // constant
-const icons = { IconHierarchy, IconEditCircle };
+const icons = { IconHierarchy, IconEditCircle, IconWallet };
 
 // ==============================|| DASHBOARD MENU ITEMS ||============================== //
 
@@ -25,6 +25,14 @@ const dashboard = {
             type: 'item',
             url: '/contracts',
             icon: icons.IconEditCircle,
+            breadcrumbs: true
+        },
+        {
+            id: 'wallets',
+            title: 'Wallets',
+            type: 'item',
+            url: '/wallets',
+            icon: icons.IconWallet,
             breadcrumbs: true
         }
     ],

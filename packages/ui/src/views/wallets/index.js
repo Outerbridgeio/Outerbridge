@@ -6,31 +6,31 @@ import { Grid, Button, Box, Stack } from '@mui/material';
 // project imports
 import MainCard from 'ui-component/cards/MainCard';
 import ItemCard from 'ui-component/cards/ItemCard';
-import ContractDialog from './ContractDialog';
-import ContractEmptySVG from 'assets/images/contract_empty.svg';
+import WalletDialog from './WalletDialog';
+import WalletEmptySVG from 'assets/images/wallet_empty.svg';
 
 // const
 import { gridSpacing } from 'store/constant';
 
 // API
-import contractsApi from "api/contracts";
+import walletsApi from "api/wallets";
 
 // Hooks
 import useApi from "hooks/useApi";
 
-// ==============================|| CONTRACTS ||============================== //
+// ==============================|| WALLETS ||============================== //
 
-const Contracts = () => {
+const Wallets = () => {
 
     const [isLoading, setLoading] = useState(true);
     const [showDialog, setShowDialog] = useState(false);
     const [dialogProps, setDialogProps] = useState({});
 
-    const getAllContractsApi = useApi(contractsApi.getAllContracts);
+    const getAllWalletsApi = useApi(walletsApi.getAllWallets);
 
     const addNew = () => {
         const dialogProp = {
-            title: 'Add New Contract',
+            title: 'Add New Wallet',
             type: 'ADD',
             cancelButtonName: 'Cancel',
             confirmButtonName: 'Add'
@@ -41,7 +41,7 @@ const Contracts = () => {
 
     const edit = (id) => {
         const dialogProp = {
-            title: 'Edit Contract',
+            title: 'Edit Wallet',
             type: 'EDIT',
             cancelButtonName: 'Cancel',
             confirmButtonName: 'Save',
@@ -53,25 +53,25 @@ const Contracts = () => {
     
     const onConfirm = () => {
         setShowDialog(false);
-        getAllContractsApi.request();
+        getAllWalletsApi.request();
     }
 
     useEffect(() => {
-        getAllContractsApi.request();
+        getAllWalletsApi.request();
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
-        setLoading(getAllContractsApi.loading);
-    }, [getAllContractsApi.loading]);
+        setLoading(getAllWalletsApi.loading);
+    }, [getAllWalletsApi.loading]);
 
 
     return (
         <>
         <MainCard>
             <Stack flexDirection="row">
-                <h1>Contracts</h1>
+                <h1>Wallets</h1>
                 <Grid sx={{ mb: 1.25 }} container direction="row">
                     <Box sx={{ flexGrow: 1 }} />
                     <Grid item>
@@ -82,7 +82,7 @@ const Contracts = () => {
                 </Grid>
             </Stack>
             <Grid container spacing={gridSpacing}>
-                {!isLoading && getAllContractsApi.data && getAllContractsApi.data.map((data, index) => (
+                {!isLoading && getAllWalletsApi.data && getAllWalletsApi.data.map((data, index) => (
                     <Grid key={index} item lg={4} md={6} sm={6} xs={12}>
                         <ItemCard 
                             isLoading={isLoading}
@@ -92,24 +92,24 @@ const Contracts = () => {
                     </Grid>
                 ))}
             </Grid>
-            {!isLoading && (!getAllContractsApi.data || getAllContractsApi.data.length === 0) && (
+            {!isLoading && (!getAllWalletsApi.data || getAllWalletsApi.data.length === 0) && (
                 <Stack sx={{ alignItems: 'center', justifyContent: 'center' }} flexDirection="column">
                     <Box sx={{ p: 2, height: 'auto' }}>
-                        <img style={{ objectFit: 'cover', height: '30vh', width: 'auto' }} src={ContractEmptySVG} alt="ContractEmptySVG" />
+                        <img style={{ objectFit: 'cover', height: '30vh', width: 'auto' }} src={WalletEmptySVG} alt="WalletEmptySVG" />
                     </Box>
-                    <div>No Contracts Yet</div>
+                    <div>No Wallets Yet</div>
                 </Stack>
             )}
         </MainCard>
-        <ContractDialog
+        <WalletDialog
             show={showDialog}
             dialogProps={dialogProps}
             onCancel={() => setShowDialog(false)}
             onConfirm={onConfirm}
         >
-        </ContractDialog>
+        </WalletDialog>
         </>
     );
 };
 
-export default Contracts;
+export default Wallets;

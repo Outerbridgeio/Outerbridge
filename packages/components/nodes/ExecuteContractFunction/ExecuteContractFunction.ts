@@ -1,17 +1,16 @@
-
-import { ethers, utils } from "ethers";
+import { ethers } from "ethers";
 import {
 	IContract,
 	IDbCollection,
 	INode, 
     INodeData, 
+    INodeExecutionData, 
     INodeOptionsValue, 
     INodeParams, 
-    IProviders, 
+    IWallet, 
     NodeType,
 } from '../../src/Interface';
 import { handleErrorMessage, returnNodeExecutionData } from '../../src/utils';
-import EventEmitter from 'events';
 import { 
 	binanceMainnetChainID, 
 	binanceMainnetRPC, 
@@ -28,7 +27,7 @@ import {
 	networkExplorers,
 } from '../../src/ChainNetwork';
 
-class ContractEventTrigger extends EventEmitter implements INode {
+class ExecuteContractFunction implements INode {
 
 	label: string;
     name: string;
@@ -41,19 +40,16 @@ class ContractEventTrigger extends EventEmitter implements INode {
 	networks?: INodeParams[];
     credentials?: INodeParams[];
     actions?: INodeParams[];
-	providers: IProviders;
 
 	constructor() {
-		super();
-		this.label = 'Contract Event Trigger';
-		this.name = 'ContractEventTrigger';
-		this.icon = 'contract-event-trigger.svg';
-		this.type = 'trigger';
+		this.label = 'Execute Contract Function';
+		this.name = 'executeContractFunction';
+		this.icon = 'execute-contract-function.svg';
+		this.type = 'action';
 		this.version = 1.0;
-		this.description = 'Start workflow whenever the specified contract event happened';
-		this.incoming = 0;
+		this.description = 'Execute smart contract function.';
+		this.incoming = 1;
 		this.outgoing = 1;
-		this.providers = {};
 		this.actions = [
 			{
 				label: 'Select Contract',
@@ -63,10 +59,29 @@ class ContractEventTrigger extends EventEmitter implements INode {
 				loadMethod: 'getContracts',
 			},
 			{
-				label: 'Event',
-				name: 'event',
+				label: 'Function',
+				name: 'function',
 				type: 'asyncOptions',
-				loadMethod: 'getEvents',
+				loadMethod: 'getFunctions'
+			},
+			{
+				label: 'Function Parameters',
+				name: 'funcParameters',
+				type: 'json',
+				default: '[]',
+				description: 'Function parameters in array. Ex: ["param1", "param2"]',
+				optional: true
+			},
+			{
+				label: 'Select Wallet',
+				name: 'wallet',
+				type: 'asyncOptions',
+                description: 'Connect wallet to sign transactions for functions that require changing states on blockchain, i.e: nonpayable or payable.',
+				loadFromDbCollections: ['Wallet'],
+				loadMethod: 'getWallets',
+				show: {
+					'actions.function': '(\\(payable\\)|\\(nonpayable\\))'
+				}
 			},
 		] as INodeParams[];
 		this.networks = [
@@ -148,8 +163,62 @@ class ContractEventTrigger extends EventEmitter implements INode {
 
 			return returnData;
 		},
+		
+		async getFunctions(nodeData: INodeData): Promise<INodeOptionsValue[]> {
+			const returnData: INodeOptionsValue[] = [];
 
-		async getEvents(nodeData: INodeData): Promise<INodeOptionsValue[]> {
+			const actionsData = nodeData.actions;
+            if (actionsData === undefined) {
+                return returnData;
+            }
+
+			const contractString = actionsData.contract as string || '';
+			if (!contractString) return returnData;
+			
+			try {
+				const contractDetails = JSON.parse(contractString);
+
+				if (!contractDetails.abi || !contractDetails.address) return returnData;
+
+				const abiString = contractDetails.abi;
+			
+				const abi = JSON.parse(abiString);
+				
+				for (const item of abi) {
+					if (!item.name) continue;
+					if (item.type === 'function') {
+						const funcName = `${item.name} (${item.stateMutability})`;
+						const funcInputs = item.inputs;
+						let inputParameters = '';
+						let inputTypes = '';
+						for (let i = 0; i < funcInputs.length; i++) {
+							const input = funcInputs[i];
+							inputTypes += `${input.type} ${input.name}`;
+							if (i !== funcInputs.length-1) inputTypes += ', ';
+							inputParameters += `<li><code class="inline">${input.type}</code> ${input.name}</li>`;
+						}
+						if (inputParameters) {
+							inputParameters = '<ul>' + inputParameters + '</ul>';
+						} else {
+							inputParameters = '<ul>' + 'none' + '</ul>';
+						}
+						returnData.push({
+							label: funcName,
+							name: funcName,
+							description: inputTypes,
+							inputParameters,
+						});
+					}
+				}
+				
+				return returnData;
+
+			} catch(e) {
+				return returnData;
+			}
+		}, 
+
+		async getWallets(nodeData: INodeData, dbCollection?: IDbCollection): Promise<INodeOptionsValue[]> {
 			const returnData: INodeOptionsValue[] = [];
 
 			const actionsData = nodeData.actions;
@@ -163,42 +232,33 @@ class ContractEventTrigger extends EventEmitter implements INode {
 			try {
 				const contractDetails = JSON.parse(contractString);
 
-				if (!contractDetails.abi || !contractDetails.address) return returnData;
-
-				const abiString = contractDetails.abi;
+				if (!contractDetails.network) return returnData;
 			
-				const abi = JSON.parse(abiString);
-				
-				for (const item of abi) {
-					if (!item.name) continue;
-					if (item.type === 'event') {
-						const eventName = item.name;
-						const eventInputs = item.inputs;
-						let inputTypes = '';
-						let value = '';
-						for (let i = 0; i < eventInputs.length; i++) {
-							const input = eventInputs[i];
-							value += input.type
-							inputTypes += `${input.type} ${input.name}`;
-							if (i !== eventInputs.length-1) {
-								inputTypes += ', ';
-								value += ',';
-							}
-						}
-						returnData.push({
-							label: eventName,
-							name: `${eventName}(${value})`,
-							description: inputTypes
-						});
-					}
+				if (dbCollection === undefined || !dbCollection || !dbCollection.Wallet) {
+					return returnData;
 				}
+
+				const wallets: IWallet[] = dbCollection.Wallet;
+
+				for (let i = 0; i < wallets.length; i+=1) {
+					const wallet = wallets[i];
+					if (contractDetails.network !== wallet.network) continue;
+					const data = {
+						label: `${wallet.name} (${wallet.network})`,
+						name: JSON.stringify(wallet),
+						description: wallet.address
+					} as INodeOptionsValue;
+					returnData.push(data);
+				}
+
 				return returnData;
+
 			} catch(e) {
 				return returnData;
 			}
 		},
 
-		async getNetworkProviders(nodeData: INodeData): Promise<INodeOptionsValue[]> {
+        async getNetworkProviders(nodeData: INodeData): Promise<INodeOptionsValue[]> {
 			const returnData: INodeOptionsValue[] = [];
 
 			const actionData = nodeData.actions;
@@ -237,7 +297,7 @@ class ContractEventTrigger extends EventEmitter implements INode {
 		},
 	}
 
-	async runTrigger(nodeData: INodeData): Promise<void> {
+	async run(nodeData: INodeData): Promise<INodeExecutionData[] | null> {
 
 		const networksData = nodeData.networks;
 		const actionsData = nodeData.actions;
@@ -249,17 +309,16 @@ class ContractEventTrigger extends EventEmitter implements INode {
 
 		const networkProvider = networksData.networkProvider as string;
 	
-		if (credentials === undefined && networkProvider !== 'customRPC'
-		 && networkProvider !== 'customWebsocket' && networkProvider !== 'cloudfare') {
+		if (credentials === undefined && (networkProvider === 'infura' || networkProvider !== 'alchemy')) {
 			throw new Error('Missing credentials');
 		}
+
+		let provider: any;
 
 		try {
 			const contractString = actionsData.contract as string || '';
 			const contractDetails: IContract = JSON.parse(contractString);
 			const network = contractDetails.network;
-
-			let provider: any;
 
 			if (networkProvider === 'alchemy') {
 				provider = new ethers.providers.AlchemyProvider(network, credentials!.apiKey);
@@ -311,6 +370,7 @@ class ContractEventTrigger extends EventEmitter implements INode {
 						});
 					}
 					provider = new ethers.providers.FallbackProvider(prvs);
+
 				}
 			} else if (networkProvider === 'polygon') {
 				if (network === 'matic') {
@@ -356,48 +416,68 @@ class ContractEventTrigger extends EventEmitter implements INode {
 
 			} else if (networkProvider === 'customWebsocket') {
 				provider = new ethers.providers.WebSocketProvider(networksData.websocketRPC as string);
-
 			}
-		
+
+			// Get contract details
 			const abiString = contractDetails.abi;
 			const address = contractDetails.address;
 			const abi = JSON.parse(abiString);
 			
-			const event = actionsData.event as string || '';
-			const contract = new ethers.Contract(address, abi, provider);
-			
-			const emitEventKey = nodeData.emitEventKey || '';
+			let functionName = actionsData.function as string || '';
+			let inputParameters = actionsData.funcParameters as string || '';
+			inputParameters = inputParameters.replace(/\s/g, '');
 
-			const filter = {
-				address,
-				topics: [
-					utils.id(event),
-				]
-			};
+			let contractParameters: any[] = [];
+			if (inputParameters) contractParameters = JSON.parse(inputParameters);
 
-			provider.on(filter, (log: any) => {
-				const txHash = log.transactionHash;
-				log['explorerLink'] = `${networkExplorers[network]}/tx/${txHash}`;
-				this.emit(emitEventKey, returnNodeExecutionData(log));
-			});
+			let contractInstance: ethers.Contract;
+			if (new RegExp('(\\(payable\\)|\\(nonpayable\\))').test(functionName)) {
 
-			this.providers[emitEventKey] = { provider, filter };
+				// Get wallet instance
+				const walletString = actionsData.wallet as string;
+				const walletDetails: IWallet = JSON.parse(walletString);
+				const walletCredential = JSON.parse(walletDetails.walletCredential);
+				const wallet = new ethers.Wallet(walletCredential.privateKey as string, provider);
+				contractInstance = new ethers.Contract(address, abi, wallet);
+
+				const gasPrice = await provider.getGasPrice();
+				const gasLimit = 3000000;
+    			const nonce = await provider.getTransactionCount(walletDetails.address);
+
+				const txOption = {
+					gasPrice,
+					gasLimit,
+					nonce
+				};
+
+				functionName = functionName.split(" ")[0];
+				const tx = await contractInstance[functionName].apply(null, contractParameters.length ? contractParameters : null, txOption);
+				
+				const approveReceipt = await tx.wait();
+
+    			if (approveReceipt.status === 0) throw new Error(`Function ${functionName} failed to send transaction`);
+				const returnItem = {
+					function: functionName,
+					transactionHash: approveReceipt,
+					link: `${networkExplorers[network]}/tx/${approveReceipt.transactionHash}`,
+				};
+				return returnNodeExecutionData(returnItem);
+
+			} else {
+				contractInstance = new ethers.Contract(address, abi, provider);
+				functionName = functionName.split(" ")[0];
+				const result = await contractInstance[functionName].apply(null, contractParameters.length ? contractParameters : null);
+				const returnItem = {
+					function: functionName,
+					result: result,
+				};
+				return returnNodeExecutionData(returnItem);
+			}
 
 		} catch(e) {
 			throw handleErrorMessage(e);
 		}
 	}
-
-	async removeTrigger(nodeData: INodeData): Promise<void> {
-		const emitEventKey = nodeData.emitEventKey || '';
-		
-		if (Object.prototype.hasOwnProperty.call(this.providers, emitEventKey)) {
-			const provider = this.providers[emitEventKey].provider;
-			const filter = this.providers[emitEventKey].filter;
-			provider.off(filter)
-			this.removeAllListeners(emitEventKey);
-		}
-	}
 }
 
-module.exports = { nodeClass: ContractEventTrigger }
+module.exports = { nodeClass: ExecuteContractFunction }

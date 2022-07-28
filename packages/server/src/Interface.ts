@@ -59,7 +59,18 @@ export interface IContract {
 	abi: string;
 	address: string;
 	network: string;
-    credential: string;
+    providerCredential: string;
+	updatedDate: Date;
+    createdDate: Date;
+}
+
+export interface IWallet {
+    _id: ObjectId;
+    name: string;
+	address: string;
+	network: string;
+    providerCredential: string;
+    walletCredential: string;
 	updatedDate: Date;
     createdDate: Date;
 }
@@ -118,6 +129,10 @@ export interface ICredentialDataDecrpyted extends ICommonObject {}
 
 export interface IComponentCredentialsPool {
     [key: string]: INodeCredential;
+}
+
+export interface IWalletResponse extends IWallet {
+    balance: string;
 }
 
 export interface IVariableDict {
@@ -215,4 +230,10 @@ export interface IContractRequestBody {
     credentials: ICommonObject;
     networks: ICommonObject;
     contractInfo: ICommonObject;
+}
+
+export interface IWalletRequestBody {
+    name: string;
+	network: string;
+    providerCredential: string;
 }

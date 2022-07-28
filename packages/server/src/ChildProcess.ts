@@ -1,11 +1,19 @@
 import { ICommonObject, INodeData } from "outerbridge-components";
 import { IChildProcessMessage, IRunWorkflowMessageValue, IVariableDict, IWorkflowExecutedData } from "./Interface";
-import { decryptCredentialData, getEncryptionKey, decryptCredentials } from "./utils";
+import { decryptCredentials } from "./utils";
 import lodash from 'lodash';
 
 
 interface IExploredNode {
-    [key: string]: number;
+    [key: string]: {
+        remainingLoop: number;
+        lastSeenDepth: number;
+    }
+}
+
+interface INodeQueue {
+    nodeId: string;
+    depth: number;
 }
 
 export class ChildProcess {
@@ -42,19 +50,19 @@ export class ChildProcess {
             workflowExecutedData
         } = messageValue;
       
-        const nodeQueue = [] as string[];
+        const nodeQueue = [] as INodeQueue[];
         const exploredNode = {} as IExploredNode;
         // In the case of infinite loop, only max 3 loops will be executed
         const maxLoop = 3;
 
         for (let i = 0; i < startingNodeIds.length; i+=1 ) {
-            nodeQueue.push(startingNodeIds[i]);
-            exploredNode[startingNodeIds[i]] = maxLoop;
+            nodeQueue.push({ nodeId: startingNodeIds[i], depth: 0 });
+            exploredNode[startingNodeIds[i]] = { remainingLoop: maxLoop, lastSeenDepth: 0 };
         }
 
         while (nodeQueue.length) {
 
-            const nodeId = nodeQueue.shift() || '';
+            const { nodeId, depth } = nodeQueue.shift() as INodeQueue;
             const ignoreNodeIds: string[] = [];
 
             if (!startingNodeIds.includes(nodeId)) {
@@ -104,13 +112,13 @@ export class ChildProcess {
                         data: [{error: e.message}]
                     } as IWorkflowExecutedData;
                     workflowExecutedData.push(newWorkflowExecutedData);
-                    console.error('CHILDPROCESS error: ', workflowExecutedData);
                     await sendToParentProcess('error', workflowExecutedData);
                     return;
                 }
             }
 
             const neighbourNodeIds = graph[nodeId];
+            const nextDepth = depth + 1;
 
             for (let i = 0; i < neighbourNodeIds.length; i+=1 ) {
 
@@ -119,17 +127,21 @@ export class ChildProcess {
                 if (!ignoreNodeIds.includes(neighNodeId)) {
                     // If nodeId has been seen, cycle detected
                     if (Object.prototype.hasOwnProperty.call(exploredNode, neighNodeId)) {
-                        let remainingLoop = exploredNode[neighNodeId];
+
+                        let { remainingLoop, lastSeenDepth } = exploredNode[neighNodeId];
+
+                        if (lastSeenDepth === nextDepth) continue;
+                        
                         if (remainingLoop === 0) {
                             break;
                         } 
                         remainingLoop -= 1;
-                        exploredNode[neighNodeId] = remainingLoop;
-                        nodeQueue.push(neighNodeId);
+                        exploredNode[neighNodeId] = { remainingLoop, lastSeenDepth: nextDepth };
+                        nodeQueue.push({ nodeId: neighNodeId, depth: nextDepth });
                         
                     } else {
-                        exploredNode[neighNodeId] = maxLoop;
-                        nodeQueue.push(neighNodeId);
+                        exploredNode[neighNodeId] = { remainingLoop: maxLoop, lastSeenDepth: nextDepth };
+                        nodeQueue.push({ nodeId: neighNodeId, depth: nextDepth });
                     }
                 }
             }

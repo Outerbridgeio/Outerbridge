@@ -7,6 +7,7 @@ import localtunnel from 'localtunnel';
 import { ObjectId } from 'mongodb';
 import { Server, Socket } from "socket.io";
 import http from "http";
+import { ethers } from 'ethers';
 
 dotenv.config();
 
@@ -17,24 +18,34 @@ import { Execution } from "./entity/Execution";
 import { Credential } from "./entity/Credential";
 import { Webhook } from './entity/Webhook';
 import { Contract } from './entity/Contract';
+import { Wallet } from './entity/Wallet';
 
 import { 
     IComponentCredentialsPool, 
     IComponentNodesPool, 
     IContractRequestBody, 
     ICredentialBody, 
+    ICredentialDataDecrpyted, 
     ICredentialResponse, 
     IReactFlowEdge, 
     IReactFlowNode, 
     IReactFlowObject, 
     ITestNodeBody, 
     ITriggerNode, 
+    IWalletRequestBody, 
+    IWalletResponse, 
     IWebhook, 
     IWebhookNode, 
     IWorkflowResponse, 
     WebhookMethod
 } from "./Interface";
-import { INodeData, INodeOptionsValue, IDbCollection } from "outerbridge-components";
+import { 
+    INodeData,
+    INodeOptionsValue,
+    IDbCollection,
+    etherscanAPIs,
+    mainCurrency
+} from "outerbridge-components";
 import { CredentialsPool } from './CredentialsPool';
 import { 
     decryptCredentialData, 
@@ -43,7 +54,8 @@ import {
     decryptCredentials, 
     resolveVariables, 
     transformToCredentialEntity, 
-    constructGraphsAndGetStartingNodes
+    constructGraphsAndGetStartingNodes,
+    encryptCredentialData
 } from './utils';
 import { DeployedWorkflowPool } from './DeployedWorkflowPool';
 import axios, { AxiosRequestConfig } from 'axios';
@@ -645,6 +657,7 @@ app.post("/api/v1/node-load-method/:name", async (req: Request, res: Response) =
                 else if (loadFromDbCollections[i] === 'Webhook') collection = Webhook;
                 else if (loadFromDbCollections[i] === 'Execution') collection = Execution;
                 else if (loadFromDbCollections[i] === 'Credential') collection = Credential;
+                else if (loadFromDbCollections[i] === 'Wallet') collection = Wallet;
                 
                 const res = await AppDataSource.getMongoRepository(collection).find();
                 dbCollection[loadFromDbCollections[i]] = res;
@@ -856,6 +869,173 @@ app.post("/api/v1/contracts/getabi", async (req: Request, res: Response) => {
 });
 
 
+
+// ----------------------------------------
+// Wallets
+// ----------------------------------------
+
+// Get all wallets
+app.get("/api/v1/wallets", async (req: Request, res: Response) => {
+    const wallets = await AppDataSource.getMongoRepository(Wallet).find();
+    return res.json(wallets);
+});
+
+// Get specific wallet via id
+app.get("/api/v1/wallets/:id", async (req: Request, res: Response) => {
+    try {
+        const wallet = await AppDataSource.getMongoRepository(Wallet).findOneBy({
+            _id: new ObjectId(req.params.id),
+        });
+
+        if (!wallet) {
+            res.status(404).send(`Wallet ${req.params.id} not found`);
+            return;
+        }
+
+        const walletResponse: IWalletResponse = {
+            ...wallet,
+            balance: '',
+        }
+
+        // Decrpyt credentialData
+        const encryptKey = await getEncryptionKey();
+
+        const providerCredential = JSON.parse(wallet.providerCredential);
+
+        let decryptedCredentialData: ICredentialDataDecrpyted = {};
+
+        if (providerCredential.registeredCredential) {
+            // @ts-ignore
+            const credentialData: string = providerCredential.registeredCredential?.credentialData;
+            
+            // Decrpyt credentialData
+            decryptedCredentialData = decryptCredentialData(credentialData, encryptKey);
+        }
+
+        const credentialMethod = providerCredential.credentialMethod;
+
+        // Get Balance
+        if (
+            decryptedCredentialData.apiKey && (
+            credentialMethod === 'etherscanApi' || 
+            credentialMethod === 'polygonscanApi' || 
+            credentialMethod === 'bscscanApi' || 
+            credentialMethod === 'optimisticEtherscanApi' ||
+            credentialMethod === 'arbiscanApi')
+        ) {
+            const options: AxiosRequestConfig = {
+                method: "GET",
+                url: `${etherscanAPIs[wallet.network]}?module=account&action=balance&address=${wallet.address}&tag=latest&apikey=${decryptedCredentialData.apiKey as string}`,
+            };
+
+            const response = await axios.request(options);
+           
+            if (response.data && response.data.result) {
+                walletResponse.balance = `${ethers.utils.formatEther(ethers.BigNumber.from(response.data.result))} ${mainCurrency[wallet.network]}`;
+            } 
+        }
+        return res.json(walletResponse);
+
+    } catch (e) {
+        console.error(e);
+        return res.status(500).send(e);
+    }
+});
+
+// Create new wallet
+app.post("/api/v1/wallets", async (req: Request, res: Response) => {
+    try {
+        const body: IWalletRequestBody = req.body;
+        const { name, network, providerCredential } = body;
+
+        const encryptKey = await getEncryptionKey();
+
+        const newBody: any = {
+            name,
+            network,
+            providerCredential
+        };
+
+        const randomWallet = ethers.Wallet.createRandom();
+        newBody.address = randomWallet.address;
+
+        const walletCredential = {
+            privateKey: randomWallet.privateKey,
+            mnemonic: randomWallet.mnemonic.phrase,
+            path: randomWallet.mnemonic.path
+        };
+        newBody.walletCredential = encryptCredentialData(walletCredential, encryptKey) as string;
+
+        const newWallet = new Wallet();
+        Object.assign(newWallet, newBody);
+
+        const wallet = await AppDataSource.getMongoRepository(Wallet).create(newWallet);
+        const results = await AppDataSource.getMongoRepository(Wallet).save(wallet);
+        return res.json(results);
+
+    } catch(e) {
+        return res.status(500).send(e);
+    }
+});
+
+
+// Update wallet
+app.put("/api/v1/wallets/:id", async (req: Request, res: Response) => {
+    const wallet = await AppDataSource.getMongoRepository(Wallet).findOneBy({
+        _id: new ObjectId(req.params.id),
+    });
+
+    if (!wallet) {
+        res.status(404).send(`Wallet with id: ${req.params.id} not found`);
+        return;
+    }
+
+    const body = req.body;
+	const updateWallet = new Wallet();
+	Object.assign(updateWallet, body);
+
+    AppDataSource.getMongoRepository(Wallet).merge(wallet, updateWallet);
+    try {
+        const results = await AppDataSource.getMongoRepository(Wallet).save(wallet);
+        return res.json(results);
+    } catch(e) {
+        return res.status(500).send(e);
+    }
+});
+
+// Delete wallet via id
+app.delete("/api/v1/wallets/:id", async (req: Request, res: Response) => {
+    const deletQuery = {
+        _id: new ObjectId(req.params.id)
+    } as any;
+    const results = await AppDataSource.getMongoRepository(Wallet).delete(deletQuery);
+    return res.json(results);
+});
+
+// Get wallet credentials
+app.get("/api/v1/wallets/credential/:id", async (req: Request, res: Response) => {
+    try {
+        const wallet = await AppDataSource.getMongoRepository(Wallet).findOneBy({
+            _id: new ObjectId(req.params.id),
+        });
+
+        if (!wallet) {
+            res.status(404).send(`Wallet ${req.params.id} not found`);
+            return;
+        }
+
+        // Decrpyt credentialData
+        const encryptKey = await getEncryptionKey();
+
+        const decryptedCredentialData = decryptCredentialData(wallet.walletCredential, encryptKey);
+
+        return res.json(decryptedCredentialData);
+
+    } catch (e) {
+        console.error(e);
+        return res.status(500).send(e);
+    }
+});
 
 
 // ----------------------------------------

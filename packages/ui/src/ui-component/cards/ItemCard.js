@@ -8,6 +8,9 @@ import { Box, Grid, Chip, Typography } from '@mui/material';
 import MainCard from 'ui-component/cards/MainCard';
 import SkeletonWorkflowCard from 'ui-component/cards/Skeleton/WorkflowCard';
 
+// Const
+import { networks } from "store/constant";
+
 const CardWrapper = styled(MainCard)(({ theme }) => ({
     backgroundColor: '#ffffff',
     color: theme.darkTextPrimary,
@@ -22,7 +25,7 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
 
 // ===========================|| CONTRACT CARD ||=========================== //
 
-const ContractCard = ({ isLoading, name, address, network, onClick }) => {
+const ItemCard = ({ isLoading, data, onClick }) => {
     const theme = useTheme();
 
     const chipSX = {
@@ -30,11 +33,15 @@ const ContractCard = ({ isLoading, name, address, network, onClick }) => {
         padding: '0 6px'
     };
 
-    const networkSX = {
+    const activeWorkflowSX = {
         ...chipSX,
         color: theme.palette.success.dark,
         backgroundColor: theme.palette.success.light
     };
+
+    const getNetworkItem = (network) => {
+        return networks.find((ntw) => ntw.name === network);
+    }
 
     return (
         <>
@@ -45,10 +52,11 @@ const ContractCard = ({ isLoading, name, address, network, onClick }) => {
                     <Box sx={{ p: 2.25 }}>
                         <Grid container direction="column">
                             <Grid item>
-                                <Typography sx={{ fontSize: '1.5rem', fontWeight: 500, mr: 1, mt: 1.75, mb: 0.75 }}>{name}</Typography>
+                                <Typography sx={{ fontSize: '1.5rem', fontWeight: 500, mr: 1, mt: 1.75, mb: 0.75 }}>{data.name}</Typography>
                             </Grid>
                             <Grid container direction="row">
                                 <Grid item sx={{ flexGrow: 1 }}>
+                                    {data.address && (
                                     <Typography
                                         sx={{
                                             fontSize: '1rem',
@@ -60,12 +68,29 @@ const ContractCard = ({ isLoading, name, address, network, onClick }) => {
                                             maxWidth: '150px'
                                         }}
                                     >
-                                        {address}
-                                    </Typography>
+                                        {data.address}
+                                    </Typography>)}
+                                    {data.flowData && (
+                                    <Typography
+                                        sx={{
+                                            fontSize: '1rem',
+                                            fontWeight: 500,
+                                            color: theme.palette.secondary[200]
+                                        }}
+                                    >
+                                        Total Executions: {data.executionCount || '0'}
+                                    </Typography>)}
                                 </Grid>
-                                <Grid item>
-                                    <Chip label={network} sx={networkSX} />
-                                </Grid>
+                                {data.deployed && (
+                                    <Grid item>
+                                        <Chip label="Deployed" sx={activeWorkflowSX} />
+                                    </Grid>
+                                )}
+                                {data.network && (
+                                    <Grid item>
+                                        <Chip label={getNetworkItem(data.network).label} sx={{...chipSX, backgroundColor: getNetworkItem(data.network).color, color: 'white' }} />
+                                    </Grid>
+                                )}
                             </Grid>
                         </Grid>
                     </Box>
@@ -75,12 +100,10 @@ const ContractCard = ({ isLoading, name, address, network, onClick }) => {
     );
 };
 
-ContractCard.propTypes = {
+ItemCard.propTypes = {
     isLoading: PropTypes.bool,
-    name: PropTypes.string,
-    address: PropTypes.string,
-    network: PropTypes.string,
+    data: PropTypes.object,
     onClick: PropTypes.func
 };
 
-export default ContractCard;
+export default ItemCard;

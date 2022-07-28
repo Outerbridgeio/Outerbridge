@@ -121,6 +121,20 @@ const EditNodes = ({ node, nodes, edges, workflow, rfInstance, onNodeLabelUpdate
     };
 
     const paramsChanged = (formParams, paramsType) => {
+
+        // Because formParams options can be changed due to show hide options, 
+        // To avoid that, replace with original details options
+
+        const credentialMethodParam = formParams.find((param) => param.name === 'credentialMethod');
+        const credentialMethodParamIndex = formParams.findIndex((param) => param.name === 'credentialMethod');
+        
+        if (credentialMethodParam !== undefined) {
+            const originalParam = nodeDetails[paramsType].find((param) => param.name === 'credentialMethod');
+            if (originalParam !== undefined) {
+                formParams[credentialMethodParamIndex]['options'] = originalParam.options;
+            }
+        }
+
         const updateNodeDetails = {
             ...nodeDetails,
             [paramsType]: formParams
@@ -391,6 +405,10 @@ const EditNodes = ({ node, nodes, edges, workflow, rfInstance, onNodeLabelUpdate
             nodeParams.find((nPrm) => nPrm.name === 'credentialMethod') !== undefined &&
             isHideRegisteredCredential(lodash.cloneDeep(reorganizedParams), paramsType)
         ) {
+            // Delete registeredCredential params
+            nodeParams = nodeParams.filter((prm) => prm.name !== 'registeredCredential');
+
+        } else if (paramsType === 'credentials' && nodeParams.find((nPrm) => nPrm.name === 'credentialMethod') === undefined) {
             // Delete registeredCredential params
             nodeParams = nodeParams.filter((prm) => prm.name !== 'registeredCredential');
         }

@@ -228,12 +228,12 @@ const CredentialInput = ({
                     try {
                         if (scriptedRef.current) {
                             const isAddNewCredential = values && values.registeredCredential && values.registeredCredential.name === ADD_NEW_CREDENTIAL;
-                            if (!isAddNewCredential && credentialParams.length === 0) {
-                                values.submit = true;
-                                onSubmit(values, paramsType);
+                          
+                            if (!isAddNewCredential && (credentialParams.length === 0 || !values.credentialMethod)) {
+                                onSubmit(values.credentialMethod ? {...values, submit: true} : {submit: true}, paramsType);
                                 setStatus({ success: true });
                                 setSubmitting(false);
-                                
+                            
                             } else {
                                 const body = getCredentialRequestBody(values);
                                 let response;

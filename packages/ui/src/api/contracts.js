@@ -10,10 +10,13 @@ const updateContract = (id, body) => client.put(`/contracts/${id}`, body);
 
 const getContractABI = (body) => client.post(`/contracts/getabi`, body);
 
+const deleteContract = (id) => client.delete(`/contracts/${id}`);
+
 export default {
     getAllContracts,
     getSpecificContract,
     createNewContract,
     updateContract,
     getContractABI,
+    deleteContract,
 };
