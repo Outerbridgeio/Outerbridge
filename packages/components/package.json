@@ -17,13 +17,14 @@
   },
   "license": "SEE LICENSE IN LICENSE.md",
   "dependencies": {
+    "@openzeppelin/contracts": "^4.7.1",
     "@types/cron": "^1.7.3",
     "@types/imap": "^0.8.35",
     "@types/mailparser": "^3.4.0",
     "axios": "^0.26.1",
     "cron": "^1.8.3",
     "dotenv": "^16.0.0",
-    "ethers": "^5.6.0",
+    "ethers": "^5.6.8",
     "express": "^4.17.3",
     "form-data": "^4.0.0",
     "gulp": "^4.0.2",
@@ -31,6 +32,7 @@
     "mailparser": "^3.5.0",
     "moment": "^2.29.3",
     "nodemailer": "^6.7.5",
+    "solc": "^0.8.15",
     "vm2": "^3.9.9"
   },
   "devDependencies": {

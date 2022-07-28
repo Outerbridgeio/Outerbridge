@@ -8,11 +8,11 @@ import {
 import { ObjectId } from 'mongodb';
 
 import {
-    IContract,
+    IWallet,
 } from '../Interface';
 
 @Entity()
-export class Contract implements IContract {
+export class Wallet implements IWallet {
 
 	@ObjectIdColumn()
     _id: ObjectId;
@@ -20,10 +20,7 @@ export class Contract implements IContract {
 	@Column()
 	name: string;
 
-	@Column()
-	abi: string;
-
-	@Column()
+    @Column()
 	address: string;
 
 	@Column()
@@ -31,6 +28,9 @@ export class Contract implements IContract {
 
     @Column('text', { nullable: true })
 	providerCredential: string;
+
+	@Column()
+	walletCredential: string;
 
 	@CreateDateColumn()
     createdDate: Date;

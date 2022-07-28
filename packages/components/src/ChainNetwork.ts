@@ -128,25 +128,25 @@ export const ethTestNetworkProviders = [
 
 export const ethNetworkProviders = [
     ...alchemyNetworkProviders,
+    ...infuraNetworkProviders,
     {
         label: 'Cloudfare',
         name: 'cloudfare',
         description: 'Public Cloudfare RPC',
         parentGroup: 'Public Nodes'
     },
-    ...infuraNetworkProviders,
     ...customNetworkProviders,
 ] as INodeOptionsValue[];
 
 export const polygonNetworkProviders = [
     ...alchemyNetworkProviders,
+    ...infuraNetworkProviders,
     {
         label: 'Polygon',
         name: 'polygon',
         description: 'Public Polygon RPC/Websocket',
         parentGroup: 'Public Nodes'
     },
-    ...infuraNetworkProviders,
     ...customNetworkProviders,
 ] as INodeOptionsValue[];
 
@@ -164,6 +164,22 @@ export const binanceNetworkProviders = [
 /**
  * URLs
  */
+export const etherscanAPIs = {
+    'homestead': 'https://api.etherscan.io/api',
+    'rinkeby': 'https://api-rinkeby.etherscan.io/api',
+    'ropsten': 'https://api-kovan.etherscan.io/api',
+    'kovan': 'https://api-kovan.etherscan.io/api',
+    'goerli': 'https://api-goerli.etherscan.io/api',
+    'matic': 'https://api.polygonscan.com/api',
+    'maticmum': 'https://api-testnet.polygonscan.com/api',
+    'optimism': 'https://api-optimistic.etherscan.io/api',
+    'optimism-kovan': 'https://api-kovan-optimistic.etherscan.io/api',
+    'arbitrum': 'https://api.arbiscan.io/api',
+    'arbitrum-rinkeby': 'https://api-testnet.arbiscan.io/api',
+    'bsc': 'https://api.bscscan.com/api',
+    'bsc-testnet': 'https://api-testnet.bscscan.com/api',
+} as any;  // tslint:disable-line: no-any
+
 export const infuraHTTPAPIs = {
     'homestead': 'https://mainnet.infura.io/v3/',
     'rinkeby': 'https://rinkeby.infura.io/v3/',
@@ -286,3 +302,19 @@ export const arbRinkebyChainID = 421611;
 export const optimsmMainnetChainID = 10;
 
 export const optimsmKovanChainID = 69;
+
+export const mainCurrency = {
+    'homestead': 'ETH',
+    'rinkeby': 'ETH',
+    'ropsten': 'ETH',
+    'kovan': 'ETH',
+    'goerli': 'ETH',
+    'matic': 'MATIC',
+    'maticmum': 'MATIC',
+    'optimism': 'ETH',
+    'optimism-kovan': 'ETH',
+    'arbitrum': 'ETH',
+    'arbitrum-rinkeby': 'ETH',
+    'bsc': 'BNB',
+    'bsc-testnet': 'BNB',
+} as any;  // tslint:disable-line: no-any

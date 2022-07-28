@@ -175,7 +175,7 @@ class ContractFunctionTrigger extends EventEmitter implements INode {
 			for (let i = 0; i < contracts.length; i+=1) {
 				const contract = contracts[i];
 				const data = {
-					label: contract.name,
+					label: `${contract.name} (${contract.network})`,
 					name: JSON.stringify(contract),
 					description: contract.address
 				} as INodeOptionsValue;

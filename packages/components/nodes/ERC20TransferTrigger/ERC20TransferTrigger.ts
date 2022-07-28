@@ -17,7 +17,10 @@ import {
 	polygonMainnetChainID, 
 	polygonMainnetRPC, 
 	polygonMumbaiChainID, 
-	polygonMumbaiRPC
+	polygonMumbaiRPC,
+	alchemyNetworkProviders,
+	infuraNetworkProviders,
+	customNetworkProviders
 } from '../../src/ChainNetwork';
 
 class ERC20TransferTrigger extends EventEmitter implements INode {
@@ -64,12 +67,8 @@ class ERC20TransferTrigger extends EventEmitter implements INode {
 				name: 'networkProvider',
 				type: 'options',
 				options: [
-					{
-						label: 'Alchemy',
-						name: 'alchemy',
-						description: 'Avg 1K CUs/min',
-						parentGroup: 'Private Nodes'
-					},
+					...alchemyNetworkProviders,
+					...infuraNetworkProviders,
 					{
 						label: 'Cloudfare',
 						name: 'cloudfare',
@@ -79,24 +78,7 @@ class ERC20TransferTrigger extends EventEmitter implements INode {
 							'networks.network': ['homestead']
 						}
 					},
-					{
-						label: 'Infura',
-						name: 'infura',
-						description: 'Avg 20 requests/min',
-						parentGroup: 'Private Nodes'
-					},
-					{
-						label: 'Custom RPC Endpoint',
-						name: 'customRPC',
-						description: 'HTTP endpoint',
-						parentGroup: 'Custom Nodes'
-					},
-					{
-						label: 'Custom Websocket Endpoint',
-						name: 'customWebsocket',
-						description: 'WSS Endpoint',
-						parentGroup: 'Custom Nodes'
-					},
+					...customNetworkProviders
 				],
 				default: '',
 			},

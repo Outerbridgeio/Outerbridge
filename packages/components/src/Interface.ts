@@ -5,7 +5,7 @@ import { ObjectId } from 'mongodb';
 /**
  * Databases
  */
- export interface IWorkflow {
+export interface IWorkflow {
 	_id: ObjectId;
     shortId: string;
     name: string;
@@ -52,7 +52,18 @@ export interface IContract {
 	abi: string;
 	address: string;
 	network: string;
-    credential: string;
+    providerCredential: string;
+	updatedDate: Date;
+    createdDate: Date;
+}
+
+export interface IWallet {
+    _id: ObjectId;
+    name: string;
+	address: string;
+	network: string;
+    providerCredential: string;
+    walletCredential: string;
 	updatedDate: Date;
     createdDate: Date;
 }
@@ -69,7 +80,7 @@ export type NodeType = 'action' | 'webhook' | 'trigger';
 
 export type NodeParamsType = 'asyncOptions' | 'options' | 'string' | 'number' | 'array' | 'boolean' | 'password' | 'json' | 'code' | 'date' | 'file';
 
-export type DbCollectionName = 'Contract' | 'Webhook' | 'Workflow' | 'Credential' | 'Execution';
+export type DbCollectionName = 'Contract' | 'Webhook' | 'Workflow' | 'Credential' | 'Execution' | 'Wallet';
 
 export type CommonType = string | number | boolean | undefined | null;
 

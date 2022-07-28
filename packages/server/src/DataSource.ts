@@ -5,6 +5,7 @@ import { Execution } from "./entity/Execution"
 import { Credential } from "./entity/Credential"
 import { Webhook } from "./entity/Webhook"
 import { Contract } from "./entity/Contract"
+import { Wallet } from "./entity/Wallet"
 
 export const AppDataSource = new DataSource({
     type: "mongodb",
@@ -13,7 +14,7 @@ export const AppDataSource = new DataSource({
     database: "outerbridge",
     synchronize: true,
     logging: false,
-    entities: [Workflow, Execution, Credential, Webhook, Contract],
+    entities: [Workflow, Execution, Credential, Webhook, Contract, Wallet],
     migrations: [],
     subscribers: [],
 })

@@ -603,11 +603,9 @@ class BinancePrivate implements INode {
 				queryParameters['timestamp'] = timestamp;
 
 				const serializedQueryParams = serializeQueryParams(queryParameters);
-				console.log('serializedQueryParams =', serializedQueryParams);
 
 				const signature = createHmac('sha256', secretKey).update(serializedQueryParams).digest("hex");
 				queryParameters['signature'] = signature;
-				console.log('signature =', signature);
 
 				method = 'POST';
 				headers['X-MBX-APIKEY'] = apiKey;
