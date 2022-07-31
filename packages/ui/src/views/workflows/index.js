@@ -26,14 +26,11 @@ const Workflows = () => {
     const getAllWorkflowsApi = useApi(workflowsApi.getAllWorkflows);
 
     const addNew = () => {
-        const selectedWorkflow = {
-            name: 'Untitled workflow',
-        };
-        navigate('/canvas', { state: { selectedWorkflow } });
+        navigate('/canvas');
     };
 
     const goToCanvas = (selectedWorkflow) => {
-        navigate('/canvas', { state: { selectedWorkflow } });
+        navigate(`/canvas/${selectedWorkflow.shortId}`);
     };
 
     useEffect(() => {

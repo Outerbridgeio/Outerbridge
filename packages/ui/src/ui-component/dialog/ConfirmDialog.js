@@ -16,6 +16,8 @@ const ConfirmDialog = () => {
 
     const component = confirmState.show ? (
         <Dialog
+            fullWidth
+            maxWidth="xs"
             open={confirmState.show}
             onClose={onCancel}
             aria-labelledby="alert-dialog-title"

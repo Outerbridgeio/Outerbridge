@@ -284,3 +284,27 @@ export const getFileName = (fileBase64) => {
     const filename = splitDataURI[2].split(':')[1];
     return filename;
 }
+
+export const generateExportFlowData = (flowData) => {
+    const nodes = flowData.nodes;
+    const edges = flowData.edges;
+    
+    for (let i = 0; i < nodes.length; i+=1 ) {
+        nodes[i].selected = false;
+        const node = nodes[i];
+        const newNodeData = {
+            label: node.data.label,
+            name: node.data.name,
+            type: node.data.type,
+            inputAnchors: node.data.inputAnchors,
+            outputAnchors: node.data.outputAnchors,
+            selected: false,
+        }
+        nodes[i].data = newNodeData;
+    }
+    const exportJson = {
+        nodes,
+        edges
+    };
+    return exportJson;
+}

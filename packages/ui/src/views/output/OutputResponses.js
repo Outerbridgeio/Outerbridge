@@ -76,6 +76,7 @@ const OutputResponses = ({ nodeId, nodeParamsType, nodeFlowData, nodes, workflow
                     const response = await workflowsApi.createNewWorkflow(newWorkflowBody)
                     savedWorkflowResponse = response.data;
                     dispatch({ type: SET_WORKFLOW, workflow: savedWorkflowResponse });
+                    window.history.replaceState(null, null, `/canvas/${savedWorkflowResponse.shortId}`)
 
                 } else {
 
