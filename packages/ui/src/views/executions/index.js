@@ -10,7 +10,6 @@ import {
     Accordion,
     AccordionSummary,
     AccordionDetails,
-    Fab,
     Paper,
     Popper,
     Chip,
@@ -30,12 +29,9 @@ import Transitions from 'ui-component/extended/Transitions';
 import AttachmentDialog from 'ui-component/dialog/AttachmentDialog';
 import HTMLDialog from 'ui-component/dialog/HTMLDialog';
 
-// icons
-import { IconX } from '@tabler/icons';
-
 // ==============================|| EXECUTIONS ||============================== //
 
-const Executions = ({ execution, executionCount, isExecutionOpen, anchorEl, handleClose }) => {
+const Executions = ({ execution, executionCount, isExecutionOpen, anchorEl }) => {
     const theme = useTheme();
     const [expanded, setExpanded] = useState(false);
     const [open, setOpen] = useState(false);
@@ -118,20 +114,6 @@ const Executions = ({ execution, executionCount, isExecutionOpen, anchorEl, hand
                 {({ TransitionProps }) => (
                     <Transitions in={open} {...TransitionProps}>
                         <Paper>
-                            <Fab 
-                                sx={{ 
-                                    minHeight: 30, 
-                                    height: 30, width: 30, 
-                                    backgroundColor: theme.palette.secondary.light, 
-                                    color: theme.palette.secondary.main, 
-                                    position: 'absolute', 
-                                    left: -15, top: -15 
-                                }} 
-                                size="small"
-                                onClick={handleClose}
-                            >
-                                <IconX />
-                            </Fab>
                             <MainCard border={false} elevation={16} content={false} boxShadow shadow={theme.shadows[16]}>
                                 <Box sx={{ p: 2 }}>
                                     <Stack>
@@ -278,7 +260,6 @@ Executions.propTypes = {
     executionCount: PropTypes.number,
     isExecutionOpen: PropTypes.bool,
     anchorEl: PropTypes.any,
-    handleClose: PropTypes.func,
 };
 
 export default Executions;

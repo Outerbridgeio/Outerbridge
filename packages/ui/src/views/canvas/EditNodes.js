@@ -311,7 +311,7 @@ const EditNodes = ({ node, nodes, edges, workflow, rfInstance, onNodeLabelUpdate
 
     const isHideRegisteredCredential = (params, paramsType) => {
 
-        if (!nodeFlowData[paramsType]['credentialMethod']) return undefined;
+        if (!nodeFlowData[paramsType] || !nodeFlowData[paramsType]['credentialMethod']) return undefined;
       
         let clonedParams = params;
 

@@ -9,7 +9,7 @@ import ReactFlow, {
     useEdgesState,
 } from 'react-flow-renderer';
 import { useDispatch, useSelector } from 'react-redux';
-import { useLocation, usePrompt, useNavigate } from "react-router-dom";
+import { usePrompt, useNavigate } from "react-router-dom";
 import { 
     REMOVE_DIRTY, 
     SET_DIRTY, 
@@ -64,15 +64,15 @@ const Canvas = () => {
     const theme = useTheme();
     const navigate = useNavigate();
 
-    const { state } = useLocation();
-    const { selectedWorkflow } = state; 
+    const URLpath = document.location.pathname.toString().split('/');
+    const workflowShortId = (URLpath[URLpath.length - 1] && URLpath[URLpath.length - 1].startsWith('W')) ? URLpath[URLpath.length - 1] : '';
 
     const { confirm } = useConfirm();
 
     const dispatch = useDispatch();
     const canvas = useSelector((state) => state.canvas);
     const [canvasDataStore, setCanvasDataStore] = useState(canvas);
-    const [workflow, setWorkflow] = useState(selectedWorkflow);
+    const [workflow, setWorkflow] = useState(null);
   
     // ==============================|| Snackbar ||============================== //
 
@@ -108,7 +108,27 @@ const Canvas = () => {
             data: { label: getEdgeLabelName(params.sourceHandle) }
         };
         setEdges((eds) => addEdge(newEdge, eds));
+        setDirty();
     };
+
+    const handleLoadWorkflow = (file) => {
+        try {
+            const flowData = JSON.parse(file);
+            const nodes = flowData.nodes || [];
+
+            for (let i = 0; i < nodes.length; i+= 1) {
+                const nodeData = nodes[i].data;
+                if (nodeData.type === 'webhook') nodeData.webhookEndpoint = generateWebhookEndpoint();
+            }
+
+            setNodes(nodes);
+            setEdges(flowData.edges || []);
+            setDirty();
+
+        } catch(e) {
+            console.error(e);
+        }
+    }
 
     const handleDeployWorkflow = async() => {
         if (rfInstance) {
@@ -244,7 +264,7 @@ const Canvas = () => {
         }
     }
 
-    const handleSaveFlow = () => {        
+    const handleSaveFlow = (workflowName) => {        
         if (rfInstance) {
 
             setNodes((nds) =>
@@ -262,13 +282,14 @@ const Canvas = () => {
             
             if (!workflow.shortId) {
                 const newWorkflowBody = {
-                    name: workflow.name,
+                    name: workflowName,
                     deployed: false,
                     flowData
                 };
                 createNewWorkflowApi.request(newWorkflowBody);
             } else {
                 const updateBody = {
+                    name: workflowName,
                     flowData
                 };
                 updateWorkflowApi.request(workflow.shortId, updateBody);
@@ -319,7 +340,7 @@ const Canvas = () => {
                         });
                     } else {
                         if (node.data.label !== nodeLabel) {
-                            setTimeout(() => dispatch({ type: SET_DIRTY }), 0);
+                            setTimeout(() => setDirty(), 0);
                         }
                         node.data =  {
                             ...node.data,
@@ -337,7 +358,7 @@ const Canvas = () => {
         setNodes((nds) =>
             nds.map((node) => {
                 if (node.id === selectedNode.id) {
-                    setTimeout(() => dispatch({ type: SET_DIRTY }), 0);
+                    setTimeout(() => setDirty(), 0);
                     node.data = {
                         ...node.data,
                         ...nodeFlowData,
@@ -420,7 +441,7 @@ const Canvas = () => {
                     return node;
                 })
             );
-            setTimeout(() => dispatch({ type: SET_DIRTY }), 0);
+            setTimeout(() => setDirty(), 0);
         },
         
         // eslint-disable-next-line
@@ -442,6 +463,10 @@ const Canvas = () => {
             },
         });
     };
+
+    const setDirty = () => {
+        dispatch({ type: SET_DIRTY });
+    }
 
     // ==============================|| useEffect ||============================== //
 
@@ -466,6 +491,7 @@ const Canvas = () => {
             const workflow = createNewWorkflowApi.data;
             dispatch({ type: SET_WORKFLOW, workflow });
             saveWorkflowSuccess();
+            window.history.replaceState(null, null, `/canvas/${workflow.shortId}`)
         }
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -488,6 +514,7 @@ const Canvas = () => {
         if (rfInstance) {
             const edges = rfInstance.getEdges();
             setEdges(edges.filter(edge => edge.id !== canvasDataStore.removeEdgeId));
+            setDirty();
         }
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -498,14 +525,19 @@ const Canvas = () => {
 
     // Initialization
     useEffect(() => {
-        if (selectedWorkflow.shortId) {
-            getSpecificWorkflowApi.request(selectedWorkflow.shortId);
-            deleteAllTestWebhooksApi.request(selectedWorkflow.shortId);
+        if (workflowShortId) {
+            getSpecificWorkflowApi.request(workflowShortId);
+            deleteAllTestWebhooksApi.request(workflowShortId);
 
         } else {
             setNodes([]);
             setEdges([]);
-            dispatch({ type: SET_WORKFLOW, workflow: selectedWorkflow });
+            dispatch({ 
+                type: SET_WORKFLOW, 
+                workflow: {
+                    name: 'Untitled workflow',
+                }
+            });
         }
 
         getNodesApi.request();
@@ -543,8 +575,8 @@ const Canvas = () => {
                         handleSaveFlow={handleSaveFlow} 
                         handleDeployWorkflow={handleDeployWorkflow}
                         handleStopWorkflow={handleStopWorkflow}
-                        handleNewWorkflowCreated={(workflow) => setWorkflow(workflow)}
                         handleDeleteWorkflow={handleDeleteWorkflow}
+                        handleLoadWorkflow={handleLoadWorkflow}
                     />
                 </Toolbar>
             </AppBar>
@@ -560,6 +592,7 @@ const Canvas = () => {
                                 onEdgesChange={onEdgesChange}
                                 onDrop={onDrop}
                                 onDragOver={onDragOver}
+                                onNodeDragStop={setDirty}
                                 nodeTypes={nodeTypes}
                                 edgeTypes={edgeTypes}
                                 onConnect={onConnect}

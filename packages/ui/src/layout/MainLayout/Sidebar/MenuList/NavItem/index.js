@@ -16,7 +16,7 @@ import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 
 // ==============================|| SIDEBAR MENU LIST ITEMS ||============================== //
 
-const NavItem = ({ item, level }) => {
+const NavItem = ({ item, level, navType, onClick, onUploadFile }) => {
     const theme = useTheme();
     const dispatch = useDispatch();
     const customization = useSelector((state) => state.customization);
@@ -46,26 +46,54 @@ const NavItem = ({ item, level }) => {
     if (item?.external) {
         listItemProps = { component: 'a', href: item.url, target: itemTarget };
     }
+    if (item?.id === 'loadWorkflow') {
+        listItemProps.component = 'label';
+    }
+
+    const handleFileUpload = (e) => {
+
+        if (!e.target.files)  return;
+
+        const file = e.target.files[0];
+    
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+            if (!evt?.target?.result) {
+                return;
+            }
+            const { result } = evt.target;
+            onUploadFile(result);
+        };
+        reader.readAsText(file);
+    };
 
     const itemHandler = (id) => {
-        dispatch({ type: MENU_OPEN, id });
-        if (matchesSM) dispatch({ type: SET_MENU, opened: false });
+        if (navType === 'SETTINGS' && id !== 'loadWorkflow') {
+            onClick(id);
+
+        } else {
+            dispatch({ type: MENU_OPEN, id });
+            if (matchesSM) dispatch({ type: SET_MENU, opened: false });
+        }
     };
 
     // active menu item on page load
     useEffect(() => {
-        const currentIndex = document.location.pathname
-            .toString()
-            .split('/')
-            .findIndex((id) => id === item.id);
-        if (currentIndex > -1) {
-            dispatch({ type: MENU_OPEN, id: item.id });
+        if (navType === 'MENU') {
+            const currentIndex = document.location.pathname
+                .toString()
+                .split('/')
+                .findIndex((id) => id === item.id);
+            if (currentIndex > -1) {
+                dispatch({ type: MENU_OPEN, id: item.id });
+            } 
+            if (!document.location.pathname.toString().split('/')[1]) {
+                itemHandler('workflows');
+            }
         }
 
-        itemHandler('workflows')
-
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [navType]);
 
     return (
         <ListItemButton
@@ -82,6 +110,13 @@ const NavItem = ({ item, level }) => {
             selected={customization.isOpen.findIndex((id) => id === item.id) > -1}
             onClick={() => itemHandler(item.id)}
         >
+            {item.id === 'loadWorkflow' && 
+            <input
+                type="file"
+                hidden
+                accept=".json"
+                onChange={(e) => handleFileUpload(e)}
+            />}
             <ListItemIcon sx={{ my: 'auto', minWidth: !item?.icon ? 18 : 36 }}>{itemIcon}</ListItemIcon>
             <ListItemText
                 primary={
@@ -112,7 +147,10 @@ const NavItem = ({ item, level }) => {
 
 NavItem.propTypes = {
     item: PropTypes.object,
-    level: PropTypes.number
+    level: PropTypes.number,
+    navType: PropTypes.string,
+    onClick: PropTypes.func,
+    onUploadFile: PropTypes.func
 };
 
 export default NavItem;

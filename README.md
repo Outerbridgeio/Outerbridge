@@ -6,7 +6,8 @@ Outerbridge is a low code/no code workflow automation application, focusing on i
 
 ![Outerbridge Screenshot](./assets/screenshot_outerbridge.jpg)
 
-Currently is still in prototype stage, on-going development. Documentation is WIP.
+Project is in beta stage. Welcoming pull requests, issues, ideas and [discussions](https://github.com/Outerbridgeio/Outerbridge/discussions). 
+
 
 ## Why another workflow automation tool?
 
@@ -67,13 +68,7 @@ Outerbridge uses MongoDB as database. Download and install one [here](https://ww
 You can now access the app on `http://localhost:3000/`.
 
 ## Development
-For development build, run: `yarn run dev`. Any code changes will reload the app automatically.
-
-## Milestones
-- Documentation, Forums, Discord
-- Docker
-- More application nodes
-- E2E Unit tests coverage
+For development build, run: `yarn run dev`. Any code changes will reload the app automatically on `http://localhost:8080/`.
 
 ## License
 Free for personal use and limited commercial use (max 25 users).
