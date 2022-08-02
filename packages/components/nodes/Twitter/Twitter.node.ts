@@ -6,7 +6,7 @@ import {
   INodeParams,
   NodeType,
 } from "../../src/Interface";
-import { returnNodeExecutionData } from "../../src/utils";
+import { handleErrorMessage, returnNodeExecutionData } from "../../src/utils";
 import axios, { AxiosRequestConfig, Method } from "axios";
 
 class Twitter implements INode {
@@ -70,7 +70,7 @@ class Twitter implements INode {
             name: "fromTodayUTC",
           },
         ],
-        default: "fromToday",
+        default: "fromTodayUTC",
       },
     ] as INodeParams[];
   }
@@ -108,7 +108,7 @@ class Twitter implements INode {
         responseData = response.data;
         break;
       } catch (error) {
-        throw error;
+        throw handleErrorMessage(error);
       }
     } while (--maxRetries);
 
