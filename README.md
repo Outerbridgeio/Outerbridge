@@ -1,13 +1,10 @@
 # Outerbridge - Automate Web3 and Web2 applications
 
-Outerbridge is a low code/no code workflow automation application, focusing on integrating both on-chain and off-chain applications.
+Outerbridge is a low code/no code workflow automation application, focusing on integrating both on-chain and off-chain applications. The project is licensed under [Apache License Version 2.0](LICENSE.md), source available and free to self-host.
 
 ![Outerbridge](./assets/outerbridge_brand.png)
 
 ![Outerbridge Screenshot](./assets/screenshot_outerbridge.jpg)
-
-Project is in beta stage. Welcoming pull requests, issues, ideas and [discussions](https://github.com/Outerbridgeio/Outerbridge/discussions). 
-
 
 ## Why another workflow automation tool?
 
@@ -37,7 +34,7 @@ Outerbridge uses MongoDB as database. Download and install one [here](https://ww
 ## Setup
 1. Clone the repository
 	```
-	git clone https://github.com/<your_github_username>/Outerbridge.git
+	git clone https://github.com/Outerbridgeio/Outerbridge.git
 	```
 
 2. Go into repository folder
@@ -70,6 +67,8 @@ You can now access the app on `http://localhost:3000/`.
 ## Development
 For development build, run: `yarn run dev`. Any code changes will reload the app automatically on `http://localhost:8080/`.
 
+## Contributing
+See [contributing guide](CONTRIBUTING.md). Reach out to us at [Discord](https://discord.gg/Y9VE4ykPDJ) if you have any questions or issues.
+
 ## License
-Free for personal use and limited commercial use (max 25 users).
-[Fair Source License, version 0.9](LICENSE.md)
+Source code in this repository is made available under the [Apache License Version 2.0](LICENSE.md).
