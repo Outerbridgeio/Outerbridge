@@ -10,6 +10,10 @@ Outerbridge is a low code/no code workflow automation application, focusing on i
 
 There are many awesome automation tools out there, however there isn't one that has the built-in logic of interacting/consuming information from blockchains. Hence, Outerbridge is created to allow people building workflows involving on-chain and off-chain applications, with simple drag and drop interface. 
 
+## Documentation
+Official Outerbridge docs can be found under: https://docs.outerbridge.io
+
+
 ## Environment Setup
 
 Lerna and MongoDB have to be installed before setting up the project.
