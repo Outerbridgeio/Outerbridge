@@ -1,0 +1,108 @@
+# Contributing to Outerbridge
+
+As the old chinese saying goes: 礼轻情意重 (It's the thought that counts), we appreciate any form of contributions.
+
+## ⭐ Star
+
+Star and share the [Github Repo](https://github.com/Outerbridgeio/Outerbridge).
+
+## 🙋 Q&A
+
+Search up for any questions in [Q&A section](https://github.com/Outerbridgeio/Outerbridge/discussions/categories/q-a), if you can't find one, don't hesitate to create one. It might helps others that have similar question.
+
+## 🙌 Share Workflow
+
+Yes! Sharing how you use Outerbridge is a way of contribution. Export your workflow as JSON, attach a screenshot and share it in [Show and Tell section](https://github.com/Outerbridgeio/Outerbridge/discussions/categories/show-and-tell). 
+
+## 💡Ideas
+
+Ideas are welcome such as new feature, apps integration, and blockchain networks. Submit in [Ideas section](https://github.com/Outerbridgeio/Outerbridge/discussions/categories/ideas).
+
+## 🐞 Report Bugs
+
+Found an issue? [Report it](https://github.com/Outerbridgeio/Outerbridge/issues/new/choose).
+
+## 👨‍💻 Contribute to Code
+Not sure what to contribute? Some ideas:
+
+- Docker containerization for easier setup
+- Create new node/credential component
+- Update existing components such as extending functionality, fixing bugs
+- Add new blockchain network to support
+- Unit tests and E2E tests
+
+### Dev setup
+
+Outerbridge has 3 different modules in a single mono repository.
+- `server`: Node backend to serve API logics
+- `ui`: React frontend
+- `components`: Nodes and Credentials of applications
+
+#### Lerna
+Lerna is used to link these modules together. Install lerna by running:
+```
+npm install -g lerna
+```
+
+#### MongoDB
+
+Outerbridge uses MongoDB as database. Download and install one [here](https://www.mongodb.com/try/download/community?tck=docs_server).
+
+#### Step by step
+
+1. Fork the official [Outerbridge Github Repository](https://github.com/Outerbridgeio/Outerbridge).
+
+2. Clone your forked repository.
+
+3. Create a new branch. Naming conventions:
+    - For feature branch: `feature/<Your New Feature>`
+    - For bugfix branch: `bugfix/<Your New Bugfix>`.
+
+4. Switch to the newly created branch.
+
+5. Go into repository folder
+	```
+	cd Outerbridge
+	```
+
+6. Install all dependencies of all modules and link them together:
+	```
+	lerna bootstrap --hoist
+	```
+
+7. Build all the code:
+	```
+	yarn run build
+	```
+    
+8. Start the app:
+	```
+	yarn run start
+	```
+    
+9. For development, run
+    ```
+	yarn run dev
+	```
+    After making changes, run
+    ```
+	yarn run build
+	```
+    to make sure everything works fine in production.
+
+10. Commit code and submit Pull Request from forked branch pointing to [Outerbridge master](https://github.com/Outerbridgeio/Outerbridge/tree/master). Example [PR](https://github.com/Outerbridgeio/Outerbridge/pull/23).
+
+## 📖 Contribute to Docs
+
+Contribute to Outerbridge [docs](https://github.com/Outerbridgeio/outerbridge-docs) if there is any mistake, confusion or grap.
+
+## Pull Request process
+
+A member of the Outerbridge team will automatically be notified/assigned when you open a pull request. You can also reach out to us on [Discord](https://discord.gg/Y9VE4ykPDJ).
+
+## Contributor License Agreement
+
+Before we can merge your contribution you have to sign our [Contributor License Agreement (CLA)](https://cla-assistant.io/OuterbridgeIO/Outerbridge). The CLA contains the terms and conditions under which the contribution is submitted. You need to do this only once for your first pull request. Keep in mind that without a signed CLA we cannot merge your contribution.
+
+## Code of Conduct
+This project and everyone participating in it are governed by the Code of Conduct which can be found in the [file](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to henryheng@outerbridge.io or hello@outerbridge.io.

@@ -210,6 +210,6 @@ export interface ICronJobs {
 export interface IProviders {
 	[key: string]: {
 		provider: any,
-		filter: any
+		filter?: any
 	}
 }

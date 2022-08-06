@@ -404,7 +404,7 @@ class ContractFunctionTrigger extends EventEmitter implements INode {
 			const address = contractDetails.address;
 			const abi = JSON.parse(abiString);
 				
-			const emitEventKey = nodeData.emitEventKey || '';
+			const emitEventKey = nodeData.emitEventKey as string;
 			const functionName = actionsData.function as string || '';
 			let inputParameters = actionsData.funcParameters as string || '';
 			inputParameters = inputParameters.replace(/\s/g, '');
@@ -470,7 +470,7 @@ class ContractFunctionTrigger extends EventEmitter implements INode {
 	}
 
 	async removeTrigger(nodeData: INodeData): Promise<void> {
-		const emitEventKey = nodeData.emitEventKey || '';
+		const emitEventKey = nodeData.emitEventKey as string;
 		
 		if (Object.prototype.hasOwnProperty.call(this.cronJobs, emitEventKey)) {
 			const cronJobs = this.cronJobs[emitEventKey];

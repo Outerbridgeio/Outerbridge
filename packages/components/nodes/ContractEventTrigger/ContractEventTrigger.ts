@@ -366,7 +366,7 @@ class ContractEventTrigger extends EventEmitter implements INode {
 			const event = actionsData.event as string || '';
 			const contract = new ethers.Contract(address, abi, provider);
 			
-			const emitEventKey = nodeData.emitEventKey || '';
+			const emitEventKey = nodeData.emitEventKey as string;
 
 			const filter = {
 				address,
@@ -389,7 +389,7 @@ class ContractEventTrigger extends EventEmitter implements INode {
 	}
 
 	async removeTrigger(nodeData: INodeData): Promise<void> {
-		const emitEventKey = nodeData.emitEventKey || '';
+		const emitEventKey = nodeData.emitEventKey as string;
 		
 		if (Object.prototype.hasOwnProperty.call(this.providers, emitEventKey)) {
 			const provider = this.providers[emitEventKey].provider;
