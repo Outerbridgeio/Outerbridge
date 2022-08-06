@@ -259,7 +259,7 @@ class ERC20TransferTrigger extends EventEmitter implements INode {
 
 		}
 
-		const emitEventKey = nodeData.emitEventKey || '';
+		const emitEventKey = nodeData.emitEventKey as string;
 		const erc20Address = inputParametersData.erc20Address as string || null;
 		const fromAddress = inputParametersData.fromAddress as string || null;
 		const toAddress = inputParametersData.toAddress as string || null;
@@ -286,7 +286,7 @@ class ERC20TransferTrigger extends EventEmitter implements INode {
 	}
 
 	async removeTrigger(nodeData: INodeData): Promise<void> {
-		const emitEventKey = nodeData.emitEventKey || '';
+		const emitEventKey = nodeData.emitEventKey as string;
 		
 		if (Object.prototype.hasOwnProperty.call(this.providers, emitEventKey)) {
 			const provider = this.providers[emitEventKey].provider;

@@ -146,13 +146,13 @@ class EmailTrigger extends EventEmitter implements INode {
 		
 		imap.connect();
 
-		const emitEventKey = nodeData.emitEventKey || '';
+		const emitEventKey = nodeData.emitEventKey as string;
 
-		this.providers[emitEventKey] = { provider: imap, filter: null };
+		this.providers[emitEventKey] = { provider: imap };
 	}
 
 	async removeTrigger(nodeData: INodeData): Promise<void> {
-		const emitEventKey = nodeData.emitEventKey || '';
+		const emitEventKey = nodeData.emitEventKey as string;
 		
 		if (Object.prototype.hasOwnProperty.call(this.providers, emitEventKey)) {
 			const provider = this.providers[emitEventKey].provider;

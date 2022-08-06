@@ -8,9 +8,11 @@
     "build": "lerna exec yarn run build",
     "start": "cd packages && cd server && yarn start",
     "dev": "lerna exec yarn run dev --parallel",
+    "clean": "lerna exec -- rimraf ./dist",
     "test": "lerna yarn run test"
   },
   "devDependencies": {
-    "lerna": "^3.13.1"
+    "lerna": "^3.13.1",
+    "rimraf": "^3.0.2"
   }
 }

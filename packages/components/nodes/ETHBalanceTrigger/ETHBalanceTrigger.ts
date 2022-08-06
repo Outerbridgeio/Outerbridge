@@ -214,7 +214,7 @@ class ETHBalanceTrigger extends EventEmitter implements INode {
 
 		}
 
-		const emitEventKey = nodeData.emitEventKey || '';
+		const emitEventKey = nodeData.emitEventKey as string;
 		const address = inputParametersData.address as string || '';
 		const pollTime = inputParametersData.pollTime as string || '30s';
 		const triggerCondition = inputParametersData.triggerCondition as string || 'increase';
@@ -281,7 +281,7 @@ class ETHBalanceTrigger extends EventEmitter implements INode {
 	}
 
 	async removeTrigger(nodeData: INodeData): Promise<void> {
-		const emitEventKey = nodeData.emitEventKey || '';
+		const emitEventKey = nodeData.emitEventKey as string;
 		
 		if (Object.prototype.hasOwnProperty.call(this.cronJobs, emitEventKey)) {
 			const cronJobs = this.cronJobs[emitEventKey];

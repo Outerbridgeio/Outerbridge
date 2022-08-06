@@ -235,7 +235,7 @@ class Scheduler extends EventEmitter implements INode {
 			}
 		}
 
-		const emitEventKey = nodeData.emitEventKey || '';
+		const emitEventKey = nodeData.emitEventKey as string;
 		
 		// The function to fire at the specified time
 		const onTick = () => {
@@ -263,7 +263,7 @@ class Scheduler extends EventEmitter implements INode {
 	}
 
 	async removeTrigger(nodeData: INodeData): Promise<void> {
-		const emitEventKey = nodeData.emitEventKey || '';
+		const emitEventKey = nodeData.emitEventKey as string;
 		
 		if (Object.prototype.hasOwnProperty.call(this.cronJobs, emitEventKey)) {
 			const cronJobs = this.cronJobs[emitEventKey];
