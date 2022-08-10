@@ -403,6 +403,7 @@ const InputParameters = ({
                                         onBlur={e => {
                                             handleBlur(e);
                                             onChanged(values);
+                                            onMouseUp(e, inputName);
                                         }}
                                         onMouseUp={(e) => onMouseUp(e, inputName)}
                                         onChange={handleChange}
