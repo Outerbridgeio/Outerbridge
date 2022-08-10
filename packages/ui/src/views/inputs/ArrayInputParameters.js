@@ -390,6 +390,7 @@ const ArrayInputParameters = ({
                                     onBlur={(e) => {
                                         const inputValue = e.target.value;
                                         onInputBlur(inputValue, inputName, values, index);
+                                        onMouseUp(e, inputName, index);
                                     }}
                                     onChange={(e) => {
                                         const inputValue = e.target.value;
