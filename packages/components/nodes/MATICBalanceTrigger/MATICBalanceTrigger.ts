@@ -1,5 +1,5 @@
 import { CronJob } from 'cron';
-import { ethers, utils } from "ethers";
+import { BigNumber, ethers, utils } from "ethers";
 import {
 	ICronJobs,
 	INode, 
@@ -260,29 +260,31 @@ class MATICBalanceTrigger extends EventEmitter implements INode {
 			cronTimes.push(`*/10 * * * *`);
 		}
 				
-		let lastBalance = await provider.getBalance(address);
+		let lastBalance: BigNumber = await provider.getBalance(address);
 
 		const executeTrigger = async() => {
-			let newBalance = await provider.getBalance(address);
+			let newBalance: BigNumber = await provider.getBalance(address);
 			
 			if (!newBalance.eq(lastBalance)) {
-				if (triggerCondition === 'increase' && (newBalance - lastBalance > 0)) {
-					const balanceInBNB = ethers.utils.formatEther(newBalance);
+				if (triggerCondition === 'increase' && (newBalance.gt(lastBalance))) {
+					const balanceInMATIC = utils.formatEther(BigNumber.from(newBalance.toString()));
+					const diffInMATIC = newBalance.sub(lastBalance);
 					const returnItem = {
-						newBalance: `${balanceInBNB} MATIC`,
-						lastBalance: `${ethers.utils.formatEther(lastBalance)} MATIC`,
-						difference: `${ethers.utils.formatEther(newBalance-lastBalance)} MATIC`,
+						newBalance: `${balanceInMATIC} MATIC`,
+						lastBalance: `${utils.formatEther(BigNumber.from(lastBalance.toString()))} MATIC`,
+						difference: `${utils.formatEther(BigNumber.from(diffInMATIC.toString()))} MATIC`,
 						explorerLink: `${networkExplorers[network]}/address/${address}`,
 						triggerCondition: 'MATIC balance increase'
 					};
 					lastBalance = newBalance;
 					this.emit(emitEventKey, returnNodeExecutionData(returnItem));
-				} else if (triggerCondition === 'decrease' && (newBalance - lastBalance < 0)) {
-					const balanceInBNB = ethers.utils.formatEther(newBalance);
+				} else if (triggerCondition === 'decrease' && (newBalance.lt(lastBalance))) {
+					const balanceInMATIC = utils.formatEther(BigNumber.from(newBalance.toString()));
+					const diffInMATIC = lastBalance.sub(newBalance);
 					const returnItem = {
-						newBalance: `${balanceInBNB} MATIC`,
-						lastBalance: `${ethers.utils.formatEther(lastBalance)} MATIC`,
-						difference: `${ethers.utils.formatEther(newBalance-lastBalance)} MATIC`,
+						newBalance: `${balanceInMATIC} MATIC`,
+						lastBalance: `${utils.formatEther(BigNumber.from(lastBalance.toString()))} MATIC`,
+						difference: `${utils.formatEther(BigNumber.from(diffInMATIC.toString()))} MATIC`,
 						explorerLink: `${networkExplorers[network]}/address/${address}`,
 						triggerCondition: 'MATIC balance decrease'
 					};
