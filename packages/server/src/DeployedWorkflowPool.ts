@@ -23,6 +23,7 @@ import { DataSource } from "typeorm"
 import { join as pathJoin } from 'path';
 import { fork } from 'child_process';
 import { AbortController } from "node-abort-controller";
+import * as fs from 'fs';
 import dotenv from 'dotenv';
 import lodash from 'lodash';
 dotenv.config();
@@ -219,7 +220,10 @@ export class DeployedWorkflowPool {
 			const controller = new AbortController();
 			const { signal } = controller;
 
-			const childProcess = fork(pathJoin(__dirname, 'ChildProcess.js'), [], { signal });
+			let childpath = pathJoin(__dirname, '..', 'dist', 'ChildProcess.js');
+			if (!fs.existsSync(childpath)) childpath = 'ChildProcess.ts';
+		
+			const childProcess = fork(childpath, [], { signal });
 
 			const workflowExecutedData = [{
 				nodeId: startingNodeId,
