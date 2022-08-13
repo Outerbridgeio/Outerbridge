@@ -31,9 +31,9 @@ export class NodesPool {
                         newNodeInstance.icon.endsWith('.png') || 
                         newNodeInstance.icon.endsWith('.jpg'))
                     ) {
-                        const filePath = file.split('\\');
+                        const filePath = file.replace(/\\/g, '\/').split('\/');
                         filePath.pop();
-                        const nodeIconAbsolutePath = `${filePath.join('\\')}\\${newNodeInstance.icon}`;
+                        const nodeIconAbsolutePath = `${filePath.join('\/')}\/${newNodeInstance.icon}`;
                         this.componentNodes[newNodeInstance.name].icon = nodeIconAbsolutePath;
                     }
                     

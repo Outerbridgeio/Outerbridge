@@ -234,11 +234,20 @@ class HTTP implements INode {
             const axiosConfig: AxiosRequestConfig = {
                 method: method as Method,
                 url: url,
-                params: queryParameters,
-				paramsSerializer: params => serializeQueryParams(params),
-                headers: queryHeaders,
-                data,
             }
+
+			if (Object.keys(data).length) {
+				axiosConfig.data = data;
+			}
+
+			if (Object.keys(queryParameters).length) {
+				axiosConfig.params = queryParameters;
+				axiosConfig.paramsSerializer = params => serializeQueryParams(params);
+			}
+
+			if (Object.keys(queryHeaders).length) {
+				axiosConfig.headers = queryHeaders;
+			}
 
             if (credentialMethod === 'httpBasicAuth') {
                 axiosConfig.auth = {

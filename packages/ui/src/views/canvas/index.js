@@ -597,7 +597,6 @@ const Canvas = () => {
                                 edgeTypes={edgeTypes}
                                 onConnect={onConnect}
                                 onInit={setRfInstance}
-                                deleteKeyCode="Delete"
                                 fitView
                             >
                                 <MiniMap
