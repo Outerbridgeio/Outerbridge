@@ -16,6 +16,9 @@ Watch [demo](https://www.youtube.com/watch?v=x-AfrkKvZ4M) on Youtube (4mins)
 ## Documentation
 Official Outerbridge docs can be found under: https://docs.outerbridge.io
 
+## Support
+Feel free to ask any questions, raise problems, and request new features in [discussion](https://github.com/Outerbridgeio/Outerbridge/discussions)
+
 ## Environment Setup
 
 Lerna and MongoDB have to be installed before setting up the project.
