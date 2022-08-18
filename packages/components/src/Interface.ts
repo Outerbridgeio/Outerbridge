@@ -78,7 +78,7 @@ export type WebhookMethod = 'GET' | 'POST';
  
 export type NodeType = 'action' | 'webhook' | 'trigger';
 
-export type NodeParamsType = 'asyncOptions' | 'options' | 'string' | 'number' | 'array' | 'boolean' | 'password' | 'json' | 'code' | 'date' | 'file';
+export type NodeParamsType = 'asyncOptions' | 'options' | 'string' | 'number' | 'array' | 'boolean' | 'password' | 'json' | 'code' | 'date' | 'file' | 'folder';
 
 export type DbCollectionName = 'Contract' | 'Webhook' | 'Workflow' | 'Credential' | 'Execution' | 'Wallet';
 
