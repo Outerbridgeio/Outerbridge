@@ -20,6 +20,7 @@ import Autocomplete, { autocompleteClasses } from '@mui/material/Autocomplete';
 import { styled, useTheme } from '@mui/material/styles';
 
 // third party
+import lodash from 'lodash';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
 import JSONInput from "react-json-editor-ajrm";
@@ -43,7 +44,7 @@ import AsyncSelectWrapper from './AsyncSelectWrapper';
 import { IconPlus, IconUpload } from '@tabler/icons';
 
 // utils
-import { convertDateStringToDateObject, getFileName } from 'utils/genericHelper';
+import { convertDateStringToDateObject, getFileName, getFolderName } from 'utils/genericHelper';
 
 const StyledPopper = styled(Popper)({
     boxShadow: '0px 8px 10px -5px rgb(0 0 0 / 20%), 0px 16px 24px 2px rgb(0 0 0 / 14%), 0px 6px 30px 5px rgb(0 0 0 / 12%)',
@@ -134,13 +135,42 @@ const InputParameters = ({
         valueChanged(updateValues, paramsType);
     };
 
-    const handleFileUpload = (e, setFieldValue, values, inputName) => {
+    const handleFolderUpload = (e, setFieldValue, values, inputName) => {
 
         setVariableSelectorState(false);
+        if (!e.target.files) return;
+        const files = e.target.files;
+        const reader = new FileReader();
 
-        if (!e.target.files) {
-          return;
+        function readFile(fileIndex, base64Array) {
+            if( fileIndex >= files.length ) {
+                setFieldValue(inputName, JSON.stringify(base64Array));
+                const overwriteValues = {
+                    ...values,
+                    [inputName]: JSON.stringify(base64Array)
+                };
+                onChanged(overwriteValues);
+                return;
+            }
+            const file = files[fileIndex];
+            reader.onload= (evt) => {
+                if (!evt?.target?.result) {
+                    return;
+                }
+                const { result } = evt.target;
+                const value = result + `,filepath:${file.webkitRelativePath}`;
+                base64Array.push(value);
+                readFile(fileIndex+1, lodash.cloneDeep(base64Array));
+            }
+            reader.readAsDataURL(file);
         }
+        readFile(0, []);
+    }
+
+    const handleFileUpload = (e, setFieldValue, values, inputName) => {
+        
+        setVariableSelectorState(false);
+        if (!e.target.files) return;
 
         const file = e.target.files[0];
         const { name } = file;
@@ -197,7 +227,7 @@ const InputParameters = ({
                     <form noValidate onSubmit={handleSubmit} {...others}>
                         {params.map((input) => {
 
-                            if (input.type === 'file') {
+                            if (input.type === 'file' || input.type === 'folder') {
 
                                 const inputName = input.name;
 
@@ -216,7 +246,27 @@ const InputParameters = ({
                                         </Tooltip>
                                         )}
                                     </Stack>
-                                    <span style={{ fontWeight: 'bold', color: theme.palette.grey['800'], marginBottom: '1rem' }} >{values[inputName] ? getFileName(values[inputName]) : 'Choose a file to upload' }</span>
+                                    
+                                    {input.type === 'file' && 
+                                    <span 
+                                        style={{
+                                            fontWeight: 'bold',
+                                            color: theme.palette.grey['800'],
+                                            marginBottom: '1rem'
+                                        }}>
+                                        {values[inputName] ? getFileName(values[inputName]) : 'Choose a file to upload' }
+                                    </span>}
+
+                                    {input.type === 'folder' && 
+                                    <span 
+                                        style={{
+                                            fontWeight: 'bold',
+                                            color: theme.palette.grey['800'],
+                                            marginBottom: '1rem'
+                                        }}>
+                                        {values[inputName] ? getFolderName(values[inputName]) : 'Choose a folder to upload' }
+                                    </span>}
+
                                     <Button
                                         variant="outlined"
                                         component="label"
@@ -224,12 +274,21 @@ const InputParameters = ({
                                         startIcon={<IconUpload />}
                                         sx={{ marginRight: "1rem" }}
                                     >
-                                        Upload File
+                                        {input.type === 'folder' ? 'Upload Folder' : 'Upload File'}
+                                        {input.type === 'file' && 
                                         <input
                                             type="file"
                                             hidden
                                             onChange={(e) => handleFileUpload(e, setFieldValue, values, inputName)}
-                                        />
+                                        />}
+                                        {input.type === 'folder' && 
+                                        <input
+                                            type="file"
+                                            directory=""
+                                            webkitdirectory=""
+                                            hidden
+                                            onChange={(e) => handleFolderUpload(e, setFieldValue, values, inputName)}
+                                        />}
                                     </Button>
                                     {errors[inputName] && <span style={{ color: 'red', fontSize: '0.7rem', fontStyle: 'italic' }}>*{errors[inputName]}</span>}
                                 </FormControl>)

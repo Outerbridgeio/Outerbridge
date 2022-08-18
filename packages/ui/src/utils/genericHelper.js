@@ -281,8 +281,24 @@ export const convertDateStringToDateObject = (dateString) => {
 
 export const getFileName = (fileBase64) => {
     const splitDataURI = fileBase64.split(',');
-    const filename = splitDataURI[2].split(':')[1];
+    const filename = splitDataURI[splitDataURI.length-1].split(':')[1];
     return filename;
+}
+
+export const getFolderName = (base64ArrayStr) => {
+    try {
+        const base64Array = JSON.parse(base64ArrayStr);
+        const filenames = [];
+        for (let i = 0; i < base64Array.length; i+=1 ) {
+            const fileBase64 = base64Array[i];
+            const splitDataURI = fileBase64.split(',');
+            const filename = splitDataURI[splitDataURI.length-1].split(':')[1];
+            filenames.push(filename);
+        }
+        return filenames.length ? filenames.join(',') : '';
+    } catch(e) {
+        return '';
+    }
 }
 
 export const generateExportFlowData = (flowData) => {

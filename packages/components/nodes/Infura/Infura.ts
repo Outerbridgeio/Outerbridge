@@ -306,9 +306,10 @@ class Infura implements INode {
 
 				const fileBase64 = inputParametersData.file as string;
                 const splitDataURI = fileBase64.split(',');
-                const bf = Buffer.from(splitDataURI[1], "base64");
-                const filename = splitDataURI[2].split(':')[1];
-             
+                
+                const filename = (splitDataURI.pop() || 'filename:').split(':')[1];
+                const bf = Buffer.from((splitDataURI.pop() || ''), "base64");
+
                 const formData = new FormData();
                 formData.append("file", bf, filename);
 
@@ -360,8 +361,9 @@ class Infura implements INode {
 
                 const fileBase64 = inputParametersData.file as string;
                 const splitDataURI = fileBase64.split(',');
-                const bf = Buffer.from(splitDataURI[1], "base64");
-                const filename = splitDataURI[2].split(':')[1];
+            
+                const filename = (splitDataURI.pop() || 'filename:').split(':')[1];
+                const bf = Buffer.from((splitDataURI.pop() || ''), "base64");
              
                 const formData = new FormData();
                 formData.append("file", bf, filename);
@@ -422,8 +424,9 @@ class Infura implements INode {
 
                 const fileBase64 = inputParametersData.file as string;
                 const splitDataURI = fileBase64.split(',');
-                const bf = Buffer.from(splitDataURI[1], "base64");
-                const filename = splitDataURI[2].split(':')[1];
+
+                const filename = (splitDataURI.pop() || 'filename:').split(':')[1];
+                const bf = Buffer.from((splitDataURI.pop() || ''), "base64");
              
                 const formData = new FormData();
                 formData.append("file", bf, filename);

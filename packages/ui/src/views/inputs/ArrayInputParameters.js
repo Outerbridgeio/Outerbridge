@@ -25,6 +25,7 @@ import { useTheme, styled } from '@mui/material/styles';
 import { IconX, IconUpload } from '@tabler/icons';
 
 // third party
+import lodash from 'lodash';
 import JSONInput from "react-json-editor-ajrm";
 import locale from "react-json-editor-ajrm/locale/en";
 import Editor from 'react-simple-code-editor';
@@ -36,7 +37,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 // utils
-import { convertDateStringToDateObject, getFileName } from 'utils/genericHelper';
+import { convertDateStringToDateObject, getFileName, getFolderName } from 'utils/genericHelper';
 
 const StyledPopper = styled(Popper)({
     boxShadow: '0px 8px 10px -5px rgb(0 0 0 / 20%), 0px 16px 24px 2px rgb(0 0 0 / 14%), 0px 6px 30px 5px rgb(0 0 0 / 12%)',
@@ -139,6 +140,32 @@ const ArrayInputParameters = ({
         onArrayItemMouseUp(true, body);
     }
 
+    const handleFolderUpload = (e, onInputChange, values, inputName, index) => {
+
+        if (!e.target.files) return;
+        const files = e.target.files;
+        const reader = new FileReader();
+
+        function readFile(fileIndex, base64Array) {
+            if( fileIndex >= files.length ) {
+                onInputChange(JSON.stringify(base64Array), inputName, values, index)
+                return;
+            }
+            const file = files[fileIndex];
+            reader.onload= (evt) => {
+                if (!evt?.target?.result) {
+                    return;
+                }
+                const { result } = evt.target;
+                const value = result + `,filepath:${file.webkitRelativePath}`;
+                base64Array.push(value);
+                readFile(fileIndex+1, lodash.cloneDeep(base64Array));
+            }
+            reader.readAsDataURL(file);
+        }
+        readFile(0, []);
+    };
+
     const handleFileUpload = (e, onInputChange, values, inputName, index) => {
 
         if (!e.target.files) {
@@ -201,7 +228,7 @@ const ArrayInputParameters = ({
 
                     {params.map((input, paramIndex) => {
 
-                        if (input.type === 'file') {
+                        if (input.type === 'file' || input.type === 'folder') {
 
                             const inputName = input.name;
 
@@ -222,7 +249,27 @@ const ArrayInputParameters = ({
                                     </Tooltip>
                                     )}
                                 </Stack>
-                                <span style={{ fontWeight: 'bold', color: theme.palette.grey['800'], marginBottom: '1rem' }} >{values[inputName] ? getFileName(values[inputName]) : 'Choose a file to upload' }</span>
+
+                                {input.type === 'file' && 
+                                <span 
+                                    style={{
+                                        fontWeight: 'bold',
+                                        color: theme.palette.grey['800'],
+                                        marginBottom: '1rem'
+                                    }}>
+                                    {values[inputName] ? getFileName(values[inputName]) : 'Choose a file to upload' }
+                                </span>}
+
+                                {input.type === 'folder' && 
+                                <span 
+                                    style={{
+                                        fontWeight: 'bold',
+                                        color: theme.palette.grey['800'],
+                                        marginBottom: '1rem'
+                                    }}>
+                                    {values[inputName] ? getFolderName(values[inputName]) : 'Choose a folder to upload' }
+                                </span>}
+
                                 <Button
                                     variant="outlined"
                                     component="label"
@@ -230,12 +277,21 @@ const ArrayInputParameters = ({
                                     startIcon={<IconUpload />}
                                     sx={{ marginRight: "1rem" }}
                                 >
-                                    Upload File
+                                    {input.type === 'folder' ? 'Upload Folder' : 'Upload File'}
+                                    {input.type === 'file' && 
                                     <input
                                         type="file"
                                         hidden
-                                        onChange={(e) => handleFileUpload(e, onInputChange, values, inputName, index)}
-                                    />
+                                        onChange={(e) => handleFileUpload(e, setFieldValue, values, inputName, index)}
+                                    />}
+                                    {input.type === 'folder' && 
+                                    <input
+                                        type="file"
+                                        directory=""
+                                        webkitdirectory=""
+                                        hidden
+                                        onChange={(e) => handleFolderUpload(e, setFieldValue, values, inputName, index)}
+                                    />}
                                 </Button>
                             </FormControl>)
                         }
