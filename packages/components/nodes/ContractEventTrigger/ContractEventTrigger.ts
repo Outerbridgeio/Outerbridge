@@ -13,19 +13,16 @@ import {
 import { handleErrorMessage, returnNodeExecutionData } from '../../src/utils';
 import EventEmitter from 'events';
 import { 
-	binanceMainnetChainID, 
 	binanceMainnetRPC, 
 	binanceNetworkProviders, 
-	binanceTestnetChainID, 
 	binanceTestnetRPC,
 	ethNetworkProviders, 
 	ethTestNetworkProviders, 
-	polygonMainnetChainID, 
 	polygonMainnetRPC, 
-	polygonMumbaiChainID, 
 	polygonMumbaiRPC, 
 	polygonNetworkProviders,
 	networkExplorers,
+	CHAIN_ID,
 } from '../../src/ChainNetwork';
 
 class ContractEventTrigger extends EventEmitter implements INode {
@@ -282,7 +279,7 @@ class ContractEventTrigger extends EventEmitter implements INode {
 							{ url: node, timeout: 1000 },
 							{
 								name: 'binance',
-								chainId: binanceMainnetChainID,
+								chainId: CHAIN_ID.BINANCE_MAINNET,
 							},
 						);
 						await prv.ready;
@@ -301,7 +298,7 @@ class ContractEventTrigger extends EventEmitter implements INode {
 							{ url: node, timeout: 1000 },
 							{
 								name: 'binance',
-								chainId: binanceTestnetChainID,
+								chainId: CHAIN_ID.BINANCE_TESTNET,
 							},
 						);
 						await prv.ready;
@@ -321,7 +318,7 @@ class ContractEventTrigger extends EventEmitter implements INode {
 							{ url: node, timeout: 1000 },
 							{
 								name: 'polygon',
-								chainId: polygonMainnetChainID,
+								chainId: CHAIN_ID.MATIC_MAINNET,
 							},
 						);
 						await prv.ready;
@@ -340,7 +337,7 @@ class ContractEventTrigger extends EventEmitter implements INode {
 							{ url: node, timeout: 1000 },
 							{
 								name: 'polygon',
-								chainId: polygonMumbaiChainID,
+								chainId: CHAIN_ID.MATIC_TESTNET,
 							},
 						);
 						await prv.ready;

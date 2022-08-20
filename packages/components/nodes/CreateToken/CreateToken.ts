@@ -16,26 +16,17 @@ import {
 import { ethers } from "ethers";
 import * as fs from 'fs';
 import * as path from 'path';
-import axios, { AxiosRequestConfig, Method } from 'axios';
 import { 
-    ArbitrumNetworks,
-    binanceMainnetChainID, 
     binanceMainnetRPC, 
     binanceNetworkProviders, 
-    binanceTestnetChainID, 
     binanceTestnetRPC, 
-    BSCNetworks, 
+    CHAIN_ID, 
     ethNetworkProviders, 
-    ETHNetworks, 
     ethTestNetworkProviders, 
     networkExplorers, 
-    OptimismNetworks, 
-    polygonMainnetChainID, 
     polygonMainnetRPC, 
-    polygonMumbaiChainID, 
     polygonMumbaiRPC, 
     polygonNetworkProviders, 
-    PolygonNetworks 
 } from '../../src/ChainNetwork';
 
 const solc = require('solc');
@@ -311,7 +302,7 @@ class CreateToken implements INode {
 							{ url: node, timeout: 1000 },
 							{
 								name: 'binance',
-								chainId: binanceMainnetChainID,
+								chainId: CHAIN_ID.BINANCE_MAINNET,
 							},
 						);
 						await prv.ready;
@@ -330,7 +321,7 @@ class CreateToken implements INode {
 							{ url: node, timeout: 1000 },
 							{
 								name: 'binance',
-								chainId: binanceTestnetChainID,
+								chainId: CHAIN_ID.BINANCE_TESTNET,
 							},
 						);
 						await prv.ready;
@@ -350,7 +341,7 @@ class CreateToken implements INode {
 							{ url: node, timeout: 1000 },
 							{
 								name: 'polygon',
-								chainId: polygonMainnetChainID,
+								chainId: CHAIN_ID.MATIC_MAINNET,
 							},
 						);
 						await prv.ready;
@@ -369,7 +360,7 @@ class CreateToken implements INode {
 							{ url: node, timeout: 1000 },
 							{
 								name: 'polygon',
-								chainId: polygonMumbaiChainID,
+								chainId: CHAIN_ID.MATIC_TESTNET,
 							},
 						);
 						await prv.ready;

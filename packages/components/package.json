@@ -21,6 +21,7 @@
     "@types/cron": "^1.7.3",
     "@types/imap": "^0.8.35",
     "@types/mailparser": "^3.4.0",
+    "@uniswap/v2-periphery": "^1.1.0-beta.0",
     "axios": "^0.26.1",
     "cron": "^1.8.3",
     "dotenv": "^16.0.0",
@@ -32,6 +33,7 @@
     "mailparser": "^3.5.0",
     "moment": "^2.29.3",
     "nodemailer": "^6.7.5",
+    "simple-uniswap-sdk": "^3.7.0",
     "solc": "^0.8.15",
     "vm2": "^3.9.9"
   },

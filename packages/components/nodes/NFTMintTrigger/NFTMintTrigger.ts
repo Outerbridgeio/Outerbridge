@@ -15,14 +15,13 @@ import {
 	OptimismNetworks, 
 	PolygonNetworks,
 	networkExplorers,
-	polygonMainnetChainID, 
 	polygonMainnetRPC, 
-	polygonMumbaiChainID, 
 	polygonMumbaiRPC,
 	openseaExplorers,
 	alchemyNetworkProviders,
 	infuraNetworkProviders,
-	customNetworkProviders
+	customNetworkProviders,
+	CHAIN_ID
 } from '../../src/ChainNetwork';
 
 class NFTMintTrigger extends EventEmitter implements INode {
@@ -162,8 +161,7 @@ class NFTMintTrigger extends EventEmitter implements INode {
 		const networkProvider = networksData.networkProvider as string;
 		const network = networksData.network as string;
 
-		if (credentials === undefined && networkProvider !== 'customRPC'
-		 && networkProvider !== 'customWebsocket' && networkProvider !== 'cloudfare') {
+		if (credentials === undefined && (networkProvider === 'infura' || networkProvider !== 'alchemy')) {
 			throw new Error('Missing credentials');
 		}
 
@@ -190,7 +188,7 @@ class NFTMintTrigger extends EventEmitter implements INode {
 						{ url: node, timeout: 1000 },
 						{
 							name: 'polygon',
-							chainId: polygonMainnetChainID,
+							chainId: CHAIN_ID.MATIC_MAINNET,
 						},
 					);
 					await prv.ready;
@@ -209,7 +207,7 @@ class NFTMintTrigger extends EventEmitter implements INode {
 						{ url: node, timeout: 1000 },
 						{
 							name: 'polygon',
-							chainId: polygonMumbaiChainID,
+							chainId: CHAIN_ID.MATIC_TESTNET,
 						},
 					);
 					await prv.ready;

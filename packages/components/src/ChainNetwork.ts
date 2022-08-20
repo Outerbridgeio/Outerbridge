@@ -1,4 +1,4 @@
-import { INodeOptionsValue, INodeParams } from '.';
+import { ICommonObject, INodeOptionsValue, INodeParams } from '.';
 
 /**
  * Networks
@@ -178,7 +178,7 @@ export const etherscanAPIs = {
     'arbitrum-rinkeby': 'https://api-testnet.arbiscan.io/api',
     'bsc': 'https://api.bscscan.com/api',
     'bsc-testnet': 'https://api-testnet.bscscan.com/api',
-} as any;  // tslint:disable-line: no-any
+} as ICommonObject;
 
 export const infuraHTTPAPIs = {
     'homestead': 'https://mainnet.infura.io/v3/',
@@ -192,7 +192,7 @@ export const infuraHTTPAPIs = {
     'optimism-kovan': 'https://optimism-kovan.infura.io/v3/',
     'arbitrum': 'https://arbitrum-mainnet.infura.io/v3/',
     'arbitrum-rinkeby': 'https://arbitrum-rinkeby.infura.io/v3/',
-} as any;  // tslint:disable-line: no-any
+} as ICommonObject;
 
 export const infuraWSSAPIs = {
     'homestead': 'wss://mainnet.infura.io/ws/v3/',
@@ -206,7 +206,7 @@ export const infuraWSSAPIs = {
     'optimism-kovan': 'wss://optimism-kovan.infura.io/ws/v3/',
     'arbitrum': 'wss://arbitrum-mainnet.infura.io/ws/v3/',
     'arbitrum-rinkeby': 'wss://arbitrum-rinkeby.infura.io/ws/v3/',
-} as any;  // tslint:disable-line: no-any
+} as ICommonObject;
 
 export const alchemyHTTPAPIs = {
     'homestead': 'https://eth-mainnet.alchemyapi.io/v2/',
@@ -220,7 +220,7 @@ export const alchemyHTTPAPIs = {
     'optimism-kovan': 'https://opt-kovan.g.alchemy.com/v2/',
     'arbitrum': 'https://arb-mainnet.g.alchemy.com/v2/',
     'arbitrum-rinkeby': 'https://arb-rinkeby.g.alchemy.com/v2/',
-} as any;  // tslint:disable-line: no-any
+} as ICommonObject;
 
 export const alchemyWSSAPIs = {
     'homestead': 'wss://eth-mainnet.alchemyapi.io/v2/',
@@ -234,8 +234,7 @@ export const alchemyWSSAPIs = {
     'optimism-kovan': 'wss://opt-kovan.g.alchemy.com/v2/',
     'arbitrum': 'wss://arb-mainnet.g.alchemy.com/v2/',
     'arbitrum-rinkeby': 'wss://arb-rinkeby.g.alchemy.com/v2/',
-} as any;  // tslint:disable-line: no-any
-
+} as ICommonObject;
 
 export const networkExplorers = {
     'homestead': 'https://etherscan.io',
@@ -252,7 +251,7 @@ export const networkExplorers = {
     'bsc': 'https://bscscan.com',
     'bsc-testnet': 'https://testnet.bscscan.com',
     'localhost': '',
-} as any;  // tslint:disable-line: no-any
+} as ICommonObject;
 
 export const openseaExplorers = {
     'homestead': 'https://opensea.io',
@@ -262,48 +261,64 @@ export const openseaExplorers = {
     'goerli': 'https://testnets.opensea.io',
     'matic': 'https://opensea.io/assets/matic',
     'maticmum': 'https://testnets.opensea.io/assets/mumbai',
-} as any;  // tslint:disable-line: no-any
+} as ICommonObject;
 
 export const binanceTestnetRPC = [
-    'https://data-seed-prebsc-2-s2.binance.org:8545/',
-    'https://data-seed-prebsc-1-s1.binance.org:8545/',
-];
+    'https://data-seed-prebsc-2-s2.binance.org:8545',
+    'https://data-seed-prebsc-1-s1.binance.org:8545',
+] as string[];
 
 export const binanceMainnetRPC = [
-    'https://bsc-dataseed1.ninicoin.io/',
-    'https://bsc-dataseed1.defibit.io/',
-    'https://bsc-dataseed.binance.org/',
-];
+    'https://bsc-dataseed1.ninicoin.io',
+    'https://bsc-dataseed1.defibit.io',
+    'https://bsc-dataseed.binance.org',
+] as string[];
 
 export const polygonMumbaiRPC = [
     'https://matic-testnet-archive-rpc.bwarelabs.com',
     'https://rpc-mumbai.maticvigil.com',
     'https://matic-mumbai.chainstacklabs.com',
     'https://rpc-mumbai.matic.today',
-];
+] as string[];
 
 export const polygonMainnetRPC = [
     'https://rpc-mainnet.matic.network',
-    'https://polygon-rpc.com/',
-];
+    'https://polygon-rpc.com',
+] as string[];
 
-export const binanceMainnetChainID = 56;
+export enum CHAIN_ID {
+    MAINNET = 1,
+    ROPSTEN = 3,
+    RINKEBY = 4,
+    GÖRLI = 5,
+    KOVAN = 42,
+    BINANCE_MAINNET = 56,
+    BINANCE_TESTNET = 97,
+    MATIC_MAINNET = 80001,
+    MATIC_TESTNET = 137,
+    ARB_MAINNET = 42161,
+    ARB_TESTNET = 421611,
+    OPT_MAINNET = 10,
+    OPT_TESTNET = 69
+}
 
-export const binanceTestnetChainID = 97;
+export const chainIdLookup = {
+    'homestead': CHAIN_ID.MAINNET,
+    'rinkeby': CHAIN_ID.RINKEBY,
+    'ropsten': CHAIN_ID.ROPSTEN,
+    'kovan': CHAIN_ID.KOVAN,
+    'goerli': CHAIN_ID.GÖRLI,
+    'matic': CHAIN_ID.MATIC_MAINNET,
+    'maticmum': CHAIN_ID.MATIC_TESTNET,
+    'optimism': CHAIN_ID.OPT_MAINNET,
+    'optimism-kovan': CHAIN_ID.OPT_TESTNET,
+    'arbitrum': CHAIN_ID.ARB_MAINNET,
+    'arbitrum-rinkeby': CHAIN_ID.ARB_TESTNET,
+    'bsc': CHAIN_ID.BINANCE_MAINNET,
+    'bsc-testnet': CHAIN_ID.BINANCE_TESTNET,
+} as ICommonObject;
 
-export const polygonMumbaiChainID = 80001;
-
-export const polygonMainnetChainID = 137;
-
-export const arbMainnetChainID = 42161;
-
-export const arbRinkebyChainID = 421611;
-
-export const optimsmMainnetChainID = 10;
-
-export const optimsmKovanChainID = 69;
-
-export const mainCurrency = {
+export const nativeCurrency = {
     'homestead': 'ETH',
     'rinkeby': 'ETH',
     'ropsten': 'ETH',
@@ -317,4 +332,4 @@ export const mainCurrency = {
     'arbitrum-rinkeby': 'ETH',
     'bsc': 'BNB',
     'bsc-testnet': 'BNB',
-} as any;  // tslint:disable-line: no-any
+} as ICommonObject;

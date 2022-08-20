@@ -15,14 +15,13 @@ import {
 	OptimismNetworks, 
 	PolygonNetworks,
 	networkExplorers,
-	polygonMainnetChainID, 
 	polygonMainnetRPC, 
-	polygonMumbaiChainID, 
 	polygonMumbaiRPC,
 	openseaExplorers,
 	alchemyNetworkProviders,
 	infuraNetworkProviders,
-	customNetworkProviders
+	customNetworkProviders,
+	CHAIN_ID
 } from '../../src/ChainNetwork';
 
 class NFTTransferTrigger extends EventEmitter implements INode {
@@ -218,7 +217,7 @@ class NFTTransferTrigger extends EventEmitter implements INode {
 						{ url: node, timeout: 1000 },
 						{
 							name: 'polygon',
-							chainId: polygonMainnetChainID,
+							chainId: CHAIN_ID.MATIC_MAINNET,
 						},
 					);
 					await prv.ready;
@@ -237,7 +236,7 @@ class NFTTransferTrigger extends EventEmitter implements INode {
 						{ url: node, timeout: 1000 },
 						{
 							name: 'polygon',
-							chainId: polygonMumbaiChainID,
+							chainId: CHAIN_ID.MATIC_TESTNET,
 						},
 					);
 					await prv.ready;

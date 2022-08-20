@@ -44,7 +44,7 @@ import {
     INodeOptionsValue,
     IDbCollection,
     etherscanAPIs,
-    mainCurrency
+    nativeCurrency
 } from "outerbridge-components";
 import { CredentialsPool } from './CredentialsPool';
 import { 
@@ -932,7 +932,7 @@ app.get("/api/v1/wallets/:id", async (req: Request, res: Response) => {
             const response = await axios.request(options);
            
             if (response.data && response.data.result) {
-                walletResponse.balance = `${ethers.utils.formatEther(ethers.BigNumber.from(response.data.result))} ${mainCurrency[wallet.network]}`;
+                walletResponse.balance = `${ethers.utils.formatEther(ethers.BigNumber.from(response.data.result))} ${nativeCurrency[wallet.network]}`;
             } 
         }
         return res.json(walletResponse);
