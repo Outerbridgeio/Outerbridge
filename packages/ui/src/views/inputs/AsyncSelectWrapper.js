@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 // material-ui
@@ -12,12 +12,14 @@ import OptionParamsResponse from './OptionParamsResponse';
 // third party
 import lodash from 'lodash';
 import AsyncSelect from 'react-select/async';
+import axios from "axios";
 
 // icons
 import { IconX } from '@tabler/icons';
 
-// API
-import nodesApi from "api/nodes";
+// Constant
+import { baseURL } from 'store/constant';
+
 
 // ==============================|| ASYNC SELECT WRAPPER ||============================== //
 
@@ -115,6 +117,13 @@ const AsyncSelectWrapper = ({
                             if (displayType === 'hide' && comparisonValue.includes(groundValue)) {
                                 toBeDeleteOptions.push(option);
                             }
+                        } else if (typeof comparisonValue === 'string') {
+                            if (displayType === 'show' && !((comparisonValue === groundValue) || (new RegExp(comparisonValue).test(groundValue)))) {
+                                toBeDeleteOptions.push(option);
+                            }
+                            if (displayType === 'hide' && ((comparisonValue === groundValue) || (new RegExp(comparisonValue).test(groundValue)))) {
+                                toBeDeleteOptions.push(option);
+                            }
                         }
                     });
                 }
@@ -128,16 +137,20 @@ const AsyncSelectWrapper = ({
         return returnOptions;
     }
 
-    // eslint-disable-next-line
-    const loadOptions = useCallback(
-        lodash.debounce( async(inputText, callback) => {
-            const nodeInstanceName = nodeFlowData.name;
-            const response = await nodesApi.loadMethodNode(nodeInstanceName, { ...nodeFlowData, loadMethod, loadFromDbCollections });
-            const options = showHideOptions(response.data || []);
+    const loadOptions = (inputValue, callback) => {
+        axios.post(
+            `${baseURL}/api/v1/node-load-method/${nodeFlowData.name}`,
+            {...nodeFlowData, loadMethod, loadFromDbCollections}
+        ).then((response) => {
+            const data = response.data;
+            const filteredOption = (data || []).filter((i) =>
+                i.label.toLowerCase().includes(inputValue.toLowerCase())
+            );
+            const options = showHideOptions(filteredOption);
             setAsyncOptions(options);
             callback(options);
-        }, 500), [nodeFlowData]
-    );
+        });
+    }
 
     const formatOptionLabel = ({ label, description }, {context}) => (
         <>
