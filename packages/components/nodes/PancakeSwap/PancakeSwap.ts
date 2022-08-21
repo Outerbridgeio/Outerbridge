@@ -1,4 +1,4 @@
-import { ContractInterface, ethers } from "ethers";
+import { ethers } from "ethers";
 import {
 	ICommonObject,
 	IDbCollection,
@@ -13,20 +13,19 @@ import {
 import { handleErrorMessage, returnNodeExecutionData } from '../../src/utils';
 import { 
 	networkExplorers,
-    ETHNetworks,
-    alchemyNetworkProviders,
-    infuraNetworkProviders,
-    customNetworkProviders,
-	chainIdLookup,
-	nativeCurrency,
+	binanceNetworkProviders,
+	getBscMainnetProvider,
+	getBscTestnetProvider,
+	getCustomRPCProvider,
+	getCustomWebsocketProvider,
+	CHAIN_ID,
 } from '../../src/ChainNetwork';
-import IWETH from '@uniswap/v2-periphery/build/IWETH.json';
-
 import axios, { AxiosRequestConfig, Method } from "axios";
-import { UniswapPair, UniswapPairSettings } from 'simple-uniswap-sdk';
-import { IToken, nativeTokens } from "./nativeTokens";
+import { UniswapPair, UniswapPairSettings, UniswapVersion } from 'simple-uniswap-sdk';
+import { IToken, nativeTokens } from "./extendedTokens";
+import IWBNB from './abis/WBNB.json';
 
-class Uniswap implements INode {
+class PancakeSwap implements INode {
 
 	label: string;
     name: string;
@@ -37,17 +36,16 @@ class Uniswap implements INode {
     incoming: number;
 	outgoing: number;
 	networks?: INodeParams[];
-    credentials?: INodeParams[];
     actions?: INodeParams[];
     inputParameters?: INodeParams[];
 
 	constructor() {
-		this.label = 'Uniswap';
-		this.name = 'uniswap';
-		this.icon = 'uniswap.png';
+		this.label = 'PancakeSwap';
+		this.name = 'pancakeSwap';
+		this.icon = 'pancakeswap.png';
 		this.type = 'action';
 		this.version = 1.0;
-		this.description = 'Execute Uniswap operations';
+		this.description = 'Execute PancakeSwap operations';
 		this.incoming = 1;
 		this.outgoing = 1;
 		this.actions = [
@@ -59,20 +57,85 @@ class Uniswap implements INode {
                     {
 						label: 'Swap Tokens',
 						name: 'swapTokens',
-						description: 'Supports uniswap v2 and v3 prices together and returns the best price for swapping.'
-					},
-					{
-						label: 'Get Pairs',
-						name: 'getPairs',
-						description: 'Get most liquid pairs'
 					},
 					{
 						label: 'Custom Query',
 						name: 'customQuery',
-						description: 'Custom subgraph query to retrieve more information. https://docs.uniswap.org/protocol/V2/reference/API/queries'
+						description: 'Custom subgraph query to retrieve more information. https://github.com/pancakeswap/pancake-subgraph'
 					},
                 ],
                 default: 'swapTokens'
+			},
+			{
+				label: 'Query Entity',
+				name: 'queryEntity',
+				type: 'options',
+				options: [
+                    {
+						label: 'Blocks',
+						name: 'https://api.thegraph.com/subgraphs/name/pancakeswap/blocks',
+						description: 'Tracks all blocks on Binance Smart Chain.'
+					},
+					{
+						label: 'Exchange',
+						name: 'https://bsc.streamingfast.io/subgraphs/name/pancakeswap/exchange-v2',
+						description: 'Tracks all PancakeSwap Exchange data with price, volume, liquidity'
+					},
+					{
+						label: 'Lottery',
+						name: 'https://api.thegraph.com/subgraphs/name/pancakeswap/lottery',
+						description: 'Tracks all PancakeSwap Lottery with rounds, draws and tickets.'
+					},
+					{
+						label: 'NFT Market (v1)',
+						name: 'https://api.thegraph.com/subgraphs/name/pancakeswap/nft-market',
+						description: 'Tracks all PancakeSwap NFT Market for ERC-721.'
+					},
+					{
+						label: 'Pairs',
+						name: 'https://api.thegraph.com/subgraphs/name/pancakeswap/pairs',
+						description: 'Tracks all PancakeSwap Pairs and Tokens.'
+					},
+					{
+						label: 'Pancake Squad',
+						name: 'https://api.thegraph.com/subgraphs/name/pancakeswap/pancake-squad',
+						description: 'Tracks all Pancake Squad metrics with Owners, Tokens (including metadata), and Transactions.'
+					},
+					{
+						label: 'Prediction (v1)',
+						name: 'https://api.thegraph.com/subgraphs/name/pancakeswap/prediction',
+						description: 'Tracks all PancakeSwap Prediction (v1) with market, rounds, and bets.'
+					},
+					{
+						label: 'Prediction (v2)',
+						name: 'https://api.thegraph.com/subgraphs/name/pancakeswap/prediction-v2',
+						description: 'Tracks all PancakeSwap Prediction (v2) with market, rounds, and bets.'
+					},
+					{
+						label: 'Profile',
+						name: 'https://api.thegraph.com/subgraphs/name/pancakeswap/profile',
+						description: 'Tracks all PancakeSwap Profile with teams, users, points and campaigns.'
+					},
+					{
+						label: 'SmartChef',
+						name: 'https://api.thegraph.com/subgraphs/name/pancakeswap/smartchef',
+						description: 'Tracks all PancakeSwap SmartChef (a.k.a. Syrup Pools) with tokens and rewards.'
+					},
+					{
+						label: 'Timelock',
+						name: 'https://api.thegraph.com/subgraphs/name/pancakeswap/timelock',
+						description: 'Tracks all PancakeSwap Timelock queued, executed, and cancelled transactions.'
+					},
+					{
+						label: 'MasterChef (v2)',
+						name: 'https://api.thegraph.com/subgraphs/name/pancakeswap/masterchef-v2',
+						description: 'Tracks data for MasterChefV2.'
+					},
+                ],
+                default: 'https://api.thegraph.com/subgraphs/name/pancakeswap/pairs',
+				show: {
+					'actions.operation': ['customQuery']
+				}
 			},
 		] as INodeParams[];
 		this.networks = [
@@ -82,26 +145,14 @@ class Uniswap implements INode {
 				type: 'options',
 				options: [
 					{
-						label: 'Mainnet',
-						name: 'homestead',
-						parentGroup: 'Ethereum'
+						label: 'Binance Smart Chain Mainnet',
+						name: 'bsc',
+						parentGroup: 'Binance Smart Chain'
 					},
 				],
-				default: 'homestead',
+				default: 'bsc',
 				show: {
-					'actions.operation': ['getPairs', 'customQuery']
-				}
-			},
-            {
-				label: 'Network',
-				name: 'network',
-				type: 'options',
-				options: [
-					...ETHNetworks,
-				],
-				default: 'homestead',
-				show: {
-					'actions.operation': ['swapTokens']
+					'actions.operation': ['customQuery', 'swapTokens']
 				}
 			},
 			{
@@ -109,20 +160,9 @@ class Uniswap implements INode {
 				name: 'networkProvider',
 				type: 'options',
 				options: [
-					...alchemyNetworkProviders,
-					...infuraNetworkProviders,
-					{
-						label: 'Cloudfare',
-						name: 'cloudfare',
-						description: 'Public Cloudfare RPC',
-						parentGroup: 'Public Nodes',
-						show: {
-							'networks.network': ['homestead']
-						}
-					},
-					...customNetworkProviders
+					...binanceNetworkProviders
 				],
-				default: '',
+				default: 'binance',
 				show: {
 					'actions.operation': ['swapTokens']
 				}
@@ -144,34 +184,6 @@ class Uniswap implements INode {
 				default: '',
 				show: {
 					'networks.networkProvider': ['customWebsocket'],
-					'actions.operation': ['swapTokens']
-				}
-			},
-		] as INodeParams[];
-		this.credentials = [
-			{
-				label: 'Credential Method',
-				name: 'credentialMethod',
-				type: 'options',
-				options: [
-					{
-						label: 'Alchemy API Key',
-						name: 'alchemyApi',
-						show: {
-							'networks.networkProvider': ['alchemy']
-						}
-					},
-					{
-						label: 'Infura API Key',
-						name: 'infuraApi',
-						show: {
-							'networks.networkProvider': ['infura']
-						}
-					},
-				],
-				default: '',
-				show: {
-					'networks.networkProvider': ['infura', 'alchemy'],
 					'actions.operation': ['swapTokens']
 				}
 			},
@@ -274,7 +286,7 @@ class Uniswap implements INode {
 			try {
 				const axiosConfig: AxiosRequestConfig = {
 					method: "GET" as Method,
-					url: `https://tokens.uniswap.org`,
+					url: `https://tokens.pancakeswap.finance/pancakeswap-extended.json`,
 				};
 	
 				const response = await axios(axiosConfig);
@@ -285,17 +297,16 @@ class Uniswap implements INode {
 				// Add native token
 				const data = {
 					label: `${nativeToken.name} (${nativeToken.symbol})`,
-					name: `${nativeToken.address};${nativeToken.symbol};${nativeToken.name}`,
+					name: `${nativeToken.address};${nativeToken.symbol};${nativeToken.name};${nativeToken.decimals}`,
 				} as INodeOptionsValue;
 				returnData.push(data);
 
 				// Add other tokens
-				tokens = tokens.filter((tkn) => tkn.chainId === chainIdLookup[network]);
 				for (let i = 0; i < tokens.length; i+=1) {
 					const token = tokens[i];
 					const data = {
 						label: `${token.name} (${token.symbol})`,
-						name: `${token.address};${token.symbol};${token.name}`,
+						name: `${token.address};${token.symbol};${token.name};${token.decimals}`,
 					} as INodeOptionsValue;
 					returnData.push(data);
 				}
@@ -343,7 +354,6 @@ class Uniswap implements INode {
 
 		const networksData = nodeData.networks;
 		const actionsData = nodeData.actions;
-		const credentials = nodeData.credentials;
         const inputParametersData = nodeData.inputParameters;
 
         if (networksData === undefined || actionsData === undefined || inputParametersData === undefined) {
@@ -352,31 +362,19 @@ class Uniswap implements INode {
 
 		const network = networksData.network as string;
         const networkProvider = networksData.networkProvider as string;
-	
-		if (credentials === undefined && (networkProvider === 'infura' || networkProvider !== 'alchemy')) {
-			throw new Error('Missing credentials');
-		}
 
 		let provider: any;
 
 		try {
-			if (networkProvider === 'alchemy') {
-				provider = new ethers.providers.AlchemyProvider(network, credentials!.apiKey);
-
-			} else if (networkProvider === 'infura') {
-				provider = new ethers.providers.InfuraProvider(network, {
-					apiKey: credentials!.apiKey,
-					secretKey: credentials!.secretKey
-				});
-
-			} else if (networkProvider === 'cloudfare') {
-				provider = new ethers.providers.CloudflareProvider();
-
+			if (networkProvider === 'binance') {
+				if (network === 'bsc') provider = await getBscMainnetProvider();
+				else if (network === 'bsc-testnet') provider = await getBscTestnetProvider();
+					
 			} else if (networkProvider === 'customRPC') {
-				provider = new ethers.providers.JsonRpcProvider(networksData.jsonRPC as string);
-
+				provider = getCustomRPCProvider(networksData.jsonRPC as string);
+			
 			} else if (networkProvider === 'customWebsocket') {
-				provider = new ethers.providers.WebSocketProvider(networksData.websocketRPC as string);
+				provider = getCustomWebsocketProvider(networksData.websocketRPC as string);
 			}
 
 			// Get operation
@@ -386,12 +384,12 @@ class Uniswap implements INode {
 
 				// Get fromTokenAddress
 				const fromToken = inputParametersData.fromToken as string;
-				const [fromTokenContractAddress, fromTokenSymbol, fromTokenName] = fromToken.split(';');
+				const [fromTokenContractAddress, fromTokenSymbol, fromTokenName, fromTokenDecimals] = fromToken.split(';');
 		
 				// Get toTokenAddress
 				const toToken = inputParametersData.toToken as string;
-				const [toTokenContractAddress, toTokenSymbol, toTokenName] = toToken.split(';');
-
+				const [toTokenContractAddress, toTokenSymbol, toTokenName, toTokenDecimals] = toToken.split(';');
+		
 				// Get wallet instance
 				const walletString = inputParametersData.wallet as string;
 				const walletDetails: IWallet = JSON.parse(walletString);
@@ -401,18 +399,19 @@ class Uniswap implements INode {
 				// Get amount
 				const amountToSwap = inputParametersData.amountToSwap as string;
 
-				if (fromTokenContractAddress.includes(`_${nativeCurrency[network]}`) && toTokenSymbol === 'WETH') {
-					const wrapEthContract = new ethers.Contract(
+				if (fromTokenContractAddress.includes(`_ETH`) && toTokenSymbol === 'WBNB') {
+
+					const wrapBNBContract = new ethers.Contract(
 						toTokenContractAddress,
-						IWETH['abi'] as ContractInterface,
+						IWBNB,
 						wallet
 					);
 		
-					const tx = await wrapEthContract.deposit({value: ethers.utils.parseUnits(amountToSwap, 18)});
+					const tx = await wrapBNBContract.deposit({value: ethers.utils.parseUnits(amountToSwap, 18)});
 		
 					const approveReceipt = await tx.wait();
 		
-					if (approveReceipt.status === 0) throw new Error(`Failed to swap ETH to WETH`);
+					if (approveReceipt.status === 0) throw new Error(`Failed to swap BNB to WBNB`);
 					
 					const returnItem = {
 						transactionHash: approveReceipt,
@@ -420,18 +419,19 @@ class Uniswap implements INode {
 					};
 					return returnNodeExecutionData(returnItem);
 		
-				} else if (toTokenContractAddress.includes(`_${nativeCurrency[network]}`) && fromTokenSymbol === 'WETH') {
-					const wrapEthContract = new ethers.Contract(
+				} else if (toTokenContractAddress.includes(`_ETH`) && fromTokenSymbol === 'WBNB') {
+
+					const wrapBNBContract = new ethers.Contract(
 						fromTokenContractAddress,
-						IWETH['abi'] as ContractInterface,
+						IWBNB,
 						wallet
 					);
 		
-					const tx = await wrapEthContract.withdraw(ethers.utils.parseUnits(amountToSwap, 18));
+					const tx = await wrapBNBContract.withdraw(ethers.utils.parseUnits(amountToSwap, 18));
 		
 					const approveReceipt = await tx.wait();
 		
-					if (approveReceipt.status === 0) throw new Error(`Failed to swap WETH to ETH`);
+					if (approveReceipt.status === 0) throw new Error(`Failed to swap WBNB to BNB`);
 					
 					const returnItem = {
 						transactionHash: approveReceipt,
@@ -440,21 +440,47 @@ class Uniswap implements INode {
 					return returnNodeExecutionData(returnItem);
 
 				} else {
-					
+
 					const slippage = inputParametersData.slippage as string;
 					const deadlineMinutes = inputParametersData.deadlineMinutes as number;
 					const disableMultihops = inputParametersData.disableMultihops as boolean;
 					
+					const targets = {
+						v2Override: {
+							routerAddress: '0x10ED43C718714eb63d5aA57B78B54704E256024E',
+							factoryAddress: '0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73',
+							pairAddress: '0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73',
+						},
+					};
+
+					const customNetworkData = {
+						nameNetwork: 'Binance',
+						multicallContractAddress: '0x65e9a150e06c84003d15ae6a060fc2b1b393342c',
+						nativeCurrency: {
+							name: 'BNB Token',
+							symbol: 'BNB',
+						},
+						nativeWrappedTokenInfo: {
+							chainId: CHAIN_ID.BINANCE_MAINNET as number,
+							contractAddress: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
+							decimals: 18,
+							symbol: 'WBNB',
+							name: 'Wrapped BNB',
+						},
+					}
+
 					const uniswapPair = new UniswapPair({
 						fromTokenContractAddress,
 						toTokenContractAddress,
 						ethereumAddress: wallet.address,
 						ethereumProvider: provider,
-						chainId: chainIdLookup[network] as number,
 						settings: new UniswapPairSettings({
 							slippage: (parseFloat(slippage) / 100.0) || 0.0005,
 							deadlineMinutes: deadlineMinutes || 20,
 							disableMultihops: disableMultihops || false,
+							uniswapVersions: [UniswapVersion.v2],
+							cloneUniswapContractDetails: targets,
+							customNetwork: customNetworkData,
 						}),
 					});
 
@@ -484,40 +510,18 @@ class Uniswap implements INode {
 						link: `${networkExplorers[network]}/tx/${tradeTransaction.hash}`,
 					};
 					return returnNodeExecutionData(returnItem);
+					
 				}
 
-			} else if (operation === 'getPairs' || operation === 'customQuery') {
+			} else if (operation === 'customQuery') {
 
-				let query = '';
-				if (operation === 'customQuery') query = inputParametersData.query as string;
-				else {
-					query = `{
-						pairs(
-							first: 100 
-							orderBy: reserveUSD
-							orderDirection: desc
-						) { 
-							id 
-							token0 { 
-								id 
-								symbol 
-								name 
-							} 
-							token1 { 
-								id 
-								symbol 
-								name 
-							}
-							reserveUSD
-							volumeUSD
-						}
-					}`;
-				}
+				let query = inputParametersData.query as string;
 				query = query.replace(/\s/g, ' ');
+				const queryEntity = actionsData.queryEntity as string;
 
 				const axiosConfig: AxiosRequestConfig = {
 					method: "POST" as Method,
-					url: `https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2`,
+					url: queryEntity,
 					data: { query }
 				};
 
@@ -539,4 +543,4 @@ class Uniswap implements INode {
 	}
 }
 
-module.exports = { nodeClass: Uniswap }
+module.exports = { nodeClass: PancakeSwap }

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 // material-ui
 import { Grid, Button, Box, Stack } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 
 // project imports
 import MainCard from 'ui-component/cards/MainCard';
@@ -22,6 +23,8 @@ import useApi from "hooks/useApi";
 
 const Wallets = () => {
 
+    const theme = useTheme();
+
     const [isLoading, setLoading] = useState(true);
     const [showDialog, setShowDialog] = useState(false);
     const [dialogProps, setDialogProps] = useState({});
@@ -34,6 +37,17 @@ const Wallets = () => {
             type: 'ADD',
             cancelButtonName: 'Cancel',
             confirmButtonName: 'Add'
+        };
+        setDialogProps(dialogProp);
+        setShowDialog(true);
+    };
+
+    const importNew = () => {
+        const dialogProp = {
+            title: 'Import Wallet',
+            type: 'IMPORT',
+            cancelButtonName: 'Cancel',
+            confirmButtonName: 'IMPORT'
         };
         setDialogProps(dialogProp);
         setShowDialog(true);
@@ -75,8 +89,11 @@ const Wallets = () => {
                 <Grid sx={{ mb: 1.25 }} container direction="row">
                     <Box sx={{ flexGrow: 1 }} />
                     <Grid item>
-                        <Button variant="contained" sx={{ color: 'white' }} onClick={addNew}>
+                        <Button variant="contained" sx={{ color: 'white', mr: 2 }} onClick={addNew}>
                             Add New
+                        </Button>
+                        <Button variant="contained" sx={{ color: 'white', backgroundColor: theme.palette.secondary.main }} onClick={importNew}>
+                            Import Wallet
                         </Button>
                     </Grid>
                 </Grid>

@@ -107,15 +107,22 @@ export const network_details = {
             name: 'network',
             type: 'options',
             options: networks,
-            default: 'homestead'
+            default: 'homestead',
         },
     ],
     credentials: [
         {
-            label: 'Credential Method',
+            label: 'API Key (Optional)',
             name: 'credentialMethod',
             type: 'options',
+            description: 'Provide an API key to avoid rate limit',
             options: [
+                {
+                    label: 'No Auth',
+                    name: 'noAuth',
+                    description: 'Use public endpoint without API key',
+                    hideRegisteredCredential: true
+                },
                 {
                     label: 'Etherscan API',
                     name: 'etherscanApi',
@@ -157,7 +164,7 @@ export const network_details = {
                     description: 'Register for a Free API Key from: https://arbiscan.io/apis'
                 },
             ],
-            default: 'etherscanApi',
+            default: 'noAuth',
         }
     ],
 }
@@ -200,3 +207,13 @@ export const wallet_details = {
         },
     ],
 }
+
+export const privateKeyField = [
+    {
+        label: 'Private Key',
+        name: 'privateKey',
+        type: 'string',
+        description: 'Private key of wallet to be imported',
+        default: ''
+    }
+];

@@ -15,13 +15,14 @@ import {
 	OptimismNetworks, 
 	PolygonNetworks,
 	networkExplorers,
-	polygonMainnetRPC, 
-	polygonMumbaiRPC,
 	openseaExplorers,
 	alchemyNetworkProviders,
 	infuraNetworkProviders,
 	customNetworkProviders,
-	CHAIN_ID
+	getPolygonMainnetProvider,
+	getPolygonTestnetProvider,
+	getCustomRPCProvider,
+	getCustomWebsocketProvider
 } from '../../src/ChainNetwork';
 
 class NFTMintTrigger extends EventEmitter implements INode {
@@ -180,51 +181,14 @@ class NFTMintTrigger extends EventEmitter implements INode {
 			provider = new ethers.providers.CloudflareProvider();
 
 		} else if (networkProvider === 'polygon') {
-			if (network === 'matic') {
-				const prvs = [];
-				for (let i = 0; i < polygonMainnetRPC.length; i++) {
-					const node = polygonMainnetRPC[i];
-					const prv = new ethers.providers.StaticJsonRpcProvider(
-						{ url: node, timeout: 1000 },
-						{
-							name: 'polygon',
-							chainId: CHAIN_ID.MATIC_MAINNET,
-						},
-					);
-					await prv.ready;
-					prvs.push({
-						provider: prv,
-						stallTimeout: 1000,
-					});
-				}
-				provider = new ethers.providers.FallbackProvider(prvs);
+			if (network === 'matic') provider = await getPolygonMainnetProvider();
+			else if (network === 'maticmum') provider = await getPolygonTestnetProvider();
 
-			} else if (network === 'maticmum') {
-				const prvs = [];
-				for (let i = 0; i < polygonMumbaiRPC.length; i++) {
-					const node = polygonMumbaiRPC[i];
-					const prv = new ethers.providers.StaticJsonRpcProvider(
-						{ url: node, timeout: 1000 },
-						{
-							name: 'polygon',
-							chainId: CHAIN_ID.MATIC_TESTNET,
-						},
-					);
-					await prv.ready;
-					prvs.push({
-						provider: prv,
-						stallTimeout: 1000,
-					});
-				}
-				provider = new ethers.providers.FallbackProvider(prvs);
-
-			}
 		} else if (networkProvider === 'customRPC') {
-			provider = new ethers.providers.JsonRpcProvider(networksData.jsonRPC as string);
-
+			provider = getCustomRPCProvider(networksData.jsonRPC as string);
+		
 		} else if (networkProvider === 'customWebsocket') {
-			provider = new ethers.providers.WebSocketProvider(networksData.websocketRPC as string);
-
+			provider = getCustomWebsocketProvider(networksData.websocketRPC as string);
 		}
 
 		const emitEventKey = nodeData.emitEventKey as string;

@@ -1,5 +1,5 @@
 import { CronJob } from 'cron';
-import { BigNumber, ethers, utils } from "ethers";
+import { BigNumber, utils } from "ethers";
 import {
 	ICronJobs,
 	INode, 
@@ -10,10 +10,12 @@ import {
 import { returnNodeExecutionData } from '../../src/utils';
 import EventEmitter from 'events';
 import { 
-	binanceMainnetRPC,
 	binanceNetworkProviders,
-	binanceTestnetRPC,
 	BSCNetworks,
+	getBscMainnetProvider,
+	getBscTestnetProvider,
+	getCustomRPCProvider,
+	getCustomWebsocketProvider,
 	networkExplorers,
 } from '../../src/ChainNetwork';
 
@@ -151,51 +153,14 @@ class BNBBalanceTrigger extends EventEmitter implements INode {
 		let provider: any;
 
 		if (networkProvider === 'binance') {
-
-			if (network === 'bsc') {
-				const prvs = [];
-				for (let i = 0; i < binanceMainnetRPC.length; i++) {
-					const node = binanceMainnetRPC[i];
-					const prv = new ethers.providers.StaticJsonRpcProvider(
-						{ url: node, timeout: 1000 },
-						{
-							name: 'binance',
-							chainId: 56,
-						},
-					);
-					await prv.ready;
-					prvs.push({
-						provider: prv,
-						stallTimeout: 1000,
-					});
-				}
-				provider = new ethers.providers.FallbackProvider(prvs);
-
-			} else if (network === 'bsc-testnet') {
-				const prvs = [];
-				for (let i = 0; i < binanceTestnetRPC.length; i++) {
-					const node = binanceTestnetRPC[i];
-					const prv = new ethers.providers.StaticJsonRpcProvider(
-						{ url: node, timeout: 1000 },
-						{
-							name: 'binance',
-							chainId: 97,
-						},
-					);
-					await prv.ready;
-					prvs.push({
-						provider: prv,
-						stallTimeout: 1000,
-					});
-				}
-				provider = new ethers.providers.FallbackProvider(prvs);
-			}
+			if (network === 'bsc') provider = await getBscMainnetProvider();
+			else if (network === 'bsc-testnet') provider = await getBscTestnetProvider();
+			
 		} else if (networkProvider === 'customRPC') {
-			provider = new ethers.providers.JsonRpcProvider(networksData.jsonRPC as string);
-
+			provider = getCustomRPCProvider(networksData.jsonRPC as string);
+		
 		} else if (networkProvider === 'customWebsocket') {
-			provider = new ethers.providers.WebSocketProvider(networksData.websocketRPC as string);
-
+			provider = getCustomWebsocketProvider(networksData.websocketRPC as string);
 		}
 
 		const emitEventKey = nodeData.emitEventKey as string;

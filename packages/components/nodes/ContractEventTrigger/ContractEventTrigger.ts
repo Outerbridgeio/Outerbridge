@@ -13,16 +13,17 @@ import {
 import { handleErrorMessage, returnNodeExecutionData } from '../../src/utils';
 import EventEmitter from 'events';
 import { 
-	binanceMainnetRPC, 
 	binanceNetworkProviders, 
-	binanceTestnetRPC,
 	ethNetworkProviders, 
 	ethTestNetworkProviders, 
-	polygonMainnetRPC, 
-	polygonMumbaiRPC, 
 	polygonNetworkProviders,
 	networkExplorers,
-	CHAIN_ID,
+	getBscMainnetProvider,
+	getBscTestnetProvider,
+	getPolygonMainnetProvider,
+	getPolygonTestnetProvider,
+	getCustomRPCProvider,
+	getCustomWebsocketProvider,
 } from '../../src/ChainNetwork';
 
 class ContractEventTrigger extends EventEmitter implements INode {
@@ -271,89 +272,18 @@ class ContractEventTrigger extends EventEmitter implements INode {
 				provider = new ethers.providers.CloudflareProvider();
 
 			} else if (networkProvider === 'binance') {
-				if (network === 'bsc') {
-					const prvs = [];
-					for (let i = 0; i < binanceMainnetRPC.length; i++) {
-						const node = binanceMainnetRPC[i];
-						const prv = new ethers.providers.StaticJsonRpcProvider(
-							{ url: node, timeout: 1000 },
-							{
-								name: 'binance',
-								chainId: CHAIN_ID.BINANCE_MAINNET,
-							},
-						);
-						await prv.ready;
-						prvs.push({
-							provider: prv,
-							stallTimeout: 1000,
-						});
-					}
-					provider = new ethers.providers.FallbackProvider(prvs);
-
-				} else if (network === 'bsc-testnet') {
-					const prvs = [];
-					for (let i = 0; i < binanceTestnetRPC.length; i++) {
-						const node = binanceTestnetRPC[i];
-						const prv = new ethers.providers.StaticJsonRpcProvider(
-							{ url: node, timeout: 1000 },
-							{
-								name: 'binance',
-								chainId: CHAIN_ID.BINANCE_TESTNET,
-							},
-						);
-						await prv.ready;
-						prvs.push({
-							provider: prv,
-							stallTimeout: 1000,
-						});
-					}
-					provider = new ethers.providers.FallbackProvider(prvs);
-				}
+				if (network === 'bsc') provider = await getBscMainnetProvider();
+				else if (network === 'bsc-testnet') provider = await getBscTestnetProvider();
+				
 			} else if (networkProvider === 'polygon') {
-				if (network === 'matic') {
-					const prvs = [];
-					for (let i = 0; i < polygonMainnetRPC.length; i++) {
-						const node = polygonMainnetRPC[i];
-						const prv = new ethers.providers.StaticJsonRpcProvider(
-							{ url: node, timeout: 1000 },
-							{
-								name: 'polygon',
-								chainId: CHAIN_ID.MATIC_MAINNET,
-							},
-						);
-						await prv.ready;
-						prvs.push({
-							provider: prv,
-							stallTimeout: 1000,
-						});
-					}
-					provider = new ethers.providers.FallbackProvider(prvs);
+				if (network === 'matic') provider = await getPolygonMainnetProvider();
+				else if (network === 'maticmum') provider = await getPolygonTestnetProvider();
 
-				} else if (network === 'maticmum') {
-					const prvs = [];
-					for (let i = 0; i < polygonMumbaiRPC.length; i++) {
-						const node = polygonMumbaiRPC[i];
-						const prv = new ethers.providers.StaticJsonRpcProvider(
-							{ url: node, timeout: 1000 },
-							{
-								name: 'polygon',
-								chainId: CHAIN_ID.MATIC_TESTNET,
-							},
-						);
-						await prv.ready;
-						prvs.push({
-							provider: prv,
-							stallTimeout: 1000,
-						});
-					}
-					provider = new ethers.providers.FallbackProvider(prvs);
-				}
 			} else if (networkProvider === 'customRPC') {
-				provider = new ethers.providers.JsonRpcProvider(networksData.jsonRPC as string);
-
+				provider = getCustomRPCProvider(networksData.jsonRPC as string);
+			
 			} else if (networkProvider === 'customWebsocket') {
-				provider = new ethers.providers.WebSocketProvider(networksData.websocketRPC as string);
-
+				provider = getCustomWebsocketProvider(networksData.websocketRPC as string);
 			}
 		
 			const abiString = contractDetails.abi;

@@ -235,5 +235,6 @@ export interface IContractRequestBody {
 export interface IWalletRequestBody {
     name: string;
 	network: string;
-    providerCredential: string;
+    providerCredential?: string;
+    privateKey?: string;
 }
