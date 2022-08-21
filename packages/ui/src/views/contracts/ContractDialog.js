@@ -48,6 +48,8 @@ import useApi from "hooks/useApi";
 // Const
 import { contract_details, networks, networkExplorers } from "store/constant";
 
+// utils
+import { handleCredentialParams, initializeNodeData } from 'utils/genericHelper';
 import useNotifier from 'utils/useNotifier';
 
 const ContractDialog = ({
@@ -75,6 +77,7 @@ const ContractDialog = ({
     const [contractValidation, setContractValidation] = useState({});
     const [expanded, setExpanded] = useState(false);
     const [invalidAddress, setInvalidAddress] = useState(false);
+    const [invalidABI, setInvalidABI] = useState('');
     const [isReadyToAdd, setIsReadyToAdd] = useState(false);
     const contractParamsType = ['networks', 'credentials', 'contractInfo'];
 
@@ -90,6 +93,7 @@ const ContractDialog = ({
         setContractValues({});
         setContractValidation({});
         setInvalidAddress(false);
+        setInvalidABI('');
         setIsReadyToAdd(false);
         setExpanded(false);
     }
@@ -240,9 +244,16 @@ const ContractDialog = ({
                 [paramsType]: {...formValues, submit: null}
             };
             setContractData(updateContractData);
+            setInvalidABI('Unable to fetch ABI');
             return;
         } else {
+            const status = resp.data.status;
+            if (status === '0') {
+                setInvalidABI('Unable to fetch ABI');
+                return;
+            }
             const abi = resp.data.result;
+            setInvalidABI('');
             return abi === 'Invalid API Key' ? undefined : abi;
         }
     }
@@ -303,7 +314,6 @@ const ContractDialog = ({
                     };
                     setContractData(updateContractData);
                 } else {
-                    setInvalidAddress(true);
                     const updateContractData = {
                         ...contractData,
                         [paramsType]: {...formValues, submit: null}
@@ -398,17 +408,8 @@ const ContractDialog = ({
     const initializeFormValuesAndParams = (paramsType) => {
 
         const initialValues = {};
-        const contractParams = displayOptions(lodash.cloneDeep(contractDetails[paramsType] || []));
-
-        // Add hard-coded registeredCredential params
-        if (paramsType === 'credentials' && 
-            contractParams.find((nPrm) => nPrm.name === 'registeredCredential') === undefined &&
-            contractParams.find((nPrm) => nPrm.name === 'credentialMethod') !== undefined
-        ) {
-            contractParams.push({
-                name: 'registeredCredential',
-            })
-        }
+        let contractParams = displayOptions(lodash.cloneDeep(contractDetails[paramsType] || []));
+        contractParams = handleCredentialParams(contractParams, paramsType, contractDetails[paramsType], contractData);
        
         for (let i = 0; i < contractParams.length; i+= 1) {
             const input = contractParams[i];
@@ -435,21 +436,27 @@ const ContractDialog = ({
         setContractParams(contractParams);
     };
 
-    const transformContractResponse = (contractResponseData) => {
+    const transformContractResponse = (contractResponseData, contractDetails) => {
         const contractData = {
             networks: {},
             credentials: {},
             contractInfo: {}
         }
 
-        contractData.networks = { network: contractResponseData.network, submit: true };
-        contractData.contractInfo = { ...contractResponseData, submit: true };
-        if (contractResponseData.providerCredential) {
-            try {
-                contractData.credentials = JSON.parse(contractResponseData.providerCredential);
-            } catch(e) { 
-                console.error(e); 
+        if (contractResponseData) {
+            contractData.networks = { network: contractResponseData.network, submit: true };
+            contractData.contractInfo = { ...contractResponseData, submit: true };
+            if (contractResponseData.providerCredential) {
+                try {
+                    contractData.credentials = JSON.parse(contractResponseData.providerCredential);
+                } catch(e) { 
+                    console.error(e); 
+                }
             }
+        } else {
+            contractData.networks = initializeNodeData(contractDetails.networks);
+            contractData.credentials = initializeNodeData(contractDetails.credentials);
+            contractData.contractInfo = initializeNodeData(contractDetails.contractInfo);
         }
         return contractData;
     }
@@ -469,6 +476,7 @@ const ContractDialog = ({
     useEffect(() => {
         if (show && dialogProps.type === 'ADD') {
             reset();
+            setContractData(transformContractResponse(null, contractDetails));
             setExpanded('networks');
 
         } else if (show && dialogProps.type === 'EDIT' && dialogProps.id) {
@@ -625,9 +633,6 @@ const ContractDialog = ({
                             </Avatar>)}
                         </AccordionSummary>
                         <AccordionDetails>
-                           
-                            {invalidAddress && <Chip sx={{mb: 2}} icon={<IconX />} label="Invalid Contract Address" color="error" />}
-                
                             <InputParameters 
                                 paramsType="contractInfo"
                                 params={contractParams} 
@@ -637,6 +642,8 @@ const ContractDialog = ({
                                 onSubmit={onSubmit}
                                 setVariableSelectorState={() => null}
                             />
+                            {invalidAddress && <Chip sx={{mt: 2, mb: 1}} icon={<IconX />} label="Invalid Contract Address" color="error" />}
+                            {invalidABI && <Chip sx={{mt: 2, mb: 1, ml: invalidAddress ? 2 : 0}} icon={<IconX />} label={invalidABI} color="error" />}
                         </AccordionDetails>
                     </Accordion>
                     <Divider />

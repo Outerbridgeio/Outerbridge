@@ -239,7 +239,6 @@ class ExecuteContractFunction implements INode {
 
 				for (let i = 0; i < wallets.length; i+=1) {
 					const wallet = wallets[i];
-					if (contractDetails.network !== wallet.network) continue;
 					const data = {
 						label: `${wallet.name} (${wallet.network})`,
 						name: JSON.stringify(wallet),

@@ -1,4 +1,5 @@
-import { ICommonObject, INodeOptionsValue, INodeParams } from '.';
+import { ICommonObject, INodeOptionsValue } from '.';
+import { ethers } from "ethers";
 
 /**
  * Networks
@@ -160,6 +161,88 @@ export const binanceNetworkProviders = [
     ...customNetworkProviders,
 ] as INodeOptionsValue[];
 
+export function getCustomRPCProvider(jsonRPC: string) {
+    return new ethers.providers.JsonRpcProvider(jsonRPC);
+}
+
+export function getCustomWebsocketProvider(websocketRPC: string) {
+    return new ethers.providers.WebSocketProvider(websocketRPC);
+}
+
+export async function getBscMainnetProvider() {
+    const prvs = [];
+    for (let i = 0; i < binanceMainnetRPC.length; i++) {
+        const node = binanceMainnetRPC[i];
+        const prv = new ethers.providers.StaticJsonRpcProvider(
+            { url: node, timeout: 1000 },
+            { name: 'binance', chainId: CHAIN_ID.BINANCE_MAINNET },
+        );
+        await prv.ready;
+        prvs.push({
+            provider: prv,
+            stallTimeout: 1000,
+        });
+    }
+    return new ethers.providers.FallbackProvider(prvs);
+}
+
+export async function getBscTestnetProvider() {
+    const prvs = [];
+    for (let i = 0; i < binanceTestnetRPC.length; i++) {
+        const node = binanceTestnetRPC[i];
+        const prv = new ethers.providers.StaticJsonRpcProvider(
+            { url: node, timeout: 1000 },
+            { name: 'binance', chainId: CHAIN_ID.BINANCE_TESTNET },
+        );
+        await prv.ready;
+        prvs.push({
+            provider: prv,
+            stallTimeout: 1000,
+        });
+    }
+    return new ethers.providers.FallbackProvider(prvs);
+}
+
+export async function getPolygonMainnetProvider() {
+    const prvs = [];
+    for (let i = 0; i < polygonMainnetRPC.length; i++) {
+        const node = polygonMainnetRPC[i];
+        const prv = new ethers.providers.StaticJsonRpcProvider(
+            { url: node, timeout: 1000 },
+            {
+                name: 'polygon',
+                chainId: CHAIN_ID.MATIC_MAINNET,
+            },
+        );
+        await prv.ready;
+        prvs.push({
+            provider: prv,
+            stallTimeout: 1000,
+        });
+    }
+    return new ethers.providers.FallbackProvider(prvs);
+}
+
+export async function getPolygonTestnetProvider() {
+    const prvs = [];
+    for (let i = 0; i < polygonMumbaiRPC.length; i++) {
+        const node = polygonMumbaiRPC[i];
+        const prv = new ethers.providers.StaticJsonRpcProvider(
+            { url: node, timeout: 1000 },
+            {
+                name: 'polygon',
+                chainId: CHAIN_ID.MATIC_TESTNET,
+            },
+        );
+        await prv.ready;
+        prvs.push({
+            provider: prv,
+            stallTimeout: 1000,
+        });
+    }
+    return new ethers.providers.FallbackProvider(prvs);
+}
+
 
 /**
  * URLs
@@ -272,6 +355,7 @@ export const binanceMainnetRPC = [
     'https://bsc-dataseed1.ninicoin.io',
     'https://bsc-dataseed1.defibit.io',
     'https://bsc-dataseed.binance.org',
+    'https://bsc.nodereal.io'
 ] as string[];
 
 export const polygonMumbaiRPC = [

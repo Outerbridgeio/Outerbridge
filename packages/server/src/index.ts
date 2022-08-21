@@ -855,9 +855,17 @@ app.post("/api/v1/contracts/getabi", async (req: Request, res: Response) => {
         body.credentials = decryptedCredentialData;
     }
 
+    let url = '';
+    // Get ABI
+    if (body.credentials.apiKey) {
+        url = `${body.networks.uri}?module=contract&action=getabi&address=${body.contractInfo.address}&apikey=${body.credentials.apiKey}`;
+    } else {
+        url = `${body.networks.uri}?module=contract&action=getabi&address=${body.contractInfo.address}`;
+    }
+
     const options: AxiosRequestConfig = {
         method: "GET",
-        url: `${body.networks.uri}?module=contract&action=getabi&address=${body.contractInfo.address}&apikey=${body.credentials.apiKey}`,
+        url
     };
 
     try {
@@ -865,7 +873,12 @@ app.post("/api/v1/contracts/getabi", async (req: Request, res: Response) => {
         return res.json(response.data);
     } catch (e) {
         console.error(e);
-        return res.status(500).send(e);
+        const errorObject = {
+            status: "0",
+            message: "NOTOK",
+            result: "Unable to fetch ABI, please use correct API Key for higher rate limit"
+        }
+        return res.json(errorObject);
     }
 });
 
@@ -897,12 +910,10 @@ app.get("/api/v1/wallets/:id", async (req: Request, res: Response) => {
             ...wallet,
             balance: '',
         }
-
-        // Decrpyt credentialData
+        
+        // Decrpyt providerCredential
         const encryptKey = await getEncryptionKey();
-
         const providerCredential = JSON.parse(wallet.providerCredential);
-
         let decryptedCredentialData: ICredentialDataDecrpyted = {};
 
         if (providerCredential.registeredCredential) {
@@ -914,6 +925,7 @@ app.get("/api/v1/wallets/:id", async (req: Request, res: Response) => {
         }
 
         const credentialMethod = providerCredential.credentialMethod;
+        let url = '';
 
         // Get Balance
         if (
@@ -924,16 +936,24 @@ app.get("/api/v1/wallets/:id", async (req: Request, res: Response) => {
             credentialMethod === 'optimisticEtherscanApi' ||
             credentialMethod === 'arbiscanApi')
         ) {
-            const options: AxiosRequestConfig = {
-                method: "GET",
-                url: `${etherscanAPIs[wallet.network]}?module=account&action=balance&address=${wallet.address}&tag=latest&apikey=${decryptedCredentialData.apiKey as string}`,
-            };
+            url = `${etherscanAPIs[wallet.network]}?module=account&action=balance&address=${wallet.address}&tag=latest&apikey=${decryptedCredentialData.apiKey as string}`;
+        
+        } else {
+            url = `${etherscanAPIs[wallet.network]}?module=account&action=balance&address=${wallet.address}&tag=latest`;
+        }
 
+        const options: AxiosRequestConfig = {
+            method: "GET",
+            url
+        };
+
+        try {
             const response = await axios.request(options);
-           
             if (response.data && response.data.result) {
                 walletResponse.balance = `${ethers.utils.formatEther(ethers.BigNumber.from(response.data.result))} ${nativeCurrency[wallet.network]}`;
-            } 
+            }
+        } catch (e) {
+            walletResponse.balance = 'Unable to fetch balance, please use correct API Key for higher rate limit';
         }
         return res.json(walletResponse);
 
@@ -947,7 +967,7 @@ app.get("/api/v1/wallets/:id", async (req: Request, res: Response) => {
 app.post("/api/v1/wallets", async (req: Request, res: Response) => {
     try {
         const body: IWalletRequestBody = req.body;
-        const { name, network, providerCredential } = body;
+        const { name, network, providerCredential, privateKey } = body;
 
         const encryptKey = await getEncryptionKey();
 
@@ -957,14 +977,24 @@ app.post("/api/v1/wallets", async (req: Request, res: Response) => {
             providerCredential
         };
 
-        const randomWallet = ethers.Wallet.createRandom();
+        let randomWallet: ethers.Wallet;
+
+        if (privateKey)
+            randomWallet = new ethers.Wallet(privateKey);
+        else
+            randomWallet = ethers.Wallet.createRandom();
+        
         newBody.address = randomWallet.address;
 
         const walletCredential = {
             privateKey: randomWallet.privateKey,
-            mnemonic: randomWallet.mnemonic.phrase,
-            path: randomWallet.mnemonic.path
-        };
+        } as any;
+
+        // Imported wallet doesn't have mnemonic and path
+        if (!privateKey) {
+            walletCredential.mnemonic = randomWallet.mnemonic.phrase;
+            walletCredential.path = randomWallet.mnemonic.path
+        }
         newBody.walletCredential = encryptCredentialData(walletCredential, encryptKey) as string;
 
         const newWallet = new Wallet();

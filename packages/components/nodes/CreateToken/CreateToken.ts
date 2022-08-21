@@ -17,15 +17,16 @@ import { ethers } from "ethers";
 import * as fs from 'fs';
 import * as path from 'path';
 import { 
-    binanceMainnetRPC, 
     binanceNetworkProviders, 
-    binanceTestnetRPC, 
-    CHAIN_ID, 
     ethNetworkProviders, 
     ethTestNetworkProviders, 
+    getBscMainnetProvider, 
+    getBscTestnetProvider, 
+    getCustomRPCProvider, 
+    getCustomWebsocketProvider, 
+    getPolygonMainnetProvider, 
+    getPolygonTestnetProvider, 
     networkExplorers, 
-    polygonMainnetRPC, 
-    polygonMumbaiRPC, 
     polygonNetworkProviders, 
 } from '../../src/ChainNetwork';
 
@@ -294,93 +295,22 @@ class CreateToken implements INode {
 				provider = new ethers.providers.CloudflareProvider();
 
 			} else if (networkProvider === 'binance') {
-				if (network === 'bsc') {
-					const prvs = [];
-					for (let i = 0; i < binanceMainnetRPC.length; i++) {
-						const node = binanceMainnetRPC[i];
-						const prv = new ethers.providers.StaticJsonRpcProvider(
-							{ url: node, timeout: 1000 },
-							{
-								name: 'binance',
-								chainId: CHAIN_ID.BINANCE_MAINNET,
-							},
-						);
-						await prv.ready;
-						prvs.push({
-							provider: prv,
-							stallTimeout: 1000,
-						});
-					}
-					provider = new ethers.providers.FallbackProvider(prvs);
-
-				} else if (network === 'bsc-testnet') {
-					const prvs = [];
-					for (let i = 0; i < binanceTestnetRPC.length; i++) {
-						const node = binanceTestnetRPC[i];
-						const prv = new ethers.providers.StaticJsonRpcProvider(
-							{ url: node, timeout: 1000 },
-							{
-								name: 'binance',
-								chainId: CHAIN_ID.BINANCE_TESTNET,
-							},
-						);
-						await prv.ready;
-						prvs.push({
-							provider: prv,
-							stallTimeout: 1000,
-						});
-					}
-					provider = new ethers.providers.FallbackProvider(prvs);
-				}
+				if (network === 'bsc') provider = await getBscMainnetProvider();
+				else if (network === 'bsc-testnet') provider = await getBscTestnetProvider();
+				
 			} else if (networkProvider === 'polygon') {
-				if (network === 'matic') {
-					const prvs = [];
-					for (let i = 0; i < polygonMainnetRPC.length; i++) {
-						const node = polygonMainnetRPC[i];
-						const prv = new ethers.providers.StaticJsonRpcProvider(
-							{ url: node, timeout: 1000 },
-							{
-								name: 'polygon',
-								chainId: CHAIN_ID.MATIC_MAINNET,
-							},
-						);
-						await prv.ready;
-						prvs.push({
-							provider: prv,
-							stallTimeout: 1000,
-						});
-					}
-					provider = new ethers.providers.FallbackProvider(prvs);
+				if (network === 'matic') provider = await getPolygonMainnetProvider();
+				else if (network === 'maticmum') provider = await getPolygonTestnetProvider();
 
-				} else if (network === 'maticmum') {
-					const prvs = [];
-					for (let i = 0; i < polygonMumbaiRPC.length; i++) {
-						const node = polygonMumbaiRPC[i];
-						const prv = new ethers.providers.StaticJsonRpcProvider(
-							{ url: node, timeout: 1000 },
-							{
-								name: 'polygon',
-								chainId: CHAIN_ID.MATIC_TESTNET,
-							},
-						);
-						await prv.ready;
-						prvs.push({
-							provider: prv,
-							stallTimeout: 1000,
-						});
-					}
-					provider = new ethers.providers.FallbackProvider(prvs);
-				}
 			} else if (networkProvider === 'customRPC') {
-				provider = new ethers.providers.JsonRpcProvider(networksData.jsonRPC as string);
-
+				provider = getCustomRPCProvider(networksData.jsonRPC as string);
+			
 			} else if (networkProvider === 'customWebsocket') {
-				provider = new ethers.providers.WebSocketProvider(networksData.websocketRPC as string);
+				provider = getCustomWebsocketProvider(networksData.websocketRPC as string);
 			}
 
             // Get wallet instance
             const walletCredential = JSON.parse(walletDetails.walletCredential);
-
             const wallet = new ethers.Wallet(walletCredential.privateKey as string, provider);
 
             const tokenStandard = actionsData.tokenStandard as string;

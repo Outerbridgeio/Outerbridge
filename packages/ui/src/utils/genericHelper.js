@@ -193,7 +193,7 @@ export const checkIfNodeLabelUnique = (nodeLabel, nodes) => {
     return true;
 };
 
-const initializeNodeData = (nodeParams) => {
+export const initializeNodeData = (nodeParams) => {
 
     const initialValues = {};
 
@@ -323,4 +323,54 @@ export const generateExportFlowData = (flowData) => {
         edges
     };
     return exportJson;
+}
+
+const isHideRegisteredCredential = (params, paramsType, nodeFlowData) => {
+
+    if (!nodeFlowData[paramsType] || !nodeFlowData[paramsType]['credentialMethod']) return undefined;
+    let clonedParams = params;
+
+    for (let i = 0; i < clonedParams.length; i+= 1) {
+        const input = clonedParams[i];
+        if (input.type === 'options') {
+            const selectedCredentialMethodOption = input.options.find((opt) => opt.name === nodeFlowData[paramsType]['credentialMethod']);
+            if (
+                selectedCredentialMethodOption && 
+                selectedCredentialMethodOption !== undefined && 
+                selectedCredentialMethodOption.hideRegisteredCredential
+            ) return true;
+        }
+    }
+    return false;
+};
+
+export const handleCredentialParams = (nodeParams, paramsType, reorganizedParams, nodeFlowData) => {
+    if (
+        paramsType === 'credentials' && 
+        nodeParams.find((nPrm) => nPrm.name === 'registeredCredential') === undefined &&
+        nodeParams.find((nPrm) => nPrm.name === 'credentialMethod') !== undefined &&
+        !isHideRegisteredCredential(lodash.cloneDeep(reorganizedParams), paramsType, nodeFlowData)
+    ) {
+        // Add hard-coded registeredCredential params
+        nodeParams.push({
+            name: 'registeredCredential',
+        });
+
+    } else if (
+        paramsType === 'credentials' && 
+        nodeParams.find((nPrm) => nPrm.name === 'registeredCredential') !== undefined &&
+        nodeParams.find((nPrm) => nPrm.name === 'credentialMethod') !== undefined &&
+        isHideRegisteredCredential(lodash.cloneDeep(reorganizedParams), paramsType, nodeFlowData)
+    ) {
+        // Delete registeredCredential params
+        nodeParams = nodeParams.filter((prm) => prm.name !== 'registeredCredential');
+
+    } else if (
+        paramsType === 'credentials' && 
+        nodeParams.find((nPrm) => nPrm.name === 'credentialMethod') === undefined
+    ) {
+        // Delete registeredCredential params
+        nodeParams = nodeParams.filter((prm) => prm.name !== 'registeredCredential');
+    }
+    return nodeParams;
 }
