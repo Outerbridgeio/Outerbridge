@@ -12,9 +12,11 @@ import EventEmitter from 'events';
 import { 
 	PolygonNetworks,
 	networkExplorers, 
-	polygonMainnetRPC, 
-	polygonMumbaiRPC,
-	polygonNetworkProviders
+	polygonNetworkProviders,
+	getPolygonMainnetProvider,
+	getPolygonTestnetProvider,
+	getCustomRPCProvider,
+	getCustomWebsocketProvider
 } from '../../src/ChainNetwork';
 
 class MATICBalanceTrigger extends EventEmitter implements INode {
@@ -193,53 +195,14 @@ class MATICBalanceTrigger extends EventEmitter implements INode {
 			});
 
 		} else if (networkProvider === 'polygon') {
+			if (network === 'matic') provider = await getPolygonMainnetProvider();
+			else if (network === 'maticmum') provider = await getPolygonTestnetProvider();
 
-			if (network === 'matic') {
-				const prvs = [];
-				for (let i = 0; i < polygonMainnetRPC.length; i++) {
-					const node = polygonMainnetRPC[i];
-					const prv = new ethers.providers.StaticJsonRpcProvider(
-						{ url: node, timeout: 1000 },
-						{
-							name: 'polygon',
-							chainId: 137,
-						},
-					);
-					await prv.ready;
-					prvs.push({
-						provider: prv,
-						stallTimeout: 1000,
-					});
-				}
-				provider = new ethers.providers.FallbackProvider(prvs);
-
-			} else if (network === 'maticmum') {
-
-				const prvs = [];
-				for (let i = 0; i < polygonMumbaiRPC.length; i++) {
-					const node = polygonMumbaiRPC[i];
-					const prv = new ethers.providers.StaticJsonRpcProvider(
-						{ url: node, timeout: 1000 },
-						{
-							name: 'polygon',
-							chainId: 80001,
-						},
-					);
-					await prv.ready;
-					prvs.push({
-						provider: prv,
-						stallTimeout: 1000,
-					});
-				}
-				provider = new ethers.providers.FallbackProvider(prvs);
-
-			}
 		} else if (networkProvider === 'customRPC') {
-			provider = new ethers.providers.JsonRpcProvider(networksData.jsonRPC as string);
-
+			provider = getCustomRPCProvider(networksData.jsonRPC as string);
+		
 		} else if (networkProvider === 'customWebsocket') {
-			provider = new ethers.providers.WebSocketProvider(networksData.websocketRPC as string);
-
+			provider = getCustomWebsocketProvider(networksData.websocketRPC as string);
 		}
 
 		const emitEventKey = nodeData.emitEventKey as string;

@@ -44,8 +44,10 @@ import walletsApi from "api/wallets";
 import useApi from "hooks/useApi";
 
 // Const
-import { wallet_details, networkExplorers } from "store/constant";
+import { wallet_details, networkExplorers, privateKeyField } from "store/constant";
 
+// utils
+import { handleCredentialParams, initializeNodeData } from 'utils/genericHelper';
 import useNotifier from 'utils/useNotifier';
 
 const WalletDialog = ({
@@ -104,12 +106,13 @@ const WalletDialog = ({
         setIsReadyToAdd(true);
     };
 
-    const addNewWallet = async() => {
+    const addNewWallet = async(type) => {
         const createNewWalletBody = {
             network: walletData.networks.network,
             name: walletData.walletInfo.name,
             providerCredential: JSON.stringify(walletData.credentials)
         }
+        if (type === 'IMPORT') createNewWalletBody.privateKey = walletData.walletInfo.privateKey;
         const createResp = await walletsApi.createNewWallet(createNewWalletBody);
         if (createResp.data) {
             enqueueSnackbar({
@@ -337,18 +340,13 @@ const WalletDialog = ({
     const initializeFormValuesAndParams = (paramsType) => {
 
         const initialValues = {};
-        const walletParams = displayOptions(lodash.cloneDeep(walletDetails[paramsType] || []));
+        let walletParams = displayOptions(lodash.cloneDeep(walletDetails[paramsType] || []));
+        walletParams = handleCredentialParams(walletParams, paramsType, walletDetails[paramsType], walletData);
 
-        // Add hard-coded registeredCredential params
-        if (paramsType === 'credentials' && 
-            walletParams.find((nPrm) => nPrm.name === 'registeredCredential') === undefined &&
-            walletParams.find((nPrm) => nPrm.name === 'credentialMethod') !== undefined
-        ) {
-            walletParams.push({
-                name: 'registeredCredential',
-            });
+        if (dialogProps.type === 'IMPORT' && paramsType === 'walletInfo') {
+            walletParams.push(...privateKeyField);
         }
-       
+  
         for (let i = 0; i < walletParams.length; i+= 1) {
             const input = walletParams[i];
 
@@ -374,21 +372,27 @@ const WalletDialog = ({
         setWalletParams(walletParams);
     };
 
-    const transformWalletResponse = (walletResponseData) => {
+    const transformWalletResponse = (walletResponseData, walletDetails) => {
         const walletData = {
             networks: {},
             credentials: {},
             walletInfo: {}
         }
 
-        walletData.networks = { network: walletResponseData.network, submit: true };
-        walletData.walletInfo = { ...walletResponseData, submit: true };
-        if (walletResponseData.providerCredential) {
-            try {
-                walletData.credentials = JSON.parse(walletResponseData.providerCredential);
-            } catch(e) { 
-                console.error(e); 
+        if (walletResponseData) {
+            walletData.networks = { network: walletResponseData.network, submit: true };
+            walletData.walletInfo = { ...walletResponseData, submit: true };
+            if (walletResponseData.providerCredential) {
+                try {
+                    walletData.credentials = JSON.parse(walletResponseData.providerCredential);
+                } catch(e) { 
+                    console.error(e); 
+                }
             }
+        } else {
+            walletData.networks = initializeNodeData(walletDetails.networks);
+            walletData.credentials = initializeNodeData(walletDetails.credentials);
+            walletData.walletInfo = initializeNodeData(walletDetails.walletInfo);
         }
         return walletData;
     }
@@ -416,8 +420,9 @@ const WalletDialog = ({
 
     // Initialization
     useEffect(() => {
-        if (show && dialogProps.type === 'ADD') {
+        if (show && (dialogProps.type === 'ADD' || dialogProps.type === 'IMPORT')) {
             reset();
+            setWalletData(transformWalletResponse(null, walletDetails));
             setExpanded('networks');
 
         } else if (show && dialogProps.type === 'EDIT' && dialogProps.id) {
@@ -625,7 +630,7 @@ const WalletDialog = ({
                 <Button 
                     variant="contained" 
                     disabled={!isReadyToAdd} 
-                    onClick={() => dialogProps.type === 'ADD' ? addNewWallet() : saveWallet()}
+                    onClick={() => (dialogProps.type === 'ADD' || dialogProps.type === 'IMPORT') ? addNewWallet(dialogProps.type) : saveWallet()}
                 >
                     {dialogProps.confirmButtonName}
                 </Button>
