@@ -1,11 +1,12 @@
 import {
-    ICommonObject,
-	INodeExecutionData,
-	IWebhookNodeExecutionData
-} from './Interface';
+  ICommonObject,
+  INodeExecutionData,
+  INodeOptionsValue,
+  IWebhookNodeExecutionData,
+} from "./Interface";
 
-export const numberOrExpressionRegex = '^(\\d+\\.?\\d*|{{.*}})$'; //return true if string consists only numbers OR expression {{}}
-export const notEmptyRegex = '(.|\\s)*\\S(.|\\s)*'; //return true if string is not empty or blank
+export const numberOrExpressionRegex = "^(\\d+\\.?\\d*|{{.*}})$"; //return true if string consists only numbers OR expression {{}}
+export const notEmptyRegex = "(.|\\s)*\\S(.|\\s)*"; //return true if string is not empty or blank
 
 /**
  * Return responses as INodeExecutionData
@@ -14,29 +15,31 @@ export const notEmptyRegex = '(.|\\s)*\\S(.|\\s)*'; //return true if string is n
  * @param {(ICommonObject | ICommonObject[])} responseData
  * @returns {INodeExecutionData[]}
  */
- export function returnNodeExecutionData(responseData: ICommonObject | ICommonObject[]): INodeExecutionData[] {
-	const returnData: INodeExecutionData[] = [];
+export function returnNodeExecutionData(
+  responseData: ICommonObject | ICommonObject[]
+): INodeExecutionData[] {
+  const returnData: INodeExecutionData[] = [];
 
-	if (!Array.isArray(responseData)) {
-		responseData = [responseData];
-	}
+  if (!Array.isArray(responseData)) {
+    responseData = [responseData];
+  }
 
-	responseData.forEach((data) => {
-		const obj = { data } as ICommonObject;
+  responseData.forEach((data) => {
+    const obj = { data } as ICommonObject;
 
-		if (data.attachments) {
-			if (Array.isArray(data.attachments) && data.attachments.length) 
-				obj.attachments = data.attachments;
-			else if (!Array.isArray(data.attachments))
-				obj.attachments = data.attachments;
-		}
+    if (data.attachments) {
+      if (Array.isArray(data.attachments) && data.attachments.length)
+        obj.attachments = data.attachments;
+      else if (!Array.isArray(data.attachments))
+        obj.attachments = data.attachments;
+    }
 
-		if (data.html) obj.html = data.html;
-		
-		returnData.push(obj);
-	});
+    if (data.html) obj.html = data.html;
 
-	return returnData;
+    returnData.push(obj);
+  });
+
+  return returnData;
 }
 
 /**
@@ -46,24 +49,27 @@ export const notEmptyRegex = '(.|\\s)*\\S(.|\\s)*'; //return true if string is n
  * @param {(ICommonObject | ICommonObject[])} responseData
  * @returns {IWebhookNodeExecutionData[]}
  */
- export function returnWebhookNodeExecutionData(responseData: ICommonObject | ICommonObject[], webhookReturnResponse?: string): IWebhookNodeExecutionData[] {
-	const returnData: IWebhookNodeExecutionData[] = [];
+export function returnWebhookNodeExecutionData(
+  responseData: ICommonObject | ICommonObject[],
+  webhookReturnResponse?: string
+): IWebhookNodeExecutionData[] {
+  const returnData: IWebhookNodeExecutionData[] = [];
 
-	if (!Array.isArray(responseData)) {
-		responseData = [responseData];
-	}
+  if (!Array.isArray(responseData)) {
+    responseData = [responseData];
+  }
 
-	responseData.forEach((data) => {
-		const returnObj = {
-			data,
-		} as IWebhookNodeExecutionData;
+  responseData.forEach((data) => {
+    const returnObj = {
+      data,
+    } as IWebhookNodeExecutionData;
 
-		if (webhookReturnResponse) returnObj.response = webhookReturnResponse;
+    if (webhookReturnResponse) returnObj.response = webhookReturnResponse;
 
-		returnData.push(returnObj);
-	});
+    returnData.push(returnObj);
+  });
 
-	return returnData;
+  return returnData;
 }
 
 /**
@@ -74,37 +80,34 @@ export const notEmptyRegex = '(.|\\s)*\\S(.|\\s)*'; //return true if string is n
  * @returns {any[]}
  */
 export function serializeQueryParams(params: any) {
-	const parts: any[] = [];
-				
-	const encode = (val: string) => {
-		return encodeURIComponent(val).replace(/%3A/gi, ':')
-			.replace(/%24/g, '$')
-			.replace(/%2C/gi, ',')
-			.replace(/%20/g, '+')
-			.replace(/%5B/gi, '[')
-			.replace(/%5D/gi, ']');
-	}
+  const parts: any[] = [];
 
-	const convertPart = (key: string, val: any) => {
-		if (val instanceof Date)
-			val = val.toISOString()
-		else if (val instanceof Object)
-			val = JSON.stringify(val)
+  const encode = (val: string) => {
+    return encodeURIComponent(val)
+      .replace(/%3A/gi, ":")
+      .replace(/%24/g, "$")
+      .replace(/%2C/gi, ",")
+      .replace(/%20/g, "+")
+      .replace(/%5B/gi, "[")
+      .replace(/%5D/gi, "]");
+  };
 
-		parts.push(encode(key) + '=' + encode(val));
-	}
+  const convertPart = (key: string, val: any) => {
+    if (val instanceof Date) val = val.toISOString();
+    else if (val instanceof Object) val = JSON.stringify(val);
 
-	Object.entries(params).forEach(([key, val]) => {
-		if (val === null || typeof val === 'undefined')
-			return
+    parts.push(encode(key) + "=" + encode(val));
+  };
 
-		if (Array.isArray(val))
-			val.forEach((v, i) => convertPart(`${key}[${i}]`, v))
-		else
-			convertPart(key, val)
-	})
+  Object.entries(params).forEach(([key, val]) => {
+    if (val === null || typeof val === "undefined") return;
 
-	return parts.join('&');
+    if (Array.isArray(val))
+      val.forEach((v, i) => convertPart(`${key}[${i}]`, v));
+    else convertPart(key, val);
+  });
+
+  return parts.join("&");
 }
 
 /**
@@ -115,25 +118,44 @@ export function serializeQueryParams(params: any) {
  * @returns {any}
  */
 export function handleErrorMessage(error: any) {
-	let errorMessage = '';
+  let errorMessage = "";
 
-	if(error.message){
-		errorMessage += error.message + '. ';
-	}
+  if (error.message) {
+    errorMessage += error.message + ". ";
+  }
 
-	if(error.response && error.response.data){
-		if (error.response.data.error) {
-			if (typeof error.response.data.error === 'object')
-				errorMessage += JSON.stringify(error.response.data.error) + '. ';
-			else if (typeof error.response.data.error === 'string')
-				errorMessage += error.response.data.error + '. ';
-		}
-		else if (error.response.data.msg) errorMessage += error.response.data.msg + '. ';
-		else if (error.response.data.Message) errorMessage += error.response.data.Message + '. ';
-		else if (typeof error.response.data === 'string') errorMessage += error.response.data + '. ';
-	}
+  if (error.response && error.response.data) {
+    if (error.response.data.error) {
+      if (typeof error.response.data.error === "object")
+        errorMessage += JSON.stringify(error.response.data.error) + ". ";
+      else if (typeof error.response.data.error === "string")
+        errorMessage += error.response.data.error + ". ";
+    } else if (error.response.data.msg)
+      errorMessage += error.response.data.msg + ". ";
+    else if (error.response.data.Message)
+      errorMessage += error.response.data.Message + ". ";
+    else if (typeof error.response.data === "string")
+      errorMessage += error.response.data + ". ";
+  }
 
-	if (!errorMessage) errorMessage = 'Unexpected Error.'
+  if (!errorMessage) errorMessage = "Unexpected Error.";
 
-	return errorMessage;
+  return errorMessage;
+}
+/**
+ * Return Country List
+ *
+ * @export
+ * @param {(any)} error
+ * @returns {any}
+ */
+export function returnCountryList() {
+  const returnData: INodeOptionsValue[] = [];
+  const iso = require("iso-3166-1");
+
+  for (const i of iso.all()) {
+    returnData.push({ label: i.country, name: i.alpha3 });
+  }
+
+  return returnData;
 }
