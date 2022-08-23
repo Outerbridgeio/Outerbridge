@@ -17,7 +17,6 @@
   },
   "license": "SEE LICENSE IN LICENSE.md",
   "dependencies": {
-    "@connext/nxtp-sdk": "0.2.0-beta.17",
     "@openzeppelin/contracts": "^4.7.1",
     "@types/cron": "^1.7.3",
     "@types/imap": "^0.8.35",
