@@ -12,7 +12,7 @@ import {
     handleErrorMessage,
     returnNodeExecutionData, serializeQueryParams
 } from '../../src/utils';
-import { infuraHTTPAPIs, ETHNetworks, PolygonNetworks, OptimismNetworks, ArbitrumNetworks } from "../../src/ChainNetwork";
+import { infuraHTTPAPIs, ETHNetworks, PolygonNetworks, OptimismNetworks, ArbitrumNetworks, NETWORK } from "../../src/ChainNetwork";
 import { ethOperations, IETHOperation, polygonOperations } from "../../src/ETHOperations";
 import axios, { AxiosRequestConfig, AxiosRequestHeaders, Method } from 'axios';
 import FormData from "form-data";
@@ -156,12 +156,12 @@ class Infura implements INode {
 			
 			if (api === 'chainAPI') {
 
-                const network = networksData.network as string;
+                const network = networksData.network as NETWORK;
 			
 				let totalOperations: IETHOperation[] = [];
 
 				let filteredOperations = ethOperations.filter((op: IETHOperation) => op.providers.includes('infura'));
-				if (network === 'matic' || network === 'maticmum') {
+				if (network === NETWORK.MATIC || network === NETWORK.MATIC_MUMBAI) {
                     filteredOperations = ethOperations.filter((op: IETHOperation) => op.providers.includes('infura') && op.networks.includes(network));
 					totalOperations = [...polygonOperations, ...filteredOperations];
 				} else {
@@ -206,7 +206,7 @@ class Infura implements INode {
 		if (api === 'chainAPI') {
 
             // GET network
-            const network = networksData.network as string;
+            const network = networksData.network as NETWORK;
 
             // GET credentials
             const apiKey = credentials.apiKey as string;

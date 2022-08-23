@@ -44,7 +44,8 @@ import {
     INodeOptionsValue,
     IDbCollection,
     etherscanAPIs,
-    nativeCurrency
+    nativeCurrency,
+    NETWORK
 } from "outerbridge-components";
 import { CredentialsPool } from './CredentialsPool';
 import { 
@@ -926,6 +927,7 @@ app.get("/api/v1/wallets/:id", async (req: Request, res: Response) => {
 
         const credentialMethod = providerCredential.credentialMethod;
         let url = '';
+        const network = wallet.network as NETWORK;
 
         // Get Balance
         if (
@@ -936,10 +938,10 @@ app.get("/api/v1/wallets/:id", async (req: Request, res: Response) => {
             credentialMethod === 'optimisticEtherscanApi' ||
             credentialMethod === 'arbiscanApi')
         ) {
-            url = `${etherscanAPIs[wallet.network]}?module=account&action=balance&address=${wallet.address}&tag=latest&apikey=${decryptedCredentialData.apiKey as string}`;
+            url = `${etherscanAPIs[network]}?module=account&action=balance&address=${wallet.address}&tag=latest&apikey=${decryptedCredentialData.apiKey as string}`;
         
         } else {
-            url = `${etherscanAPIs[wallet.network]}?module=account&action=balance&address=${wallet.address}&tag=latest`;
+            url = `${etherscanAPIs[network]}?module=account&action=balance&address=${wallet.address}&tag=latest`;
         }
 
         const options: AxiosRequestConfig = {
@@ -950,7 +952,7 @@ app.get("/api/v1/wallets/:id", async (req: Request, res: Response) => {
         try {
             const response = await axios.request(options);
             if (response.data && response.data.result) {
-                walletResponse.balance = `${ethers.utils.formatEther(ethers.BigNumber.from(response.data.result))} ${nativeCurrency[wallet.network]}`;
+                walletResponse.balance = `${ethers.utils.formatEther(ethers.BigNumber.from(response.data.result))} ${nativeCurrency[wallet.network as NETWORK]}`;
             }
         } catch (e) {
             walletResponse.balance = 'Unable to fetch balance, please use correct API Key for higher rate limit';

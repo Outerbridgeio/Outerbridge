@@ -17,17 +17,11 @@ import { ethers } from "ethers";
 import * as fs from 'fs';
 import * as path from 'path';
 import { 
-    binanceNetworkProviders, 
-    ethNetworkProviders, 
-    ethTestNetworkProviders, 
-    getBscMainnetProvider, 
-    getBscTestnetProvider, 
-    getCustomRPCProvider, 
-    getCustomWebsocketProvider, 
-    getPolygonMainnetProvider, 
-    getPolygonTestnetProvider, 
+    getNetworkProvider, 
+    getNetworkProvidersList, 
+    NETWORK, 
     networkExplorers, 
-    polygonNetworkProviders, 
+    NETWORK_PROVIDER, 
 } from '../../src/ChainNetwork';
 
 const solc = require('solc');
@@ -234,23 +228,9 @@ class CreateToken implements INode {
 
 				if (!walletDetails.network) return returnData;
 
-				const network = walletDetails.network;
-		
-				if (network === 'homestead') {
-					return ethNetworkProviders;
-				} else if (network === 'rinkeby' || network === 'kovan' || network === 'goerli' || network === 'ropsten') {
-					return ethTestNetworkProviders;
-				} else if (network === 'matic' || network === 'maticmum') {
-					return polygonNetworkProviders;
-				} else if (network === 'optimism' || network === 'optimism-kovan') {
-					return ethTestNetworkProviders;
-				} else if (network === 'arbitrum' || network === 'arbitrum-rinkeby') {
-					return ethTestNetworkProviders;
-				} else if (network === 'bsc' || network === 'bsc-testnet') {
-					return binanceNetworkProviders;
-				} else {
-					return returnData;
-				}
+                const network = walletDetails.network;
+				return getNetworkProvidersList(network);
+				
 			} catch(e) {
 				return returnData;
 			}
@@ -268,46 +248,21 @@ class CreateToken implements INode {
         if (networksData === undefined || actionsData === undefined || inputParametersData === undefined) {
             throw new Error('Required data missing');
         }
-        const networkProvider = networksData.networkProvider as string;
-
-		if (credentials === undefined && (networkProvider === 'infura' || networkProvider !== 'alchemy')) {
-			throw new Error('Missing credentials');
-		}
 
         try {
             const walletString = actionsData.wallet as string;
 			const walletDetails: IWallet = JSON.parse(walletString);
-			const network = walletDetails.network;
+			const network = walletDetails.network as NETWORK;
 
-            // Get provider
-            let provider: any;
+            const provider = await getNetworkProvider(
+				networksData.networkProvider as NETWORK_PROVIDER,
+				network,
+				credentials,
+				networksData.jsonRPC as string,
+				networksData.websocketRPC as string,
+			)
 
-			if (networkProvider === 'alchemy') {
-				provider = new ethers.providers.AlchemyProvider(network, credentials!.apiKey);
-
-			} else if (networkProvider === 'infura') {
-				provider = new ethers.providers.InfuraProvider(network, {
-					apiKey: credentials!.apiKey,
-					secretKey: credentials!.secretKey
-				});
-
-			} else if (networkProvider === 'cloudfare') {
-				provider = new ethers.providers.CloudflareProvider();
-
-			} else if (networkProvider === 'binance') {
-				if (network === 'bsc') provider = await getBscMainnetProvider();
-				else if (network === 'bsc-testnet') provider = await getBscTestnetProvider();
-				
-			} else if (networkProvider === 'polygon') {
-				if (network === 'matic') provider = await getPolygonMainnetProvider();
-				else if (network === 'maticmum') provider = await getPolygonTestnetProvider();
-
-			} else if (networkProvider === 'customRPC') {
-				provider = getCustomRPCProvider(networksData.jsonRPC as string);
-			
-			} else if (networkProvider === 'customWebsocket') {
-				provider = getCustomWebsocketProvider(networksData.websocketRPC as string);
-			}
+			if (!provider) throw new Error('Invalid Network Provider');
 
             // Get wallet instance
             const walletCredential = JSON.parse(walletDetails.walletCredential);

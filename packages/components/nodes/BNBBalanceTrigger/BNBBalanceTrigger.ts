@@ -12,11 +12,10 @@ import EventEmitter from 'events';
 import { 
 	binanceNetworkProviders,
 	BSCNetworks,
-	getBscMainnetProvider,
-	getBscTestnetProvider,
-	getCustomRPCProvider,
-	getCustomWebsocketProvider,
+	getNetworkProvider,
+	NETWORK,
 	networkExplorers,
+	NETWORK_PROVIDER,
 } from '../../src/ChainNetwork';
 
 class BNBBalanceTrigger extends EventEmitter implements INode {
@@ -140,28 +139,23 @@ class BNBBalanceTrigger extends EventEmitter implements INode {
 	async runTrigger(nodeData: INodeData): Promise<void> {
 		
 		const networksData = nodeData.networks;
-		const credentials = nodeData.credentials;
 		const inputParametersData = nodeData.inputParameters;
 
         if (networksData === undefined || inputParametersData === undefined) {
             throw new Error('Required data missing');
         }
 
-		const networkProvider = networksData.networkProvider as string;
-		const network = networksData.network as string;
+		const network = networksData.network as NETWORK;
 
-		let provider: any;
+		const provider = await getNetworkProvider(
+			networksData.networkProvider as NETWORK_PROVIDER,
+			network,
+			undefined,
+			networksData.jsonRPC as string,
+			networksData.websocketRPC as string,
+		)
 
-		if (networkProvider === 'binance') {
-			if (network === 'bsc') provider = await getBscMainnetProvider();
-			else if (network === 'bsc-testnet') provider = await getBscTestnetProvider();
-			
-		} else if (networkProvider === 'customRPC') {
-			provider = getCustomRPCProvider(networksData.jsonRPC as string);
-		
-		} else if (networkProvider === 'customWebsocket') {
-			provider = getCustomWebsocketProvider(networksData.websocketRPC as string);
-		}
+		if (!provider) throw new Error('Invalid Network Provider');
 
 		const emitEventKey = nodeData.emitEventKey as string;
 		const address = inputParametersData.address as string || '';

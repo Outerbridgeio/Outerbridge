@@ -19,6 +19,9 @@ import {
 	getCustomRPCProvider,
 	getCustomWebsocketProvider,
 	CHAIN_ID,
+	NETWORK,
+	getNetworkProvider,
+	NETWORK_PROVIDER,
 } from '../../src/ChainNetwork';
 import axios, { AxiosRequestConfig, Method } from "axios";
 import { UniswapPair, UniswapPairSettings, UniswapVersion } from 'simple-uniswap-sdk';
@@ -281,7 +284,7 @@ class PancakeSwap implements INode {
 			const networksData = nodeData.networks;
             if (networksData === undefined) return returnData;
 
-			const network = networksData.network as string;
+			const network = networksData.network as NETWORK;
 
 			try {
 				const axiosConfig: AxiosRequestConfig = {
@@ -360,22 +363,18 @@ class PancakeSwap implements INode {
             throw new Error('Required data missing');
         }
 
-		const network = networksData.network as string;
-        const networkProvider = networksData.networkProvider as string;
-
-		let provider: any;
-
 		try {
-			if (networkProvider === 'binance') {
-				if (network === 'bsc') provider = await getBscMainnetProvider();
-				else if (network === 'bsc-testnet') provider = await getBscTestnetProvider();
-					
-			} else if (networkProvider === 'customRPC') {
-				provider = getCustomRPCProvider(networksData.jsonRPC as string);
+			const network = networksData.network as NETWORK;
 			
-			} else if (networkProvider === 'customWebsocket') {
-				provider = getCustomWebsocketProvider(networksData.websocketRPC as string);
-			}
+			const provider = await getNetworkProvider(
+				networksData.networkProvider as NETWORK_PROVIDER,
+				network,
+				undefined,
+				networksData.jsonRPC as string,
+				networksData.websocketRPC as string,
+			)
+
+			if (!provider) throw new Error('Invalid Network Provider');
 
 			// Get operation
             const operation = actionsData.operation as string;

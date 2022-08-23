@@ -1,5 +1,5 @@
 import { CronJob } from 'cron';
-import { BigNumber, ethers, utils } from "ethers";
+import { BigNumber, utils } from "ethers";
 import {
 	ICronJobs,
 	INode, 
@@ -13,10 +13,9 @@ import {
 	PolygonNetworks,
 	networkExplorers, 
 	polygonNetworkProviders,
-	getPolygonMainnetProvider,
-	getPolygonTestnetProvider,
-	getCustomRPCProvider,
-	getCustomWebsocketProvider
+	NETWORK,
+	NETWORK_PROVIDER,
+	getNetworkProvider
 } from '../../src/ChainNetwork';
 
 class MATICBalanceTrigger extends EventEmitter implements INode {
@@ -175,35 +174,17 @@ class MATICBalanceTrigger extends EventEmitter implements INode {
             throw new Error('Required data missing');
         }
 
-		const networkProvider = networksData.networkProvider as string;
-		const network = networksData.network as string;
+		const network = networksData.network as NETWORK;
 
-		if (credentials === undefined && networkProvider !== 'customRPC'
-		 && networkProvider !== 'customWebsocket' && networkProvider !== 'cloudfare') {
-			throw new Error('Missing credentials');
-		}
+		const provider = await getNetworkProvider(
+			networksData.networkProvider as NETWORK_PROVIDER,
+			network,
+			credentials,
+			networksData.jsonRPC as string,
+			networksData.websocketRPC as string,
+		)
 
-		let provider: any;
-
-		if (networkProvider === 'alchemy') {
-			provider = new ethers.providers.AlchemyProvider(network, credentials!.apiKey);
-
-		} else if (networkProvider === 'infura') {
-			provider = new ethers.providers.InfuraProvider(network, {
-				apiKey: credentials!.apiKey,
-				secretKey: credentials!.secretKey
-			});
-
-		} else if (networkProvider === 'polygon') {
-			if (network === 'matic') provider = await getPolygonMainnetProvider();
-			else if (network === 'maticmum') provider = await getPolygonTestnetProvider();
-
-		} else if (networkProvider === 'customRPC') {
-			provider = getCustomRPCProvider(networksData.jsonRPC as string);
-		
-		} else if (networkProvider === 'customWebsocket') {
-			provider = getCustomWebsocketProvider(networksData.websocketRPC as string);
-		}
+		if (!provider) throw new Error('Invalid Network Provider');
 
 		const emitEventKey = nodeData.emitEventKey as string;
 		const address = inputParametersData.address as string || '';

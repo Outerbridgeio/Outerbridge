@@ -12,7 +12,7 @@ import {
     returnNodeExecutionData,
 	serializeQueryParams
 } from '../../src/utils';
-import { alchemyHTTPAPIs, ETHNetworks, PolygonNetworks, OptimismNetworks, ArbitrumNetworks } from "../../src/ChainNetwork";
+import { alchemyHTTPAPIs, ETHNetworks, PolygonNetworks, OptimismNetworks, ArbitrumNetworks, NETWORK } from "../../src/ChainNetwork";
 import { ethOperations, IETHOperation, polygonOperations } from "../../src/ETHOperations";
 import { 
 	getNFTMetadataProperties, 
@@ -172,14 +172,14 @@ class Alchemy implements INode {
             }
 
 			const api = actionData.api as string;
-			const network = networksData.network as string;
+			const network = networksData.network as NETWORK;
 			
 			if (api === 'chainAPI') {
 
 				let totalOperations: IETHOperation[] = [];
 
 				const filteredOperations = ethOperations.filter((op: IETHOperation) => op.networks.includes(network) && op.providers.includes('alchemy'));
-				if (network === 'matic' || network === 'maticmum') {
+				if (network === NETWORK.MATIC || network === NETWORK.MATIC_MUMBAI) {
 					totalOperations = [...polygonOperations, ...filteredOperations];
 				} else {
 					totalOperations = filteredOperations;
@@ -247,7 +247,7 @@ class Alchemy implements INode {
 		const api = actionData.api as string;
 		
 		// GET network
-		const network = networksData.network as string;
+		const network = networksData.network as NETWORK;
 
 		// GET credentials
 		const apiKey = credentials.apiKey as string;

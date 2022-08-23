@@ -1,4 +1,4 @@
-import { ethers, utils } from "ethers";
+import { utils } from "ethers";
 import {
 	INode, 
     INodeData, 
@@ -12,10 +12,9 @@ import {
 	networkExplorers,
 	BSCNetworks,
 	binanceNetworkProviders,
-	getBscMainnetProvider,
-	getBscTestnetProvider,
-	getCustomRPCProvider,
-	getCustomWebsocketProvider
+	NETWORK_PROVIDER,
+	NETWORK,
+	getNetworkProvider
 } from '../../src/ChainNetwork';
 
 class BEP20TransferTrigger extends EventEmitter implements INode {
@@ -140,22 +139,18 @@ class BEP20TransferTrigger extends EventEmitter implements INode {
             throw new Error('Required data missing');
         }
 
-		const networkProvider = networksData.networkProvider as string;
-		const network = networksData.network as string;
+		const network = networksData.network as NETWORK;
 
-		let provider: any;
+		const provider = await getNetworkProvider(
+			networksData.networkProvider as NETWORK_PROVIDER,
+			network,
+			undefined,
+			networksData.jsonRPC as string,
+			networksData.websocketRPC as string,
+		)
 
-		if (networkProvider === 'binance') {
-			if (network === 'bsc') provider = await getBscMainnetProvider();
-			else if (network === 'bsc-testnet') provider = await getBscTestnetProvider();
-			
-		} else if (networkProvider === 'customRPC') {
-			provider = getCustomRPCProvider(networksData.jsonRPC as string);
+		if (!provider) throw new Error('Invalid Network Provider');
 		
-		} else if (networkProvider === 'customWebsocket') {
-			provider = getCustomWebsocketProvider(networksData.websocketRPC as string);
-		}
-
 		const emitEventKey = nodeData.emitEventKey as string;
 		const bep20Address = inputParametersData.bep20Address as string || null;
 		const fromAddress = inputParametersData.fromAddress as string || null;
@@ -167,8 +162,8 @@ class BEP20TransferTrigger extends EventEmitter implements INode {
 				fromAddress ? utils.hexZeroPad(fromAddress, 32) : null,
 				toAddress ? utils.hexZeroPad(toAddress, 32) : null,
 			]
-		};
-		if (bep20Address) (filter as any)['address'] = bep20Address;
+		} as any;
+		if (bep20Address) filter['address'] = bep20Address;
 		
 		provider.on(filter, (log: any) => {
 			const txHash = log.transactionHash;
