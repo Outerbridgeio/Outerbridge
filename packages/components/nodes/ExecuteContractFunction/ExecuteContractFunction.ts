@@ -12,16 +12,11 @@ import {
 } from '../../src/Interface';
 import { handleErrorMessage, returnNodeExecutionData } from '../../src/utils';
 import { 
-	binanceMainnetRPC, 
-	binanceNetworkProviders, 
-	binanceTestnetRPC,
-	ethNetworkProviders, 
-	ethTestNetworkProviders, 
-	polygonMainnetRPC, 
-	polygonMumbaiRPC, 
-	polygonNetworkProviders,
 	networkExplorers,
-	CHAIN_ID,
+	getNetworkProvidersList,
+	NETWORK_PROVIDER,
+	getNetworkProvider,
+	NETWORK,
 } from '../../src/ChainNetwork';
 
 class ExecuteContractFunction implements INode {
@@ -271,22 +266,8 @@ class ExecuteContractFunction implements INode {
 				if (!contractDetails.network) return returnData;
 
 				const network = contractDetails.network;
-		
-				if (network === 'homestead') {
-					return ethNetworkProviders;
-				} else if (network === 'rinkeby' || network === 'kovan' || network === 'goerli' || network === 'ropsten') {
-					return ethTestNetworkProviders;
-				} else if (network === 'matic' || network === 'maticmum') {
-					return polygonNetworkProviders;
-				} else if (network === 'optimism' || network === 'optimism-kovan') {
-					return ethTestNetworkProviders;
-				} else if (network === 'arbitrum' || network === 'arbitrum-rinkeby') {
-					return ethTestNetworkProviders;
-				} else if (network === 'bsc' || network === 'bsc-testnet') {
-					return binanceNetworkProviders;
-				} else {
-					return returnData;
-				}
+				return getNetworkProvidersList(network);
+
 			} catch(e) {
 				return returnData;
 			}
@@ -302,117 +283,21 @@ class ExecuteContractFunction implements INode {
         if (networksData === undefined || actionsData === undefined) {
             throw new Error('Required data missing');
         }
-
-		const networkProvider = networksData.networkProvider as string;
-	
-		if (credentials === undefined && (networkProvider === 'infura' || networkProvider !== 'alchemy')) {
-			throw new Error('Missing credentials');
-		}
-
-		let provider: any;
-
+		
 		try {
 			const contractString = actionsData.contract as string || '';
 			const contractDetails: IContract = JSON.parse(contractString);
-			const network = contractDetails.network;
+			const network = contractDetails.network as NETWORK;
 
-			if (networkProvider === 'alchemy') {
-				provider = new ethers.providers.AlchemyProvider(network, credentials!.apiKey);
+			const provider = await getNetworkProvider(
+				networksData.networkProvider as NETWORK_PROVIDER,
+				network,
+				credentials,
+				networksData.jsonRPC as string,
+				networksData.websocketRPC as string,
+			)
 
-			} else if (networkProvider === 'infura') {
-				provider = new ethers.providers.InfuraProvider(network, {
-					apiKey: credentials!.apiKey,
-					secretKey: credentials!.secretKey
-				});
-
-			} else if (networkProvider === 'cloudfare') {
-				provider = new ethers.providers.CloudflareProvider();
-
-			} else if (networkProvider === 'binance') {
-				if (network === 'bsc') {
-					const prvs = [];
-					for (let i = 0; i < binanceMainnetRPC.length; i++) {
-						const node = binanceMainnetRPC[i];
-						const prv = new ethers.providers.StaticJsonRpcProvider(
-							{ url: node, timeout: 1000 },
-							{
-								name: 'binance',
-								chainId: CHAIN_ID.BINANCE_MAINNET,
-							},
-						);
-						await prv.ready;
-						prvs.push({
-							provider: prv,
-							stallTimeout: 1000,
-						});
-					}
-					provider = new ethers.providers.FallbackProvider(prvs);
-
-				} else if (network === 'bsc-testnet') {
-					const prvs = [];
-					for (let i = 0; i < binanceTestnetRPC.length; i++) {
-						const node = binanceTestnetRPC[i];
-						const prv = new ethers.providers.StaticJsonRpcProvider(
-							{ url: node, timeout: 1000 },
-							{
-								name: 'binance',
-								chainId: CHAIN_ID.BINANCE_TESTNET,
-							},
-						);
-						await prv.ready;
-						prvs.push({
-							provider: prv,
-							stallTimeout: 1000,
-						});
-					}
-					provider = new ethers.providers.FallbackProvider(prvs);
-
-				}
-			} else if (networkProvider === 'polygon') {
-				if (network === 'matic') {
-					const prvs = [];
-					for (let i = 0; i < polygonMainnetRPC.length; i++) {
-						const node = polygonMainnetRPC[i];
-						const prv = new ethers.providers.StaticJsonRpcProvider(
-							{ url: node, timeout: 1000 },
-							{
-								name: 'polygon',
-								chainId: CHAIN_ID.MATIC_MAINNET,
-							},
-						);
-						await prv.ready;
-						prvs.push({
-							provider: prv,
-							stallTimeout: 1000,
-						});
-					}
-					provider = new ethers.providers.FallbackProvider(prvs);
-
-				} else if (network === 'maticmum') {
-					const prvs = [];
-					for (let i = 0; i < polygonMumbaiRPC.length; i++) {
-						const node = polygonMumbaiRPC[i];
-						const prv = new ethers.providers.StaticJsonRpcProvider(
-							{ url: node, timeout: 1000 },
-							{
-								name: 'polygon',
-								chainId: CHAIN_ID.MATIC_TESTNET,
-							},
-						);
-						await prv.ready;
-						prvs.push({
-							provider: prv,
-							stallTimeout: 1000,
-						});
-					}
-					provider = new ethers.providers.FallbackProvider(prvs);
-				}
-			} else if (networkProvider === 'customRPC') {
-				provider = new ethers.providers.JsonRpcProvider(networksData.jsonRPC as string);
-
-			} else if (networkProvider === 'customWebsocket') {
-				provider = new ethers.providers.WebSocketProvider(networksData.websocketRPC as string);
-			}
+			if (!provider) throw new Error('Invalid Network Provider');
 
 			// Get contract details
 			const abiString = contractDetails.abi;

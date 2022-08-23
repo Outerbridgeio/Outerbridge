@@ -14,14 +14,14 @@ import { handleErrorMessage, returnNodeExecutionData } from '../../src/utils';
 import { 
 	networkExplorers,
     ETHNetworks,
-    alchemyNetworkProviders,
-    infuraNetworkProviders,
-    customNetworkProviders,
 	chainIdLookup,
 	nativeCurrency,
+	getNetworkProvidersList,
+	NETWORK,
+	getNetworkProvider,
+	NETWORK_PROVIDER,
 } from '../../src/ChainNetwork';
 import IWETH from '@uniswap/v2-periphery/build/IWETH.json';
-
 import axios, { AxiosRequestConfig, Method } from "axios";
 import { UniswapPair, UniswapPairSettings } from 'simple-uniswap-sdk';
 import { IToken, nativeTokens } from "./nativeTokens";
@@ -107,25 +107,8 @@ class Uniswap implements INode {
 			{
 				label: 'Network Provider',
 				name: 'networkProvider',
-				type: 'options',
-				options: [
-					...alchemyNetworkProviders,
-					...infuraNetworkProviders,
-					{
-						label: 'Cloudfare',
-						name: 'cloudfare',
-						description: 'Public Cloudfare RPC',
-						parentGroup: 'Public Nodes',
-						show: {
-							'networks.network': ['homestead']
-						}
-					},
-					...customNetworkProviders
-				],
-				default: '',
-				show: {
-					'actions.operation': ['swapTokens']
-				}
+				type: 'asyncOptions',
+				loadMethod: 'getNetworkProviders',
 			},
 			{
 				label: 'RPC Endpoint',
@@ -269,7 +252,7 @@ class Uniswap implements INode {
 			const networksData = nodeData.networks;
             if (networksData === undefined) return returnData;
 
-			const network = networksData.network as string;
+			const network = networksData.network as NETWORK;
 
 			try {
 				const axiosConfig: AxiosRequestConfig = {
@@ -337,6 +320,16 @@ class Uniswap implements INode {
 				return returnData;
 			}
 		},
+
+		async getNetworkProviders(nodeData: INodeData): Promise<INodeOptionsValue[]> {
+			const returnData: INodeOptionsValue[] = [];
+
+			const networksData = nodeData.networks;
+            if (networksData === undefined) return returnData;
+
+			const network = networksData.network as NETWORK;
+			return getNetworkProvidersList(network);
+		},
 	}
 
 	async run(nodeData: INodeData): Promise<INodeExecutionData[] | null> {
@@ -350,34 +343,18 @@ class Uniswap implements INode {
             throw new Error('Required data missing');
         }
 
-		const network = networksData.network as string;
-        const networkProvider = networksData.networkProvider as string;
-	
-		if (credentials === undefined && (networkProvider === 'infura' || networkProvider !== 'alchemy')) {
-			throw new Error('Missing credentials');
-		}
-
-		let provider: any;
-
 		try {
-			if (networkProvider === 'alchemy') {
-				provider = new ethers.providers.AlchemyProvider(network, credentials!.apiKey);
+			const network = networksData.network as NETWORK;
+			
+			const provider = await getNetworkProvider(
+				networksData.networkProvider as NETWORK_PROVIDER,
+				network,
+				credentials,
+				networksData.jsonRPC as string,
+				networksData.websocketRPC as string,
+			)
 
-			} else if (networkProvider === 'infura') {
-				provider = new ethers.providers.InfuraProvider(network, {
-					apiKey: credentials!.apiKey,
-					secretKey: credentials!.secretKey
-				});
-
-			} else if (networkProvider === 'cloudfare') {
-				provider = new ethers.providers.CloudflareProvider();
-
-			} else if (networkProvider === 'customRPC') {
-				provider = new ethers.providers.JsonRpcProvider(networksData.jsonRPC as string);
-
-			} else if (networkProvider === 'customWebsocket') {
-				provider = new ethers.providers.WebSocketProvider(networksData.websocketRPC as string);
-			}
+			if (!provider) throw new Error('Invalid Network Provider');
 
 			// Get operation
             const operation = actionsData.operation as string;

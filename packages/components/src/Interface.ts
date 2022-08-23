@@ -1,6 +1,7 @@
 import { Request } from 'express';
 import { CronJob } from 'cron';
 import { ObjectId } from 'mongodb';
+import { CHAIN_ID, DOMAIN_ID, NETWORK } from '.';
 
 /**
  * Databases
@@ -94,6 +95,10 @@ export type IDbCollection = {
 export interface ICommonObject {
 	[key: string]: CommonType | ICommonObject | CommonType[] | ICommonObject[];
 }
+
+export type INetworkMapping = {
+    [key in NETWORK]: CHAIN_ID | DOMAIN_ID | string;
+};
 
 export interface IAttachment {
     content: string,

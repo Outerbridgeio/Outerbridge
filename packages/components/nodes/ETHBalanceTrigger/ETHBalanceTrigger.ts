@@ -1,20 +1,24 @@
 import { CronJob } from 'cron';
-import { BigNumber, ethers, utils } from "ethers";
+import { BigNumber, utils } from "ethers";
 import {
 	ICronJobs,
 	INode, 
     INodeData, 
+    INodeOptionsValue, 
     INodeParams, 
     NodeType,
 } from '../../src/Interface';
 import { returnNodeExecutionData } from '../../src/utils';
 import EventEmitter from 'events';
 import { 
-	alchemyNetworkProviders,
-	customNetworkProviders,
+	ArbitrumNetworks,
 	ETHNetworks, 
-	infuraNetworkProviders, 
+	getNetworkProvider, 
+	getNetworkProvidersList, 
+	NETWORK, 
 	networkExplorers,
+	NETWORK_PROVIDER,
+	OptimismNetworks,
 } from '../../src/ChainNetwork';
 
 class ETHBalanceTrigger extends EventEmitter implements INode {
@@ -50,28 +54,16 @@ class ETHBalanceTrigger extends EventEmitter implements INode {
 				type: 'options',
 				options: [
 					...ETHNetworks,
+					...ArbitrumNetworks,
+					...OptimismNetworks
 				],
 				default: 'homestead',
 			},
 			{
 				label: 'Network Provider',
 				name: 'networkProvider',
-				type: 'options',
-				options: [
-					...alchemyNetworkProviders,
-					...infuraNetworkProviders,
-					{
-						label: 'Cloudfare',
-						name: 'cloudfare',
-						description: 'Public Cloudfare RPC',
-						parentGroup: 'Public Nodes',
-						show: {
-							'networks.network': ['homestead']
-						}
-					},
-					...customNetworkProviders
-				],
-				default: '',
+				type: 'asyncOptions',
+				loadMethod: 'getNetworkProviders',
 			},
 			{
 				label: 'RPC Endpoint',
@@ -174,6 +166,19 @@ class ETHBalanceTrigger extends EventEmitter implements INode {
 		] as INodeParams[];
 	};
 
+	loadMethods = {
+
+		async getNetworkProviders(nodeData: INodeData): Promise<INodeOptionsValue[]> {
+			const returnData: INodeOptionsValue[] = [];
+
+			const networksData = nodeData.networks;
+            if (networksData === undefined) return returnData;
+
+			const network = networksData.network as NETWORK;
+			return getNetworkProvidersList(network);
+		},
+	}
+	
 	async runTrigger(nodeData: INodeData): Promise<void> {
 
 		const networksData = nodeData.networks;
@@ -184,35 +189,17 @@ class ETHBalanceTrigger extends EventEmitter implements INode {
             throw new Error('Required data missing');
         }
 
-		const networkProvider = networksData.networkProvider as string;
-		const network = networksData.network as string;
+		const network = networksData.network as NETWORK;
+			
+		const provider = await getNetworkProvider(
+			networksData.networkProvider as NETWORK_PROVIDER,
+			network,
+			credentials,
+			networksData.jsonRPC as string,
+			networksData.websocketRPC as string,
+		)
 
-		if (credentials === undefined && networkProvider !== 'customRPC'
-		 && networkProvider !== 'customWebsocket' && networkProvider !== 'cloudfare') {
-			throw new Error('Missing credentials');
-		}
-
-		let provider: any;
-
-		if (networkProvider === 'alchemy') {
-			provider = new ethers.providers.AlchemyProvider(network, credentials!.apiKey);
-
-		} else if (networkProvider === 'infura') {
-			provider = new ethers.providers.InfuraProvider(network, {
-				apiKey: credentials!.apiKey,
-				secretKey: credentials!.secretKey
-			});
-
-		} else if (networkProvider === 'cloudfare') {
-			provider = new ethers.providers.CloudflareProvider();
-
-		} else if (networkProvider === 'customRPC') {
-			provider = new ethers.providers.JsonRpcProvider(networksData.jsonRPC as string);
-
-		} else if (networkProvider === 'customWebsocket') {
-			provider = new ethers.providers.WebSocketProvider(networksData.websocketRPC as string);
-
-		}
+		if (!provider) throw new Error('Invalid Network Provider');
 
 		const emitEventKey = nodeData.emitEventKey as string;
 		const address = inputParametersData.address as string || '';
