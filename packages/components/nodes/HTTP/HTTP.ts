@@ -153,12 +153,19 @@ class HTTP implements INode {
 						label: 'Text',
 						name: 'text',
 					},
+					{
+						label: 'GraphQL',
+						name: 'graphQL',
+						show: {
+							'actions.method': ['POST']
+						}
+					},
 				],
 				default: 'json',
                 optional: true,
 			},
             {
-				label: 'Body',
+				label: 'JSON Body',
 				name: 'body',
 				type: 'json',
                 show: {
@@ -167,12 +174,23 @@ class HTTP implements INode {
                 default: '{}',
                 optional: true,
             },
-            {
-				label: 'Body',
+			{
+				label: 'Text Body',
 				name: 'body',
 				type: 'string',
                 show: {
                     'inputParameters.bodyType': ['text']
+                },
+                default: '',
+                optional: true,
+            },
+            {
+				label: 'GraphQL Body',
+				name: 'body',
+				type: 'string',
+				rows: 10,
+                show: {
+                    'inputParameters.bodyType': ['graphQL']
                 },
                 default: '',
                 optional: true,
@@ -225,6 +243,9 @@ class HTTP implements INode {
 
             } else if (bodyType && bodyType === 'text' && body) {
                 data = body;
+
+            } else if (bodyType && bodyType === 'graphQL' && body) {
+                data = { query : body.replace(/\s/g, ' ') }
             }
 
             if (credentialMethod === 'httpBearerTokenAuth') {
@@ -233,7 +254,7 @@ class HTTP implements INode {
 
             const axiosConfig: AxiosRequestConfig = {
                 method: method as Method,
-                url: url,
+                url,
             }
 
 			if (Object.keys(data).length) {
