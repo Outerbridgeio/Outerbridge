@@ -14,10 +14,6 @@ import { handleErrorMessage, returnNodeExecutionData } from '../../src/utils';
 import { 
 	networkExplorers,
 	binanceNetworkProviders,
-	getBscMainnetProvider,
-	getBscTestnetProvider,
-	getCustomRPCProvider,
-	getCustomWebsocketProvider,
 	CHAIN_ID,
 	NETWORK,
 	getNetworkProvider,

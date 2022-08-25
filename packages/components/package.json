@@ -17,6 +17,8 @@
   },
   "license": "SEE LICENSE IN LICENSE.md",
   "dependencies": {
+    "@aave/contract-helpers": "^1.5.1",
+    "@aave/math-utils": "^1.5.1",
     "@openzeppelin/contracts": "^4.7.1",
     "@types/cron": "^1.7.3",
     "@types/imap": "^0.8.35",
