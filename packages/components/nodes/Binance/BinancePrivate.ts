@@ -46,7 +46,7 @@ class BinancePrivate implements INode {
 				label: 'Network',
 				name: 'network',
 				type: 'options',
-				description: 'Network to execute API: Test or Real',
+				description: 'Network to execute API: Test or Live',
 				options: [
 					{
 						label: 'TEST',

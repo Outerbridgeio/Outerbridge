@@ -71,9 +71,10 @@ export const notEmptyRegex = '(.|\\s)*\\S(.|\\s)*'; //return true if string is n
  *
  * @export
  * @param {(any)} params
+ * @param {boolean} skipIndex // Set to true if you want same params to be: param=1&param=2 instead of: param[0]=1&param[1]=2
  * @returns {any[]}
  */
-export function serializeQueryParams(params: any) {
+export function serializeQueryParams(params: any, skipIndex?: boolean) {
 	const parts: any[] = [];
 				
 	const encode = (val: string) => {
@@ -99,7 +100,7 @@ export function serializeQueryParams(params: any) {
 			return
 
 		if (Array.isArray(val))
-			val.forEach((v, i) => convertPart(`${key}[${i}]`, v))
+			val.forEach((v, i) => convertPart(`${key}${skipIndex ? '' : `[${i}]`}`, v))
 		else
 			convertPart(key, val)
 	})

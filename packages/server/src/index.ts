@@ -642,13 +642,13 @@ app.post("/api/v1/node-test/:name", async (req: Request, res: Response) => {
 
 // load async options
 app.post("/api/v1/node-load-method/:name", async (req: Request, res: Response) => {
-    const body: INodeData = req.body;
+    const nodeData: INodeData = req.body;
 
     if (Object.prototype.hasOwnProperty.call(componentNodes, req.params.name)) {
         try {
             const nodeInstance = componentNodes[req.params.name];
-            const methodName = body.loadMethod || '';
-            const loadFromDbCollections = body.loadFromDbCollections || [];
+            const methodName = nodeData.loadMethod || '';
+            const loadFromDbCollections = nodeData.loadFromDbCollections || [];
             const dbCollection = {} as IDbCollection;
 
             for (let i = 0; i < loadFromDbCollections.length; i+=1) {
@@ -665,7 +665,14 @@ app.post("/api/v1/node-load-method/:name", async (req: Request, res: Response) =
                 dbCollection[loadFromDbCollections[i]] = res;
             }
 
-            const returnOptions: INodeOptionsValue[] = await nodeInstance.loadMethods![methodName]!.call(nodeInstance, body, loadFromDbCollections.length ? dbCollection : undefined);
+            await decryptCredentials(nodeData);
+
+            const returnOptions: INodeOptionsValue[] = await nodeInstance.loadMethods![methodName]!.call(
+                nodeInstance,
+                nodeData,
+                loadFromDbCollections.length ? dbCollection : undefined
+            );
+
             return res.json(returnOptions);
             
         } catch (error) {
