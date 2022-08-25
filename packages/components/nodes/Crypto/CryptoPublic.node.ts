@@ -244,7 +244,6 @@ class CryptoPublic implements INode {
       throw new Error("Required data missing");
     }
 
-    const network = actionData.network as string;
     const operation = actionData.operation as string;
 
     const returnData: ICommonObject[] = [];
