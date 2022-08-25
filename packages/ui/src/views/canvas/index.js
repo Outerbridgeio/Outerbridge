@@ -93,6 +93,7 @@ const Canvas = () => {
     // ==============================|| Workflow API ||============================== //
 
     const getNodesApi = useApi(nodesApi.getAllNodes);
+    const removeTestTriggersApi = useApi(nodesApi.removeTestTriggers);
     const deleteAllTestWebhooksApi = useApi(webhooksApi.deleteAllTestWebhooks);
     const createNewWorkflowApi = useApi(workflowsApi.createNewWorkflow);
     const updateWorkflowApi = useApi(workflowsApi.updateWorkflow);
@@ -542,8 +543,9 @@ const Canvas = () => {
 
         getNodesApi.request();
      
-        // Clear dirty state before leaving
+        // Clear dirty state before leaving and remove any ongoing test triggers
         return () => {
+            removeTestTriggersApi.request();
             setTimeout(() => dispatch({ type: REMOVE_DIRTY }), 0);
         }
 

@@ -60,6 +60,7 @@ import {
 } from './utils';
 import { DeployedWorkflowPool } from './DeployedWorkflowPool';
 import axios, { AxiosRequestConfig } from 'axios';
+import { ActiveTestTriggerPool } from './ActiveTestTriggerPool';
 
 process.on('SIGINT', () => {
     console.log('exiting');
@@ -80,6 +81,7 @@ process.on('uncaughtException', (err) => {
 let componentNodes: IComponentNodesPool = {};
 let componentCredentials: IComponentCredentialsPool = {};
 let deployedWorkflowsPool: DeployedWorkflowPool;
+let activeTestTriggerPool: ActiveTestTriggerPool;
 
 // Initialize database
 AppDataSource
@@ -102,6 +104,10 @@ AppDataSource
         // Initialize deployed worklows instances
         deployedWorkflowsPool = new DeployedWorkflowPool();
         await deployedWorkflowsPool.initialize(AppDataSource, componentNodes);
+
+
+        // Initialize activeTestTriggerPool instance
+        activeTestTriggerPool = new ActiveTestTriggerPool();
 
 
         // Initialize localtunnel
@@ -592,9 +598,11 @@ app.post("/api/v1/node-test/:name", async (req: Request, res: Response) => {
                 nodeData.emitEventKey = emitEventKey;
                 triggerNodeInstance.once(emitEventKey, async(result: any) => {
                     await triggerNodeInstance.removeTrigger!.call(triggerNodeInstance, nodeData);
+                    await activeTestTriggerPool.remove(componentNodes);
                     return res.json(result);
                 });
                 await triggerNodeInstance.runTrigger!.call(triggerNodeInstance, nodeData);
+                activeTestTriggerPool.add(req.params.name, nodeData);
                 
             } else if (nodeType === 'webhook') {
                 const webhookNodeInstance = nodeInstance as IWebhookNode;
@@ -683,6 +691,13 @@ app.post("/api/v1/node-load-method/:name", async (req: Request, res: Response) =
         res.status(404).send(`Node ${req.params.name} not found`);
         return;
     }
+});
+
+// Remove active test triggers
+app.post("/api/v1/remove-test-triggers", async (req: Request, res: Response) => {
+    await activeTestTriggerPool.remove(componentNodes);
+    res.status(200).send('success');
+    return;
 });
 
 

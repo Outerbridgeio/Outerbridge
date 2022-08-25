@@ -110,6 +110,10 @@ export interface IComponentNodesPool {
     [key: string]: INode | ITriggerNode
 }
 
+export interface IActiveTestTriggerPool {
+    [key: string]: INodeData
+}
+
 export interface ICredentialBody {
     name: string;
     nodeCredentialName: string;

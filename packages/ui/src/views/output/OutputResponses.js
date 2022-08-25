@@ -126,11 +126,19 @@ const OutputResponses = ({ nodeId, nodeParamsType, nodeFlowData, nodes, workflow
         }
     }
 
-    const onTestNodeClick = () => {
+    const onTestNodeClick = (nodeType) => {
         const testNodeBody = {
             ...nodeFlowData,
             nodeId
         };
+        /* If it is trigger node AND workflow is already deployed, stop it first to be safe.
+        *  Because it could cause deployed trigger and test trigger stop working due to throttled calls
+        */
+        if (nodeType === 'trigger' && workflow.deployed) {
+            setTestNodeLoading(false);
+            alert('Testing trigger requires stopping workflow. Please stop workflow first');
+            return;
+        }
         testNodeApi.request(nodeFlowData.name, { nodeData: testNodeBody, nodes });
     };
 
@@ -310,7 +318,7 @@ const OutputResponses = ({ nodeId, nodeParamsType, nodeFlowData, nodes, workflow
                         type="submit"
                         variant="contained"
                         color="secondary"
-                        onClick={() => nodeType === 'webhook' ? onTestWebhookClick() : onTestNodeClick()}
+                        onClick={() => nodeType === 'webhook' ? onTestWebhookClick() : onTestNodeClick(nodeType)}
                     >
                         {nodeType === 'webhook' ? 'Save & Test Webhook' : 'Test Node'}
                     </Button>
