@@ -13,9 +13,8 @@ import {
   serializeQueryParams,
   returnCountryList,
 } from "../../src/utils";
-import cryptoJs from "crypto-js";
-import axios, { AxiosRequestConfig, Method } from "axios";
-import FormData from "form-data";
+import crypto from "crypto-js";
+import axios, { AxiosRequestConfig, AxiosRequestHeaders, Method } from "axios";
 
 class CryptoPrivate implements INode {
   label: string;
@@ -278,7 +277,7 @@ class CryptoPrivate implements INode {
     const operation = actionData.operation as string;
     const apiKey = credentials.apiKey as string; /* User API Key */
     const secretKey = credentials.secretKey as string; /* User API Secret */
-    const timestamp = Math.floor(new Date().getTime() / 1000.0); //Current timestamp (milliseconds since the Unix epoch)
+    const timestamp = new Date().getTime(); //Current timestamp (milliseconds since the Unix epoch)
 
     const returnData: ICommonObject[] = [];
     let responseData: any; // tslint:disable-line: no-any
@@ -296,40 +295,63 @@ class CryptoPrivate implements INode {
       apiUrl = "https://api.crypto.com/v2/";
     }
 
+    const headers: AxiosRequestHeaders = {
+      'Content-Type': 'application/json',
+    };
+
     try {
       if (operation === "getAccountSummary") {
         url = `${apiUrl}private/get-account-summary`;
-        let request = {
+        
+        /*let request = {
           id: (Math.floor(Math.random() * 100) + 1).toString(),
           method: "private/get-account-summary",
           params: {},
           nonce: timestamp,
           api_key: apiKey,
+          sig:
         };
         queryBody = signRequest(request, apiKey, secretKey);
+        */
+
+        const method = "private/get-account-summary";
+        const id = Math.floor(Math.random() * 100) + 1;
+        const params = {};
+        const nonce = timestamp;
+
+        const sigPayload = method + id + apiKey + JSON.stringify(params) + nonce;
+        const sig = crypto.HmacSHA256(sigPayload, secretKey).toString(crypto.enc.Hex);
+        console.log('sig = ', sig)
+        //const signature = createHmac('sha256', secretKey).update(sigPayload).digest("hex");
+      
+        queryBody = {id, method, params, nonce, api_key: apiKey, sig}
+        console.log('queryBody = ', queryBody)
       }
 
       const axiosConfig: AxiosRequestConfig = {
         method,
         url,
-        params: queryParameters,
-        paramsSerializer: (params) => serializeQueryParams(params),
-        headers: {
-          "Content-Type": "application/json",
-        },
-        data: queryBody,
+        headers,
+        data: queryBody
       };
 
-      // if (Object.keys(queryBody).length > 0) {
-      //   axiosConfig.data = queryBody;
-      // }
+      /*
+      if (Object.keys(queryBody).length > 0) {
+        axiosConfig.data = queryBody;
+      }
+      */
+
       console.log("axiosConfig:", axiosConfig);
       const response = await axios(axiosConfig);
+
       console.log("response:", response);
       responseData = response.data;
+
       console.log("responseData:", responseData);
+
     } catch (error) {
-      console.log(handleErrorMessage(error));
+      console.error(error);
+      throw handleErrorMessage(error);
     }
 
     if (Array.isArray(responseData)) returnData.push(...responseData);
@@ -341,6 +363,7 @@ class CryptoPrivate implements INode {
 
 module.exports = { nodeClass: CryptoPrivate };
 
+/*
 const signRequest = (request_body: any, api_key: string, secret: string) => {
   const { id, method, params, nonce } = request_body;
 
@@ -393,3 +416,4 @@ const getFormData = (request: any) => {
   }
   return formData;
 };
+*/
