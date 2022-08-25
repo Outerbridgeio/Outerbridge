@@ -12,7 +12,7 @@ import {
     serializeQueryParams
 } from '../../src/utils';
 import axios, { AxiosRequestConfig, AxiosRequestHeaders, Method } from 'axios';
-import { retrieveAssets, retrieveCollections, retrieveEvents } from './extendedParameters';
+import { retrieveACollection, retrieveAContract, retrieveAnAsset, retrieveAssets, retrieveBundles, retrieveCollections, retrieveEvents } from './extendedParameters';
 
 class OpenSea implements INode {
 	
@@ -25,6 +25,7 @@ class OpenSea implements INode {
     incoming: number;
 	outgoing: number;
     actions?: INodeParams[];
+    credentials?: INodeParams[];
     inputParameters?: INodeParams[];
 
     constructor() {
@@ -38,25 +39,6 @@ class OpenSea implements INode {
 		this.incoming = 1;
 		this.outgoing = 1;
         this.actions = [
-			{
-				label: 'Environment',
-				name: 'environment',
-				type: 'options',
-				description: 'Environment to execute API: Test or Main',
-				options: [
-					{
-						label: 'TEST',
-						name: 'https://testnets-api.opensea.io/api/v1',
-						description: 'Testnet: https://testnets.opensea.io/'
-					},
-					{
-						label: 'MAIN',
-						name: 'https://api.opensea.io/api/v1',
-						description: 'Mainnet: https://opensea.io/'
-					},
-				],
-				default: 'https://testnets-api.opensea.io/api/v1',
-			},
             {
 				label: 'Operation',
 				name: 'operation',
@@ -77,6 +59,31 @@ class OpenSea implements INode {
 						name: 'retrieveCollections',
 						description: 'Returns a list of collections supported and vetted by OpenSea.'
 					},
+                    {
+						label: 'Retrieve Bundles',
+						name: 'retrieveBundles',
+						description: 'Returns a list of bundles. Bundles are groups of NFTs for sale on OpenSea.'
+					},
+                    {
+						label: 'Retrieve An Asset',
+						name: 'retrieveAnAsset',
+						description: 'Fetch information about a single NFT, based on its contract address and token ID.'
+					},
+                    {
+						label: 'Retrieve A Contract',
+						name: 'retrieveAContract',
+						description: 'Fetch detailed information about a specified contract.'
+					},
+                    {
+						label: 'Retrieve A Collection',
+						name: 'retrieveACollection',
+						description: 'Retrieve more in-depth information about an individual collection, including real time statistics such as floor price.'
+					},
+                    {
+						label: 'Retrieve Collection Stats',
+						name: 'retrieveCollectionStats',
+						description: 'Fetch stats for a specific collection, including real-time floor price data.'
+					},
 				],
 				default: '',
 			},
@@ -86,28 +93,32 @@ class OpenSea implements INode {
 				type: 'options',
 				options: [
 					{
-						label: 'New Auctions',
+						label: 'Auctions',
 						name: 'created',
 					},
                     {
-						label: 'New Sales',
+						label: 'Sales',
 						name: 'successful',
 					},
                     {
-						label: 'New Transfer',
+						label: 'Transfer',
 						name: 'transfer',
 					},
                     {
-						label: 'New Approve',
+						label: 'Approve',
 						name: 'approve',
 					},
                     {
-						label: 'New Bid Entered',
+						label: 'Bid Entered',
 						name: 'bid_entered',
 					},
                     {
 						label: 'Bid Withdrawn',
 						name: 'bid_withdrawn',
+					},
+                    {
+						label: 'Cancelled',
+						name: 'cancelled',
 					},
                     {
 						label: 'All Events',
@@ -126,13 +137,14 @@ class OpenSea implements INode {
 				type: 'options',
 				options: [
 					{
-						label: 'English Auctions',
+						label: 'Sell to the highest bidder',
 						name: 'english',
+						description: 'The highest bid wins at the end'
 					},
                     {
-						label: 'Dutch Auctions',
+						label: 'Sell with a declining price',
 						name: 'dutch',
-                        description: 'Fixed-price and declining-price sell orders'
+                        description: 'The price falls until someone purchases the item'
 					},
                     {
 						label: 'CryptoPunks Auctions',
@@ -147,11 +159,52 @@ class OpenSea implements INode {
                     'actions.event_type': ['created']
                 }
 			},
+            {
+				label: 'Environment',
+				name: 'environment',
+				type: 'options',
+				description: 'Environment to execute operation: Test or Main',
+				options: [
+					{
+						label: 'TEST',
+						name: 'https://testnets-api.opensea.io/api/v1',
+						description: 'Testnet: https://testnets.opensea.io/'
+					},
+					{
+						label: 'MAIN',
+						name: 'https://api.opensea.io/api/v1',
+						description: 'Mainnet: https://opensea.io/'
+					},
+				],
+				default: '',
+			},
         ] as INodeParams[];
+        this.credentials = [
+            {
+				label: 'Credential Method',
+				name: 'credentialMethod',
+				type: 'options',
+				options: [
+                    {
+						label: 'OpenSea API Key',
+						name: 'openSeaApi',
+                        description: 'How to get API key: https://docs.opensea.io/reference/request-an-api-key'
+					},
+				],
+				default: 'openSeaApi',
+                show: {
+                    'actions.environment': ['https://api.opensea.io/api/v1']
+                }
+			},
+		] as INodeParams[];
 		this.inputParameters = [
 			...retrieveAssets,
             ...retrieveEvents,
-            ...retrieveCollections
+            ...retrieveCollections,
+            ...retrieveBundles,
+            ...retrieveAnAsset,
+            ...retrieveAContract,
+            ...retrieveACollection,
 		] as INodeParams[];
 	};
 
@@ -176,6 +229,15 @@ class OpenSea implements INode {
 		const headers: AxiosRequestHeaders = {
 			'Content-Type': 'application/json',
 		};
+
+        if (baseURL === 'https://api.opensea.io/api/v1') { // Mainnet
+            const credentials = nodeData.credentials;
+            if (credentials === undefined) {
+                throw new Error('Missing credentials');
+            }
+		    const apiKey = credentials!.apiKey as string;
+            headers['X-API-KEY'] = apiKey;
+        }
 
         try {
 
@@ -254,7 +316,7 @@ class OpenSea implements INode {
                 const occurred_after = Date.parse(inputParametersData?.occurred_after as string);
                 if (occurred_after) queryParameters['occurred_after'] = occurred_after;
             }
-            else if (operation === 'retrieveEvents') {
+            else if (operation === 'retrieveCollections') {
                 url = `${baseURL}/collections`;
 
                 const asset_owner = inputParametersData?.asset_owner as string;
@@ -265,6 +327,57 @@ class OpenSea implements INode {
 
                 const limit = inputParametersData?.limit as number;
                 if (limit) queryParameters['limit'] = limit;
+            }
+            else if (operation === 'retrieveBundles') {
+                url = `${baseURL}/bundles`;
+
+                const on_sale = inputParametersData?.on_sale as boolean;
+                if (on_sale) queryParameters['on_sale'] = on_sale;
+
+                const owner = inputParametersData?.owner as string;
+                if (owner) queryParameters['owner'] = owner;
+
+                const token_ids_string = inputParametersData?.token_ids as string;
+                if (token_ids_string) {
+                    const token_ids = JSON.parse(token_ids_string.replace(/\s/g, ''));
+                    if (token_ids.length) queryParameters['token_ids'] = token_ids;
+                }
+
+                const asset_contract_address = inputParametersData?.asset_contract_address as string;
+                if (asset_contract_address) queryParameters['asset_contract_address'] = asset_contract_address;
+
+                const asset_contract_addresses_string = inputParametersData?.asset_contract_addresses as string;
+                if (asset_contract_addresses_string) {
+                    const asset_contract_addresses = JSON.parse(asset_contract_addresses_string.replace(/\s/g, ''));
+                    if (asset_contract_addresses.length) queryParameters['asset_contract_addresses'] = asset_contract_addresses;
+                }
+
+                const offset = inputParametersData?.offset as number;
+                if (offset) queryParameters['offset'] = offset;
+
+                const limit = inputParametersData?.limit as number;
+                if (limit) queryParameters['limit'] = limit;
+            }
+            else if (operation === 'retrieveAnAsset') {
+                const token_id = inputParametersData!.token_id as string;
+                const asset_contract_address = inputParametersData!.asset_contract_address as string;
+
+                url = `${baseURL}/asset/${asset_contract_address}/${token_id}`;
+            }
+            else if (operation === 'retrieveAContract') {
+                const asset_contract_address = inputParametersData!.asset_contract_address as string;
+
+                url = `${baseURL}/asset_contract/${asset_contract_address}`;
+            }
+            else if (operation === 'retrieveACollection') {
+                const collection_slug = inputParametersData!.collection_slug as string;
+
+                url = `${baseURL}/collection/${collection_slug}`;
+            }
+            else if (operation === 'retrieveCollectionStats') {
+                const collection_slug = inputParametersData!.collection_slug as string;
+
+                url = `${baseURL}/collection/${collection_slug}/stats`;
             }
 
             const axiosConfig: AxiosRequestConfig = {

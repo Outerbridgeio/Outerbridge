@@ -139,7 +139,6 @@ export const retrieveAssets = [
     },
 ] as INodeParams[];
 
-
 export const retrieveEvents = [
     {
         label: 'Asset Contract Address',
@@ -158,7 +157,7 @@ export const retrieveEvents = [
         type: 'string',
         default: '',
         optional: true,
-        description: 'Limit responses to events from a collection. Case sensitive and must match the collection slug exactly. Will return all assets from all contracts in a collection.',
+        description: 'Events from a collection. For instance: if a collection url is: https://opensea.io/collection/my-collection-1, collection slug is my-collection-1.',
         show: {
             'actions.operation': ['retrieveEvents']
         }
@@ -238,7 +237,6 @@ export const retrieveEvents = [
             'actions.operation': ['retrieveEvents']
         }
     },
-    
 ] as INodeParams[];
 
 export const retrieveCollections = [
@@ -274,5 +272,201 @@ export const retrieveCollections = [
         show: {
             'actions.operation': ['retrieveCollections']
         }
+    },
+] as INodeParams[];
+
+export const retrieveBundles = [
+    {
+        label: 'On Sale',
+        name: 'on_sale',
+        type: 'boolean',
+        default: false,
+        optional: true,
+        description: `If set to true, only show bundles currently on sale. If set to false, only show bundles that have been sold or cancelled.`,
+        show: {
+            'actions.operation': ['retrieveBundles']
+        }
+    },
+    {
+        label: 'Owner',
+        name: 'owner',
+        type: 'string',
+        default: '',
+        description: 'Account address of the owner of a bundle (and all assets within)',
+        optional: true,
+        show: {
+            'actions.operation': ['retrieveBundles']
+        }
+    },
+    {
+        label: 'Asset Contract Address',
+        name: 'asset_contract_address',
+        type: 'string',
+        default: '',
+        optional: true,
+        description: 'Contract address of all the assets in a bundle. Only works for homogenous bundles, not mixed ones.',
+        show: {
+            'actions.operation': ['retrieveBundles']
+        }
+    },
+    {
+        label: 'Asset Contract Addresses',
+        name: 'asset_contract_addresses',
+        type: 'json',
+        default: '[]',
+        optional: true,
+        description: 'An array of contract addresses to search for',
+        show: {
+            'actions.operation': ['retrieveBundles']
+        }
+    },
+    {
+        label: 'Token Ids',
+        name: 'token_ids',
+        type: 'json',
+        default: '[]',
+        optional: true,
+        description: 'A list of token IDs for showing only bundles with at least one of the token IDs in the list',
+        show: {
+            'actions.operation': ['retrieveBundles']
+        }
+    },
+    {
+        label: 'Offset',
+        name: 'offset',
+        type: 'number',
+        default: '',
+        description: 'Offset for pagination',
+        optional: true,
+        show: {
+            'actions.operation': ['retrieveBundles']
+        }
+    },
+    {
+        label: 'Limit',
+        name: 'limit',
+        type: 'number',
+        default: 20,
+        optional: true,
+        description: 'Limit for pagination',
+        show: {
+            'actions.operation': ['retrieveBundles']
+        }
+    },
+] as INodeParams[];
+
+export const retrieveAnAsset = [
+    {
+        label: 'Asset Contract Address',
+        name: 'asset_contract_address',
+        type: 'string',
+        default: '',
+        description: 'The NFT contract address for the assets',
+        show: {
+            'actions.operation': ['retrieveAnAsset']
+        }
+    },
+    {
+        label: 'Token Id',
+        name: 'token_id',
+        type: 'string',
+        default: '',
+        description: 'Token ID for this item',
+        show: {
+            'actions.operation': ['retrieveAnAsset']
+        }
+    },
+] as INodeParams[];
+
+export const retrieveAContract = [
+    {
+        label: 'Asset Contract Address',
+        name: 'asset_contract_address',
+        type: 'string',
+        default: '',
+        description: 'The NFT contract address for the assets',
+        show: {
+            'actions.operation': ['retrieveAContract']
+        }
+    },
+] as INodeParams[];
+
+export const retrieveACollection = [
+    {
+        label: 'Collection Slug',
+        name: 'collection_slug',
+        type: 'string',
+        default: '',
+        description: 'For instance: if a collection url is: https://opensea.io/collection/my-collection-1, collection slug is my-collection-1.',
+        show: {
+            'actions.operation': ['retrieveACollection', 'retrieveCollectionStats']
+        }
+    },
+] as INodeParams[];
+
+export const eventsTriggerParams = [
+    {
+        label: 'Listen From',
+        name: 'listenFrom',
+        type: 'options',
+        options: [
+            {
+                label: 'From A NFT',
+                name: 'fromANFT'
+            },
+            {
+                label: 'From A Collection',
+                name: 'fromACollection'
+            }
+        ],
+        default: 'fromANFT',
+        description: 'Listen event from a NFT or collection',
+    },
+    {
+        label: 'Asset Contract Address',
+        name: 'asset_contract_address',
+        type: 'string',
+        default: '',
+        description: 'The NFT contract address for the assets for which to show events',
+        show: {
+            'inputParameters.listenFrom': ['fromANFT']
+        }
+    },
+    {
+        label: 'Token Id',
+        name: 'token_id',
+        type: 'number',
+        default: '',
+        description: `The token's id of NFT`,
+        show: {
+            'inputParameters.listenFrom': ['fromANFT']
+        }
+    },
+    {
+        label: 'Collection Slug',
+        name: 'collection_slug',
+        type: 'string',
+        default: '',
+        optional: true,
+        description: 'Events from a collection. For instance: if a collection url is: https://opensea.io/collection/my-collection-1, collection slug is my-collection-1.',
+        show: {
+            'inputParameters.listenFrom': ['fromACollection']
+        }
+    },
+    {
+        label: 'Account Address',
+        name: 'account_address',
+        type: 'string',
+        default: '',
+        optional: true,
+        description: `A user account's wallet address to filter for events on an account`,
+    },
+    {
+        label: 'Only Opensea',
+        name: 'only_opensea',
+        type: 'boolean',
+        default: false,
+        optional: true,
+        description: 'Restrict to events on OpenSea auctions',
     },
 ] as INodeParams[];
