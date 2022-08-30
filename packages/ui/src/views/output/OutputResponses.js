@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
+import { SET_WORKFLOW, REMOVE_DIRTY } from 'store/actions';
 
 // material-ui
 import {
@@ -10,6 +11,7 @@ import {
     CircularProgress,
     Stack,
     Typography,
+    IconButton
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 
@@ -21,6 +23,7 @@ import socketIOClient from "socket.io-client";
 import AnimateButton from 'ui-component/extended/AnimateButton';
 import AttachmentDialog from 'ui-component/dialog/AttachmentDialog';
 import HTMLDialog from 'ui-component/dialog/HTMLDialog';
+import ExpandDataDialog from 'ui-component/dialog/ExpandDataDialog';
 
 // API
 import nodesApi from "api/nodes";
@@ -30,11 +33,14 @@ import workflowsApi from "api/workflows";
 import useApi from "hooks/useApi";
 
 // icons
-import { IconExclamationMark, IconCopy, IconArrowUpRightCircle, IconX } from '@tabler/icons';
+import { IconExclamationMark, IconCopy, IconArrowUpRightCircle, IconX, IconArrowsMaximize } from '@tabler/icons';
 
 // const
 import { baseURL } from 'store/constant';
-import { SET_WORKFLOW, REMOVE_DIRTY } from 'store/actions';
+
+// utils
+import { copyToClipboard } from 'utils/genericHelper';
+
 
 // ==============================|| OUTPUT RESPONSES ||============================== //
 
@@ -47,12 +53,15 @@ const OutputResponses = ({ nodeId, nodeParamsType, nodeFlowData, nodes, workflow
     const [errorResponse, setErrorResponse] = useState(null);
     const [nodeName, setNodeName] = useState(null);
     const [nodeType, setNodeType] = useState(null);
+    const [nodeLabel, setNodeLabel] = useState(null);
     const [isTestNodeBtnDisabled, disableTestNodeBtn] = useState(true);
     const [testNodeLoading, setTestNodeLoading] = useState(null);
     const [showHTMLDialog, setShowHTMLDialog] = useState(false);
     const [HTMLDialogProps, setHTMLDialogProps] = useState({});
     const [showAttachmentDialog, setShowAttachmentDialog] = useState(false);
     const [attachmentDialogProps, setAttachmentDialogProps] = useState({});
+    const [showExpandDialog, setShowExpandDialog] = useState(false);
+    const [expandDialogProps, setExpandDialogProps] = useState({});
 
     const testNodeApi = useApi(nodesApi.testNode);
 
@@ -106,7 +115,7 @@ const OutputResponses = ({ nodeId, nodeParamsType, nodeFlowData, nodes, workflow
                 testNodeApi.request(nodeFlowData.name, { nodeData: testNodeBody, nodes, clientId: socket.id });
             });
         
-            socket.on('testNodeResponse', (data) => {
+            socket.on('testWebhookNodeResponse', (data) => {
                 setOutputResponse(data);
                 setTestNodeLoading(false);
                 const formValues = {
@@ -172,6 +181,15 @@ const OutputResponses = ({ nodeId, nodeParamsType, nodeFlowData, nodes, workflow
         setShowHTMLDialog(true);
     };
 
+    const onExpandDialogClicked = (executionData) => {
+        const dialogProp = {
+            title: `Output Responses: ${nodeLabel} `,
+            data: executionData
+        };
+        setExpandDialogProps(dialogProp);
+        setShowExpandDialog(true);
+    };
+
     useEffect(() => {
         if (nodeFlowData && nodeFlowData.outputResponses && nodeFlowData.outputResponses.output) {
             setOutputResponse(nodeFlowData.outputResponses.output);
@@ -191,6 +209,7 @@ const OutputResponses = ({ nodeId, nodeParamsType, nodeFlowData, nodes, workflow
             if (selectedNode) {
                 setNodeName(selectedNode.data.name);
                 setNodeType(selectedNode.data.type);
+                setNodeLabel(selectedNode.data.label);
             }
         }
 
@@ -272,8 +291,23 @@ const OutputResponses = ({ nodeId, nodeParamsType, nodeFlowData, nodes, workflow
                 <Chip sx={{mb: 2}} icon={<IconX />} label="Error" color="error" />
                 <div style={{color: 'red'}}>{errorResponse}</div>
             </Box>)}
-            <Box>
-                <ReactJson collapsed src={outputResponse} />
+            <Box sx={{position: 'relative'}}>
+                <ReactJson collapsed src={outputResponse} enableClipboard={e => copyToClipboard(e)}/>
+                <IconButton 
+                    size="small" 
+                    sx={{ 
+                        height: 25, 
+                        width: 25, 
+                        position: 'absolute', 
+                        top: -5, 
+                        right: 5 
+                    }}
+                    title="Expand Data"
+                    color="primary"
+                    onClick={() => onExpandDialogClicked(outputResponse)}
+                >
+                    <IconArrowsMaximize />
+                </IconButton>
                 <div>
                     {outputResponse.map((respObj, respObjIndex) =>
                         <div key={respObjIndex}>
@@ -346,6 +380,11 @@ const OutputResponses = ({ nodeId, nodeParamsType, nodeFlowData, nodes, workflow
             dialogProps={HTMLDialogProps}
             onCancel={() => setShowHTMLDialog(false)}
         ></HTMLDialog>
+        <ExpandDataDialog
+            show={showExpandDialog}
+            dialogProps={expandDialogProps}
+            onCancel={() => setShowExpandDialog(false)}
+        ></ExpandDataDialog>
         </>
     );
 };

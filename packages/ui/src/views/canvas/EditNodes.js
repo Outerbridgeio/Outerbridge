@@ -568,6 +568,7 @@ const EditNodes = ({ node, nodes, edges, workflow, rfInstance, onNodeLabelUpdate
                                                     </AccordionSummary>
                                                     <AccordionDetails>
                                                         <InputParameters 
+                                                            key={node.id} // to reload whenever node changed
                                                             params={nodeParams} 
                                                             paramsType="actions"
                                                             initialValues={nodeParamsInitialValues} 
@@ -611,6 +612,7 @@ const EditNodes = ({ node, nodes, edges, workflow, rfInstance, onNodeLabelUpdate
                                                     </AccordionSummary>
                                                     <AccordionDetails>
                                                         <InputParameters 
+                                                            key={node.id} // to reload whenever node changed
                                                             params={nodeParams} 
                                                             paramsType="networks"
                                                             initialValues={nodeParamsInitialValues} 
@@ -654,6 +656,7 @@ const EditNodes = ({ node, nodes, edges, workflow, rfInstance, onNodeLabelUpdate
                                                     </AccordionSummary>
                                                     <AccordionDetails>
                                                         <CredentialInput 
+                                                            key={node.id} // to reload whenever node changed
                                                             initialParams={nodeParams} 
                                                             paramsType="credentials"
                                                             initialValues={nodeParamsInitialValues} 
@@ -696,6 +699,7 @@ const EditNodes = ({ node, nodes, edges, workflow, rfInstance, onNodeLabelUpdate
                                                     </AccordionSummary>
                                                     <AccordionDetails>
                                                         <InputParameters 
+                                                            key={node.id} // to reload whenever node changed
                                                             params={nodeParams} 
                                                             paramsType="inputParameters"
                                                             initialValues={nodeParamsInitialValues}
@@ -739,6 +743,7 @@ const EditNodes = ({ node, nodes, edges, workflow, rfInstance, onNodeLabelUpdate
                                                     </AccordionSummary>
                                                     <AccordionDetails>
                                                         <OutputResponses 
+                                                            key={node.id} // to reload whenever node changed
                                                             nodeId={node.id}
                                                             nodeParamsType={nodeParamsType}
                                                             nodeFlowData={nodeFlowData}

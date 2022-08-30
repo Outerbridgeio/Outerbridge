@@ -374,3 +374,12 @@ export const handleCredentialParams = (nodeParams, paramsType, reorganizedParams
     }
     return nodeParams;
 }
+
+export const copyToClipboard = (e) => {
+    const src = e.src;
+    if (Array.isArray(src) || typeof src === 'object') {
+        navigator.clipboard.writeText(JSON.stringify(src, null, '  '));
+    } else {
+        navigator.clipboard.writeText(src);
+    }
+}

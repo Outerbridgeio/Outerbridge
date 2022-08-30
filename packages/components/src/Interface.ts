@@ -69,7 +69,6 @@ export interface IWallet {
     createdDate: Date;
 }
 
-
 /**
  * Types
  */
@@ -84,6 +83,7 @@ export type NodeParamsType = 'asyncOptions' | 'options' | 'string' | 'number' | 
 export type DbCollectionName = 'Contract' | 'Webhook' | 'Workflow' | 'Credential' | 'Execution' | 'Wallet';
 
 export type CommonType = string | number | boolean | undefined | null;
+
 
 /**
  * Others
@@ -218,3 +218,8 @@ export interface IProviders {
 		filter?: any
 	}
 }
+
+export interface IOAuth2RefreshResponse {
+    access_token: string;
+    expires_in: string;
+} 

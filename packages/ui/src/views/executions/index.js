@@ -1,5 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import { 
+    SET_WORKFLOW,
+    enqueueSnackbar as enqueueSnackbarAction,
+    closeSnackbar as closeSnackbarAction,
+} from 'store/actions';
+import { useDispatch } from 'react-redux';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
@@ -15,7 +21,8 @@ import {
     Chip,
     Stack,
     Typography,
-    Button
+    Button,
+    IconButton
 } from '@mui/material';
 
 // third-party
@@ -28,10 +35,26 @@ import MainCard from 'ui-component/cards/MainCard';
 import Transitions from 'ui-component/extended/Transitions';
 import AttachmentDialog from 'ui-component/dialog/AttachmentDialog';
 import HTMLDialog from 'ui-component/dialog/HTMLDialog';
+import ExpandDataDialog from 'ui-component/dialog/ExpandDataDialog';
+
+// hooks
+import useConfirm from "hooks/useConfirm";
+import useNotifier from 'utils/useNotifier';
+
+// icon
+import { IconTrash, IconX, IconArrowsMaximize } from '@tabler/icons';
+
+// API
+import executionsApi from "api/executions";
+import workflowsApi from "api/workflows";
+
+// utils
+import { copyToClipboard } from 'utils/genericHelper';
+
 
 // ==============================|| EXECUTIONS ||============================== //
 
-const Executions = ({ execution, executionCount, isExecutionOpen, anchorEl }) => {
+const Executions = ({ workflowShortId, execution, executionCount, isExecutionOpen, anchorEl }) => {
     const theme = useTheme();
     const [expanded, setExpanded] = useState(false);
     const [open, setOpen] = useState(false);
@@ -39,8 +62,16 @@ const Executions = ({ execution, executionCount, isExecutionOpen, anchorEl }) =>
     const [HTMLDialogProps, setHTMLDialogProps] = useState({});
     const [showAttachmentDialog, setShowAttachmentDialog] = useState(false);
     const [attachmentDialogProps, setAttachmentDialogProps] = useState({});
+    const [showExpandDialog, setShowExpandDialog] = useState(false);
+    const [expandDialogProps, setExpandDialogProps] = useState({});
 
+    const dispatch = useDispatch();
     const varPrevOpen = useRef(open);
+    const { confirm } = useConfirm();
+
+    useNotifier();
+    const enqueueSnackbar = (...args) => dispatch(enqueueSnackbarAction(...args));
+    const closeSnackbar = (...args) => dispatch(closeSnackbarAction(...args));
 
     const handleAccordionChange = (executionShortId) => (event, isExpanded) => {
         setExpanded(isExpanded ? executionShortId : false);
@@ -79,6 +110,64 @@ const Executions = ({ execution, executionCount, isExecutionOpen, anchorEl }) =>
         setHTMLDialogProps(dialogProp);
         setShowHTMLDialog(true);
     };
+
+    const onExpandDialogClicked = (executionData, nodeLabel) => {
+        const dialogProp = {
+            title: `Execution Data: ${nodeLabel}`,
+            data: executionData
+        };
+        setExpandDialogProps(dialogProp);
+        setShowExpandDialog(true);
+    };
+
+    const deleteExecution = async(e, executionShortId) => {
+        e.stopPropagation();
+        const confirmPayload = {
+            title: `Delete`,
+            description: `Delete execution ${executionShortId}?`,
+            confirmButtonName: 'Delete',
+            cancelButtonName: 'Cancel'
+        }
+        const isConfirmed = await confirm(confirmPayload);
+
+        if (isConfirmed) {
+            try {
+                const executionResp = await executionsApi.deleteExecution(executionShortId);
+                if (executionResp.data) {
+                    const workflowResponse = await workflowsApi.getSpecificWorkflow(workflowShortId);
+                    if (workflowResponse.data) dispatch({ type: SET_WORKFLOW, workflow: workflowResponse.data });
+                }
+                enqueueSnackbar({
+                    message: 'Execution deleted!',
+                    options: {
+                        key: new Date().getTime() + Math.random(),
+                        variant: 'success',
+                        action: key => (
+                            <Button style={{color: 'white'}} onClick={() => closeSnackbar(key)}>
+                                <IconX />
+                            </Button>
+                        ),
+                    },
+                });
+    
+            } catch (error) {
+                const errorData =  error.response.data || `${error.response.status}: ${error.response.statusText}`;
+                enqueueSnackbar({
+                    message: errorData,
+                    options: {
+                        key: new Date().getTime() + Math.random(),
+                        variant: 'error',
+                        persist: true,
+                        action: key => (
+                            <Button style={{color: 'white'}} onClick={() => closeSnackbar(key)}>
+                                <IconX />
+                            </Button>
+                        ),
+                    },
+                });
+            }
+        }
+    }
 
     // Handle Accordian
     useEffect(() => {
@@ -170,9 +259,14 @@ const Executions = ({ execution, executionCount, isExecutionOpen, anchorEl }) =>
                                                                         />
                                                                     )}
                                                                 </Stack>
-                                                                <Typography variant="h6" sx={{ color: theme.palette.grey['500'] }}>
-                                                                    {moment(exec.createdDate).format('MMMM Do YYYY, h:mm:ss A z')}
-                                                                </Typography>
+                                                                <Stack sx={{ mb: -1, alignItems: 'center' }} direction="row">
+                                                                    <Typography variant="h6" sx={{ color: theme.palette.grey['500'] }}>
+                                                                        {moment(exec.createdDate).format('MMMM Do YYYY, h:mm:ss A z')}
+                                                                    </Typography>
+                                                                    <IconButton size="small" sx={{ height: 25, width: 25, ml: 1 }} title="Delete Execution" color="error" onClick={(e) => deleteExecution(e, exec.shortId)}>
+                                                                        <IconTrash />
+                                                                    </IconButton>
+                                                                </Stack>
                                                             </Stack>
                                                         </AccordionSummary>
                                                         {JSON.parse(exec.executionData).map((execData, execDataIndex) => (
@@ -192,7 +286,23 @@ const Executions = ({ execution, executionCount, isExecutionOpen, anchorEl }) =>
                                                                 <ReactJson 
                                                                     collapsed 
                                                                     src={execData.data}
+                                                                    enableClipboard={e => copyToClipboard(e)}
                                                                 />
+                                                                <IconButton 
+                                                                    size="small" 
+                                                                    sx={{ 
+                                                                        height: 25, 
+                                                                        width: 25, 
+                                                                        position: 'absolute', 
+                                                                        top: 5, 
+                                                                        right: 5 
+                                                                    }}
+                                                                    title="Expand Data"
+                                                                    color="primary"
+                                                                    onClick={() => onExpandDialogClicked(execData.data, execData.nodeLabel)}
+                                                                >
+                                                                    <IconArrowsMaximize />
+                                                                </IconButton>
                                                                 <div>
                                                                     {execData.data.map((execObj, execObjIndex) =>
                                                                         <div key={execObjIndex}>
@@ -251,11 +361,17 @@ const Executions = ({ execution, executionCount, isExecutionOpen, anchorEl }) =>
                 dialogProps={HTMLDialogProps}
                 onCancel={() => setShowHTMLDialog(false)}
             ></HTMLDialog>
+            <ExpandDataDialog
+                show={showExpandDialog}
+                dialogProps={expandDialogProps}
+                onCancel={() => setShowExpandDialog(false)}
+            ></ExpandDataDialog>
         </>
     );
 };
 
 Executions.propTypes = {
+    workflowShortId: PropTypes.string,
     execution: PropTypes.array,
     executionCount: PropTypes.number,
     isExecutionOpen: PropTypes.bool,

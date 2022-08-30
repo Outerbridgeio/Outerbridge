@@ -8,9 +8,12 @@ const createNewExecution = (body) => client.post(`/executions`, body);
 
 const updateExecution = (shortId, body) => client.put(`/executions/${shortId}`, body);
 
+const deleteExecution = (shortId) => client.delete(`/executions/${shortId}`);
+
 export default {
     getAllExecutions,
     getSpecificExecution,
     createNewExecution,
     updateExecution,
+    deleteExecution,
 };
