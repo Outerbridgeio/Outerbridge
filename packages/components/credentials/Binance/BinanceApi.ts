@@ -22,7 +22,7 @@ class BinanceApi implements INodeCredential {
 			{
 				label: 'Secret Key',
 				name: 'secretKey',
-				type: 'string',
+				type: 'password',
 				default: '',
 			},
 		];

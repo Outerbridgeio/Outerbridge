@@ -27,6 +27,7 @@ import {
     ICredentialBody, 
     ICredentialDataDecrpyted, 
     ICredentialResponse, 
+    IOAuth2Response, 
     IReactFlowEdge, 
     IReactFlowNode, 
     IReactFlowObject, 
@@ -45,7 +46,8 @@ import {
     IDbCollection,
     etherscanAPIs,
     nativeCurrency,
-    NETWORK
+    NETWORK,
+    INodeExecutionData,
 } from "outerbridge-components";
 import { CredentialsPool } from './CredentialsPool';
 import { 
@@ -56,10 +58,12 @@ import {
     resolveVariables, 
     transformToCredentialEntity, 
     constructGraphsAndGetStartingNodes,
-    encryptCredentialData
+    encryptCredentialData,
+    getOAuth2HTMLPath,
+    checkOAuth2TokenRefreshed
 } from './utils';
 import { DeployedWorkflowPool } from './DeployedWorkflowPool';
-import axios, { AxiosRequestConfig } from 'axios';
+import axios, { AxiosRequestConfig, Method } from 'axios';
 import { ActiveTestTriggerPool } from './ActiveTestTriggerPool';
 
 process.on('SIGINT', () => {
@@ -589,14 +593,17 @@ app.post("/api/v1/node-test/:name", async (req: Request, res: Response) => {
 
             if (nodeType === 'action') {
                 const reactFlowNodeData: INodeData = resolveVariables(nodeData, nodes);
-                const result = await nodeInstance.run!.call(nodeInstance, reactFlowNodeData);
+                let result = await nodeInstance.run!.call(nodeInstance, reactFlowNodeData);
+             
+                checkOAuth2TokenRefreshed(result, reactFlowNodeData)
+            
                 return res.json(result);
 
             } else if (nodeType === 'trigger') {
                 const triggerNodeInstance = nodeInstance as ITriggerNode;
                 const emitEventKey = nodeData.nodeId;
                 nodeData.emitEventKey = emitEventKey;
-                triggerNodeInstance.once(emitEventKey, async(result: any) => {
+                triggerNodeInstance.once(emitEventKey, async(result: INodeExecutionData[]) => {
                     await triggerNodeInstance.removeTrigger!.call(triggerNodeInstance, nodeData);
                     await activeTestTriggerPool.remove(componentNodes);
                     return res.json(result);
@@ -744,6 +751,8 @@ app.get("/api/v1/credentials", async (req: Request, res: Response) => {
 // Get registered credential via objectId
 app.get("/api/v1/credentials/:id", async (req: Request, res: Response) => {
 
+    const isEncrypted = req.query.isEncrypted;
+
     const encryptKey = await getEncryptionKey();
    
     const credential = await AppDataSource.getMongoRepository(Credential).findOneBy({
@@ -755,13 +764,18 @@ app.get("/api/v1/credentials/:id", async (req: Request, res: Response) => {
         return;
     }
 
-    // Decrpyt credentialData
-    const decryptedCredentialData = decryptCredentialData(credential.credentialData, encryptKey);
-    const credentialResponse: ICredentialResponse = {
-        ...credential,
-        credentialData: decryptedCredentialData
+    if (isEncrypted) {
+        return res.json(credential);
+
+    } else {
+        // Decrpyt credentialData
+        const decryptedCredentialData = decryptCredentialData(credential.credentialData, encryptKey);
+        const credentialResponse: ICredentialResponse = {
+            ...credential,
+            credentialData: decryptedCredentialData
+        }
+        return res.json(credentialResponse);
     }
-    return res.json(credentialResponse);
 });
 
 // Update credential
@@ -775,8 +789,20 @@ app.put("/api/v1/credentials/:id", async (req: Request, res: Response) => {
         return;
     }
 
+    const encryptKey = await getEncryptionKey();
+    const decryptedCredentialData = decryptCredentialData(credential.credentialData, encryptKey);
+
     const body: ICredentialBody = req.body;
-    const updateCredential = await transformToCredentialEntity(body);
+    const { credentialData, name, nodeCredentialName } = body;
+    const newBody: ICredentialBody = {
+        name: name,
+        nodeCredentialName: nodeCredentialName,
+        credentialData: {
+            ...decryptedCredentialData,
+            ...credentialData
+        }
+    }
+    const updateCredential = await transformToCredentialEntity(newBody);
 	
     AppDataSource.getMongoRepository(Credential).merge(credential, updateCredential);
     const results = await AppDataSource.getMongoRepository(Credential).save(credential);
@@ -870,11 +896,16 @@ app.post("/api/v1/contracts/getabi", async (req: Request, res: Response) => {
 
     if (body.credentials && body.credentials.registeredCredential) {
         // @ts-ignore
-        const credentialData: string = body.credentials.registeredCredential?.credentialData;
-        const encryptKey = await getEncryptionKey();
+        const credentialId: string = nodeData.credentials.registeredCredential?._id;
 
-        // Decrpyt credentialData
-        const decryptedCredentialData = decryptCredentialData(credentialData, encryptKey);
+        const credential = await AppDataSource.getMongoRepository(Credential).findOneBy({
+            _id: new ObjectId(credentialId),
+        });
+        if (!credential) return res.status(404).send(`Credential with id: ${credentialId} not found`);;
+        
+        const encryptKey = await getEncryptionKey();
+        const decryptedCredentialData = decryptCredentialData(credential.credentialData, encryptKey);
+
         body.credentials = decryptedCredentialData;
     }
 
@@ -941,10 +972,15 @@ app.get("/api/v1/wallets/:id", async (req: Request, res: Response) => {
 
         if (providerCredential.registeredCredential) {
             // @ts-ignore
-            const credentialData: string = providerCredential.registeredCredential?.credentialData;
+            const credentialId: string = providerCredential.registeredCredential?._id;
+
+            const credential = await AppDataSource.getMongoRepository(Credential).findOneBy({
+                _id: new ObjectId(credentialId),
+            });
+            if (!credential) return res.status(404).send(`Credential with id: ${credentialId} not found`);;
             
             // Decrpyt credentialData
-            decryptedCredentialData = decryptCredentialData(credentialData, encryptKey);
+            decryptedCredentialData = decryptCredentialData(credential.credentialData, encryptKey);
         }
 
         const credentialMethod = providerCredential.credentialMethod;
@@ -1155,6 +1191,117 @@ app.delete(`/api/v1/remove-webhook/:workflowShortId`, async (req: Request, res: 
     return res.status(204).send('Test webhooks deleted');
 });
 
+
+// ----------------------------------------
+// OAuth2
+// ----------------------------------------
+app.get("/api/v1/oauth2", async(req: Request, res: Response) => {
+   
+    if (!req.query.credentialId) return res.status(404).send('Credential not found');
+
+    const credentialId = req.query.credentialId;
+
+    const credential = await AppDataSource.getMongoRepository(Credential).findOneBy({
+        _id: new ObjectId(credentialId as string),
+    });
+
+    if (!credential) return res.status(404).send(`Credential with Id ${credentialId} not found`);
+
+    // Decrpyt credentialData
+    const encryptKey = await getEncryptionKey();
+
+    const decryptedCredentialData = decryptCredentialData(credential.credentialData, encryptKey);
+
+    const baseURL = req.get('host');
+    const authUrl = decryptedCredentialData.authUrl as string;
+    const authorizationURLParameters = decryptedCredentialData.authorizationURLParameters as string;
+    const clientID = decryptedCredentialData.clientID as string;
+    const scope = decryptedCredentialData.scope as string;
+    let scopeArray: any;
+    try {
+        scopeArray = scope.replace(/\s/g, '');
+        scopeArray = JSON.parse(scopeArray);
+    } catch (e) {
+        return res.status(500).send(e);
+    }
+    const serializedScope = scopeArray.join(' ');
+    const redirectUrl = `${req.protocol}://${baseURL}/api/v1/oauth2/callback`;
+
+    const returnURL = `${authUrl}?${authorizationURLParameters}&client_id=${clientID}&scope=${serializedScope}&redirect_uri=${redirectUrl}&state=${credentialId}`;
+
+    res.send(returnURL);
+});
+
+app.get("/api/v1/oauth2/callback", async(req: Request, res: Response) => {
+
+    const code = req.query.code;
+    if (!code) return res.status(500).send('Unable to retrieve authorization code from oAuth2 callback');
+
+    const credentialId = req.query.state;
+    if (!credentialId) return res.status(500).send('Unable to retrieve credentialId from oAuth2 callback');
+
+    const credential = await AppDataSource.getMongoRepository(Credential).findOneBy({
+        _id: new ObjectId(credentialId as string),
+    });
+
+    if (!credential) return res.status(404).send(`Credential with Id ${credentialId} not found`);
+
+   
+    // Decrpyt credentialData
+    const encryptKey = await getEncryptionKey();
+    const decryptedCredentialData = decryptCredentialData(credential.credentialData, encryptKey);
+
+    // Get access_token and refresh_token
+    const accessTokenUrl = decryptedCredentialData.accessTokenUrl as string;
+    const client_id = decryptedCredentialData.clientID as string;
+    const client_secret = decryptedCredentialData.clientSecret as string;
+    const baseURL = req.get('host');
+    const redirect_uri = `${req.protocol}://${baseURL}/api/v1/oauth2/callback`;
+    
+    const axiosConfig: AxiosRequestConfig = {
+        method: 'POST' as Method,
+        url: accessTokenUrl,
+        data: {
+            grant_type: 'authorization_code',
+            code,
+            client_id,
+            client_secret,
+            redirect_uri
+        },
+        headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+        },
+    };
+
+    const response = await axios(axiosConfig);
+    const responseData: IOAuth2Response = response.data;
+
+    const { access_token, token_type, expires_in, refresh_token } = responseData;
+
+    const body: ICredentialBody = {
+        name: credential.name,
+        nodeCredentialName: credential.nodeCredentialName,
+        credentialData: {
+            ...decryptedCredentialData,
+            access_token,
+            token_type,
+            expires_in,
+            refresh_token,
+        }
+    }
+
+    const updateCredential = await transformToCredentialEntity(body);
+
+    AppDataSource.getMongoRepository(Credential).merge(credential, updateCredential);
+    await AppDataSource.getMongoRepository(Credential).save(credential);
+
+    return res.sendFile(getOAuth2HTMLPath());
+});
+
+app.get("/api/v1/oauth2-redirecturl", async(req: Request, res: Response) => {
+    const baseURL = req.get('host');
+    res.send(`${req.protocol}://${baseURL}/api/v1/oauth2/callback`);
+});
 
 // ----------------------------------------
 // Serve UI static

@@ -20,11 +20,20 @@ import {
     WebhookMethod,
 } from '../Interface';
 import lodash from 'lodash';
-import { ICommonObject, INodeData, IWallet } from 'outerbridge-components';
+import { 
+    ICommonObject, 
+    INodeData, 
+    INodeExecutionData, 
+    IWallet, 
+    OAUTH2_REFRESHED,
+    IOAuth2RefreshResponse
+} from 'outerbridge-components';
 import { Workflow } from "../entity/Workflow";
 import { Credential } from "../entity/Credential";
 import { Webhook } from '../entity/Webhook';
 import { DeployedWorkflowPool } from '../DeployedWorkflowPool';
+import { AppDataSource } from '../DataSource';
+import { ObjectId } from 'mongodb';
 
 dotenv.config();
 
@@ -157,6 +166,14 @@ export const transformToCredentialEntity = async (body: ICredentialBody): Promis
 	Object.assign(newCredential, credentialBody);
 
 	return newCredential;
+}
+
+/**
+ * Returns the path of oauth2 html
+ * @returns {string}
+ */
+ export const getOAuth2HTMLPath = (): string => {
+	return path.join(__dirname, "..", "..", "oauth2.html");
 }
 
 /**
@@ -343,14 +360,21 @@ export const resolveVariables = (reactFlowNodeData: INodeData, reactFlowNodes: I
  * Decrypt encrypted credentials with encryption key
  * @param {INodeData} nodeData 
  */
-export const decryptCredentials = async(nodeData: INodeData) => {
+export const decryptCredentials = async(nodeData: INodeData, appDataSource?: DataSource ) => {
+    if (!appDataSource) appDataSource = AppDataSource;
+
     if (nodeData.credentials && nodeData.credentials.registeredCredential) {
         // @ts-ignore
-        const credentialData: string = nodeData.credentials.registeredCredential?.credentialData;
-        const encryptKey = await getEncryptionKey();
+        const credentialId: string = nodeData.credentials.registeredCredential?._id;
 
-        // Decrpyt credentialData
-        const decryptedCredentialData = decryptCredentialData(credentialData, encryptKey);
+        const credential = await appDataSource.getMongoRepository(Credential).findOneBy({
+            _id: new ObjectId(credentialId),
+        });
+        if (!credential) return;
+        
+        const encryptKey = await getEncryptionKey();
+        const decryptedCredentialData = decryptCredentialData(credential.credentialData, encryptKey);
+        
         nodeData.credentials = { ...nodeData.credentials, ...decryptedCredentialData };
     }
     await decryptWalletCredentials(nodeData);
@@ -462,7 +486,7 @@ export const processWebhook = async(
 
                     // Emit webhook result
                     const clientId = webhook.clientId;
-                    io.to(clientId).emit('testNodeResponse', result);
+                    io.to(clientId).emit('testWebhookNodeResponse', result);
 
                     // Delete webhook from 3rd party apps and from DB
                     if (webhook && webhook.webhookId) {
@@ -524,3 +548,72 @@ export const processWebhook = async(
         return;
     }
 }
+
+/**
+ * Update credential in DB after oAuth2 tokens have been refreshed
+ * @param {INodeExecutionData[] | null} result 
+ * @param {INodeData} nodeData 
+ * @param {DataSource} appDataSource 
+ */
+const updateCredentialAfterOAuth2TokenRefreshed = async(
+    result : INodeExecutionData[] | null,
+    nodeData: INodeData,
+    appDataSource?: DataSource
+) => {
+    if (!result || !result.length) return;
+
+    if (!appDataSource) appDataSource = AppDataSource;
+ 
+    for (let i = 0; i < result.length; i+=1) {
+        if (Object.prototype.hasOwnProperty.call(result[i], OAUTH2_REFRESHED)) {
+        
+            const { access_token, expires_in } = result[i][OAUTH2_REFRESHED] as unknown as IOAuth2RefreshResponse;
+            result[i] = lodash.omit(result[i], [OAUTH2_REFRESHED]);
+            
+            // Update credential
+            if (nodeData.credentials && nodeData.credentials.registeredCredential) {
+                // @ts-ignore
+                const credentialId = nodeData.credentials.registeredCredential._id as string;
+                const credential = await appDataSource.getMongoRepository(Credential).findOneBy({
+                    _id: new ObjectId(credentialId),
+                });
+
+                if (!credential) return;
+                
+                const encryptKey = await getEncryptionKey();
+                const decryptedCredentialData = decryptCredentialData(credential.credentialData, encryptKey);
+
+                const body: ICredentialBody = {
+                    name: credential.name,
+                    nodeCredentialName: credential.nodeCredentialName,
+                    credentialData: {
+                        ...decryptedCredentialData,
+                        access_token,
+                        expires_in,
+                    }
+                }
+                const updateCredential = await transformToCredentialEntity(body);
+                
+                appDataSource.getMongoRepository(Credential).merge(credential, updateCredential);
+                await appDataSource.getMongoRepository(Credential).save(credential);
+            }
+        }
+    }
+}
+
+/**
+ * Check if oAuth2 token refreshed
+ * @param {INodeExecutionData[] | null} result 
+ * @param {INodeData} nodeData 
+ * @param {DataSource} appDataSource 
+ */
+export const checkOAuth2TokenRefreshed = (
+    result : INodeExecutionData[] | null,
+    nodeData: INodeData,
+    appDataSource?: DataSource
+) => {
+    const credentialMethod = nodeData.credentials?.credentialMethod as string;
+    if (credentialMethod && credentialMethod.toLowerCase().includes('oauth2')) {
+        updateCredentialAfterOAuth2TokenRefreshed(result, nodeData, appDataSource);
+    }
+}                 

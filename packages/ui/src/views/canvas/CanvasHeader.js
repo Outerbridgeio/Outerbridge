@@ -331,6 +331,7 @@ const CanvasHeader = ({
             </Box>
             {workflow?.shortId && (
             <Executions
+                workflowShortId={workflow?.shortId}
                 execution={workflow?.execution}
                 executionCount={workflow?.executionCount}
                 isExecutionOpen={isExecutionOpen}
