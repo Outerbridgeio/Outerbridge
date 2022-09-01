@@ -16,12 +16,16 @@ import workflowsApi from "api/workflows";
 // Hooks
 import useApi from "hooks/useApi";
 
+// const
+import { baseURL } from 'store/constant';
+
 // ==============================|| WORKFLOWS ||============================== //
 
 const Workflows = () => {
     const navigate = useNavigate();
 
     const [isLoading, setLoading] = useState(true);
+    const [images, setImages] = useState({});
  
     const getAllWorkflowsApi = useApi(workflowsApi.getAllWorkflows);
 
@@ -43,6 +47,35 @@ const Workflows = () => {
         setLoading(getAllWorkflowsApi.loading);
     }, [getAllWorkflowsApi.loading]);
 
+
+    useEffect(() => {
+        if (getAllWorkflowsApi.data) {
+            try {
+                const workflows = getAllWorkflowsApi.data;
+                const images = {};
+
+                for (let i = 0; i < workflows.length; i+=1 ) {
+                    const flowDataStr = workflows[i].flowData;
+                    const flowData = JSON.parse(flowDataStr);
+                    const nodes = flowData.nodes || [];
+                    images[workflows[i].shortId] = [];
+
+                    for (let j = 0; j < nodes.length; j+=1 ) {
+                        const imageSrc = `${baseURL}/api/v1/node-icon/${nodes[j].data.name}`;
+                        if (!images[workflows[i].shortId].includes(imageSrc)) {
+                            images[workflows[i].shortId].push(imageSrc);
+                        }
+                    }
+                }
+                setImages(images);
+
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+    }, [getAllWorkflowsApi.data]);
+
     return (
         <MainCard>
             <Stack flexDirection="row">
@@ -62,6 +95,7 @@ const Workflows = () => {
                         <ItemCard 
                             onClick={() => goToCanvas(data)} 
                             data={data}
+                            images={images[data.shortId]}
                         />
                     </Grid>
                 ))}

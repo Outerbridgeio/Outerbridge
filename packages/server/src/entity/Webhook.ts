@@ -31,9 +31,6 @@ export class Webhook implements IWebhook {
 	@PrimaryColumn()
 	httpMethod: WebhookMethod;
 
-	@Column({ nullable: true })
-	clientId: string;
-
 	@Column()
 	workflowShortId: string;
 

@@ -1,5 +1,5 @@
 import { ICommonObject, INodeData } from "outerbridge-components";
-import { IChildProcessMessage, IRunWorkflowMessageValue, IVariableDict, IWorkflowExecutedData } from "./Interface";
+import { IChildProcessMessage, IExploredNode, INodeQueue, IRunWorkflowMessageValue, IVariableDict, IWorkflowExecutedData } from "./Interface";
 import { checkOAuth2TokenRefreshed, decryptCredentials } from "./utils";
 import { DataSource } from "typeorm";
 import { Workflow } from "./entity/Workflow"
@@ -9,19 +9,6 @@ import { Webhook } from "./entity/Webhook"
 import { Contract } from "./entity/Contract"
 import { Wallet } from "./entity/Wallet"
 import lodash from 'lodash';
-
-
-interface IExploredNode {
-    [key: string]: {
-        remainingLoop: number;
-        lastSeenDepth: number;
-    }
-}
-
-interface INodeQueue {
-    nodeId: string;
-    depth: number;
-}
 
 export class ChildProcess {
 
@@ -33,7 +20,6 @@ export class ChildProcess {
 			process.exit(0);
 		}, 50000);
 	}
-    
     
     /**
      * Run the workflow using Breadth First Search Topological Sort
