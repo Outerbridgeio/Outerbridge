@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { useDispatch } from 'react-redux';
-import { SET_WORKFLOW, REMOVE_DIRTY } from 'store/actions';
 
 // material-ui
 import {
@@ -27,7 +25,6 @@ import ExpandDataDialog from 'ui-component/dialog/ExpandDataDialog';
 
 // API
 import nodesApi from "api/nodes";
-import workflowsApi from "api/workflows";
 
 // Hooks
 import useApi from "hooks/useApi";
@@ -44,10 +41,9 @@ import { copyToClipboard } from 'utils/genericHelper';
 
 // ==============================|| OUTPUT RESPONSES ||============================== //
 
-const OutputResponses = ({ nodeId, nodeParamsType, nodeFlowData, nodes, workflow, rfInstance, onSubmit }) => {
+const OutputResponses = ({ nodeId, nodeParamsType, nodeFlowData, nodes, edges, workflow, onSubmit }) => {
 
     const theme = useTheme();
-    const dispatch = useDispatch();
 
     const [outputResponse, setOutputResponse] = useState([]);
     const [errorResponse, setErrorResponse] = useState(null);
@@ -65,67 +61,50 @@ const OutputResponses = ({ nodeId, nodeParamsType, nodeFlowData, nodes, workflow
 
     const testNodeApi = useApi(nodesApi.testNode);
 
-    const onTestWebhookClick = () => {
-        setTestNodeLoading(true);
+    const onTestNodeClick = (nodeType) => {
+ 
+        /* If workflow is already deployed, stop it first to be safe.
+        *  Because it could cause throttled calls
+        */
+        if (workflow.deployed) {
+            setTestNodeLoading(false);
+            alert('Testing trigger requires stopping workflow. Please stop workflow first');
+            return;
+        }
+  
+        const testNodeBody = {
+            nodes,
+            edges,
+            nodeId
+        };
+
         try {
-            const socket = socketIOClient(baseURL);
-            socket.on('connect', async() => {
-            
-                const rfInstanceObject = rfInstance.toObject();
-                const flowData = JSON.stringify(rfInstanceObject);
+            setTestNodeLoading(true);
+
+            if (nodeType === 'webhook') {
+
+                const socket = socketIOClient(baseURL);
+
+                socket.on('connect', async() => {
+                    testNodeBody.clientId = socket.id;
+                    testNodeApi.request(nodeFlowData.name, testNodeBody);
+                });
                 
-                let savedWorkflowResponse;
-                // For webhook, workflow must be saved/created first
-                if (!workflow.shortId) {
-                    const newWorkflowBody = {
-                        name: workflow.name,
-                        deployed: false,
-                        flowData
+                socket.on('testWebhookNodeResponse', (data) => {
+                    setOutputResponse(data);
+                    setTestNodeLoading(false);
+                    const formValues = {
+                        submit: true,
+                        needRetest: null,
+                        output: data,
                     };
-                    const response = await workflowsApi.createNewWorkflow(newWorkflowBody)
-                    savedWorkflowResponse = response.data;
-                    dispatch({ type: SET_WORKFLOW, workflow: savedWorkflowResponse });
-                    window.history.replaceState(null, null, `/canvas/${savedWorkflowResponse.shortId}`)
+                    onSubmit(formValues, 'outputResponses');
+                    socket.disconnect();
+                });
 
-                } else {
-
-                    // If workflow is already deployed, stop it first
-                    if (workflow.deployed) {
-                        setTestNodeLoading(false);
-                        alert('Testing webhook requires stopping workflow. Please stop workflow first');
-                        return;
-                    }
-
-                    const updateBody = {
-                        flowData
-                    };
-                    const response = await workflowsApi.updateWorkflow(workflow.shortId, updateBody)
-                    savedWorkflowResponse = response.data;
-                    dispatch({ type: SET_WORKFLOW, workflow: savedWorkflowResponse });
-                }
-
-                dispatch({ type: REMOVE_DIRTY });
-
-                // Test webhook
-                const testNodeBody = {
-                    ...nodeFlowData,
-                    nodeId,
-                    workflowShortId: savedWorkflowResponse.shortId
-                };
-                testNodeApi.request(nodeFlowData.name, { nodeData: testNodeBody, nodes, clientId: socket.id });
-            });
-        
-            socket.on('testWebhookNodeResponse', (data) => {
-                setOutputResponse(data);
-                setTestNodeLoading(false);
-                const formValues = {
-                    submit: true,
-                    needRetest: null,
-                    output: data,
-                };
-                onSubmit(formValues, 'outputResponses');
-                socket.disconnect();
-            });
+            } else {
+                testNodeApi.request(nodeFlowData.name, testNodeBody);
+            }
 
         } catch(error) {
             setTestNodeLoading(false);
@@ -133,22 +112,6 @@ const OutputResponses = ({ nodeId, nodeParamsType, nodeFlowData, nodes, workflow
             setErrorResponse(error);
             console.error(error);
         }
-    }
-
-    const onTestNodeClick = (nodeType) => {
-        const testNodeBody = {
-            ...nodeFlowData,
-            nodeId
-        };
-        /* If it is trigger node AND workflow is already deployed, stop it first to be safe.
-        *  Because it could cause deployed trigger and test trigger stop working due to throttled calls
-        */
-        if (nodeType === 'trigger' && workflow.deployed) {
-            setTestNodeLoading(false);
-            alert('Testing trigger requires stopping workflow. Please stop workflow first');
-            return;
-        }
-        testNodeApi.request(nodeFlowData.name, { nodeData: testNodeBody, nodes });
     };
 
     const checkIfTestNodeValid = () => {
@@ -352,9 +315,9 @@ const OutputResponses = ({ nodeId, nodeParamsType, nodeFlowData, nodes, workflow
                         type="submit"
                         variant="contained"
                         color="secondary"
-                        onClick={() => nodeType === 'webhook' ? onTestWebhookClick() : onTestNodeClick(nodeType)}
+                        onClick={() => onTestNodeClick(nodeType)}
                     >
-                        {nodeType === 'webhook' ? 'Save & Test Webhook' : 'Test Node'}
+                        Test Node
                     </Button>
                 </AnimateButton >
                 {testNodeLoading && (<CircularProgress
@@ -394,8 +357,8 @@ OutputResponses.propTypes = {
     nodeParamsType: PropTypes.array,
     nodeFlowData: PropTypes.object,
     nodes: PropTypes.array, 
+    edges: PropTypes.array, 
     workflow: PropTypes.object,
-    rfInstance: PropTypes.any,
     onSubmit: PropTypes.func,
 };
 

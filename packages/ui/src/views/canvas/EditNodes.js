@@ -47,7 +47,7 @@ import { getAvailableNodeIdsForVariable, numberOrExpressionRegex, handleCredenti
 
 // ==============================|| EDIT NODES||============================== //
 
-const EditNodes = ({ node, nodes, edges, workflow, rfInstance, onNodeLabelUpdate, onNodeValuesUpdate }) => {
+const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValuesUpdate }) => {
 
     const theme = useTheme();
 
@@ -748,8 +748,8 @@ const EditNodes = ({ node, nodes, edges, workflow, rfInstance, onNodeLabelUpdate
                                                             nodeParamsType={nodeParamsType}
                                                             nodeFlowData={nodeFlowData}
                                                             nodes={nodes}
+                                                            edges={edges}
                                                             workflow={workflow}
-                                                            rfInstance={rfInstance}
                                                             onSubmit={onSubmit}
                                                         />
                                                     </AccordionDetails>
@@ -781,7 +781,6 @@ EditNodes.propTypes = {
     nodes: PropTypes.array,
     edges: PropTypes.array,
     workflow: PropTypes.object,
-    rfInstance: PropTypes.any,
     onNodeLabelUpdate: PropTypes.func,
     onNodeValuesUpdate: PropTypes.func,
 };

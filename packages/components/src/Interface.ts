@@ -40,7 +40,6 @@ export interface IWebhook {
     workflowShortId: string;
     webhookEndpoint: string;
     httpMethod: WebhookMethod;
-    clientId: string;
     webhookId: string;
     nodeId: string;
     updatedDate: Date;
@@ -185,14 +184,13 @@ export interface INode extends INodeProperties {
 }
 
 export interface INodeData extends INodeProperties {
-    nodeId: string;
-    workflowShortId?: string;
     emitEventKey?: string; // event emitter key for triggers
     
     actions?: ICommonObject
     credentials?: ICommonObject
     networks?: ICommonObject
     inputParameters?: ICommonObject;
+    outputResponses?: ICommonObject;
 
     loadMethod?: string; // method to load async options
     loadFromDbCollections?: DbCollectionName[]; // method to load async options

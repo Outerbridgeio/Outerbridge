@@ -32,11 +32,13 @@ import {
     IReactFlowNode, 
     IReactFlowObject, 
     ITestNodeBody, 
+    ITestWorkflowBody, 
     ITriggerNode, 
     IWalletRequestBody, 
     IWalletResponse, 
     IWebhook, 
     IWebhookNode, 
+    IWorkflowExecutedData, 
     IWorkflowResponse, 
     WebhookMethod
 } from "./Interface";
@@ -48,6 +50,7 @@ import {
     nativeCurrency,
     NETWORK,
     INodeExecutionData,
+    INode,
 } from "outerbridge-components";
 import { CredentialsPool } from './CredentialsPool';
 import { 
@@ -60,11 +63,14 @@ import {
     constructGraphsAndGetStartingNodes,
     encryptCredentialData,
     getOAuth2HTMLPath,
-    checkOAuth2TokenRefreshed
+    checkOAuth2TokenRefreshed,
+    constructGraphs,
+    testWorkflow
 } from './utils';
 import { DeployedWorkflowPool } from './DeployedWorkflowPool';
-import axios, { AxiosRequestConfig, Method } from 'axios';
 import { ActiveTestTriggerPool } from './ActiveTestTriggerPool';
+import { ActiveTestWebhookPool } from './ActiveTestWebhookPool';
+import axios, { AxiosRequestConfig, Method } from 'axios';
 
 process.on('SIGINT', () => {
     console.log('exiting');
@@ -86,6 +92,7 @@ let componentNodes: IComponentNodesPool = {};
 let componentCredentials: IComponentCredentialsPool = {};
 let deployedWorkflowsPool: DeployedWorkflowPool;
 let activeTestTriggerPool: ActiveTestTriggerPool;
+let activeTestWebhookPool: ActiveTestWebhookPool;
 
 // Initialize database
 AppDataSource
@@ -112,6 +119,10 @@ AppDataSource
 
         // Initialize activeTestTriggerPool instance
         activeTestTriggerPool = new ActiveTestTriggerPool();
+
+
+        // Initialize activeTestWebhookPool instance
+        activeTestWebhookPool = new ActiveTestWebhookPool();
 
 
         // Initialize localtunnel
@@ -337,7 +348,9 @@ app.put("/api/v1/workflows/:shortId", async (req: Request, res: Response) => {
                     graph, 
                     reactFlowNodes, 
                     componentNodes, 
-                    workflowShortId
+                    workflowShortId,
+                    activeTestTriggerPool,
+                    activeTestWebhookPool
                 );
             } catch(e) {
                 return res.status(500).send(e);
@@ -419,7 +432,9 @@ app.post("/api/v1/workflows/deploy/:shortId", async (req: Request, res: Response
                 graph, 
                 reactFlowNodes, 
                 componentNodes, 
-                workflowShortId
+                workflowShortId,
+                activeTestTriggerPool,
+                activeTestWebhookPool
             );
         } else {
             await deployedWorkflowsPool.remove(
@@ -469,6 +484,121 @@ app.post("/api/v1/workflows/deploy/:shortId", async (req: Request, res: Response
     }
 });
 
+// Test Workflow from a starting point to end
+app.post("/api/v1/workflows/test/:startingNodeId", async (req: Request, res: Response) => {
+    const body = req.body as ITestWorkflowBody;
+    const nodes = body.nodes || [];
+    const edges = body.edges || [];
+    const clientId = body.clientId || '';
+
+    const { graph, nodeDependencies } = constructGraphs(nodes, edges);
+    const startingNodeId = req.params.startingNodeId;
+
+    const startNode = nodes.find((nd: IReactFlowNode) => nd.id === startingNodeId);
+
+	if (startNode && startNode.data) {
+
+        let nodeData = startNode.data;
+        await decryptCredentials(nodeData);
+        nodeData = resolveVariables(nodeData, nodes);
+
+        if (!Object.prototype.hasOwnProperty.call(componentNodes, nodeData.name)) {
+            res.status(404).send(`Unable to test workflow from node: ${nodeData.name}`);
+            return;
+        }
+
+        if (nodeData.type === 'trigger') {
+            const triggerNodeInstance = componentNodes[nodeData.name] as ITriggerNode;
+            const emitEventKey = startingNodeId;
+            nodeData.emitEventKey = emitEventKey;
+
+            triggerNodeInstance.once(emitEventKey, async(result: INodeExecutionData[]) => {
+                await triggerNodeInstance.removeTrigger!.call(triggerNodeInstance, nodeData);
+                await activeTestTriggerPool.remove(nodeData.name, componentNodes);
+
+                const newWorkflowExecutedData = {
+                    nodeId: startingNodeId,
+                    nodeLabel: nodeData.label,
+                    data: result,
+                    status: 'FINISHED'
+                } as IWorkflowExecutedData;
+
+                io.to(clientId).emit('testWorkflowNodeResponse', newWorkflowExecutedData);
+
+                testWorkflow(
+                    startingNodeId,
+                    nodes,
+                    edges,
+                    graph,
+                    componentNodes,
+                    clientId,
+                    io
+                );
+            });
+
+            await triggerNodeInstance.runTrigger!.call(triggerNodeInstance, nodeData);
+            activeTestTriggerPool.add(nodeData.name, nodeData);
+        }
+        else if (nodeData.type === 'webhook') {
+            const webhookNodeInstance = componentNodes[nodeData.name] as IWebhookNode;
+            const newBody = {
+                webhookEndpoint: nodeData.webhookEndpoint,
+                httpMethod: nodeData.inputParameters?.httpMethod as WebhookMethod || 'POST',
+            } as any;
+
+            if (webhookNodeInstance.webhookMethods?.createWebhook) {
+                if (!process.env.TUNNEL_BASE_URL) {
+                    res.status(500).send(`Please enable tunnel by setting ENABLE_TUNNEL to true in env file`);
+                    return;
+                }
+                
+                const webhookFullUrl = `${process.env.TUNNEL_BASE_URL}api/v1/webhook/${nodeData.webhookEndpoint}`;
+                const webhookId = await webhookNodeInstance.webhookMethods?.createWebhook.call(webhookNodeInstance, nodeData, webhookFullUrl);
+       
+                if (webhookId !== undefined) {
+                    newBody.webhookId = webhookId;
+                }
+            }
+
+            activeTestWebhookPool.add(
+                newBody.webhookEndpoint,
+                newBody.httpMethod,
+                nodes,
+                edges,
+                nodeData,
+                startingNodeId,
+                clientId,
+                true,
+                newBody?.webhookId
+            );
+        }
+        else if (nodeData.type === 'action') {
+            
+            const actionNodeInstance = componentNodes[nodeData.name] as INode;
+            let result = await actionNodeInstance.run!.call(actionNodeInstance, nodeData);
+            checkOAuth2TokenRefreshed(result, nodeData)
+               
+            const newWorkflowExecutedData = {
+                nodeId: startingNodeId,
+                nodeLabel: nodeData.label,
+                data: result,
+                status: 'FINISHED'
+            } as IWorkflowExecutedData;
+
+            io.to(clientId).emit('testWorkflowNodeResponse', newWorkflowExecutedData);
+
+            testWorkflow(
+                startingNodeId,
+                nodes,
+                edges,
+                graph,
+                componentNodes,
+                clientId,
+                io
+            );
+        }
+    }
+});
 
 
 // ----------------------------------------
@@ -581,13 +711,17 @@ app.get("/api/v1/node-icon/:name", (req: Request, res: Response) => {
 // Test a node
 app.post("/api/v1/node-test/:name", async (req: Request, res: Response) => {
     const body: ITestNodeBody = req.body;
-    const nodeData = body.nodeData;
-    const nodes = body.nodes;
-  
+    const { nodes, edges, nodeId, clientId } = body;
+
+    const node = nodes.find((nd: IReactFlowNode) => nd.id === nodeId);
+
+	if (!node) return res.status(404).send(`Test node ${nodeId} not found`);
+
     if (Object.prototype.hasOwnProperty.call(componentNodes, req.params.name)) {
         try {
             const nodeInstance = componentNodes[req.params.name];
             const nodeType = nodeInstance.type;
+            const nodeData = node.data;
 
             await decryptCredentials(nodeData);
 
@@ -601,11 +735,11 @@ app.post("/api/v1/node-test/:name", async (req: Request, res: Response) => {
 
             } else if (nodeType === 'trigger') {
                 const triggerNodeInstance = nodeInstance as ITriggerNode;
-                const emitEventKey = nodeData.nodeId;
+                const emitEventKey = nodeId;
                 nodeData.emitEventKey = emitEventKey;
                 triggerNodeInstance.once(emitEventKey, async(result: INodeExecutionData[]) => {
                     await triggerNodeInstance.removeTrigger!.call(triggerNodeInstance, nodeData);
-                    await activeTestTriggerPool.remove(componentNodes);
+                    await activeTestTriggerPool.remove(nodeData.name, componentNodes);
                     return res.json(result);
                 });
                 await triggerNodeInstance.runTrigger!.call(triggerNodeInstance, nodeData);
@@ -613,13 +747,9 @@ app.post("/api/v1/node-test/:name", async (req: Request, res: Response) => {
                 
             } else if (nodeType === 'webhook') {
                 const webhookNodeInstance = nodeInstance as IWebhookNode;
-                const clientId = body.clientId;
                 const newBody = {
-                    nodeId: nodeData.nodeId,
                     webhookEndpoint: nodeData.webhookEndpoint,
                     httpMethod: nodeData.inputParameters?.httpMethod as WebhookMethod || 'POST',
-                    clientId,
-                    workflowShortId: nodeData.workflowShortId,
                 } as any;
 
                 if (webhookNodeInstance.webhookMethods?.createWebhook) {
@@ -636,12 +766,19 @@ app.post("/api/v1/node-test/:name", async (req: Request, res: Response) => {
                     }
                 }
 
-                const newWebhook = new Webhook();
-                Object.assign(newWebhook, newBody);
+                activeTestWebhookPool.add(
+                    newBody.webhookEndpoint,
+                    newBody.httpMethod,
+                    nodes,
+                    edges,
+                    nodeData,
+                    nodeId,
+                    clientId as string,
+                    false,
+                    newBody?.webhookId
+                );
 
-                const webhook = await AppDataSource.getMongoRepository(Webhook).create(newWebhook);
-                const result = await AppDataSource.getMongoRepository(Webhook).save(webhook);
-                return res.json(result);
+                return res.json(newBody);
             }
         } catch (error) {
             res.status(500).send(`Node test error: ${error}`);
@@ -700,9 +837,21 @@ app.post("/api/v1/node-load-method/:name", async (req: Request, res: Response) =
     }
 });
 
+
+// ----------------------------------------
+// Active Test Pools
+// ----------------------------------------
+
 // Remove active test triggers
 app.post("/api/v1/remove-test-triggers", async (req: Request, res: Response) => {
-    await activeTestTriggerPool.remove(componentNodes);
+    await activeTestTriggerPool.removeAll(componentNodes);
+    res.status(200).send('success');
+    return;
+});
+
+// Remove active test webhooks
+app.post("/api/v1/remove-test-webhooks", async (req: Request, res: Response) => {
+    await activeTestWebhookPool.removeAll(componentNodes);
     res.status(200).send('success');
     return;
 });
@@ -896,7 +1045,7 @@ app.post("/api/v1/contracts/getabi", async (req: Request, res: Response) => {
 
     if (body.credentials && body.credentials.registeredCredential) {
         // @ts-ignore
-        const credentialId: string = nodeData.credentials.registeredCredential?._id;
+        const credentialId: string = body.credentials.registeredCredential?._id;
 
         const credential = await AppDataSource.getMongoRepository(Credential).findOneBy({
             _id: new ObjectId(credentialId),
@@ -1145,7 +1294,8 @@ app.get(`/api/v1/webhook/*`, express.raw(), async (req: Request, res: Response) 
         'GET',
         componentNodes,
         io,
-        deployedWorkflowsPool
+        deployedWorkflowsPool,
+        activeTestWebhookPool
     );
 });
 
@@ -1161,34 +1311,9 @@ app.post(`/api/v1/webhook/*`, express.raw(), async (req: Request, res: Response)
         'POST',
         componentNodes,
         io,
-        deployedWorkflowsPool
+        deployedWorkflowsPool,
+        activeTestWebhookPool,
     );
-});
-
-// Remove all test-webhooks from a specific workflow
-app.delete(`/api/v1/remove-webhook/:workflowShortId`, async (req: Request, res: Response) => {
-    const testWebhooks: IWebhook[] = await AppDataSource.getMongoRepository(Webhook)
-    .aggregate(
-        [
-            {
-                $match: {
-                    workflowShortId: req.params.workflowShortId
-                }
-            },
-        ]
-    ).toArray();
-
-    for (let i = 0; i < testWebhooks.length; i+=1) {
-        const webhook = testWebhooks[i];
-        if (webhook.clientId) {
-            await AppDataSource.getMongoRepository(Webhook).delete({ 
-                webhookEndpoint: webhook.webhookEndpoint,
-                httpMethod: webhook.httpMethod, 
-                clientId: webhook.clientId
-            });
-        }
-    }
-    return res.status(204).send('Test webhooks deleted');
 });
 
 

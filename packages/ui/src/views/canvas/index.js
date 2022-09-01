@@ -19,7 +19,7 @@ import {
 } from 'store/actions';
 
 // material-ui
-import { Toolbar, Box, AppBar, Button } from '@mui/material';
+import { Toolbar, Box, AppBar, Button, Fab, CircularProgress } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 
 // project imports
@@ -29,6 +29,7 @@ import CanvasHeader from './CanvasHeader';
 import AddNodes from './AddNodes';
 import EditNodes from './EditNodes';
 import ConfirmDialog from 'ui-component/dialog/ConfirmDialog';
+import TestWorkflowDialog from 'ui-component/dialog/TestWorkflowDialog';
 
 // API
 import nodesApi from "api/nodes";
@@ -40,7 +41,10 @@ import useApi from "hooks/useApi";
 import useConfirm from "hooks/useConfirm";
 
 // icons
-import { IconX } from '@tabler/icons';
+import { IconX, IconBolt } from '@tabler/icons';
+
+// third party
+import socketIOClient from "socket.io-client";
 
 // utils
 import { 
@@ -54,6 +58,8 @@ import {
 import useNotifier from 'utils/useNotifier';
 
 // const
+import { baseURL } from 'store/constant';
+
 const nodeTypes = { customNode: CanvasNode };
 const edgeTypes = { buttonedge: ButtonEdge };
 
@@ -73,7 +79,10 @@ const Canvas = () => {
     const canvas = useSelector((state) => state.canvas);
     const [canvasDataStore, setCanvasDataStore] = useState(canvas);
     const [workflow, setWorkflow] = useState(null);
-  
+    const [isTestWorkflowDialogOpen, setTestWorkflowDialogOpen] = useState(false);
+    const [testWorkflowDialogProps, setTestWorkflowDialogProps] = useState({});
+    const [isTestingWorkflow, setIsTestingWorkflow] = useState(false);
+
     // ==============================|| Snackbar ||============================== //
 
     useNotifier();
@@ -96,6 +105,7 @@ const Canvas = () => {
     const removeTestTriggersApi = useApi(nodesApi.removeTestTriggers);
     const deleteAllTestWebhooksApi = useApi(webhooksApi.deleteAllTestWebhooks);
     const createNewWorkflowApi = useApi(workflowsApi.createNewWorkflow);
+    const testWorkflowApi = useApi(workflowsApi.testWorkflow);
     const updateWorkflowApi = useApi(workflowsApi.updateWorkflow);
     const getSpecificWorkflowApi = useApi(workflowsApi.getSpecificWorkflow);
 
@@ -111,6 +121,101 @@ const Canvas = () => {
         setEdges((eds) => addEdge(newEdge, eds));
         setDirty();
     };
+
+    const handleTestWorkflow = () => {
+        try {
+            if (workflow.deployed) {
+                alert('Testing workflow requires stopping deployed workflow. Please stop deployed workflow first');
+                return;
+            }
+            const rfInstanceObject = rfInstance.toObject();
+            const nodes = rfInstanceObject.nodes || [];
+            setTestWorkflowDialogOpen(true);
+            setTestWorkflowDialogProps({
+                title: 'Test Workflow',
+                nodes: nodes.filter((nd) => !nd.id.includes('ifElse'))
+            });
+            
+        } catch(e) {
+            console.error(e);
+        }
+    }
+
+    const onStartingPointClick = (startingNodeId) => {
+        try {
+            const socket = socketIOClient(baseURL);
+            const rfInstanceObject = rfInstance.toObject();
+            const nodes = rfInstanceObject.nodes || [];
+            const edges = rfInstanceObject.edges || [];
+            setTestWorkflowDialogOpen(false);
+
+            socket.on('connect', () => {
+                const clientId = socket.id;
+                const node = nodes.find((nd) => nd.id === startingNodeId);
+                const nodeData = node.data;
+                const body = {
+                    nodes,
+                    edges,
+                    clientId,
+                    nodeData
+                };
+                testWorkflowApi.request(startingNodeId, body);
+                setNodes((nds) =>
+                    nds.map((node) => {
+                        node.data =  {
+                            ...node.data,
+                            outputResponses: {
+                                submit: null,
+                                needRetest: null,
+                                output: null,
+                            },
+                            selected: false,
+                        };
+                        return node;
+                    })
+                );
+                setIsTestingWorkflow(true);
+            });
+
+            socket.on('testWorkflowNodeResponse', (value) => {
+                const {
+                    nodeId,
+                    data,
+                    status
+                } = value;
+
+                const node = nodes.find((nd) => nd.id === nodeId);
+                if (node) {
+                    const outputValues = {
+                        submit: status === 'FINISHED' ? true : null,
+                        needRetest: status === 'FINISHED' ? null : true,
+                        output: data,
+                    };
+                    const nodeData = node.data;
+                    nodeData['outputResponses'] = outputValues;
+                    setNodes((nds) =>
+                        nds.map((node) => {
+                            if (node.id === nodeId) {
+                                node.data = {
+                                    ...nodeData,
+                                    selected: false,
+                                };
+                            }
+                            return node;
+                        })
+                    );
+                }
+            });
+
+            socket.on('testWorkflowNodeFinish', () => {
+                setIsTestingWorkflow(false);
+                socket.disconnect();
+            });
+
+        } catch(e) {
+            console.error(e);
+        }  
+    }
 
     const handleLoadWorkflow = (file) => {
         try {
@@ -510,6 +615,28 @@ const Canvas = () => {
     }, [updateWorkflowApi.data]);
 
 
+    // Test workflow failed
+    useEffect(() => {
+        if (testWorkflowApi.error) {
+            enqueueSnackbar({
+                message: 'Test workflow failed',
+                options: {
+                    key: new Date().getTime() + Math.random(),
+                    variant: 'error',
+                    persist: true,
+                    action: key => (
+                        <Button style={{color: 'white'}} onClick={() => closeSnackbar(key)}>
+                            <IconX />
+                        </Button>
+                    ),
+                },
+            });
+        }
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [testWorkflowApi.error]);
+
+
     // Listen to edge button click remove redux event
     useEffect(() => {
         if (rfInstance) {
@@ -526,9 +653,11 @@ const Canvas = () => {
 
     // Initialization
     useEffect(() => {
+        removeTestTriggersApi.request();
+        deleteAllTestWebhooksApi.request();
+
         if (workflowShortId) {
             getSpecificWorkflowApi.request(workflowShortId);
-            deleteAllTestWebhooksApi.request(workflowShortId);
 
         } else {
             setNodes([]);
@@ -543,9 +672,11 @@ const Canvas = () => {
 
         getNodesApi.request();
      
-        // Clear dirty state before leaving and remove any ongoing test triggers
+        // Clear dirty state before leaving and remove any ongoing test triggers and webhooks
         return () => {
             removeTestTriggersApi.request();
+            deleteAllTestWebhooksApi.request();
+
             setTimeout(() => dispatch({ type: REMOVE_DIRTY }), 0);
         }
 
@@ -624,16 +755,43 @@ const Canvas = () => {
                                     edges={edges} 
                                     node={selectedNode} 
                                     workflow={workflow} 
-                                    rfInstance={rfInstance}
                                     onNodeLabelUpdate={onNodeLabelUpdate} 
                                     onNodeValuesUpdate={onNodeValuesUpdate} 
                                 />
+                                <Fab 
+                                    sx={{ position: 'absolute', right: 20, top: 20,}} 
+                                    size="small" 
+                                    color="warning"
+                                    aria-label="test" 
+                                    title="Test Workflow"
+                                    disabled={isTestingWorkflow}
+                                    onClick={handleTestWorkflow}
+                                >
+                                    {<IconBolt />}
+                                </Fab>
+                                {isTestingWorkflow && (
+                                    <CircularProgress
+                                        size={50}
+                                        sx={{
+                                            color: theme.palette.warning.dark,
+                                            position: 'absolute',
+                                            right: 15,
+                                            top: 15,
+                                        }}
+                                    />
+                                )}
                             </ReactFlow>
                         </div>
                     </ReactFlowProvider>
                 </div>
             </Box>
             <ConfirmDialog />
+            <TestWorkflowDialog
+                show={isTestWorkflowDialogOpen}
+                dialogProps={testWorkflowDialogProps}
+                onCancel={() => setTestWorkflowDialogOpen(false)}
+                onItemClick={onStartingPointClick}
+            />
         </Box>
     </>
   );

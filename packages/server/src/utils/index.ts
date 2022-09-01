@@ -18,6 +18,9 @@ import {
     IWebhookNode, 
     IComponentNodesPool,
     WebhookMethod,
+    INodeQueue,
+    IExploredNode,
+    IWorkflowExecutedData,
 } from '../Interface';
 import lodash from 'lodash';
 import { 
@@ -34,6 +37,7 @@ import { Webhook } from '../entity/Webhook';
 import { DeployedWorkflowPool } from '../DeployedWorkflowPool';
 import { AppDataSource } from '../DataSource';
 import { ObjectId } from 'mongodb';
+import { ActiveTestWebhookPool } from '../ActiveTestWebhookPool';
 
 dotenv.config();
 
@@ -429,84 +433,106 @@ export const processWebhook = async(
     componentNodes: IComponentNodesPool,
     io: any,
     deployedWorkflowsPool: DeployedWorkflowPool,
+    activeTestWebhooksPool: ActiveTestWebhookPool,
 ) => { 
 	try {
-        const webhook = await AppDataSource.getMongoRepository(Webhook).findOneBy({
-            webhookEndpoint,
-            httpMethod
-        });
-    
-        if (!webhook) {
-            res.status(404).send(`Webhook ${req.originalUrl} not found`);
-            return;
-        }
 
-        const nodeId = webhook.nodeId;
-        const workflowShortId = webhook.workflowShortId;
+        // Find if webhook is in activeTestWebhookPool
+        const testWebhookKey = `${webhookEndpoint}_${httpMethod}`;
+        if (Object.prototype.hasOwnProperty.call(activeTestWebhooksPool.activeTestWebhooks, testWebhookKey)) {
 
-        const workflow = await AppDataSource.getMongoRepository(Workflow).findOneBy({
-            shortId: workflowShortId,
-        });
-    
-        if (!workflow) {
-            res.status(404).send(`Workflow ${workflowShortId} not found`);
-            return;
-        }
+            const { nodes, edges, nodeData, clientId, isTestWorkflow, webhookId, webhookNodeId } = activeTestWebhooksPool.activeTestWebhooks[testWebhookKey];
+            const webhookNodeInstance = componentNodes[nodeData.name] as IWebhookNode;
 
-        const flowDataString = workflow.flowData;
-        const flowData: IReactFlowObject = JSON.parse(flowDataString);
-        const reactFlowNodes = flowData.nodes as IReactFlowNode[];
-        const reactFlowEdges = flowData.edges as IReactFlowEdge[];
-  
-        const reactFlowNode = reactFlowNodes.find((nd) => nd.id === nodeId);
+            await decryptCredentials(nodeData);
 
-        if (!reactFlowNode) {
-            res.status(404).send(`Node ${nodeId} not found`);
-            return;
-        }
+            if (!isTestWorkflow) {
+            
+                nodeData.req = req;
+                const result = await webhookNodeInstance.runWebhook!.call(webhookNodeInstance, nodeData);
 
-        const nodeData = reactFlowNode.data;
-        const nodeName = nodeData.name;
+                // Emit webhook result
+                io.to(clientId).emit('testWebhookNodeResponse', result);
 
-        // Check if webhook is a test-webhook
-        let isTestWebhook = false;
-        if (webhook.clientId) isTestWebhook= true;
+                // Delete webhook from 3rd party apps and from pool
+                activeTestWebhooksPool.remove(testWebhookKey, componentNodes);
 
-        if (isTestWebhook) {
-            if (Object.prototype.hasOwnProperty.call(componentNodes, nodeName)) {
-                const nodeInstance = componentNodes[nodeName];
-                const nodeType = nodeInstance.type;
+                const webhookResponseCode = nodeData.inputParameters?.responseCode as number || 200;
+                const webhookResponseData = nodeData.inputParameters?.responseData as string || `Webhook ${req.originalUrl} received!`;
+                return res.status(webhookResponseCode).send(webhookResponseData);
 
-                await decryptCredentials(nodeData);
-
-                if (nodeType === 'webhook') {
-                    const webhookNodeInstance = nodeInstance as IWebhookNode;
-                    nodeData.req = req;
-                    const result = await webhookNodeInstance.runWebhook!.call(webhookNodeInstance, nodeData);
-
-                    // Emit webhook result
-                    const clientId = webhook.clientId;
-                    io.to(clientId).emit('testWebhookNodeResponse', result);
-
-                    // Delete webhook from 3rd party apps and from DB
-                    if (webhook && webhook.webhookId) {
-                        await webhookNodeInstance.webhookMethods?.deleteWebhook(nodeData, webhook.webhookId);
-                    }
-                    const query = {
-                        _id: webhook._id,
-                    } as any;
-                    await AppDataSource.getMongoRepository(Webhook).delete(query);
-
-                    const webhookResponseCode = nodeData.inputParameters?.responseCode as number || 200;
-                    const webhookResponseData = nodeData.inputParameters?.responseData as string || `Webhook ${req.originalUrl} received!`;
-                    return res.status(webhookResponseCode).send(webhookResponseData);
-    
-                }
             } else {
-                res.status(404).send(`Node ${nodeName} not found`);
+
+                nodeData.req = req;
+                const result = await webhookNodeInstance.runWebhook!.call(webhookNodeInstance, nodeData);
+    
+                const newWorkflowExecutedData = {
+                    nodeId: webhookNodeId,
+                    nodeLabel: nodeData.label,
+                    data: result,
+                    status: 'FINISHED'
+                } as IWorkflowExecutedData;
+
+                io.to(clientId).emit('testWorkflowNodeResponse', newWorkflowExecutedData);
+
+                // Delete webhook from 3rd party apps and from pool
+                activeTestWebhooksPool.remove(testWebhookKey, componentNodes);
+
+                const { graph, nodeDependencies } = constructGraphs(nodes, edges);
+
+                testWorkflow(
+                    webhookNodeId,
+                    nodes,
+                    edges,
+                    graph,
+                    componentNodes,
+                    clientId,
+                    io
+                );
+
+                const webhookResponseCode = nodeData.inputParameters?.responseCode as number || 200;
+                const webhookResponseData = nodeData.inputParameters?.responseData as string || `Webhook ${req.originalUrl} received!`;
+                return res.status(webhookResponseCode).send(webhookResponseData);
+            }
+            
+        } else {
+            const webhook = await AppDataSource.getMongoRepository(Webhook).findOneBy({
+                webhookEndpoint,
+                httpMethod
+            });
+        
+            if (!webhook) {
+                res.status(404).send(`Webhook ${req.originalUrl} not found`);
                 return;
             }
-        } else {
+    
+            const nodeId = webhook.nodeId;
+            const workflowShortId = webhook.workflowShortId;
+    
+            const workflow = await AppDataSource.getMongoRepository(Workflow).findOneBy({
+                shortId: workflowShortId,
+            });
+        
+            if (!workflow) {
+                res.status(404).send(`Workflow ${workflowShortId} not found`);
+                return;
+            }
+    
+            const flowDataString = workflow.flowData;
+            const flowData: IReactFlowObject = JSON.parse(flowDataString);
+            const reactFlowNodes = flowData.nodes as IReactFlowNode[];
+            const reactFlowEdges = flowData.edges as IReactFlowEdge[];
+      
+            const reactFlowNode = reactFlowNodes.find((nd) => nd.id === nodeId);
+    
+            if (!reactFlowNode) {
+                res.status(404).send(`Node ${nodeId} not found`);
+                return;
+            }
+
+            const nodeData = reactFlowNode.data;
+            const nodeName = nodeData.name;
+
             // Start workflow
             const { graph, nodeDependencies } = constructGraphs(reactFlowNodes, reactFlowEdges);
             const { faultyNodeLabels, startingNodeIds } = getStartingNode(nodeDependencies, reactFlowNodes);
@@ -540,7 +566,6 @@ export const processWebhook = async(
             const webhookResponseCode = nodeData.inputParameters?.responseCode as number || 200;
             const webhookResponseData = nodeData.inputParameters?.responseData as string || `Webhook ${req.originalUrl} received!`;
             return res.status(webhookResponseCode).send(webhookResponseData);
-    
         }
 
     } catch (error) {
@@ -616,4 +641,146 @@ export const checkOAuth2TokenRefreshed = (
     if (credentialMethod && credentialMethod.toLowerCase().includes('oauth2')) {
         updateCredentialAfterOAuth2TokenRefreshed(result, nodeData, appDataSource);
     }
-}                 
+}
+
+
+/**
+ * Test Workflow from starting node to end
+ * @param {string} startingNodeId 
+ * @param {IReactFlowNode[]} reactFlowNodes
+ * @param {IReactFlowEdge[]} reactFlowEdges
+ * @param {INodeDirectedGraph} graph
+ * @param {IComponentNodesPool} componentNodes
+ * @param {string} clientId
+ * @param {any} io
+ */
+export const testWorkflow = async(
+    startingNodeId: string,
+    reactFlowNodes: IReactFlowNode[],
+    reactFlowEdges: IReactFlowEdge[],
+    graph: INodeDirectedGraph,
+    componentNodes: IComponentNodesPool,
+    clientId: string,
+    io: any,
+) => {
+
+    // Create a Queue and add our initial node in it
+    const startingNodeIds = [startingNodeId];
+
+    const nodeQueue = [] as INodeQueue[];
+    const exploredNode = {} as IExploredNode;
+    // In the case of infinite loop, only max 3 loops will be executed
+    const maxLoop = 3;
+
+    for (let i = 0; i < startingNodeIds.length; i+=1 ) {
+        nodeQueue.push({ nodeId: startingNodeIds[i], depth: 0 });
+        exploredNode[startingNodeIds[i]] = { remainingLoop: maxLoop, lastSeenDepth: 0 };
+    }
+
+    while (nodeQueue.length) {
+
+        const { nodeId, depth } = nodeQueue.shift() as INodeQueue;
+        const ignoreNodeIds: string[] = [];
+
+        if (!startingNodeIds.includes(nodeId)) {
+
+            const reactFlowNode = reactFlowNodes.find((nd) => nd.id === nodeId);
+            const nodeIndex = reactFlowNodes.findIndex((nd) => nd.id === nodeId);
+            if (!reactFlowNode || reactFlowNode === undefined || nodeIndex < 0) continue;
+
+            try{
+                const nodeInstanceFilePath = componentNodes[reactFlowNode.data.name].filePath;
+                const nodeModule = require(nodeInstanceFilePath);
+                const newNodeInstance = new nodeModule.nodeClass();
+               
+                await decryptCredentials(reactFlowNode.data);
+                
+                const reactFlowNodeData: INodeData = resolveVariables(reactFlowNode.data, reactFlowNodes);
+
+                let result = await newNodeInstance.run!.call(newNodeInstance, reactFlowNodeData);
+              
+                checkOAuth2TokenRefreshed(result, reactFlowNodeData);
+
+                // Update reactFlowNodes for resolveVariables
+                if (reactFlowNodes[nodeIndex].data.outputResponses) {
+                    reactFlowNodes[nodeIndex].data.outputResponses = {
+                        ...reactFlowNodes[nodeIndex].data.outputResponses,
+                        output: result
+                    }
+                } else {
+                    reactFlowNodes[nodeIndex].data.outputResponses = {
+                        submit: true,
+                        needRetest: null,
+                        output: result
+                    };
+                }
+
+                // Determine which nodes to route next when it comes to ifElse
+                if (result && nodeId.includes('ifElse')) {
+                    let anchorIndex = -1;
+                    if (Array.isArray(result) && Object.keys(result[0].data).length === 0) {
+                        anchorIndex = 0;
+                    } else if (Array.isArray(result) && Object.keys(result[1].data).length === 0){
+                        anchorIndex = 1;
+                    } 
+                    const ifElseEdge = reactFlowEdges.find((edg) => (edg.source === nodeId && edg.sourceHandle === `${nodeId}-output-${anchorIndex}`));
+                    if (ifElseEdge) {
+                        ignoreNodeIds.push(ifElseEdge.target);
+                    }
+                }
+
+                const newWorkflowExecutedData = {
+                    nodeId,
+                    nodeLabel: reactFlowNode.data.label,
+                    data: result,
+                    status: 'FINISHED'
+                } as IWorkflowExecutedData;
+
+                io.to(clientId).emit('testWorkflowNodeResponse', newWorkflowExecutedData);
+
+            }
+            catch (e: any){
+                console.error(e);
+                const newWorkflowExecutedData = {
+                    nodeId,
+                    nodeLabel: reactFlowNode.data.label,
+                    data: [{error: e.message}],
+                    status: 'ERROR'
+                } as IWorkflowExecutedData;
+
+                io.to(clientId).emit('testWorkflowNodeResponse', newWorkflowExecutedData);
+                return;
+            }
+        }
+
+        const neighbourNodeIds = graph[nodeId];
+        const nextDepth = depth + 1;
+
+        for (let i = 0; i < neighbourNodeIds.length; i+=1 ) {
+
+            const neighNodeId = neighbourNodeIds[i];
+
+            if (!ignoreNodeIds.includes(neighNodeId)) {
+                // If nodeId has been seen, cycle detected
+                if (Object.prototype.hasOwnProperty.call(exploredNode, neighNodeId)) {
+
+                    let { remainingLoop, lastSeenDepth } = exploredNode[neighNodeId];
+
+                    if (lastSeenDepth === nextDepth) continue;
+                    
+                    if (remainingLoop === 0) {
+                        break;
+                    } 
+                    remainingLoop -= 1;
+                    exploredNode[neighNodeId] = { remainingLoop, lastSeenDepth: nextDepth };
+                    nodeQueue.push({ nodeId: neighNodeId, depth: nextDepth });
+                    
+                } else {
+                    exploredNode[neighNodeId] = { remainingLoop: maxLoop, lastSeenDepth: nextDepth };
+                    nodeQueue.push({ nodeId: neighNodeId, depth: nextDepth });
+                }
+            }
+        }
+    };
+    io.to(clientId).emit('testWorkflowNodeFinish');
+}
