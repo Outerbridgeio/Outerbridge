@@ -232,7 +232,6 @@ class AlchemyWebhook implements INode {
 					return;
 				}
 			} catch (error) {
-				console.error(error);
 				return;
 			}
 		},
@@ -255,7 +254,6 @@ class AlchemyWebhook implements INode {
 			try {
 				await axios(axiosConfig);
 			} catch (error) {
-				console.error(error);
 				return false;
 			}
 			

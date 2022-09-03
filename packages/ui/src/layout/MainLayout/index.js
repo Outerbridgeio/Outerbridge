@@ -85,13 +85,16 @@ const MainLayout = () => {
                 elevation={0}
                 sx={{
                     bgcolor: theme.palette.background.default,
-                    transition: leftDrawerOpened ? theme.transitions.create('width') : 'none'
+                    transition: leftDrawerOpened ? theme.transitions.create('width') : 'none',
                 }}
             >
                 <Toolbar>
                     <Header handleLeftDrawerToggle={handleLeftDrawerToggle} />
                 </Toolbar>
             </AppBar>
+            {process.env.REACT_APP_IS_DEMO === 'true' && <div style={{ padding: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000, position: 'fixed', bottom: 0, left: 0, right: 0, height: 50, width: '100%', background: '#d0f4de' }}>
+                <h4>This is a demo version to get an overview of Outerbridge. Beware of credentials you put in as everyone will be able to see it.</h4>
+            </div>}
 
             {/* drawer */}
             <Sidebar drawerOpen={leftDrawerOpened} drawerToggle={handleLeftDrawerToggle} />

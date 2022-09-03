@@ -14,7 +14,6 @@ import {
 	IReactFlowNode,
 	IReactFlowObject,
 	IReactFlowEdge,
-	IExecution,
 	IRunWorkflowMessageValue,
 	WebhookMethod,
 	IWebhookNode,
@@ -32,6 +31,8 @@ import { constructGraphs, getStartingNode, decryptCredentials } from "./utils";
 import { Webhook } from "./entity/Webhook";
 import { Execution } from "./entity/Execution";
 import { Workflow } from "./entity/Workflow";
+import { ActiveTestTriggerPool } from "./ActiveTestTriggerPool";
+import { ActiveTestWebhookPool } from "./ActiveTestWebhookPool";
 
 export class DeployedWorkflowPool {
 
@@ -103,6 +104,8 @@ export class DeployedWorkflowPool {
 		reactFlowNodes: IReactFlowNode[], 
 		componentNodes: IComponentNodesPool,
 		workflowShortId: string,
+		activeTestTriggerPool?: ActiveTestTriggerPool,
+        activeTestWebhookPool?: ActiveTestWebhookPool
 	) {
 		for (let i = 0; i < startingNodeIds.length; i+=1 ) {
 
@@ -113,6 +116,9 @@ export class DeployedWorkflowPool {
 			if (startNode && startNode.data && startNode.data.type === 'trigger') {
 				const nodeInstance = componentNodes[startNode.data.name];
 				const triggerNodeInstance = nodeInstance as ITriggerNode;
+
+				// Remove test trigger
+				if (activeTestTriggerPool) await activeTestTriggerPool.remove(startNode.data.name, componentNodes);
 
 				triggerNodeInstance.on(emitEventKey, async(result: INodeExecutionData[]) => {
 					await this.startWorkflow(
@@ -147,6 +153,9 @@ export class DeployedWorkflowPool {
                     workflowShortId,
                 } as any;
 
+				// Remove test webhook
+				if (activeTestWebhookPool) await activeTestWebhookPool.remove(`${newBody.webhookEndpoint}_${newBody.httpMethod}`, componentNodes);
+
 				const foundWebhook = await this.AppDataSource.getMongoRepository(Webhook).findOneBy(newBody);
 
 				if (!foundWebhook) {
@@ -169,19 +178,6 @@ export class DeployedWorkflowPool {
 					const webhook = await this.AppDataSource.getMongoRepository(Webhook).create(newWebhook);
 					await this.AppDataSource.getMongoRepository(Webhook).save(webhook);
 
-				} else if (foundWebhook && foundWebhook.clientId) {
-					// If found webhook has clientId, remove it because it is a test-webhook
-					newBody.clientId = foundWebhook.clientId;
-					await this.AppDataSource.getMongoRepository(Webhook).delete(newBody);
-
-					delete newBody.clientId;
-					newBody.webhookId = foundWebhook?.webhookId;
-
-					const newWebhook = new Webhook();
-					Object.assign(newWebhook, newBody);
-
-					const webhook = await this.AppDataSource.getMongoRepository(Webhook).create(newWebhook);
-					await this.AppDataSource.getMongoRepository(Webhook).save(webhook);
 				}
 			}
 

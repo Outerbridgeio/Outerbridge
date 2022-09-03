@@ -27,15 +27,18 @@ import {
     ICredentialBody, 
     ICredentialDataDecrpyted, 
     ICredentialResponse, 
+    IOAuth2Response, 
     IReactFlowEdge, 
     IReactFlowNode, 
     IReactFlowObject, 
     ITestNodeBody, 
+    ITestWorkflowBody, 
     ITriggerNode, 
     IWalletRequestBody, 
     IWalletResponse, 
     IWebhook, 
     IWebhookNode, 
+    IWorkflowExecutedData, 
     IWorkflowResponse, 
     WebhookMethod
 } from "./Interface";
@@ -45,7 +48,9 @@ import {
     IDbCollection,
     etherscanAPIs,
     nativeCurrency,
-    NETWORK
+    NETWORK,
+    INodeExecutionData,
+    INode,
 } from "outerbridge-components";
 import { CredentialsPool } from './CredentialsPool';
 import { 
@@ -56,10 +61,16 @@ import {
     resolveVariables, 
     transformToCredentialEntity, 
     constructGraphsAndGetStartingNodes,
-    encryptCredentialData
+    encryptCredentialData,
+    getOAuth2HTMLPath,
+    checkOAuth2TokenRefreshed,
+    constructGraphs,
+    testWorkflow
 } from './utils';
 import { DeployedWorkflowPool } from './DeployedWorkflowPool';
-import axios, { AxiosRequestConfig } from 'axios';
+import { ActiveTestTriggerPool } from './ActiveTestTriggerPool';
+import { ActiveTestWebhookPool } from './ActiveTestWebhookPool';
+import axios, { AxiosRequestConfig, Method } from 'axios';
 
 process.on('SIGINT', () => {
     console.log('exiting');
@@ -80,6 +91,8 @@ process.on('uncaughtException', (err) => {
 let componentNodes: IComponentNodesPool = {};
 let componentCredentials: IComponentCredentialsPool = {};
 let deployedWorkflowsPool: DeployedWorkflowPool;
+let activeTestTriggerPool: ActiveTestTriggerPool;
+let activeTestWebhookPool: ActiveTestWebhookPool;
 
 // Initialize database
 AppDataSource
@@ -102,6 +115,14 @@ AppDataSource
         // Initialize deployed worklows instances
         deployedWorkflowsPool = new DeployedWorkflowPool();
         await deployedWorkflowsPool.initialize(AppDataSource, componentNodes);
+
+
+        // Initialize activeTestTriggerPool instance
+        activeTestTriggerPool = new ActiveTestTriggerPool();
+
+
+        // Initialize activeTestWebhookPool instance
+        activeTestWebhookPool = new ActiveTestWebhookPool();
 
 
         // Initialize localtunnel
@@ -327,7 +348,9 @@ app.put("/api/v1/workflows/:shortId", async (req: Request, res: Response) => {
                     graph, 
                     reactFlowNodes, 
                     componentNodes, 
-                    workflowShortId
+                    workflowShortId,
+                    activeTestTriggerPool,
+                    activeTestWebhookPool
                 );
             } catch(e) {
                 return res.status(500).send(e);
@@ -409,7 +432,9 @@ app.post("/api/v1/workflows/deploy/:shortId", async (req: Request, res: Response
                 graph, 
                 reactFlowNodes, 
                 componentNodes, 
-                workflowShortId
+                workflowShortId,
+                activeTestTriggerPool,
+                activeTestWebhookPool
             );
         } else {
             await deployedWorkflowsPool.remove(
@@ -459,6 +484,121 @@ app.post("/api/v1/workflows/deploy/:shortId", async (req: Request, res: Response
     }
 });
 
+// Test Workflow from a starting point to end
+app.post("/api/v1/workflows/test/:startingNodeId", async (req: Request, res: Response) => {
+    const body = req.body as ITestWorkflowBody;
+    const nodes = body.nodes || [];
+    const edges = body.edges || [];
+    const clientId = body.clientId || '';
+
+    const { graph, nodeDependencies } = constructGraphs(nodes, edges);
+    const startingNodeId = req.params.startingNodeId;
+
+    const startNode = nodes.find((nd: IReactFlowNode) => nd.id === startingNodeId);
+
+	if (startNode && startNode.data) {
+
+        let nodeData = startNode.data;
+        await decryptCredentials(nodeData);
+        nodeData = resolveVariables(nodeData, nodes);
+
+        if (!Object.prototype.hasOwnProperty.call(componentNodes, nodeData.name)) {
+            res.status(404).send(`Unable to test workflow from node: ${nodeData.name}`);
+            return;
+        }
+
+        if (nodeData.type === 'trigger') {
+            const triggerNodeInstance = componentNodes[nodeData.name] as ITriggerNode;
+            const emitEventKey = startingNodeId;
+            nodeData.emitEventKey = emitEventKey;
+
+            triggerNodeInstance.once(emitEventKey, async(result: INodeExecutionData[]) => {
+                await triggerNodeInstance.removeTrigger!.call(triggerNodeInstance, nodeData);
+                await activeTestTriggerPool.remove(nodeData.name, componentNodes);
+
+                const newWorkflowExecutedData = {
+                    nodeId: startingNodeId,
+                    nodeLabel: nodeData.label,
+                    data: result,
+                    status: 'FINISHED'
+                } as IWorkflowExecutedData;
+
+                io.to(clientId).emit('testWorkflowNodeResponse', newWorkflowExecutedData);
+
+                testWorkflow(
+                    startingNodeId,
+                    nodes,
+                    edges,
+                    graph,
+                    componentNodes,
+                    clientId,
+                    io
+                );
+            });
+
+            await triggerNodeInstance.runTrigger!.call(triggerNodeInstance, nodeData);
+            activeTestTriggerPool.add(nodeData.name, nodeData);
+        }
+        else if (nodeData.type === 'webhook') {
+            const webhookNodeInstance = componentNodes[nodeData.name] as IWebhookNode;
+            const newBody = {
+                webhookEndpoint: nodeData.webhookEndpoint,
+                httpMethod: nodeData.inputParameters?.httpMethod as WebhookMethod || 'POST',
+            } as any;
+
+            if (webhookNodeInstance.webhookMethods?.createWebhook) {
+                if (!process.env.TUNNEL_BASE_URL) {
+                    res.status(500).send(`Please enable tunnel by setting ENABLE_TUNNEL to true in env file`);
+                    return;
+                }
+                
+                const webhookFullUrl = `${process.env.TUNNEL_BASE_URL}api/v1/webhook/${nodeData.webhookEndpoint}`;
+                const webhookId = await webhookNodeInstance.webhookMethods?.createWebhook.call(webhookNodeInstance, nodeData, webhookFullUrl);
+       
+                if (webhookId !== undefined) {
+                    newBody.webhookId = webhookId;
+                }
+            }
+
+            activeTestWebhookPool.add(
+                newBody.webhookEndpoint,
+                newBody.httpMethod,
+                nodes,
+                edges,
+                nodeData,
+                startingNodeId,
+                clientId,
+                true,
+                newBody?.webhookId
+            );
+        }
+        else if (nodeData.type === 'action') {
+            
+            const actionNodeInstance = componentNodes[nodeData.name] as INode;
+            let result = await actionNodeInstance.run!.call(actionNodeInstance, nodeData);
+            checkOAuth2TokenRefreshed(result, nodeData)
+               
+            const newWorkflowExecutedData = {
+                nodeId: startingNodeId,
+                nodeLabel: nodeData.label,
+                data: result,
+                status: 'FINISHED'
+            } as IWorkflowExecutedData;
+
+            io.to(clientId).emit('testWorkflowNodeResponse', newWorkflowExecutedData);
+
+            testWorkflow(
+                startingNodeId,
+                nodes,
+                edges,
+                graph,
+                componentNodes,
+                clientId,
+                io
+            );
+        }
+    }
+});
 
 
 // ----------------------------------------
@@ -571,40 +711,45 @@ app.get("/api/v1/node-icon/:name", (req: Request, res: Response) => {
 // Test a node
 app.post("/api/v1/node-test/:name", async (req: Request, res: Response) => {
     const body: ITestNodeBody = req.body;
-    const nodeData = body.nodeData;
-    const nodes = body.nodes;
-  
+    const { nodes, edges, nodeId, clientId } = body;
+
+    const node = nodes.find((nd: IReactFlowNode) => nd.id === nodeId);
+
+	if (!node) return res.status(404).send(`Test node ${nodeId} not found`);
+
     if (Object.prototype.hasOwnProperty.call(componentNodes, req.params.name)) {
         try {
             const nodeInstance = componentNodes[req.params.name];
             const nodeType = nodeInstance.type;
+            const nodeData = node.data;
 
             await decryptCredentials(nodeData);
 
             if (nodeType === 'action') {
                 const reactFlowNodeData: INodeData = resolveVariables(nodeData, nodes);
-                const result = await nodeInstance.run!.call(nodeInstance, reactFlowNodeData);
+                let result = await nodeInstance.run!.call(nodeInstance, reactFlowNodeData);
+             
+                checkOAuth2TokenRefreshed(result, reactFlowNodeData)
+            
                 return res.json(result);
 
             } else if (nodeType === 'trigger') {
                 const triggerNodeInstance = nodeInstance as ITriggerNode;
-                const emitEventKey = nodeData.nodeId;
+                const emitEventKey = nodeId;
                 nodeData.emitEventKey = emitEventKey;
-                triggerNodeInstance.once(emitEventKey, async(result: any) => {
+                triggerNodeInstance.once(emitEventKey, async(result: INodeExecutionData[]) => {
                     await triggerNodeInstance.removeTrigger!.call(triggerNodeInstance, nodeData);
+                    await activeTestTriggerPool.remove(nodeData.name, componentNodes);
                     return res.json(result);
                 });
                 await triggerNodeInstance.runTrigger!.call(triggerNodeInstance, nodeData);
+                activeTestTriggerPool.add(req.params.name, nodeData);
                 
             } else if (nodeType === 'webhook') {
                 const webhookNodeInstance = nodeInstance as IWebhookNode;
-                const clientId = body.clientId;
                 const newBody = {
-                    nodeId: nodeData.nodeId,
                     webhookEndpoint: nodeData.webhookEndpoint,
                     httpMethod: nodeData.inputParameters?.httpMethod as WebhookMethod || 'POST',
-                    clientId,
-                    workflowShortId: nodeData.workflowShortId,
                 } as any;
 
                 if (webhookNodeInstance.webhookMethods?.createWebhook) {
@@ -621,12 +766,19 @@ app.post("/api/v1/node-test/:name", async (req: Request, res: Response) => {
                     }
                 }
 
-                const newWebhook = new Webhook();
-                Object.assign(newWebhook, newBody);
+                activeTestWebhookPool.add(
+                    newBody.webhookEndpoint,
+                    newBody.httpMethod,
+                    nodes,
+                    edges,
+                    nodeData,
+                    nodeId,
+                    clientId as string,
+                    false,
+                    newBody?.webhookId
+                );
 
-                const webhook = await AppDataSource.getMongoRepository(Webhook).create(newWebhook);
-                const result = await AppDataSource.getMongoRepository(Webhook).save(webhook);
-                return res.json(result);
+                return res.json(newBody);
             }
         } catch (error) {
             res.status(500).send(`Node test error: ${error}`);
@@ -642,13 +794,13 @@ app.post("/api/v1/node-test/:name", async (req: Request, res: Response) => {
 
 // load async options
 app.post("/api/v1/node-load-method/:name", async (req: Request, res: Response) => {
-    const body: INodeData = req.body;
+    const nodeData: INodeData = req.body;
 
     if (Object.prototype.hasOwnProperty.call(componentNodes, req.params.name)) {
         try {
             const nodeInstance = componentNodes[req.params.name];
-            const methodName = body.loadMethod || '';
-            const loadFromDbCollections = body.loadFromDbCollections || [];
+            const methodName = nodeData.loadMethod || '';
+            const loadFromDbCollections = nodeData.loadFromDbCollections || [];
             const dbCollection = {} as IDbCollection;
 
             for (let i = 0; i < loadFromDbCollections.length; i+=1) {
@@ -665,7 +817,14 @@ app.post("/api/v1/node-load-method/:name", async (req: Request, res: Response) =
                 dbCollection[loadFromDbCollections[i]] = res;
             }
 
-            const returnOptions: INodeOptionsValue[] = await nodeInstance.loadMethods![methodName]!.call(nodeInstance, body, loadFromDbCollections.length ? dbCollection : undefined);
+            await decryptCredentials(nodeData);
+
+            const returnOptions: INodeOptionsValue[] = await nodeInstance.loadMethods![methodName]!.call(
+                nodeInstance,
+                nodeData,
+                loadFromDbCollections.length ? dbCollection : undefined
+            );
+
             return res.json(returnOptions);
             
         } catch (error) {
@@ -676,6 +835,25 @@ app.post("/api/v1/node-load-method/:name", async (req: Request, res: Response) =
         res.status(404).send(`Node ${req.params.name} not found`);
         return;
     }
+});
+
+
+// ----------------------------------------
+// Active Test Pools
+// ----------------------------------------
+
+// Remove active test triggers
+app.post("/api/v1/remove-test-triggers", async (req: Request, res: Response) => {
+    await activeTestTriggerPool.removeAll(componentNodes);
+    res.status(200).send('success');
+    return;
+});
+
+// Remove active test webhooks
+app.post("/api/v1/remove-test-webhooks", async (req: Request, res: Response) => {
+    await activeTestWebhookPool.removeAll(componentNodes);
+    res.status(200).send('success');
+    return;
 });
 
 
@@ -722,6 +900,8 @@ app.get("/api/v1/credentials", async (req: Request, res: Response) => {
 // Get registered credential via objectId
 app.get("/api/v1/credentials/:id", async (req: Request, res: Response) => {
 
+    const isEncrypted = req.query.isEncrypted;
+
     const encryptKey = await getEncryptionKey();
    
     const credential = await AppDataSource.getMongoRepository(Credential).findOneBy({
@@ -733,13 +913,18 @@ app.get("/api/v1/credentials/:id", async (req: Request, res: Response) => {
         return;
     }
 
-    // Decrpyt credentialData
-    const decryptedCredentialData = decryptCredentialData(credential.credentialData, encryptKey);
-    const credentialResponse: ICredentialResponse = {
-        ...credential,
-        credentialData: decryptedCredentialData
+    if (isEncrypted) {
+        return res.json(credential);
+
+    } else {
+        // Decrpyt credentialData
+        const decryptedCredentialData = decryptCredentialData(credential.credentialData, encryptKey);
+        const credentialResponse: ICredentialResponse = {
+            ...credential,
+            credentialData: decryptedCredentialData
+        }
+        return res.json(credentialResponse);
     }
-    return res.json(credentialResponse);
 });
 
 // Update credential
@@ -753,8 +938,20 @@ app.put("/api/v1/credentials/:id", async (req: Request, res: Response) => {
         return;
     }
 
+    const encryptKey = await getEncryptionKey();
+    const decryptedCredentialData = decryptCredentialData(credential.credentialData, encryptKey);
+
     const body: ICredentialBody = req.body;
-    const updateCredential = await transformToCredentialEntity(body);
+    const { credentialData, name, nodeCredentialName } = body;
+    const newBody: ICredentialBody = {
+        name: name,
+        nodeCredentialName: nodeCredentialName,
+        credentialData: {
+            ...decryptedCredentialData,
+            ...credentialData
+        }
+    }
+    const updateCredential = await transformToCredentialEntity(newBody);
 	
     AppDataSource.getMongoRepository(Credential).merge(credential, updateCredential);
     const results = await AppDataSource.getMongoRepository(Credential).save(credential);
@@ -848,11 +1045,16 @@ app.post("/api/v1/contracts/getabi", async (req: Request, res: Response) => {
 
     if (body.credentials && body.credentials.registeredCredential) {
         // @ts-ignore
-        const credentialData: string = body.credentials.registeredCredential?.credentialData;
-        const encryptKey = await getEncryptionKey();
+        const credentialId: string = body.credentials.registeredCredential?._id;
 
-        // Decrpyt credentialData
-        const decryptedCredentialData = decryptCredentialData(credentialData, encryptKey);
+        const credential = await AppDataSource.getMongoRepository(Credential).findOneBy({
+            _id: new ObjectId(credentialId),
+        });
+        if (!credential) return res.status(404).send(`Credential with id: ${credentialId} not found`);;
+        
+        const encryptKey = await getEncryptionKey();
+        const decryptedCredentialData = decryptCredentialData(credential.credentialData, encryptKey);
+
         body.credentials = decryptedCredentialData;
     }
 
@@ -919,10 +1121,15 @@ app.get("/api/v1/wallets/:id", async (req: Request, res: Response) => {
 
         if (providerCredential.registeredCredential) {
             // @ts-ignore
-            const credentialData: string = providerCredential.registeredCredential?.credentialData;
+            const credentialId: string = providerCredential.registeredCredential?._id;
+
+            const credential = await AppDataSource.getMongoRepository(Credential).findOneBy({
+                _id: new ObjectId(credentialId),
+            });
+            if (!credential) return res.status(404).send(`Credential with id: ${credentialId} not found`);;
             
             // Decrpyt credentialData
-            decryptedCredentialData = decryptCredentialData(credentialData, encryptKey);
+            decryptedCredentialData = decryptCredentialData(credential.credentialData, encryptKey);
         }
 
         const credentialMethod = providerCredential.credentialMethod;
@@ -1087,7 +1294,8 @@ app.get(`/api/v1/webhook/*`, express.raw(), async (req: Request, res: Response) 
         'GET',
         componentNodes,
         io,
-        deployedWorkflowsPool
+        deployedWorkflowsPool,
+        activeTestWebhookPool
     );
 });
 
@@ -1103,36 +1311,122 @@ app.post(`/api/v1/webhook/*`, express.raw(), async (req: Request, res: Response)
         'POST',
         componentNodes,
         io,
-        deployedWorkflowsPool
+        deployedWorkflowsPool,
+        activeTestWebhookPool,
     );
 });
 
-// Remove all test-webhooks from a specific workflow
-app.delete(`/api/v1/remove-webhook/:workflowShortId`, async (req: Request, res: Response) => {
-    const testWebhooks: IWebhook[] = await AppDataSource.getMongoRepository(Webhook)
-    .aggregate(
-        [
-            {
-                $match: {
-                    workflowShortId: req.params.workflowShortId
-                }
-            },
-        ]
-    ).toArray();
 
-    for (let i = 0; i < testWebhooks.length; i+=1) {
-        const webhook = testWebhooks[i];
-        if (webhook.clientId) {
-            await AppDataSource.getMongoRepository(Webhook).delete({ 
-                webhookEndpoint: webhook.webhookEndpoint,
-                httpMethod: webhook.httpMethod, 
-                clientId: webhook.clientId
-            });
-        }
+// ----------------------------------------
+// OAuth2
+// ----------------------------------------
+app.get("/api/v1/oauth2", async(req: Request, res: Response) => {
+   
+    if (!req.query.credentialId) return res.status(404).send('Credential not found');
+
+    const credentialId = req.query.credentialId;
+
+    const credential = await AppDataSource.getMongoRepository(Credential).findOneBy({
+        _id: new ObjectId(credentialId as string),
+    });
+
+    if (!credential) return res.status(404).send(`Credential with Id ${credentialId} not found`);
+
+    // Decrpyt credentialData
+    const encryptKey = await getEncryptionKey();
+
+    const decryptedCredentialData = decryptCredentialData(credential.credentialData, encryptKey);
+
+    const baseURL = req.get('host');
+    const authUrl = decryptedCredentialData.authUrl as string;
+    const authorizationURLParameters = decryptedCredentialData.authorizationURLParameters as string;
+    const clientID = decryptedCredentialData.clientID as string;
+    const scope = decryptedCredentialData.scope as string;
+    let scopeArray: any;
+    try {
+        scopeArray = scope.replace(/\s/g, '');
+        scopeArray = JSON.parse(scopeArray);
+    } catch (e) {
+        return res.status(500).send(e);
     }
-    return res.status(204).send('Test webhooks deleted');
+    const serializedScope = scopeArray.join(' ');
+    const redirectUrl = `${req.protocol}://${baseURL}/api/v1/oauth2/callback`;
+
+    const returnURL = `${authUrl}?${authorizationURLParameters}&client_id=${clientID}&scope=${serializedScope}&redirect_uri=${redirectUrl}&state=${credentialId}`;
+
+    res.send(returnURL);
 });
 
+app.get("/api/v1/oauth2/callback", async(req: Request, res: Response) => {
+
+    const code = req.query.code;
+    if (!code) return res.status(500).send('Unable to retrieve authorization code from oAuth2 callback');
+
+    const credentialId = req.query.state;
+    if (!credentialId) return res.status(500).send('Unable to retrieve credentialId from oAuth2 callback');
+
+    const credential = await AppDataSource.getMongoRepository(Credential).findOneBy({
+        _id: new ObjectId(credentialId as string),
+    });
+
+    if (!credential) return res.status(404).send(`Credential with Id ${credentialId} not found`);
+
+   
+    // Decrpyt credentialData
+    const encryptKey = await getEncryptionKey();
+    const decryptedCredentialData = decryptCredentialData(credential.credentialData, encryptKey);
+
+    // Get access_token and refresh_token
+    const accessTokenUrl = decryptedCredentialData.accessTokenUrl as string;
+    const client_id = decryptedCredentialData.clientID as string;
+    const client_secret = decryptedCredentialData.clientSecret as string;
+    const baseURL = req.get('host');
+    const redirect_uri = `${req.protocol}://${baseURL}/api/v1/oauth2/callback`;
+    
+    const axiosConfig: AxiosRequestConfig = {
+        method: 'POST' as Method,
+        url: accessTokenUrl,
+        data: {
+            grant_type: 'authorization_code',
+            code,
+            client_id,
+            client_secret,
+            redirect_uri
+        },
+        headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+        },
+    };
+
+    const response = await axios(axiosConfig);
+    const responseData: IOAuth2Response = response.data;
+
+    const { access_token, token_type, expires_in, refresh_token } = responseData;
+
+    const body: ICredentialBody = {
+        name: credential.name,
+        nodeCredentialName: credential.nodeCredentialName,
+        credentialData: {
+            ...decryptedCredentialData,
+            access_token,
+            token_type,
+            expires_in,
+            refresh_token,
+        }
+    }
+
+    const updateCredential = await transformToCredentialEntity(body);
+
+    AppDataSource.getMongoRepository(Credential).merge(credential, updateCredential);
+    await AppDataSource.getMongoRepository(Credential).save(credential);
+
+    return res.sendFile(getOAuth2HTMLPath());
+});
+
+app.get("/api/v1/oauth2-redirecturl", async(req: Request, res: Response) => {
+    const baseURL = req.get('host');
+    res.send(`${req.protocol}://${baseURL}/api/v1/oauth2/callback`);
+});
 
 // ----------------------------------------
 // Serve UI static

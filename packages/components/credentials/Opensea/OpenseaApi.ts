@@ -3,14 +3,14 @@ import {
 	INodeCredential,
 } from '../../src/Interface';
 
-class BinanceApi implements INodeCredential {
+class OpenseaApi implements INodeCredential {
 
-    name: string;
+	name: string;
     version: number;
     credentials: INodeParams[];
 
-	constructor() {
-		this.name = 'binanceApi';
+	constructor() {	
+		this.name = 'openSeaApi';
 		this.version = 1.0;
 		this.credentials = [
 			{
@@ -19,14 +19,9 @@ class BinanceApi implements INodeCredential {
 				type: 'string',
 				default: '',
 			},
-			{
-				label: 'Secret Key',
-				name: 'secretKey',
-				type: 'password',
-				default: '',
-			},
 		];
 	}
 }
 
-module.exports = { credClass: BinanceApi }
+module.exports = { credClass: OpenseaApi }
+

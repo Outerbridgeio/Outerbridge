@@ -11,6 +11,8 @@ import SkeletonWorkflowCard from 'ui-component/cards/Skeleton/WorkflowCard';
 // Const
 import { networks } from "store/constant";
 
+import Jazzicon, { jsNumberForAddress } from 'react-jazzicon';
+
 const CardWrapper = styled(MainCard)(({ theme }) => ({
     backgroundColor: '#ffffff',
     color: theme.darkTextPrimary,
@@ -25,7 +27,7 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
 
 // ===========================|| CONTRACT CARD ||=========================== //
 
-const ItemCard = ({ isLoading, data, onClick }) => {
+const ItemCard = ({ isLoading, data, images, onClick }) => {
     const theme = useTheme();
 
     const chipSX = {
@@ -51,10 +53,13 @@ const ItemCard = ({ isLoading, data, onClick }) => {
                 <CardWrapper border={false} content={false} onClick={onClick}>
                     <Box sx={{ p: 2.25 }}>
                         <Grid container direction="column">
-                            <Grid item>
-                                <Typography sx={{ fontSize: '1.5rem', fontWeight: 500, mr: 1, mt: 1.75, mb: 0.75 }}>{data.name}</Typography>
-                            </Grid>
-                            <Grid container direction="row">
+                            <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                                {data.address && <div style={{ width: 40, height: 40, borderRadius: '50%', backgroundColor: 'white', marginRight: 10 }}>
+                                    <Jazzicon diameter={40} seed={jsNumberForAddress(data.address)} />
+                                </div>}
+                                <Typography sx={{ fontSize: '1.5rem', fontWeight: 500 }}>{data.name}</Typography>
+                            </div>
+                            <Grid sx={{ mt: 1, mb: 1 }} container direction="row">
                                 <Grid item sx={{ flexGrow: 1 }}>
                                     {data.address && (
                                     <Typography
@@ -65,10 +70,10 @@ const ItemCard = ({ isLoading, data, onClick }) => {
                                             overflow: 'hidden',
                                             whiteSpace: 'nowrap',
                                             textOverflow: 'ellipsis',
-                                            maxWidth: '150px'
+                                            maxWidth: 250
                                         }}
                                     >
-                                        {data.address}
+                                        {`${data.address.substring(0,8)}...${data.address.slice(-4)}`}
                                     </Typography>)}
                                     {data.flowData && (
                                     <Typography
@@ -86,12 +91,20 @@ const ItemCard = ({ isLoading, data, onClick }) => {
                                         <Chip label="Deployed" sx={activeWorkflowSX} />
                                     </Grid>
                                 )}
-                                {data.network && (
-                                    <Grid item>
-                                        <Chip label={getNetworkItem(data.network).label} sx={{...chipSX, backgroundColor: getNetworkItem(data.network).color, color: 'white' }} />
-                                    </Grid>
-                                )}
                             </Grid>
+                            {data.network && (
+                                <Grid item>
+                                    <Chip label={getNetworkItem(data.network).label} sx={{...chipSX, backgroundColor: getNetworkItem(data.network).color, color: 'white' }} />
+                                </Grid>
+                            )}
+                            {images && <div style={{ display: 'flex', flexDirection: 'row', marginTop: 10 }}>
+                                {images.map((img) => (
+                                    <div key={img} style={{ width: 40, height: 40, borderRadius: '50%', backgroundColor: 'white' }}>
+                                        <img style={{ width: '100%', height: '100%', padding: 5, objectFit: 'contain' }} alt='' src={img} />
+                                    </div>
+                                ))}
+                            </div>}
+                            
                         </Grid>
                     </Box>
                 </CardWrapper>
@@ -103,6 +116,7 @@ const ItemCard = ({ isLoading, data, onClick }) => {
 ItemCard.propTypes = {
     isLoading: PropTypes.bool,
     data: PropTypes.object,
+    images: PropTypes.array,
     onClick: PropTypes.func
 };
 

@@ -22,7 +22,7 @@ class PinataApi implements INodeCredential {
 			{
 				label: 'Secret Key',
 				name: 'secretKey',
-				type: 'string',
+				type: 'password',
 				default: '',
 			},
 		];

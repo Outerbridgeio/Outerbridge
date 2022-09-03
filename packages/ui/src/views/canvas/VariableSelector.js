@@ -15,6 +15,7 @@ import {
     Popper,
     Stack,
     Typography,
+    IconButton,
 } from '@mui/material';
 
 // third-party
@@ -24,9 +25,10 @@ import ReactJson from 'react-json-view'
 // project imports
 import MainCard from 'ui-component/cards/MainCard';
 import Transitions from 'ui-component/extended/Transitions';
+import ExpandDataDialog from 'ui-component/dialog/ExpandDataDialog';
 
 // icons
-import { IconX } from '@tabler/icons';
+import { IconX, IconArrowsMaximize } from '@tabler/icons';
 
 // ==============================|| VARIABLE SELECTOR ||============================== //
 
@@ -36,6 +38,9 @@ const VariableSelector = ({ nodes, isVariableSelectorOpen, anchorEl, onVariableS
     const theme = useTheme();
     const [expanded, setExpanded] = useState(false);
     const [open, setOpen] = useState(false);
+    const [showExpandDialog, setShowExpandDialog] = useState(false);
+    const [expandDialogProps, setExpandDialogProps] = useState({});
+
     const varPrevOpen = useRef(open);
 
     const handleAccordionChange = (nodeLabel) => (event, isExpanded) => {
@@ -62,7 +67,17 @@ const VariableSelector = ({ nodes, isVariableSelectorOpen, anchorEl, onVariableS
             }
         }
         onVariableSelected(returnVariablePath);
-    } ;
+    };
+
+    const onExpandDialogClicked = (data, node) => {
+        const dialogProp = {
+            title: `Variable Data: ${node.data.label}`,
+            data,
+            node
+        };
+        setExpandDialogProps(dialogProp);
+        setShowExpandDialog(true);
+    };
 
     // Handle Accordian
     useEffect(() => {
@@ -93,7 +108,7 @@ const VariableSelector = ({ nodes, isVariableSelectorOpen, anchorEl, onVariableS
                         }
                     ]
                 }}
-                sx={{zIndex: 900}}
+                sx={{zIndex: 900, width: 350}}
             >
                 {({ TransitionProps }) => (
                     <Transitions in={open} {...TransitionProps}>
@@ -158,7 +173,24 @@ const VariableSelector = ({ nodes, isVariableSelectorOpen, anchorEl, onVariableS
                                                             </Typography>
                                                         </AccordionSummary>
                                                         <AccordionDetails>
-                                                            <ReactJson collapsed src={node.data.outputResponses? node.data.outputResponses.output : {}} enableClipboard={e => onClipboardCopy(e, node)}/>
+                                                            <div style={{position: 'relative'}}>
+                                                                <ReactJson collapsed src={node.data.outputResponses? node.data.outputResponses.output : {}} enableClipboard={e => onClipboardCopy(e, node)}/>
+                                                                <IconButton 
+                                                                    size="small" 
+                                                                    sx={{ 
+                                                                        height: 25, 
+                                                                        width: 25, 
+                                                                        position: 'absolute', 
+                                                                        top: -5, 
+                                                                        right: 5 
+                                                                    }}
+                                                                    title="Expand Variable"
+                                                                    color="primary"
+                                                                    onClick={() => onExpandDialogClicked(node.data.outputResponses? node.data.outputResponses.output : {}, node)}
+                                                                >
+                                                                    <IconArrowsMaximize />
+                                                                </IconButton>
+                                                            </div>
                                                         </AccordionDetails>
                                                     </Accordion>
                                                 </Box>
@@ -172,6 +204,16 @@ const VariableSelector = ({ nodes, isVariableSelectorOpen, anchorEl, onVariableS
                     </Transitions>
                 )}
             </Popper>
+            <ExpandDataDialog
+                enableClipboard
+                show={showExpandDialog}
+                dialogProps={expandDialogProps}
+                onCancel={() => setShowExpandDialog(false)}
+                onCopyClick={(e, node) => {
+                    onClipboardCopy(e, node);
+                    setShowExpandDialog(false);
+                }}                                                
+            ></ExpandDataDialog>
         </>
     );
 };
