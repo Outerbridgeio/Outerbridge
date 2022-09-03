@@ -23,9 +23,7 @@ import { join as pathJoin } from 'path';
 import { fork } from 'child_process';
 import { AbortController } from "node-abort-controller";
 import * as fs from 'fs';
-import dotenv from 'dotenv';
 import lodash from 'lodash';
-dotenv.config();
 
 import { constructGraphs, getStartingNode, decryptCredentials } from "./utils";
 import { Webhook } from "./entity/Webhook";
@@ -346,6 +344,41 @@ export class DeployedWorkflowPool {
 					// console.error(e);
 				}
 			}
+		}
+	}
+
+	/**
+	 * Remove all deployed workflows from pools:
+	 * @param {IComponentNodesPool} componentNodes
+	 */
+	async removeAll(
+		componentNodes: IComponentNodesPool,
+	) {
+		const deployedWorkflowShortIds = Object.keys(this.deployedWorkflows);
+		if (!deployedWorkflowShortIds.length) return;
+
+		const workflows = await this.AppDataSource.getMongoRepository(Workflow).findBy({
+			shortId: {
+				$in: deployedWorkflowShortIds
+			}
+		});
+
+		for (let i = 0; i < workflows.length; i+=1 ) {
+			const workflow = workflows[i];
+			const flowDataString = workflow.flowData;
+			const flowData: IReactFlowObject = JSON.parse(flowDataString);
+			const reactFlowNodes = flowData.nodes;
+			const reactFlowEdges = flowData.edges;
+
+			const { graph, nodeDependencies } = constructGraphs(reactFlowNodes, reactFlowEdges);
+			const { faultyNodeLabels, startingNodeIds } = getStartingNode(nodeDependencies, reactFlowNodes);
+			
+			await this.remove(
+				startingNodeIds,
+				reactFlowNodes,
+				componentNodes,
+				workflow.shortId
+			);
 		}
 	}
 

@@ -5,7 +5,6 @@ import fs from 'fs';
 import { lib, PBKDF2, AES, enc } from 'crypto-js';
 import { Request, Response } from 'express';
 import { DataSource } from "typeorm"
-import dotenv from 'dotenv';
 import { 
 	ICredentialBody, 
 	ICredentialDataDecrpyted, 
@@ -38,8 +37,6 @@ import { DeployedWorkflowPool } from '../DeployedWorkflowPool';
 import { AppDataSource } from '../DataSource';
 import { ObjectId } from 'mongodb';
 import { ActiveTestWebhookPool } from '../ActiveTestWebhookPool';
-
-dotenv.config();
 
 export enum ShortIdConstants {
 	WORKFLOW_ID_PREFIX = 'W',
@@ -89,7 +86,28 @@ export const getRandomCharFromDictionary = (dictionary: string) => {
 	const randDec = Math.floor(Math.random() * (maxDec - minDec) + minDec);
 	return dictionary.charAt(randDec);
 };
-  
+
+/**
+ * Returns the path of node modules package
+ * @param {string} packageName
+ * @returns {string}
+ */
+export const getNodeModulesPackagePath = (packageName: string): string => {
+    const checkPaths = [
+        path.join(__dirname, '..', 'node_modules', packageName),
+        path.join(__dirname, '..', '..', 'node_modules', packageName),
+        path.join(__dirname, '..', '..', '..', 'node_modules', packageName),
+		path.join(__dirname, '..', '..', '..', '..','node_modules', packageName),
+		path.join(__dirname, '..', '..', '..', '..', '..', 'node_modules', packageName),
+    ];
+    for (const checkPath of checkPaths) {
+        if (fs.existsSync(checkPath)) {
+            return checkPath;
+        }
+    }
+    return '';
+}
+
 /**
  * Returns the path of encryption key
  * @returns {string}

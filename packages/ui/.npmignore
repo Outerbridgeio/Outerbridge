@@ -1,0 +1,14 @@
+/tests
+/src
+/public
+/build/report.html
+/build/**/*.map
+
+yarn-debug.log*
+yarn-error.log*
+
+.eslintrc
+.prettierignore
+.prettierrc
+jsconfig.json
+

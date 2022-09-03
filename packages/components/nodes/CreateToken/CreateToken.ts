@@ -10,12 +10,12 @@ import {
     NodeType,
 } from '../../src/Interface';
 import {
+    getNodeModulesPackagePath,
 	handleErrorMessage,
     returnNodeExecutionData
 } from '../../src/utils';
 import { ethers } from "ethers";
 import * as fs from 'fs';
-import * as path from 'path';
 import { 
     getNetworkProvider, 
     getNetworkProvidersList, 
@@ -287,7 +287,7 @@ class CreateToken implements INode {
             } as any;
     
             function findImports(_path: any) {
-                const filepath = path.join(path.resolve(__dirname, '..', '..', '..', '..', '..'), 'node_modules', _path);
+                const filepath = getNodeModulesPackagePath(_path);
                 const contents = fs.readFileSync(filepath).toString();
                 return { contents }
             }

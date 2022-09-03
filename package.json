@@ -6,13 +6,16 @@
   "scripts": {
     "bootstrap": "lerna bootstrap --hoist",
     "build": "lerna exec yarn run build",
-    "start": "cd packages && cd server && yarn start",
+    "start": "run-script-os",
+    "start:windows": "cd packages/server/bin && run start",
+    "start:default": "cd packages/server/bin && ./run start",
     "dev": "lerna exec yarn run dev --parallel",
     "clean": "lerna exec -- rimraf ./dist",
     "test": "lerna yarn run test"
   },
   "devDependencies": {
     "lerna": "^3.13.1",
-    "rimraf": "^3.0.2"
+    "rimraf": "^3.0.2",
+    "run-script-os": "^1.0.7"
   }
 }

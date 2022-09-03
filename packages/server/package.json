@@ -1,21 +1,46 @@
 {
-   "name": "outerbridge-server",
+   "name": "outerbridge",
    "version": "1.0.0",
-   "description": "",
+   "description": "Outerbridge Server",
    "main": "dist/index",
    "types": "dist/index.d.ts",
+   "bin": {
+      "outerbridge": "./bin/run"
+   },
+   "files": [
+      "/bin",
+      "/dist",
+      "/npm-shrinkwrap.json",
+      "/oclif.manifest.json"
+   ],
+   "oclif": {
+      "bin": "outerbridge",
+      "commands": "./dist/commands"
+   },
    "scripts": {
       "build": "npx tsc",
-      "start": "ts-node src/index.ts",
-      "dev": "concurrently \"npx tsc --watch\" \"nodemon --delay 500ms -q dist/index.js\"",
-      "test": "echo \"Error: no test specified\" && exit 1",
-      "typeorm": "typeorm-ts-node-commonjs"
+      "start": "run-script-os",
+      "start:windows": "cd bin && run start",
+      "start:default": "cd bin && ./run start",
+      "dev": "concurrently \"yarn watch\" \"nodemon\"",
+      "oclif-dev": "run-script-os",
+      "oclif-dev:windows": "cd bin && dev start",
+      "oclif-dev:default": "cd bin && ./dev start",
+      "postpack": "shx rm -f oclif.manifest.json",
+      "posttest": "yarn lint",
+      "prepack": "yarn build && oclif manifest && oclif readme",
+      "typeorm": "typeorm-ts-node-commonjs",
+      "watch": "tsc --watch",
+      "version": "oclif readme && git add README.md"
    },
    "keywords": [],
    "homepage": "https://outerbridge.io",
    "author": {
       "name": "Henry Heng",
       "email": "henryheng@outerbridge.io"
+   },
+   "engines": {
+      "node": ">=12.0.0"
    },
    "license": "SEE LICENSE IN LICENSE.md",
    "dependencies": {
@@ -34,7 +59,9 @@
       "moment-timezone": "^0.5.34",
       "mongodb": "^3.6.0",
       "node-abort-controller": "^3.0.1",
+      "@oclif/core": "^1.13.10",
       "outerbridge-components": "^1.0.0",
+      "outerbridge-ui": "^1.0.0",
       "pg": "^8.4.0",
       "reflect-metadata": "^0.1.13",
       "socket.io": "^4.5.1",
@@ -45,6 +72,9 @@
       "@types/node": "^16.11.10",
       "concurrently": "^7.1.0",
       "nodemon": "^2.0.15",
+      "oclif": "^3",
+      "run-script-os": "^1.0.7",
+      "shx": "^0.3.3",
       "ts-node": "10.7.0",
       "typescript": "4.5.2"
    }
