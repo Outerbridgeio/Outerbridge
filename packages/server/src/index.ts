@@ -1235,14 +1235,14 @@ export class App {
 
         // Remove active test triggers
         this.app.post("/api/v1/remove-test-triggers", async (req: Request, res: Response) => {
-            await this.activeTestTriggerPool.removeAll(this.componentNodes);
+            if (this.activeTestTriggerPool) await this.activeTestTriggerPool.removeAll(this.componentNodes);
             res.status(200).send('success');
             return;
         });
 
         // Remove active test webhooks
         this.app.post("/api/v1/remove-test-webhooks", async (req: Request, res: Response) => {
-            await this.activeTestWebhookPool.removeAll(this.componentNodes);
+            if (this.activeTestWebhookPool) await this.activeTestWebhookPool.removeAll(this.componentNodes);
             res.status(200).send('success');
             return;
         });

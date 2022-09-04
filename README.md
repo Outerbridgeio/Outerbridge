@@ -39,8 +39,12 @@ npm install -g lerna
 
 Outerbridge uses MongoDB as database. Download and install one [here](https://www.mongodb.com/try/download/community?tck=docs_server).
 
+## Quickstart
+1. npm install -g outerbridge
+2. npx outerbridge start
+3. open http://localhost:3000
 
-## Setup
+## Developer Setup
 1. Clone the repository
 	```
 	git clone https://github.com/Outerbridgeio/Outerbridge.git
@@ -53,12 +57,12 @@ Outerbridge uses MongoDB as database. Download and install one [here](https://ww
 
 3. Install all dependencies of all modules and link them together:
 	```
-	lerna bootstrap --hoist
+	yarn bootstrap
 	```
 
 4. Build all the code:
 	```
-	yarn run build
+	yarn build
 	```
     
     If you don't have yarn installed:
@@ -68,13 +72,15 @@ Outerbridge uses MongoDB as database. Download and install one [here](https://ww
 
 5. Start the app:
 	```
-	yarn run start
+	yarn start
 	```
+	You can now access the app on http://localhost:3000
 
-You can now access the app on `http://localhost:3000/`.
-
-## Development
-For development build, run: `yarn run dev`. Any code changes will reload the app automatically on `http://localhost:8080/`.
+6. For development build:
+	```
+	yarn run dev
+	```
+	Any code changes will reload the app automatically on http://localhost:8080
 
 ## Contributing
 See [contributing guide](CONTRIBUTING.md). Reach out to us at [Discord](https://discord.gg/Y9VE4ykPDJ) if you have any questions or issues.

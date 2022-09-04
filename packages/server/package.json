@@ -8,10 +8,12 @@
       "outerbridge": "./bin/run"
    },
    "files": [
-      "/bin",
-      "/dist",
-      "/npm-shrinkwrap.json",
-      "/oclif.manifest.json"
+      "bin",
+      "dist",
+      "npm-shrinkwrap.json",
+      "oclif.manifest.json",
+      "oauth2.html",
+      ".env"
    ],
    "oclif": {
       "bin": "outerbridge",
