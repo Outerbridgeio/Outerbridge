@@ -13,18 +13,19 @@ There are many awesome automation tools out there, however there isn't one that 
 ## Demo
 Watch [demo](https://www.youtube.com/watch?v=x-AfrkKvZ4M) on Youtube (4mins)
 
-## Documentation
-Official Outerbridge docs can be found under: https://docs.outerbridge.io
+## Quickstart
+1. Install MongoDB from [here](https://www.mongodb.com/try/download/community?tck=docs_server).
+1. `npm install -g outerbridge`
+2. `npx outerbridge start`
+3. Open http://localhost:3000
 
-## Support
-Feel free to ask any questions, raise problems, and request new features in [discussion](https://github.com/Outerbridgeio/Outerbridge/discussions)
 
-## Environment Setup
+## Developers
 
-Lerna and MongoDB have to be installed before setting up the project.
+### Prerequisite
+Lerna, MongoDB and Yarn have to be installed before setting up the project.
 
 ### Lerna
-
 Outerbridge has 3 different modules in a single mono repository.
 - `server`: Node backend to serve API logics
 - `ui`: React frontend
@@ -36,11 +37,14 @@ npm install -g lerna
 ```
 
 ### MongoDB
-
 Outerbridge uses MongoDB as database. Download and install one [here](https://www.mongodb.com/try/download/community?tck=docs_server).
 
+### Yarn
+```
+npm install -g yarn
+```
 
-## Setup
+### Setup
 1. Clone the repository
 	```
 	git clone https://github.com/Outerbridgeio/Outerbridge.git
@@ -53,28 +57,31 @@ Outerbridge uses MongoDB as database. Download and install one [here](https://ww
 
 3. Install all dependencies of all modules and link them together:
 	```
-	lerna bootstrap --hoist
+	yarn bootstrap
 	```
 
 4. Build all the code:
 	```
-	yarn run build
+	yarn build
 	```
-    
-    If you don't have yarn installed:
-    ```
-    npm install --global yarn
-    ```
 
 5. Start the app:
 	```
-	yarn run start
+	yarn start
 	```
+	You can now access the app on http://localhost:3000
 
-You can now access the app on `http://localhost:3000/`.
+6. For development build:
+	```
+	yarn run dev
+	```
+	Any code changes will reload the app automatically on http://localhost:8080
 
-## Development
-For development build, run: `yarn run dev`. Any code changes will reload the app automatically on `http://localhost:8080/`.
+## Documentation
+Official Outerbridge docs can be found under: https://docs.outerbridge.io
+
+## Support
+Feel free to ask any questions, raise problems, and request new features in [discussion](https://github.com/Outerbridgeio/Outerbridge/discussions)
 
 ## Contributing
 See [contributing guide](CONTRIBUTING.md). Reach out to us at [Discord](https://discord.gg/Y9VE4ykPDJ) if you have any questions or issues.
