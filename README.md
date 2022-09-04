@@ -23,7 +23,7 @@ Watch [demo](https://www.youtube.com/watch?v=x-AfrkKvZ4M) on Youtube (4mins)
 ## Developers
 
 ### Prerequisite
-Lerna and MongoDB have to be installed before setting up the project.
+Lerna, MongoDB and Yarn have to be installed before setting up the project.
 
 ### Lerna
 Outerbridge has 3 different modules in a single mono repository.
@@ -38,6 +38,11 @@ npm install -g lerna
 
 ### MongoDB
 Outerbridge uses MongoDB as database. Download and install one [here](https://www.mongodb.com/try/download/community?tck=docs_server).
+
+### Yarn
+```
+npm install -g yarn
+```
 
 ### Setup
 1. Clone the repository
@@ -59,11 +64,6 @@ Outerbridge uses MongoDB as database. Download and install one [here](https://ww
 	```
 	yarn build
 	```
-    
-    If you don't have yarn installed:
-    ```
-    npm install --global yarn
-    ```
 
 5. Start the app:
 	```
