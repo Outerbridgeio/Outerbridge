@@ -62,7 +62,8 @@ import {
     checkOAuth2TokenRefreshed,
     constructGraphs,
     testWorkflow,
-    getNodeModulesPackagePath
+    getNodeModulesPackagePath,
+    getRandomSubdomain,
 } from './utils';
 import { DeployedWorkflowPool } from './DeployedWorkflowPool';
 import { ActiveTestTriggerPool } from './ActiveTestTriggerPool';
@@ -91,12 +92,27 @@ export class App {
 
             // Initialize localtunnel
             if (process.env.ENABLE_TUNNEL === 'true') {
-                
-                const port = parseInt(process.env.PORT || '', 10) || 3000;
-                const newTunnel = await localtunnel({ port });
-                process.env.TUNNEL_BASE_URL = `${newTunnel.url}/`;
+                const subdomain = getRandomSubdomain();
 
-                console.log('🌐[server]: TUNNEL_BASE_URL = ', process.env.TUNNEL_BASE_URL);
+                const tunnelSettings: localtunnel.TunnelConfig = {
+                    subdomain
+                };
+
+                const port = parseInt(process.env.PORT || '', 10) || 3000;
+
+                const createTunnel = (timeout: number): Promise<localtunnel.Tunnel | string> => {
+                    return new Promise(function(resolve, reject) {
+                        localtunnel(port, tunnelSettings).then(resolve, reject);
+                        setTimeout(resolve, timeout, 'TUNNEL_TIMED_OUT');
+                    });
+                }
+
+                const newTunnel = await createTunnel(10000);
+
+                if (typeof newTunnel !== 'string') {
+                    process.env.TUNNEL_BASE_URL = `${newTunnel.url}/`;
+                    console.log('🌐[server]: TUNNEL_BASE_URL = ', process.env.TUNNEL_BASE_URL);
+                }
             }
 
             // Initialize node instances

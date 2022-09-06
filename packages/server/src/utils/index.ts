@@ -47,7 +47,8 @@ let RANDOM_LENGTH = 8;
 let USE_LOWERCASE = 'false';
 const DICTIONARY_1 = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
 const DICTIONARY_2 = '23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz';
-  
+const DICTIONARY_3 = 'abcdefghijklmnopqrstuvwxyz0123456789';
+
 /**
  * Returns a Short ID
  * Format : WDDMMMYY-[0-1A-Z]*8 , ie:  B10JAN21-2CH9PX8N
@@ -86,6 +87,14 @@ export const getRandomCharFromDictionary = (dictionary: string) => {
 	const randDec = Math.floor(Math.random() * (maxDec - minDec) + minDec);
 	return dictionary.charAt(randDec);
 };
+
+export const getRandomSubdomain = () => {
+    let randomPart = '';
+	for (let i = 0; i < 24; i++) {
+		randomPart += getRandomCharFromDictionary(DICTIONARY_3);
+	}
+    return randomPart;
+}
 
 /**
  * Returns the path of node modules package
