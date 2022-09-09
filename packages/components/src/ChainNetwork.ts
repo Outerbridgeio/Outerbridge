@@ -17,7 +17,12 @@ export enum NETWORK {
     ARBITRUM = 'arbitrum',
     ARBITRUM_RINKEBY = 'arbitrum-rinkeby',
     BSC = 'bsc',
-    BSC_TESTNET = 'bsc-testnet'
+    BSC_TESTNET = 'bsc-testnet',
+    AVALANCHE = 'avalanche',
+    AVALANCHE_TESTNET = 'avalanche-testnet',
+    FANTOM = 'fantom',
+    CRONOS = 'cronos',
+    CRONOS_TESTNET = 'cronos-testnet'
 }
 
 export enum NETWORK_LABEL {
@@ -33,7 +38,12 @@ export enum NETWORK_LABEL {
     ARBITRUM = 'Arbitrum Mainnet',
     ARBITRUM_RINKEBY = 'Arbitrum Rinkeby',
     BSC = 'Binance Smart Chain Mainnet',
-    BSC_TESTNET = 'Binance Smart Chain Testnet'
+    BSC_TESTNET = 'Binance Smart Chain Testnet',
+    AVALANCHE = 'Avalanche Mainnet',
+    AVALANCHE_TESTNET = 'Avalanche Testnet',
+    FANTOM = 'Fantom',
+    CRONOS = 'Cronos',
+    CRONOS_TESTNET = 'Cronos Testnet'
 }
 
 export enum NETWORK_PROVIDER {
