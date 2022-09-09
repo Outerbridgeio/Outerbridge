@@ -11,7 +11,11 @@ Outerbridge is a low code/no code workflow automation application, focusing on i
 There are many awesome automation tools out there, however there isn't one that has the built-in logic of interacting/consuming information from blockchains. Hence, Outerbridge is created to allow people building workflows involving on-chain and off-chain applications, with simple drag and drop interface. 
 
 ## Demo
-Watch [demo](https://www.youtube.com/watch?v=x-AfrkKvZ4M) on Youtube (4mins)
+Here is the [demo](https://demo.outerbridge.io) version of Outerbridge hosted using AWS t2-micro.
+
+Detail [documentation](https://gist.github.com/HenryHengZJ/f8fb7dae0300d18a104cc4a29ec51a7a) on how to setup using AWS t2-micro with your custom domain name.
+
+Watch [Outerbridge Quickstart Demo](https://www.youtube.com/watch?v=x-AfrkKvZ4M) on Youtube (4mins)
 
 ## Quickstart
 1. Install MongoDB from [here](https://www.mongodb.com/try/download/community?tck=docs_server).
