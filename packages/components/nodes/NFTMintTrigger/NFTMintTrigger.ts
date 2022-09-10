@@ -1,6 +1,7 @@
 
 import { ethers, utils } from "ethers";
 import {
+	ICommonObject,
 	INode, 
     INodeData, 
     INodeOptionsValue, 
@@ -20,7 +21,8 @@ import {
 	NETWORK,
 	getNetworkProvidersList,
 	getNetworkProvider,
-	NETWORK_PROVIDER
+	NETWORK_PROVIDER,
+	eventTransferAbi,
 } from '../../src/ChainNetwork';
 
 class NFTMintTrigger extends EventEmitter implements INode {
@@ -116,18 +118,29 @@ class NFTMintTrigger extends EventEmitter implements INode {
 		] as INodeParams[];
 		this.inputParameters = [
 			{
+				label: 'Token Standard',
+				name: 'tokenStandard',
+				type: 'options',
+				options: [
+					{
+						label: 'ERC-721',
+						name: 'ERC721',
+					},
+				],
+				default: 'ERC721',
+			},
+			{
+				label: 'To Wallet Address',
+				name: 'toAddress',
+				type: 'string',
+				default: '',
+			},
+			{
 				label: 'NFT Address',
 				name: 'nftAddress',
 				type: 'string',
 				default: '',
 				optional: true
-			},
-			{
-				label: 'To',
-				name: 'toAddress',
-				type: 'string',
-				default: '',
-				description: 'Wallet address',
 			},
 		] as INodeParams[];
 	};
@@ -168,23 +181,34 @@ class NFTMintTrigger extends EventEmitter implements INode {
 		if (!provider) throw new Error('Invalid Network Provider');
 
 		const emitEventKey = nodeData.emitEventKey as string;
-		const nftAddress = inputParametersData.nftAddress as string || null;
-		const toAddress = inputParametersData.toAddress as string || null;
-
+		const nftAddress = inputParametersData.nftAddress as string;
+		const toAddress = inputParametersData.toAddress as string;
+	
+		const ifaceABI = eventTransferAbi;
+		const topicId = utils.id('Transfer(address,address,uint256)');
+		
 		const filter = {
 			topics: [
-				utils.id("Transfer(address,address,uint256)"),
+				topicId,
 				utils.hexZeroPad('0x0000000000000000000000000000000000000000', 32), // Mint always has 000 from address
 				toAddress ? utils.hexZeroPad(toAddress, 32) : null,
 			]
 		};
 		if (nftAddress) (filter as any)['address'] = nftAddress;
-		
-		provider.on(filter, (log: any) => {
+
+		provider.on(filter, async(log: any) => {
 			const txHash = log.transactionHash;
-			log['explorerLink'] = `${networkExplorers[network]}/tx/${txHash}`;
+			const iface = new ethers.utils.Interface(ifaceABI);
+			const logs = await provider.getLogs(filter);
+			const events = logs.map((log) => iface.parseLog(log));
+			const toWallet = events.length ? events[0].args[1] : '';
+
 			//ERC721 has 4 topics length
 			if (log.topics.length === 4) {
+				const returnItem = {} as ICommonObject;
+				returnItem['To Wallet'] = toWallet;
+				returnItem['NFT Token Address'] = log.address;
+				
 				if (openseaExplorers[network]) {
 					let tokenString = '';
 					const counter = log.topics[log.topics.length - 1];
@@ -195,9 +219,13 @@ class NFTMintTrigger extends EventEmitter implements INode {
 					} else {
 						tokenString = '0';
 					}
-					log['openseaLink'] = `${openseaExplorers[network]}/assets/${log.address}/${tokenString}`;
+					returnItem['NFT Token Id'] = tokenString;
+					returnItem['txHash'] = txHash;
+					returnItem['explorerLink'] = `${networkExplorers[network]}/tx/${txHash}`;
+					returnItem['openseaLink'] = `${openseaExplorers[network]}/assets/${log.address}/${tokenString}`;
 				}
-				this.emit(emitEventKey, returnNodeExecutionData(log));
+
+				this.emit(emitEventKey, returnNodeExecutionData(returnItem));
 			}
 		});
 
