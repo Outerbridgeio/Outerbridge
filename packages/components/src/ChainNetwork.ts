@@ -265,6 +265,7 @@ export async function getBscMainnetProvider() {
 }
 
 export async function getBscTestnetProvider() {
+    /*
     const prvs = [];
     for (let i = 0; i < binanceTestnetRPC.length; i++) {
         const node = binanceTestnetRPC[i];
@@ -279,6 +280,8 @@ export async function getBscTestnetProvider() {
         });
     }
     return new ethers.providers.FallbackProvider(prvs);
+    */
+    return new ethers.providers.JsonRpcProvider(binanceTestnetRPC[0]);
 }
 
 export async function getPolygonMainnetProvider() {
@@ -490,8 +493,8 @@ export const openseaExplorers = {
 } as INetworkMapping;
 
 export const binanceTestnetRPC = [
-    'https://data-seed-prebsc-2-s2.binance.org:8545',
     'https://data-seed-prebsc-1-s1.binance.org:8545',
+    'https://data-seed-prebsc-2-s2.binance.org:8545',
 ] as string[];
 
 export const binanceMainnetRPC = [
@@ -551,3 +554,52 @@ export const nativeCurrency = {
     [NETWORK.BSC]: 'BNB',
     [NETWORK.BSC_TESTNET]: 'BNB',
 } as INetworkMapping;
+
+export const tokenAbi = [
+    {
+        "constant": true,
+        "inputs": [],
+        "name": "symbol",
+        "outputs": [
+            {
+                "name": "",
+                "type": "string"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "constant": true,
+        "inputs": [],
+        "name": "name",
+        "outputs": [
+            {
+                "name": "",
+                "type": "string"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "constant": true,
+        "inputs": [],
+        "name": "decimals",
+        "outputs": [
+            {
+                "name": "",
+                "type": "uint8"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+    }
+];
+
+export const eventTransferAbi = [ "event Transfer(address indexed from, address indexed to, uint value)" ];
+export const erc1155SingleTransferAbi = [ "event TransferSingle(address indexed operator, address indexed from, address indexed to, uint id, uint value)" ];
+export const erc1155BatchTransferAbi = [ "event TransferSingle(address indexed operator, address indexed from, address indexed to, uint[] id, uint[] value)" ];

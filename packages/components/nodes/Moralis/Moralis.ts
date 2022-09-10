@@ -13,7 +13,6 @@ import {
     serializeQueryParams
 } from '../../src/utils';
 import axios, { AxiosRequestConfig, AxiosRequestHeaders, Method } from 'axios';
-import { NETWORK } from '../../src/ChainNetwork';
 import { MoralisSupportedNetworks } from './supportedNetwork';
 import { getBlock, getContractEvents, getDateToBlock, getNativeBalance, getTokenBalances, getTransaction, nativeEvmOperation, runContractFunction } from './extendedEVMOperation';
 import { getContractNFTs, getNFTLowestPrice, getWalletNFTs, getNFTsForContract, getNFTTrades, getWalletNFTTransfers, getNFTTransfersByBlock, getNFTTokenIdMetadata, getWalletNFTCollections, getNFTTokenIdTransfers, nftOperation, reSyncMetadata } from './extendedNFTOperation';

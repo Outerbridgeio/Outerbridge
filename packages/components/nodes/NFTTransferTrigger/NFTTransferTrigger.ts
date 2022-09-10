@@ -1,6 +1,7 @@
 
 import { ethers, utils } from "ethers";
 import {
+	ICommonObject,
 	INode, 
     INodeData, 
     INodeOptionsValue, 
@@ -20,7 +21,10 @@ import {
 	getNetworkProvidersList,
 	NETWORK,
 	getNetworkProvider,
-	NETWORK_PROVIDER
+	NETWORK_PROVIDER,
+	eventTransferAbi,
+	erc1155SingleTransferAbi,
+	erc1155BatchTransferAbi
 } from '../../src/ChainNetwork';
 
 class NFTTransferTrigger extends EventEmitter implements INode {
@@ -117,6 +121,43 @@ class NFTTransferTrigger extends EventEmitter implements INode {
 		] as INodeParams[];
 		this.inputParameters = [
 			{
+				label: 'Token Standard',
+				name: 'tokenStandard',
+				type: 'options',
+				options: [
+					{
+						label: 'ERC-721',
+						name: 'ERC721',
+					},
+					{
+						label: 'ERC-1155',
+						name: 'ERC1155',
+					}
+				],
+				default: 'ERC721',
+			},
+			{
+				label: 'Transfer Method',
+				name: 'tokenMethod',
+				type: 'options',
+				options: [
+					{
+						label: 'Single',
+						name: 'single',
+					},
+					{
+						label: 'Batch',
+						name: 'batch',
+					}
+				],
+				default: 'single',
+				show: {
+					'inputParameters.tokenStandard': [
+						'ERC1155'
+					]
+				}
+			},
+			{
 				label: 'NFT Address',
 				name: 'nftAddress',
 				type: 'string',
@@ -138,27 +179,30 @@ class NFTTransferTrigger extends EventEmitter implements INode {
 						name: 'to',
 						description: 'Transfer to wallet address'
 					},
+					{
+						label: 'Both From and To',
+						name: 'fromTo',
+						description: 'Transfer from a wallet address to another wallet address'
+					},
 				],
 				default: '',
 			},
 			{
-				label: 'From',
+				label: 'From Wallet Address',
 				name: 'fromAddress',
 				type: 'string',
 				default: '',
-				description: 'Wallet address',
 				show: {
-					'inputParameters.direction': ['from']
+					'inputParameters.direction': ['from', 'fromTo']
 				}
 			},
 			{
-				label: 'To',
+				label: 'To Wallet Address',
 				name: 'toAddress',
 				type: 'string',
 				default: '',
-				description: 'Wallet address',
 				show: {
-					'inputParameters.direction': ['to']
+					'inputParameters.direction': ['to', 'fromTo']
 				}
 			},
 		] as INodeParams[];
@@ -200,24 +244,49 @@ class NFTTransferTrigger extends EventEmitter implements INode {
 		if (!provider) throw new Error('Invalid Network Provider');
 
 		const emitEventKey = nodeData.emitEventKey as string;
-		const nftAddress = inputParametersData.nftAddress as string || null;
-		const fromAddress = inputParametersData.fromAddress as string || null;
-		const toAddress = inputParametersData.toAddress as string || null;
+		const nftAddress = inputParametersData.nftAddress as string;
+		const fromAddress = inputParametersData.fromAddress as string;
+		const toAddress = inputParametersData.toAddress as string;
+		const tokenStandard = inputParametersData.tokenStandard as string;
+		const tokenMethod = inputParametersData.tokenMethod as string;
+
+		let ifaceABI = eventTransferAbi;
+		let topicId = utils.id('Transfer(address,address,uint256)');
+		if (tokenStandard === 'ERC1155' && tokenMethod === 'single') {
+			topicId = utils.id("TransferSingle(address,address,address,uint256,uint256)");
+			ifaceABI = erc1155SingleTransferAbi;
+		}
+		if (tokenStandard === 'ERC1155' && tokenMethod === 'batch') {
+			topicId = utils.id("TransferBatch(address,address,address,uint256[],uint256[])");
+			ifaceABI = erc1155BatchTransferAbi;
+		}
 
 		const filter = {
 			topics: [
-				utils.id("Transfer(address,address,uint256)"),
+				topicId,
 				fromAddress ? utils.hexZeroPad(fromAddress, 32) : null,
 				toAddress ? utils.hexZeroPad(toAddress, 32) : null,
 			]
 		};
 		if (nftAddress) (filter as any)['address'] = nftAddress;
-		
-		provider.on(filter, (log: any) => {
+
+		provider.on(filter, async(log: any) => {
+
 			const txHash = log.transactionHash;
-			log['explorerLink'] = `${networkExplorers[network]}/tx/${txHash}`;
-			//ERC721 has 4 topics length
+			const iface = new ethers.utils.Interface(ifaceABI);
+			const logs = await provider.getLogs(filter);
+			const events = logs.map((log) => iface.parseLog(log));
+	
+			const fromWallet = events.length ? events[0].args[tokenStandard === 'ERC1155' ? 1 : 0] : '';
+			const toWallet = events.length ? events[0].args[tokenStandard === 'ERC1155' ? 2 : 1] : '';
+
+			//ERC721 or ERC1155 has 4 topics length
 			if (log.topics.length === 4) {
+				const returnItem = {} as ICommonObject;
+				returnItem['From Wallet'] = fromWallet;
+				returnItem['To Wallet'] = toWallet;
+				returnItem['NFT Token Address'] = log.address;
+
 				if (openseaExplorers[network]) {
 					let tokenString = '';
 					const counter = log.topics[log.topics.length - 1];
@@ -228,9 +297,13 @@ class NFTTransferTrigger extends EventEmitter implements INode {
 					} else {
 						tokenString = '0';
 					}
-					log['openseaLink'] = `${openseaExplorers[network]}/assets/${log.address}/${tokenString}`;
+					returnItem['NFT Token Id'] = tokenString;
+					returnItem['txHash'] = txHash;
+					returnItem['explorerLink'] = `${networkExplorers[network]}/tx/${txHash}`;
+					returnItem['openseaLink'] = `${openseaExplorers[network]}/assets/${log.address}/${tokenString}`;
 				}
-				this.emit(emitEventKey, returnNodeExecutionData(log));
+			
+				this.emit(emitEventKey, returnNodeExecutionData(returnItem));
 			}
 		});
 
