@@ -34,9 +34,9 @@ import { Workflow } from "../entity/Workflow";
 import { Credential } from "../entity/Credential";
 import { Webhook } from '../entity/Webhook';
 import { DeployedWorkflowPool } from '../DeployedWorkflowPool';
-import { AppDataSource } from '../DataSource';
 import { ObjectId } from 'mongodb';
 import { ActiveTestWebhookPool } from '../ActiveTestWebhookPool';
+import { getDataSource } from '../DataSource';
 
 export enum ShortIdConstants {
 	WORKFLOW_ID_PREFIX = 'W',
@@ -392,7 +392,7 @@ export const resolveVariables = (reactFlowNodeData: INodeData, reactFlowNodes: I
  * @param {INodeData} nodeData 
  */
 export const decryptCredentials = async(nodeData: INodeData, appDataSource?: DataSource ) => {
-    if (!appDataSource) appDataSource = AppDataSource;
+    if (!appDataSource) appDataSource = getDataSource();
 
     if (nodeData.credentials && nodeData.credentials.registeredCredential) {
         // @ts-ignore
@@ -614,7 +614,7 @@ const updateCredentialAfterOAuth2TokenRefreshed = async(
 ) => {
     if (!result || !result.length) return;
 
-    if (!appDataSource) appDataSource = AppDataSource;
+    if (!appDataSource) appDataSource = getDataSource();
  
     for (let i = 0; i < result.length; i+=1) {
         if (Object.prototype.hasOwnProperty.call(result[i], OAUTH2_REFRESHED)) {
@@ -645,7 +645,7 @@ const updateCredentialAfterOAuth2TokenRefreshed = async(
                     }
                 }
                 const updateCredential = await transformToCredentialEntity(body);
-                
+
                 appDataSource.getMongoRepository(Credential).merge(credential, updateCredential);
                 await appDataSource.getMongoRepository(Credential).save(credential);
             }
