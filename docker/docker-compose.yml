@@ -11,7 +11,7 @@ services:
       - MONGO_INITDB_DATABASE=outerbridge
   
   outerbridge:
-    image: outerbridge:latest
+    image: outerbridgeio/outerbridge
     restart: always
     environment:
       - MONGO_HOST=${MONGO_HOST}

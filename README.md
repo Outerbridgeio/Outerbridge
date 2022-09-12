@@ -28,6 +28,7 @@ Watch [Outerbridge Quickstart Demo](https://www.youtube.com/watch?v=x-AfrkKvZ4M)
 2. `docker-compose up -d`
 3. This will automatically spins up mongodb and outerbridge containers
 4. Open http://localhost:3000
+5. You can bring the containers down by `docker-compose stop`
 
 ## Developers
 
