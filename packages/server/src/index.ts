@@ -8,15 +8,6 @@ import { Server, Socket } from "socket.io";
 import http from "http";
 import { ethers } from 'ethers';
 
-import { AppDataSource } from "./DataSource";
-import { NodesPool } from "./NodesPool";
-import { Workflow } from "./entity/Workflow";
-import { Execution } from "./entity/Execution";
-import { Credential } from "./entity/Credential";
-import { Webhook } from './entity/Webhook';
-import { Contract } from './entity/Contract';
-import { Wallet } from './entity/Wallet';
-
 import { 
     IComponentCredentialsPool, 
     IComponentNodesPool, 
@@ -49,6 +40,7 @@ import {
     INode,
 } from "outerbridge-components";
 import { CredentialsPool } from './CredentialsPool';
+import { NodesPool } from "./NodesPool";
 import { 
     decryptCredentialData, 
     getEncryptionKey, 
@@ -70,6 +62,14 @@ import { ActiveTestTriggerPool } from './ActiveTestTriggerPool';
 import { ActiveTestWebhookPool } from './ActiveTestWebhookPool';
 import axios, { AxiosRequestConfig, Method } from 'axios';
 
+import { Workflow } from "./entity/Workflow"
+import { Execution } from "./entity/Execution"
+import { Credential } from "./entity/Credential"
+import { Webhook } from "./entity/Webhook"
+import { Contract } from "./entity/Contract"
+import { Wallet } from "./entity/Wallet"
+import { getDataSource } from './DataSource';
+
 export class App {
 
     app: express.Application;
@@ -78,14 +78,15 @@ export class App {
     deployedWorkflowsPool: DeployedWorkflowPool;
     activeTestTriggerPool: ActiveTestTriggerPool;
     activeTestWebhookPool: ActiveTestWebhookPool;
-    
+    AppDataSource = getDataSource();
+
     constructor() {
 		this.app = express();
     }
 
     async initDatabase() {
         // Initialize database
-        AppDataSource
+        this.AppDataSource
         .initialize()
         .then( async() => {
             console.log("📦[server]: Data Source has been initialized!");
@@ -126,10 +127,10 @@ export class App {
             await credsPool.initialize();
             this.componentCredentials = credsPool.componentCredentials;
 
-
+            
             // Initialize deployed worklows instances
             this.deployedWorkflowsPool = new DeployedWorkflowPool();
-            await this.deployedWorkflowsPool.initialize(AppDataSource, this.componentNodes);
+            await this.deployedWorkflowsPool.initialize(this.AppDataSource, this.componentNodes);
 
 
             // Initialize activeTestTriggerPool instance
@@ -162,7 +163,7 @@ export class App {
 
         // Get all workflows
         this.app.get("/api/v1/workflows", async (req: Request, res: Response) => {
-            const workflows: IWorkflowResponse[] = await AppDataSource.getMongoRepository(Workflow).aggregate(
+            const workflows: IWorkflowResponse[] = await this.AppDataSource.getMongoRepository(Workflow).aggregate(
                 [
                     {
                         $lookup: { 
@@ -186,7 +187,7 @@ export class App {
 
         // Get specific workflow via shortId
         this.app.get("/api/v1/workflows/:shortId", async (req: Request, res: Response) => {
-            const workflows: IWorkflowResponse[] = await AppDataSource.getMongoRepository(Workflow)
+            const workflows: IWorkflowResponse[] = await this.AppDataSource.getMongoRepository(Workflow)
             .aggregate(
                 [
                     {
@@ -221,9 +222,9 @@ export class App {
             const newWorkflow = new Workflow();
             Object.assign(newWorkflow, body);
 
-            const workflow = await AppDataSource.getMongoRepository(Workflow).create(newWorkflow);
-            const results = await AppDataSource.getMongoRepository(Workflow).save(workflow);
-            const returnWorkflows: IWorkflowResponse[] = await AppDataSource.getMongoRepository(Workflow)
+            const workflow = await this.AppDataSource.getMongoRepository(Workflow).create(newWorkflow);
+            const results = await this.AppDataSource.getMongoRepository(Workflow).save(workflow);
+            const returnWorkflows: IWorkflowResponse[] = await this.AppDataSource.getMongoRepository(Workflow)
             .aggregate(
                 [
                     {
@@ -254,7 +255,7 @@ export class App {
 
         // Update workflow
         this.app.put("/api/v1/workflows/:shortId", async (req: Request, res: Response) => {
-            const workflow = await AppDataSource.getMongoRepository(Workflow).findOneBy({
+            const workflow = await this.AppDataSource.getMongoRepository(Workflow).findOneBy({
                 shortId: req.params.shortId,
             });
 
@@ -292,9 +293,9 @@ export class App {
             const updateWorkflow = new Workflow();
             Object.assign(updateWorkflow, body);
 
-            AppDataSource.getMongoRepository(Workflow).merge(workflow, updateWorkflow);
-            const results = await AppDataSource.getMongoRepository(Workflow).save(workflow);
-            const returnWorkflows: IWorkflowResponse[] = await AppDataSource.getMongoRepository(Workflow)
+            this.AppDataSource.getMongoRepository(Workflow).merge(workflow, updateWorkflow);
+            const results = await this.AppDataSource.getMongoRepository(Workflow).save(workflow);
+            const returnWorkflows: IWorkflowResponse[] = await this.AppDataSource.getMongoRepository(Workflow)
             .aggregate(
                 [
                     {
@@ -352,7 +353,7 @@ export class App {
 
         // Delete workflow via shortId
         this.app.delete("/api/v1/workflows/:shortId", async (req: Request, res: Response) => {
-            const workflow = await AppDataSource.getMongoRepository(Workflow).findOneBy({
+            const workflow = await this.AppDataSource.getMongoRepository(Workflow).findOneBy({
                 shortId: req.params.shortId,
             });
 
@@ -385,16 +386,16 @@ export class App {
                     return res.status(500).send(e);
                 }
             }
-            const results = await AppDataSource.getMongoRepository(Workflow).delete({ shortId: req.params.shortId });
-            await AppDataSource.getMongoRepository(Webhook).delete({ workflowShortId: req.params.shortId });
-            await AppDataSource.getMongoRepository(Execution).delete({ workflowShortId: req.params.shortId });
+            const results = await this.AppDataSource.getMongoRepository(Workflow).delete({ shortId: req.params.shortId });
+            await this.AppDataSource.getMongoRepository(Webhook).delete({ workflowShortId: req.params.shortId });
+            await this.AppDataSource.getMongoRepository(Execution).delete({ workflowShortId: req.params.shortId });
             return res.json(results);
         });
 
         // Deploy/Halt workflow via shortId
         this.app.post("/api/v1/workflows/deploy/:shortId", async (req: Request, res: Response) => {
 
-            const workflow = await AppDataSource.getMongoRepository(Workflow).findOneBy({
+            const workflow = await this.AppDataSource.getMongoRepository(Workflow).findOneBy({
                 shortId: req.params.shortId,
             });
 
@@ -438,9 +439,9 @@ export class App {
                 const updateWorkflow = new Workflow();
                 Object.assign(updateWorkflow, body);
             
-                AppDataSource.getMongoRepository(Workflow).merge(workflow, updateWorkflow);
-                const results = await AppDataSource.getMongoRepository(Workflow).save(workflow);
-                const returnWorkflows: IWorkflowResponse[] = await AppDataSource.getMongoRepository(Workflow)
+                this.AppDataSource.getMongoRepository(Workflow).merge(workflow, updateWorkflow);
+                const results = await this.AppDataSource.getMongoRepository(Workflow).save(workflow);
+                const returnWorkflows: IWorkflowResponse[] = await this.AppDataSource.getMongoRepository(Workflow)
                 .aggregate(
                     [
                         {
@@ -596,13 +597,13 @@ export class App {
 
         // Get all executions
         this.app.get("/api/v1/executions", async (req: Request, res: Response) => {
-            const executions = await AppDataSource.getMongoRepository(Execution).find();
+            const executions = await this.AppDataSource.getMongoRepository(Execution).find();
             return res.json(executions);
         });
 
         // Get specific execution via shortId
         this.app.get("/api/v1/executions/:shortId", async (req: Request, res: Response) => {
-            const results = await AppDataSource.getMongoRepository(Execution).findOneBy({
+            const results = await this.AppDataSource.getMongoRepository(Execution).findOneBy({
                 shortId: req.params.shortId,
             });
             return res.json(results);
@@ -614,14 +615,14 @@ export class App {
             const newExecution = new Execution();
             Object.assign(newExecution, body);
 
-            const execution = await AppDataSource.getMongoRepository(Execution).create(newExecution);
-            const results = await AppDataSource.getMongoRepository(Execution).save(execution);
+            const execution = await this.AppDataSource.getMongoRepository(Execution).create(newExecution);
+            const results = await this.AppDataSource.getMongoRepository(Execution).save(execution);
             return res.json(results);
         });
 
         // Update execution
         this.app.put("/api/v1/executions/:shortId", async (req: Request, res: Response) => {
-            const execution = await AppDataSource.getMongoRepository(Execution).findOneBy({
+            const execution = await this.AppDataSource.getMongoRepository(Execution).findOneBy({
                 shortId: req.params.shortId,
             });
 
@@ -634,14 +635,14 @@ export class App {
             const updateExecution = new Execution();
             Object.assign(updateExecution, body);
 
-            AppDataSource.getMongoRepository(Execution).merge(execution, updateExecution);
-            const results = await AppDataSource.getMongoRepository(Execution).save(execution);
+            this.AppDataSource.getMongoRepository(Execution).merge(execution, updateExecution);
+            const results = await this.AppDataSource.getMongoRepository(Execution).save(execution);
             return res.json(results);
         });
 
         // Delete execution via shortId
         this.app.delete("/api/v1/executions/:shortId", async (req: Request, res: Response) => {
-            const results = await AppDataSource.getMongoRepository(Execution).delete({ shortId: req.params.shortId });
+            const results = await this.AppDataSource.getMongoRepository(Execution).delete({ shortId: req.params.shortId });
             return res.json(results);
         });
 
@@ -801,7 +802,7 @@ export class App {
                         else if (loadFromDbCollections[i] === 'Credential') collection = Credential;
                         else if (loadFromDbCollections[i] === 'Wallet') collection = Wallet;
                         
-                        const res = await AppDataSource.getMongoRepository(collection).find();
+                        const res = await this.AppDataSource.getMongoRepository(collection).find();
                         dbCollection[loadFromDbCollections[i]] = res;
                     }
 
@@ -835,8 +836,8 @@ export class App {
             const body: ICredentialBody = req.body;
 
             const newCredential = await transformToCredentialEntity(body);
-            const credential = await AppDataSource.getMongoRepository(Credential).create(newCredential);
-            const results = await AppDataSource.getMongoRepository(Credential).save(credential);
+            const credential = await this.AppDataSource.getMongoRepository(Credential).create(newCredential);
+            const results = await this.AppDataSource.getMongoRepository(Credential).save(credential);
             return res.json(results);
         });
 
@@ -857,7 +858,7 @@ export class App {
 
         // Get list of registered credentials via nodeCredentialName
         this.app.get("/api/v1/credentials", async (req: Request, res: Response) => {
-            const credentials = await AppDataSource.getMongoRepository(Credential).find({
+            const credentials = await this.AppDataSource.getMongoRepository(Credential).find({
                 // @ts-ignore
                 where: {
                     nodeCredentialName: { $eq: req.query.nodeCredentialName },
@@ -873,7 +874,7 @@ export class App {
 
             const encryptKey = await getEncryptionKey();
         
-            const credential = await AppDataSource.getMongoRepository(Credential).findOneBy({
+            const credential = await this.AppDataSource.getMongoRepository(Credential).findOneBy({
                 _id: new ObjectId(req.params.id),
             });
 
@@ -898,7 +899,7 @@ export class App {
 
         // Update credential
         this.app.put("/api/v1/credentials/:id", async (req: Request, res: Response) => {
-            const credential = await AppDataSource.getMongoRepository(Credential).findOneBy({
+            const credential = await this.AppDataSource.getMongoRepository(Credential).findOneBy({
                 _id: new ObjectId(req.params.id),
             });
 
@@ -922,14 +923,14 @@ export class App {
             }
             const updateCredential = await transformToCredentialEntity(newBody);
             
-            AppDataSource.getMongoRepository(Credential).merge(credential, updateCredential);
-            const results = await AppDataSource.getMongoRepository(Credential).save(credential);
+            this.AppDataSource.getMongoRepository(Credential).merge(credential, updateCredential);
+            const results = await this.AppDataSource.getMongoRepository(Credential).save(credential);
             return res.json(results);
         });
 
         // Delete credential via id
         this.app.delete("/api/v1/credentials/:id", async (req: Request, res: Response) => {
-            const results = await AppDataSource.getMongoRepository(Credential).deleteOne({ _id: new ObjectId(req.params.id) });
+            const results = await this.AppDataSource.getMongoRepository(Credential).deleteOne({ _id: new ObjectId(req.params.id) });
             return res.json(results);
         });
 
@@ -940,13 +941,13 @@ export class App {
 
         // Get all contracts
         this.app.get("/api/v1/contracts", async (req: Request, res: Response) => {
-            const contracts = await AppDataSource.getMongoRepository(Contract).find();
+            const contracts = await this.AppDataSource.getMongoRepository(Contract).find();
             return res.json(contracts);
         });
 
         // Get specific contract via id
         this.app.get("/api/v1/contracts/:id", async (req: Request, res: Response) => {
-            const results = await AppDataSource.getMongoRepository(Contract).findOneBy({
+            const results = await this.AppDataSource.getMongoRepository(Contract).findOneBy({
                 _id: new ObjectId(req.params.id),
             });    
             return res.json(results);
@@ -959,8 +960,8 @@ export class App {
                 const newContract = new Contract();
                 Object.assign(newContract, body);
 
-                const contract = await AppDataSource.getMongoRepository(Contract).create(newContract);
-                const results = await AppDataSource.getMongoRepository(Contract).save(contract);
+                const contract = await this.AppDataSource.getMongoRepository(Contract).create(newContract);
+                const results = await this.AppDataSource.getMongoRepository(Contract).save(contract);
                 return res.json(results);
 
             } catch(e) {
@@ -970,7 +971,7 @@ export class App {
 
         // Update contract
         this.app.put("/api/v1/contracts/:id", async (req: Request, res: Response) => {
-            const contract = await AppDataSource.getMongoRepository(Contract).findOneBy({
+            const contract = await this.AppDataSource.getMongoRepository(Contract).findOneBy({
                 _id: new ObjectId(req.params.id),
             });
 
@@ -983,9 +984,9 @@ export class App {
             const updateContract = new Contract();
             Object.assign(updateContract, body);
 
-            AppDataSource.getMongoRepository(Contract).merge(contract, updateContract);
+            this.AppDataSource.getMongoRepository(Contract).merge(contract, updateContract);
             try {
-                const results = await AppDataSource.getMongoRepository(Contract).save(contract);
+                const results = await this.AppDataSource.getMongoRepository(Contract).save(contract);
                 return res.json(results);
             } catch(e) {
                 return res.status(500).send(e);
@@ -997,7 +998,7 @@ export class App {
             const deletQuery = {
                 _id: new ObjectId(req.params.id)
             } as any;
-            const results = await AppDataSource.getMongoRepository(Contract).delete(deletQuery);
+            const results = await this.AppDataSource.getMongoRepository(Contract).delete(deletQuery);
             return res.json(results);
         });
 
@@ -1015,7 +1016,7 @@ export class App {
                 // @ts-ignore
                 const credentialId: string = body.credentials.registeredCredential?._id;
 
-                const credential = await AppDataSource.getMongoRepository(Credential).findOneBy({
+                const credential = await this.AppDataSource.getMongoRepository(Credential).findOneBy({
                     _id: new ObjectId(credentialId),
                 });
                 if (!credential) return res.status(404).send(`Credential with id: ${credentialId} not found`);;
@@ -1060,14 +1061,14 @@ export class App {
 
         // Get all wallets
         this.app.get("/api/v1/wallets", async (req: Request, res: Response) => {
-            const wallets = await AppDataSource.getMongoRepository(Wallet).find();
+            const wallets = await this.AppDataSource.getMongoRepository(Wallet).find();
             return res.json(wallets);
         });
 
         // Get specific wallet via id
         this.app.get("/api/v1/wallets/:id", async (req: Request, res: Response) => {
             try {
-                const wallet = await AppDataSource.getMongoRepository(Wallet).findOneBy({
+                const wallet = await this.AppDataSource.getMongoRepository(Wallet).findOneBy({
                     _id: new ObjectId(req.params.id),
                 });
 
@@ -1090,7 +1091,7 @@ export class App {
                     // @ts-ignore
                     const credentialId: string = providerCredential.registeredCredential?._id;
 
-                    const credential = await AppDataSource.getMongoRepository(Credential).findOneBy({
+                    const credential = await this.AppDataSource.getMongoRepository(Credential).findOneBy({
                         _id: new ObjectId(credentialId),
                     });
                     if (!credential) return res.status(404).send(`Credential with id: ${credentialId} not found`);;
@@ -1176,8 +1177,8 @@ export class App {
                 const newWallet = new Wallet();
                 Object.assign(newWallet, newBody);
 
-                const wallet = await AppDataSource.getMongoRepository(Wallet).create(newWallet);
-                const results = await AppDataSource.getMongoRepository(Wallet).save(wallet);
+                const wallet = await this.AppDataSource.getMongoRepository(Wallet).create(newWallet);
+                const results = await this.AppDataSource.getMongoRepository(Wallet).save(wallet);
                 return res.json(results);
 
             } catch(e) {
@@ -1188,7 +1189,7 @@ export class App {
 
         // Update wallet
         this.app.put("/api/v1/wallets/:id", async (req: Request, res: Response) => {
-            const wallet = await AppDataSource.getMongoRepository(Wallet).findOneBy({
+            const wallet = await this.AppDataSource.getMongoRepository(Wallet).findOneBy({
                 _id: new ObjectId(req.params.id),
             });
 
@@ -1201,9 +1202,9 @@ export class App {
             const updateWallet = new Wallet();
             Object.assign(updateWallet, body);
 
-            AppDataSource.getMongoRepository(Wallet).merge(wallet, updateWallet);
+            this.AppDataSource.getMongoRepository(Wallet).merge(wallet, updateWallet);
             try {
-                const results = await AppDataSource.getMongoRepository(Wallet).save(wallet);
+                const results = await this.AppDataSource.getMongoRepository(Wallet).save(wallet);
                 return res.json(results);
             } catch(e) {
                 return res.status(500).send(e);
@@ -1215,14 +1216,14 @@ export class App {
             const deletQuery = {
                 _id: new ObjectId(req.params.id)
             } as any;
-            const results = await AppDataSource.getMongoRepository(Wallet).delete(deletQuery);
+            const results = await this.AppDataSource.getMongoRepository(Wallet).delete(deletQuery);
             return res.json(results);
         });
 
         // Get wallet credentials
         this.app.get("/api/v1/wallets/credential/:id", async (req: Request, res: Response) => {
             try {
-                const wallet = await AppDataSource.getMongoRepository(Wallet).findOneBy({
+                const wallet = await this.AppDataSource.getMongoRepository(Wallet).findOneBy({
                     _id: new ObjectId(req.params.id),
                 });
 
@@ -1275,7 +1276,7 @@ export class App {
             await processWebhook(
                 res, 
                 req, 
-                AppDataSource, 
+                this.AppDataSource, 
                 webhookEndpoint, 
                 'GET',
                 this.componentNodes,
@@ -1292,7 +1293,7 @@ export class App {
             await processWebhook(
                 res, 
                 req, 
-                AppDataSource, 
+                this.AppDataSource, 
                 webhookEndpoint, 
                 'POST',
                 this.componentNodes,
@@ -1312,7 +1313,7 @@ export class App {
 
             const credentialId = req.query.credentialId;
 
-            const credential = await AppDataSource.getMongoRepository(Credential).findOneBy({
+            const credential = await this.AppDataSource.getMongoRepository(Credential).findOneBy({
                 _id: new ObjectId(credentialId as string),
             });
 
@@ -1351,7 +1352,7 @@ export class App {
             const credentialId = req.query.state;
             if (!credentialId) return res.status(500).send('Unable to retrieve credentialId from oAuth2 callback');
 
-            const credential = await AppDataSource.getMongoRepository(Credential).findOneBy({
+            const credential = await this.AppDataSource.getMongoRepository(Credential).findOneBy({
                 _id: new ObjectId(credentialId as string),
             });
 
@@ -1403,8 +1404,8 @@ export class App {
 
             const updateCredential = await transformToCredentialEntity(body);
 
-            AppDataSource.getMongoRepository(Credential).merge(credential, updateCredential);
-            await AppDataSource.getMongoRepository(Credential).save(credential);
+            this.AppDataSource.getMongoRepository(Credential).merge(credential, updateCredential);
+            await this.AppDataSource.getMongoRepository(Credential).save(credential);
 
             return res.sendFile(getOAuth2HTMLPath());
         });
@@ -1433,17 +1434,20 @@ export class App {
 
     async stopApp() {
         try {
-            const removePromises = [];
+            const removePromises: any[] = [];
             
             // Remove deployed workflows pools
-            removePromises.push(this.deployedWorkflowsPool.removeAll(this.componentNodes));
+            if (this.deployedWorkflowsPool)
+                removePromises.push(this.deployedWorkflowsPool.removeAll(this.componentNodes));
             
             // Remove test trigger pools
-            removePromises.push(this.activeTestTriggerPool.removeAll(this.componentNodes));
+            if (this.activeTestTriggerPool)
+                removePromises.push(this.activeTestTriggerPool.removeAll(this.componentNodes));
 
             // Remove test webhook pools
-            removePromises.push(this.activeTestWebhookPool.removeAll(this.componentNodes));
-
+            if (this.activeTestWebhookPool)
+                removePromises.push(this.activeTestWebhookPool.removeAll(this.componentNodes));
+            
             await Promise.all(removePromises);
 
         } catch (e) {

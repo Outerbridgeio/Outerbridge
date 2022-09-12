@@ -1,6 +1,7 @@
 import { Command } from '@oclif/core';
 import path from 'path';
 import * as Server from '../index';
+import * as DataSource from '../DataSource';
 import dotenv from 'dotenv';
 
 dotenv.config({path: path.join(__dirname, '..', '..', '.env')});
@@ -50,6 +51,7 @@ export default class Start extends Command {
 		await (async () => {
 			try {
 				this.log('Starting Outerbridge...')
+				await DataSource.init();
 				await Server.start();
 				
 			} catch (error) {
