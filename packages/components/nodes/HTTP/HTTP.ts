@@ -164,7 +164,7 @@ class HTTP implements INode {
                 show: {
                     'inputParameters.bodyType': ['json']
                 },
-                default: '{}',
+                placeholder: '{"var1": "value1"}',
                 optional: true,
             },
             {
@@ -221,7 +221,7 @@ class HTTP implements INode {
             }
 
             if (bodyType && bodyType === 'json' && body) {
-                data = JSON.parse(body);
+                data = JSON.parse(body.replace(/\s/g, ' '));
 
             } else if (bodyType && bodyType === 'text' && body) {
                 data = body;

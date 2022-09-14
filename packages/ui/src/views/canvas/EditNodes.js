@@ -32,6 +32,7 @@ import InputParameters from 'views/inputs/InputParameters';
 import CredentialInput from 'views/inputs/CredentialInput';
 import OutputResponses from 'views/output/OutputResponses';
 import VariableSelector from './VariableSelector';
+import EditVariableDialog from 'ui-component/dialog/EditVariableDialog';
 
 // API
 import nodesApi from "api/nodes";
@@ -63,6 +64,8 @@ const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValu
     const [isVariableSelectorOpen, setVariableSelectorOpen] = useState(false);
     const [variableBody, setVariableBody] = useState({});
     const [availableNodesForVariable, setAvailableNodesForVariable] = useState(null);
+    const [isEditVariableDialogOpen, setEditVariableDialog] = useState(false);
+    const [editVariableDialogProps, setEditVariableDialogProps] = useState({});
 
     const anchorRef = useRef(null);
     const ps = useRef();
@@ -101,6 +104,31 @@ const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValu
     const saveNodeLabel = () => {
         onNodeLabelUpdate(nodeLabel);
     };
+
+    const onEditVariableDialogOpen = (input, values, arrayItemBody) => {
+        const variableNodesIds = getAvailableNodeIdsForVariable(nodes, edges, node.id);
+           
+        const nodesForVariable = [];
+        for (let i = 0; i < variableNodesIds.length; i+=1 ) {
+            const nodeId = variableNodesIds[i];
+            const node = nodes.find((nd) => nd.id === nodeId);
+            if (node && node.data.outputResponses) {
+                nodesForVariable.push(node);
+            }
+        }
+
+        const dialogProps = {
+            input,
+            values,
+            arrayItemBody,
+            availableNodesForVariable: nodesForVariable,
+            cancelButtonName: 'Cancel',
+            confirmButtonName: 'Save',
+        }
+
+        setEditVariableDialogProps(dialogProps);
+        setEditVariableDialog(true);
+    }
     
     const setVariableSelectorState = (variableSelectorState, body) => {
         setVariableSelectorOpen(variableSelectorState);
@@ -575,6 +603,7 @@ const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValu
                                                             nodeParamsValidation={nodeParamsValidation}
                                                             nodeFlowData={nodeFlowData}
                                                             setVariableSelectorState={setVariableSelectorState}
+                                                            onEditVariableDialogOpen={onEditVariableDialogOpen}
                                                             valueChanged={valueChanged}
                                                             onSubmit={onSubmit}
                                                         />
@@ -619,6 +648,7 @@ const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValu
                                                             nodeParamsValidation={nodeParamsValidation}
                                                             nodeFlowData={nodeFlowData}
                                                             setVariableSelectorState={setVariableSelectorState}
+                                                            onEditVariableDialogOpen={onEditVariableDialogOpen}
                                                             valueChanged={valueChanged}
                                                             onSubmit={onSubmit}
                                                         />
@@ -706,6 +736,7 @@ const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValu
                                                             nodeParamsValidation={nodeParamsValidation}
                                                             nodeFlowData={nodeFlowData}
                                                             setVariableSelectorState={setVariableSelectorState}
+                                                            onEditVariableDialogOpen={onEditVariableDialogOpen}
                                                             valueChanged={valueChanged}
                                                             onSubmit={onSubmit}
                                                         />
@@ -759,14 +790,24 @@ const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValu
                                         }
                                     </PerfectScrollbar>
                                     <VariableSelector 
+                                        key={JSON.stringify(availableNodesForVariable)} 
                                         nodes={availableNodesForVariable} 
                                         isVariableSelectorOpen={isVariableSelectorOpen} 
                                         anchorEl={anchorRef.current}
                                         onVariableSelected={(returnVariablePath) => onVariableSelected(returnVariablePath)} 
                                         handleClose={() => setVariableSelectorOpen(false)}
                                     />
+                                    <EditVariableDialog 
+                                        key={JSON.stringify(editVariableDialogProps)} 
+                                        show={isEditVariableDialogOpen}
+                                        dialogProps={editVariableDialogProps}
+                                        onCancel={() => setEditVariableDialog(false)}
+                                        onConfirm={(updateValues) => {
+                                            valueChanged(updateValues, expanded);
+                                            setEditVariableDialog(false);
+                                        }}
+                                    />
                                 </MainCard>
-                                
                             </ClickAwayListener>
                         </Paper>
                     </Transitions>

@@ -157,7 +157,7 @@ class GoogleSheet implements INode {
 				label: 'Row Values',
 				name: 'rowValues',
 				type: 'json',
-                default: '[]',
+                placeholder: '[[1, 2], [3, 4]]',
                 description: 'For instance: [[1, 2], [3, 4]] will insert 2 new rows. FIRST row: A1=1, B1=2, and SECOND row: A2=3, B2=4',
                 show: {
                     'actions.operation': ['addRows']
@@ -180,7 +180,7 @@ class GoogleSheet implements INode {
 				label: 'Row Values',
 				name: 'rowValues',
 				type: 'json',
-                default: '[]',
+                placeholder: '[[1, 2], [3, 4]]',
                 description: 'For instance: [[1, 2], [3, 4]] will update FIRST row: A1=1, B1=2, and SECOND row: A2=3, B2=4',
                 show: {
                     'actions.operation': ['updateRows']
@@ -435,7 +435,6 @@ class GoogleSheet implements INode {
                     method = 'PUT';
                     const rows = JSON.parse(rowValues.replace(/\s/g, ''))
                     const range = inputParametersData?.range as string;
-                    const cellValue = inputParametersData?.rowValues as string;
                     url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(range)}`;
                     queryParameters['valueInputOption'] = 'USER_ENTERED';
                     queryBody['values'] = rows;

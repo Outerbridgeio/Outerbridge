@@ -280,17 +280,19 @@ class Moralis implements INode {
                 const function_name = inputParametersData.function_name as string;
                 const subdomain = inputParametersData.subdomain as string;
                 const providerUrl = inputParametersData.providerUrl as string;
-                let abi = inputParametersData.abi as string;
-                if (abi) abi = JSON.parse(abi.replace(/\s/g, ''));
-                let params = inputParametersData.params as string;
-                if (params) params = JSON.parse(params.replace(/\s/g, ''));
+                const abi_str = inputParametersData.abi as string;
+                let abi = [];
+                if (abi_str) abi = JSON.parse(abi_str.replace(/\s/g, ''));
+                const params_str = inputParametersData.params as string;
+                let params = [];
+                if (params_str) params = JSON.parse(params_str.replace(/\s/g, ''));
 
                 if (function_name) queryParameters['function_name'] = function_name;
                 if (subdomain) queryParameters['subdomain'] = chain;
                 if (providerUrl) queryParameters['providerUrl'] = providerUrl;
               
-                if (abi) queryBody['abi'] = abi;
-                if (params) queryBody['params'] = params;
+                if (abi_str) queryBody['abi'] = abi;
+                if (params_str) queryBody['params'] = params;
 
             } else if (operation === 'getTransactions') {
                 const address = inputParametersData.address as string;
@@ -327,8 +329,9 @@ class Moralis implements INode {
                 
                 const subdomain = inputParametersData.subdomain as string;
                 const to_block = inputParametersData.to_block as number;
-                let token_addresses = inputParametersData.token_addresses as string;
-                if (token_addresses) token_addresses = JSON.parse(token_addresses.replace(/\s/g, ''));
+                const token_addresses_str = inputParametersData.token_addresses as string;
+                let token_addresses = [];
+                if (token_addresses_str) token_addresses = JSON.parse(token_addresses_str.replace(/\s/g, ''));
 
                 if (subdomain) queryParameters['subdomain'] = subdomain;
                 if (to_block) queryParameters['to_block'] = to_block;
@@ -372,9 +375,10 @@ class Moralis implements INode {
                 const format = inputParametersData.format as string;
                 if (format) queryParameters['format'] = format;
 
-                let token_addresses = inputParametersData.token_addresses as string;
-                if (token_addresses) {
-                    token_addresses = JSON.parse(token_addresses.replace(/\s/g, ''));
+                const token_addresses_str = inputParametersData.token_addresses as string;
+                let token_addresses = [];
+                if (token_addresses_str) {
+                    token_addresses = JSON.parse(token_addresses_str.replace(/\s/g, ''));
                     queryParameters['token_addresses'] = token_addresses;
                 }
 

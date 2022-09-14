@@ -20,7 +20,7 @@ import {
 
 // third-party
 import PerfectScrollbar from 'react-perfect-scrollbar';
-import ReactJson from 'react-json-view'
+import ReactJson from 'react-json-view';
 
 // project imports
 import MainCard from 'ui-component/cards/MainCard';
@@ -174,7 +174,7 @@ const VariableSelector = ({ nodes, isVariableSelectorOpen, anchorEl, onVariableS
                                                         </AccordionSummary>
                                                         <AccordionDetails>
                                                             <div style={{position: 'relative'}}>
-                                                                <ReactJson collapsed src={node.data.outputResponses? node.data.outputResponses.output : {}} enableClipboard={e => onClipboardCopy(e, node)}/>
+                                                                <ReactJson collapsed src={(node.data.outputResponses && node.data.outputResponses.output) ? node.data.outputResponses.output : {}} enableClipboard={e => onClipboardCopy(e, node)}/>
                                                                 <IconButton 
                                                                     size="small" 
                                                                     sx={{ 
@@ -186,7 +186,7 @@ const VariableSelector = ({ nodes, isVariableSelectorOpen, anchorEl, onVariableS
                                                                     }}
                                                                     title="Expand Variable"
                                                                     color="primary"
-                                                                    onClick={() => onExpandDialogClicked(node.data.outputResponses? node.data.outputResponses.output : {}, node)}
+                                                                    onClick={() => onExpandDialogClicked((node.data.outputResponses && node.data.outputResponses.output) ? node.data.outputResponses.output : {}, node)}
                                                                 >
                                                                     <IconArrowsMaximize />
                                                                 </IconButton>

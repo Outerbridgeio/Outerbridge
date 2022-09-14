@@ -240,7 +240,7 @@ export const runContractFunction = [
         label: 'ABI',
         name: 'abi',
         type: 'json',
-        default: '[]',
+        placeholder: '[ "event Transfer(address indexed from, address indexed to, uint value)" ]',
         description: 'ABI of the contract in array',
         show: {
             'inputParameters.operation': [
@@ -252,8 +252,8 @@ export const runContractFunction = [
         label: 'Function Parameters',
         name: 'params',
         type: 'json',
-        default: '{}',
-        description: 'Function parameters in json. Ex: {"param1": "value1"}',
+        placeholder: '{"var1": "value1"}',
+        description: 'Function parameters in json. Ex: {"var1": "value1"}',
         optional: true,
         show: {
             'inputParameters.operation': [
@@ -341,7 +341,7 @@ export const getTokenBalances = [
         label: 'Token Addresses',
         name: 'token_addresses',
         type: 'json',
-        default: '[]',
+        placeholder: '["0xa, "0xb"]',
         optional: true,
         description: 'The addresses to get balances for',
         show: {

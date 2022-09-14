@@ -128,7 +128,7 @@ export const getWalletNFTs = [
         label: 'Token Addresses',
         name: 'token_addresses',
         type: 'json',
-        default: '[]',
+        placeholder: '["0xa, "0xb"]',
         optional: true,
         description: 'The addresses to get balances for',
         show: {
