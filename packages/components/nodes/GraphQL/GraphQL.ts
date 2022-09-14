@@ -89,16 +89,19 @@ class GraphQL implements INode {
             {
 				label: 'GraphQL Body',
 				name: 'body',
-				type: 'string',
-				rows: 10,
-                default: '',
+				type: 'json',
+                placeholder: `{
+  me {
+    name
+  }
+}`,
                 optional: true,
             },
             {
 				label: 'Variables',
 				name: 'variables',
 				type: 'json',
-                default: '{}',
+                placeholder: '{"var1": "value1"}',
                 optional: true,
 			},
 		]

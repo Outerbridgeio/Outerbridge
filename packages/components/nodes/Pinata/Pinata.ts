@@ -79,7 +79,7 @@ class Pinata implements INode {
 				label: 'JSON Content',
 				name: 'jsonContent',
 				type: 'json',
-				default: '{}',
+				placeholder: '{"var1": "value1"}',
                 description: 'The content of JSON to be pinned.',
                 show: {
                     'actions.operation': ['json']
@@ -195,6 +195,7 @@ class Pinata implements INode {
 				label: 'Metadata KeyValues',
 				name: 'keyvalues',
 				type: 'json',
+                placeholder: '{"var1": "value1"}',
                 optional: true,
 				description: `The key values object allows for users to provide any custom key / value pairs they want for the file being uploaded.`,
                 show: {
@@ -205,7 +206,7 @@ class Pinata implements INode {
 				label: 'Host Nodes',
 				name: 'hostNodes',
 				type: 'json',
-                default: '[]',
+                placeholder: '["0xa", "0xb"]',
                 optional: true,
 				description: `Multiaddresses of nodes your content is already stored on. Max 5 nodes.`,
                 show: {
@@ -305,8 +306,7 @@ class Pinata implements INode {
             const pinataMetadataObj: ICommonObject = {};
             if (name) pinataMetadataObj.name = name;
             if (keyvalues) {
-                const keyValues = keyvalues.replace(/\s/g, '');   
-                const parsedKeyValues = JSON.parse(keyValues);
+                const parsedKeyValues = JSON.parse(keyvalues.replace(/\s/g, ''));
                 pinataMetadataObj.keyvalues = parsedKeyValues;
             }
             if (Object.keys(pinataMetadataObj).length > 0) {
@@ -318,8 +318,7 @@ class Pinata implements INode {
             if (cidVersion) pinataOptionsObj.cidVersion = parseInt(cidVersion);
             if (wrapWithDirectory) pinataOptionsObj.wrapWithDirectory = wrapWithDirectory;
             if (hostNodes) {
-                const hostNodeStr = hostNodes.replace(/\s/g, '');   
-                const hostNodesArray = JSON.parse(hostNodeStr);
+                const hostNodesArray = JSON.parse(hostNodes.replace(/\s/g, ''));
                 if (hostNodesArray.length) pinataOptionsObj.hostNodes = hostNodesArray; 
             }
             if (Object.keys(pinataOptionsObj).length > 0) {
@@ -332,10 +331,15 @@ class Pinata implements INode {
                 url = 'https://api.pinata.cloud/pinning/pinJSONToIPFS';
                 
                 // Content
-                let jsonContent = actionData.jsonContent as string;
-                jsonContent = jsonContent.replace(/\s/g, '');   
-                const parsedInputJson = JSON.parse(jsonContent);
-                queryBody.pinataContent = parsedInputJson;
+                const jsonContent_str = actionData.jsonContent as string;
+                if (jsonContent_str) {
+                    try {
+                        const parsedInputJson = JSON.parse(jsonContent_str.replace(/\s/g, ''));
+                        queryBody.pinataContent = parsedInputJson;
+                    } catch(error) {
+                        throw handleErrorMessage(error);
+                    }
+                }
 
                 getOptionsAndMetadata();
 
@@ -412,8 +416,7 @@ class Pinata implements INode {
 
                 if (name) queryBody.name = name;
                 if (keyvalues) {
-                    const keyValues = keyvalues.replace(/\s/g, '');   
-                    const parsedKeyValues = JSON.parse(keyValues);
+                    const parsedKeyValues = JSON.parse(keyvalues.replace(/\s/g, ''));
                     queryBody.keyvalues = parsedKeyValues;
                 }
 

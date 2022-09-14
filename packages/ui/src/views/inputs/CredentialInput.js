@@ -22,8 +22,14 @@ import { useTheme, styled } from '@mui/material/styles';
 // third party
 import * as Yup from 'yup';
 import { Formik } from 'formik';
-import JSONInput from "react-json-editor-ajrm";
-import locale from "react-json-editor-ajrm/locale/en";
+import PerfectScrollbar from 'react-perfect-scrollbar';
+import Editor from 'react-simple-code-editor';
+import { highlight, languages } from 'prismjs/components/prism-core';
+import 'prismjs/components/prism-clike';
+import 'prismjs/components/prism-javascript';
+import 'prismjs/components/prism-json';
+import 'prismjs/components/prism-markup';
+import 'prismjs/themes/prism.css';
 
 // project imports
 import AnimateButton from 'ui-component/extended/AnimateButton';
@@ -38,6 +44,9 @@ import useScriptRef from 'hooks/useScriptRef';
 
 // icons
 import { IconTrash, IconCopy } from '@tabler/icons';
+
+//css
+import './InputParameters.css';
 
 const StyledPopper = styled(Popper)({
     boxShadow: '0px 8px 10px -5px rgb(0 0 0 / 20%), 0px 16px 24px 2px rgb(0 0 0 / 14%), 0px 6px 30px 5px rgb(0 0 0 / 12%)',
@@ -510,35 +519,40 @@ const CredentialInput = ({
                                         </Tooltip>
                                         )}
                                     </Stack>
-                                    <JSONInput
-                                        id={inputName}
-                                        placeholder={JSON.parse(values[inputName] || '{}') || JSON.parse(input.default || '{}') || {}}
-                                        theme="light_mitsuketa_tribute"
-                                        locale={locale}
-                                        height="200px"
-                                        width="100%"
-                                        style={{
-                                            container: {
-                                                border: '1px solid',
-                                                borderColor: theme.palette.grey['500'],
-                                                borderRadius: '12px',
-                                            },
-                                            body: {
-                                                fontSize: '0.875rem'
-                                            }
+                                    <PerfectScrollbar 
+                                        style={{ 
+                                            border: '1px solid',
+                                            borderColor: theme.palette.grey['500'],
+                                            borderRadius: '12px', 
+                                            height: '200px', 
+                                            maxHeight: '200px', 
+                                            overflowX: 'hidden' 
                                         }}
-                                        onBlur={e => {
-                                            if (!e.error) {
-                                                const value = e.json;
-                                                setFieldValue(inputName, value);
+                                        onScroll={e => e.stopPropagation()}
+                                        >
+                                        <Editor
+                                            placeholder={input.placeholder}
+                                            value={values[inputName] || ''}
+                                            onBlur={e => {
                                                 const overwriteValues = {
                                                     ...values,
-                                                    [inputName]: value
+                                                    [inputName]: e.target.value
                                                 };
                                                 onChanged(overwriteValues);
-                                            }
-                                        }}
-                                    />
+                                            }}
+                                            onValueChange={code => {
+                                                setFieldValue(inputName, code);
+                                            }}
+                                            highlight={code => highlight(code, languages.json)}
+                                            padding={10}
+                                            style={{
+                                                fontSize: '0.875rem',
+                                                minHeight: '200px',
+                                                width: '100%',
+                                            }}
+                                            textareaClassName="editor__textarea"
+                                        />
+                                    </PerfectScrollbar>
                                     {errors[inputName] && <span style={{ color: 'red', fontSize: '0.7rem', fontStyle: 'italic' }}>*{errors[inputName]}</span>}
                                 </FormControl>)
                             }

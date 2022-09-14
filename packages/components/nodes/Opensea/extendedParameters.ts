@@ -16,7 +16,7 @@ export const retrieveAssets = [
         label: 'Token Ids',
         name: 'token_ids',
         type: 'json',
-        default: '[]',
+        placeholder: '["1", "2"]',
         optional: true,
         description: 'An array of token IDs to search for',
         show: {
@@ -38,7 +38,7 @@ export const retrieveAssets = [
         label: 'Asset Contract Addresses',
         name: 'asset_contract_addresses',
         type: 'json',
-        default: '[]',
+        placeholder: '["0xa", "0xb"]',
         optional: true,
         description: 'An array of contract addresses to search for',
         show: {
@@ -313,7 +313,7 @@ export const retrieveBundles = [
         label: 'Asset Contract Addresses',
         name: 'asset_contract_addresses',
         type: 'json',
-        default: '[]',
+        placeholder: '["0xa", "0xb"]',
         optional: true,
         description: 'An array of contract addresses to search for',
         show: {
@@ -324,7 +324,7 @@ export const retrieveBundles = [
         label: 'Token Ids',
         name: 'token_ids',
         type: 'json',
-        default: '[]',
+        placeholder: '["1", "2"]',
         optional: true,
         description: 'A list of token IDs for showing only bundles with at least one of the token IDs in the list',
         show: {
