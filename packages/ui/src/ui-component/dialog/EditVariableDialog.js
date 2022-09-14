@@ -175,7 +175,8 @@ const EditVariableDialog = ({
                             borderRadius: '12px', 
                             height: '100%', 
                             maxHeight: 'calc(100vh - 220px)', 
-                            overflowX: 'hidden' 
+                            overflowX: 'hidden',
+                            backgroundColor: 'white'
                         }}>
                         <Editor
                             value={inputValue}

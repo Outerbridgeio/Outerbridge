@@ -333,7 +333,8 @@ const ArrayInputParameters = ({
                                         borderRadius: '12px', 
                                         height: '200px', 
                                         maxHeight: '200px', 
-                                        overflowX: 'hidden' 
+                                        overflowX: 'hidden',
+                                        backgroundColor: 'white'
                                     }}
                                     onScroll={e => e.stopPropagation()}
                                     >
