@@ -316,6 +316,23 @@ export const generateExportFlowData = (flowData) => {
             outputAnchors: node.data.outputAnchors,
             selected: false,
         }
+        if (node.data.inputParameters) {
+            newNodeData.inputParameters = {...node.data.inputParameters, submit: null};
+            if (node.data.inputParameters.wallet) delete newNodeData.inputParameters.wallet;
+        }
+        if (node.data.actions) {
+            newNodeData.actions = {...node.data.actions, submit: null};
+            if (node.data.actions.wallet) delete newNodeData.actions.wallet;
+        }
+        if (node.data.networks) {
+            newNodeData.networks = {...node.data.networks, submit: null};
+            if (node.data.networks.wallet) delete newNodeData.networks.wallet;
+        }
+        if (node.data.credentials && node.data.credentials.credentialMethod) {
+            newNodeData.credentials = {credentialMethod: node.data.credentials.credentialMethod, submit: null};
+            if (node.data.credentials.wallet) delete newNodeData.credentials.wallet;
+        }
+
         nodes[i].data = newNodeData;
     }
     const exportJson = {

@@ -16,7 +16,7 @@
   },
   "license": "SEE LICENSE IN LICENSE.md",
   "dependencies": {
-    "@openzeppelin/contracts": "^4.7.1",
+    "@openzeppelin/contracts": "^4.7.3",
     "@types/cron": "^1.7.3",
     "@types/imap": "^0.8.35",
     "@types/mailparser": "^3.4.0",

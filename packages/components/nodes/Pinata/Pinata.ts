@@ -61,6 +61,10 @@ class Pinata implements INode {
 						name: 'CID',
 					},
                     {
+						label: 'Base64 (Image)',
+						name: 'base64',
+					},
+                    {
 						label: 'List Pin By CID Jobs',
 						name: 'listPin',
 					},
@@ -83,6 +87,16 @@ class Pinata implements INode {
                 description: 'The content of JSON to be pinned.',
                 show: {
                     'actions.operation': ['json']
+                }
+			},
+            {
+				label: 'Base64 Content',
+				name: 'base64Content',
+				type: 'string',
+				placeholder: 'data:image/png;base64,<base64_string>',
+                description: 'Base64 content to be pinned. Commonly used with image',
+                show: {
+                    'actions.operation': ['base64']
                 }
 			},
             {
@@ -166,7 +180,7 @@ class Pinata implements INode {
                 optional: true,
 				description: 'The CID Version IPFS will use when creating a hash for your content.',
                 show: {
-                    'actions.operation': ['json', 'file', 'folder', 'CID']
+                    'actions.operation': ['json', 'base64', 'file', 'folder', 'CID']
                 },
             },
 			{
@@ -177,7 +191,7 @@ class Pinata implements INode {
                 optional: true,
                 description: 'Wrap your content inside of a directory when adding to IPFS. This allows users to retrieve content via a filename instead of just a hash.',
                 show: {
-                    'actions.operation': ['json', 'file', 'folder', 'CID']
+                    'actions.operation': ['json', 'base64', 'file', 'folder', 'CID']
                 },
             },
 			{
@@ -188,7 +202,7 @@ class Pinata implements INode {
                 optional: true,
 				description: `A custom name. If you don't provide this value, it will automatically be populated by the original name of the file you've uploaded.`,
                 show: {
-                    'actions.operation': ['json', 'file', 'folder', 'CID', 'updateMetadata']
+                    'actions.operation': ['json', 'base64', 'file', 'folder', 'CID', 'updateMetadata']
                 },
             },
 			{
@@ -199,7 +213,7 @@ class Pinata implements INode {
                 optional: true,
 				description: `The key values object allows for users to provide any custom key / value pairs they want for the file being uploaded.`,
                 show: {
-                    'actions.operation': ['json', 'file', 'folder', 'CID', 'updateMetadata']
+                    'actions.operation': ['json', 'base64', 'file', 'folder', 'CID', 'updateMetadata']
                 },
             },
             {
@@ -328,20 +342,66 @@ class Pinata implements INode {
 
         try {
 			if (operation === 'json') {
-                url = 'https://api.pinata.cloud/pinning/pinJSONToIPFS';
-                
+            
                 // Content
                 const jsonContent_str = actionData.jsonContent as string;
-                if (jsonContent_str) {
-                    try {
-                        const parsedInputJson = JSON.parse(jsonContent_str.replace(/\s/g, ''));
-                        queryBody.pinataContent = parsedInputJson;
-                    } catch(error) {
-                        throw handleErrorMessage(error);
-                    }
+           
+                if (wrapWithDirectory) {
+                    url = 'https://api.pinata.cloud/pinning/pinFileToIPFS';
+                    const jsonContent_base64 = Buffer.from(jsonContent_str).toString("base64");
+
+                    const filename = `${name}.json` || 'UntitledJSONFile.json';
+                    const bf = Buffer.from(jsonContent_base64, "base64");
+
+                    const formData = new FormData();
+                    formData.append("file", bf, filename);
+
+                    getOptionsAndMetadata();
+
+                    headers['Content-Type'] = 'multipart/form-data; boundary=' + formData.getBoundary();
+                    if (Object.prototype.hasOwnProperty.call(queryBody, 'pinataOptions')) 
+                        formData.append("pinataOptions", JSON.stringify(queryBody.pinataOptions));
+                    if (Object.prototype.hasOwnProperty.call(queryBody, 'pinataMetadata')) 
+                        formData.append("pinataMetadata", JSON.stringify(queryBody.pinataMetadata));
+                    
+                    queryBody = formData;
+
+                } else {
+                    url = 'https://api.pinata.cloud/pinning/pinJSONToIPFS';
+                
+                    const parsedInputJson = JSON.parse(jsonContent_str.replace(/\s/g, ''));
+                    queryBody.pinataContent = parsedInputJson;
+
+                    getOptionsAndMetadata();
                 }
 
+            } else if (operation === 'base64') {
+            
+                // Base64 Content
+                const base64Content_str = actionData.base64Content as string;
+                //base64Content_str = data:image/png;base64,<base64_string>
+
+                url = 'https://api.pinata.cloud/pinning/pinFileToIPFS';
+                
+                const splitDataURI = base64Content_str.split(',');
+
+                const bf = Buffer.from((splitDataURI.pop() || ''), "base64");
+                const extension = splitDataURI.pop()?.split(';')[0].split('/')[1];
+
+                const filename = `${name}.${extension}` || `UntitledFile.${extension}`;
+
+                const formData = new FormData();
+                formData.append("file", bf, filename);
+
                 getOptionsAndMetadata();
+
+                headers['Content-Type'] = 'multipart/form-data; boundary=' + formData.getBoundary();
+                if (Object.prototype.hasOwnProperty.call(queryBody, 'pinataOptions')) 
+                    formData.append("pinataOptions", JSON.stringify(queryBody.pinataOptions));
+                if (Object.prototype.hasOwnProperty.call(queryBody, 'pinataMetadata')) 
+                    formData.append("pinataMetadata", JSON.stringify(queryBody.pinataMetadata));
+                
+                queryBody = formData;
 
             } else if (operation === 'file') {
                 url = 'https://api.pinata.cloud/pinning/pinFileToIPFS';
