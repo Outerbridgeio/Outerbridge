@@ -112,9 +112,7 @@ const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValu
         for (let i = 0; i < variableNodesIds.length; i+=1 ) {
             const nodeId = variableNodesIds[i];
             const node = nodes.find((nd) => nd.id === nodeId);
-            if (node && node.data.outputResponses) {
-                nodesForVariable.push(node);
-            }
+            nodesForVariable.push(node);
         }
 
         const dialogProps = {
@@ -140,9 +138,7 @@ const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValu
             for (let i = 0; i < variableNodesIds.length; i+=1 ) {
                 const nodeId = variableNodesIds[i];
                 const node = nodes.find((nd) => nd.id === nodeId);
-                if (node && node.data.outputResponses) {
-                    nodesForVariable.push(node);
-                }
+                nodesForVariable.push(node);
             }
             setAvailableNodesForVariable(nodesForVariable);
         }

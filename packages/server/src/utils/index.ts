@@ -307,12 +307,8 @@ export const getVariableValue = (paramValue: string, reactFlowNodes: IReactFlowN
     while (startIdx < endIdx) {
         const substr = returnVal.substring(startIdx, startIdx+2);
 
-        // If this is the first opening double curly bracket
-        if (substr === '{{' && variableStack.length === 0) {
-            variableStack.push({ substr, startIdx: startIdx+2 });
-        } else if (substr === '{{' && variableStack.length > 0 && variableStack[variableStack.length-1].substr === '{{') {
-            // If we have seen opening double curly bracket without closing, replace it
-            variableStack.pop();
+        // Store the opening double curly bracket
+        if (substr === '{{') {
             variableStack.push({ substr, startIdx: startIdx+2 });
         }
 
@@ -328,7 +324,8 @@ export const getVariableValue = (paramValue: string, reactFlowNodes: IReactFlowN
     
             const executedNode = reactFlowNodes.find((nd) => nd.id === variableNodeId);
             if (executedNode) {
-                const variableValue = lodash.get(executedNode.data, variablePath, '');
+                const resolvedVariablePath = getVariableValue(variablePath, reactFlowNodes);
+                const variableValue = lodash.get(executedNode.data, resolvedVariablePath, '');
                 variableDict[`{{${variableFullPath}}}`] = variableValue;
             }
             variableStack.pop();
@@ -336,12 +333,13 @@ export const getVariableValue = (paramValue: string, reactFlowNodes: IReactFlowN
         startIdx += 1;
     }
 
-    for (const variablePath in variableDict) {
-        const variableValue = variableDict[variablePath];
-
-		// Replace all occurence
-        returnVal = returnVal.split(variablePath).join(variableValue);
-    }
+    var variablePaths = Object.keys(variableDict);
+    variablePaths.sort(); // Sort by length of variable path because longer path could possibly contains nested variable
+    variablePaths.forEach((path) => {
+        const variableValue = variableDict[path];
+        // Replace all occurence
+        returnVal = returnVal.split(path).join(variableValue);
+    })
 
     return returnVal;
 }

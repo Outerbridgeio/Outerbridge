@@ -617,7 +617,6 @@ class Moralis implements INode {
 			responseData = response.data;
 
         }  catch (error) {
-            console.error(error)
             throw handleErrorMessage(error);
         }
 
