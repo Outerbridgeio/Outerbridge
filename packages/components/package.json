@@ -29,6 +29,7 @@
     "form-data": "^4.0.0",
     "gulp": "^4.0.2",
     "imap": "^0.8.19",
+    "jimp": "^0.16.2",
     "mailparser": "^3.5.0",
     "moment": "^2.29.3",
     "nodemailer": "^6.7.5",

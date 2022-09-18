@@ -165,9 +165,9 @@ const Canvas = () => {
                         node.data =  {
                             ...node.data,
                             outputResponses: {
+                                ...node.data.outputResponses,
                                 submit: null,
                                 needRetest: null,
-                                output: null,
                             },
                             selected: false,
                         };

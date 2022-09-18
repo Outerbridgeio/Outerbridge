@@ -195,7 +195,7 @@ class HTTP implements INode {
 						name: 'arraybuffer',
 					},
 					{
-						label: 'Base64 (Image)',
+						label: 'Raw (Base64)',
 						name: 'base64',
 					},
 				],

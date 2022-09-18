@@ -577,9 +577,26 @@ export class App {
 
                     io.to(clientId).emit('testWorkflowNodeResponse', newWorkflowExecutedData);
 
+                    const reactFlowNodes = nodes;
+                    const nodeIndex = reactFlowNodes.findIndex((nd) => nd.id === startingNodeId);
+
+                    // Update reactFlowNodes for resolveVariables
+                    if (reactFlowNodes[nodeIndex].data.outputResponses) {
+                        reactFlowNodes[nodeIndex].data.outputResponses = {
+                            ...reactFlowNodes[nodeIndex].data.outputResponses,
+                            output: result
+                        }
+                    } else {
+                        reactFlowNodes[nodeIndex].data.outputResponses = {
+                            submit: true,
+                            needRetest: null,
+                            output: result
+                        };
+                    }
+
                     testWorkflow(
                         startingNodeId,
-                        nodes,
+                        reactFlowNodes,
                         edges,
                         graph,
                         this.componentNodes,

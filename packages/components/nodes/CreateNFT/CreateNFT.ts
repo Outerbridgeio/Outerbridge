@@ -54,7 +54,7 @@ class CreateNFT implements INode {
 		this.icon = 'createNFT.png';
 		this.type = 'action';
 		this.version = 1.0;
-		this.description = 'Create new NFT';
+		this.description = 'Create new NFT (ERC1155)';
         this.incoming = 1;
         this.outgoing = 1;
 		this.networks = [
@@ -132,20 +132,6 @@ class CreateNFT implements INode {
 				loadFromDbCollections: ['Wallet'],
 				loadMethod: 'getWallets',
 			},
-			{
-				label: 'NFT Name',
-				name: 'nftName',
-				type: 'string',
-				default: '',
-				placeholder: 'MyNFT',
-			},
-			{
-				label: 'NFT Supply',
-				name: 'nftSupply',
-				type: 'number',
-				default: 1,
-				description: 'Initialy supply of the NFT'
-			},
             {
 				label: 'NFT Metadata',
 				name: 'nftMetadata',
@@ -185,11 +171,20 @@ class CreateNFT implements INode {
                 }
 			},
             {
+				label: 'Contract Name',
+				name: 'contractName',
+				type: 'string',
+				default: '',
+				placeholder: 'MyContract',
+                optional: true,
+			},
+            {
 				label: 'Collection Name',
 				name: 'collectionName',
 				type: 'string',
 				default: '',
 				placeholder: 'MyCollection',
+                optional: true,
 			},
             {
 				label: 'Solidity Version',
@@ -275,6 +270,10 @@ class CreateNFT implements INode {
 
 	async run(nodeData: INodeData): Promise<INodeExecutionData[] | null> {
 
+        function getRandomInt(max: number) {
+            return Math.floor(Math.random() * max);
+        }
+
         const networksData = nodeData.networks;
 		const credentials = nodeData.credentials;
         const inputParametersData = nodeData.inputParameters;
@@ -302,11 +301,11 @@ class CreateNFT implements INode {
             const walletCredential = JSON.parse(walletDetails.walletCredential);
             const wallet = new ethers.Wallet(walletCredential.privateKey as string, provider);
 
-            const nftName = inputParametersData.nftName as string;
-            const collectionName = inputParametersData.collectionName as string;
+            let nftContractName = inputParametersData.contractName as string || `ERC1155Contract${getRandomInt(10000)}`;
+            const collectionName = inputParametersData.collectionName as string || `Untilted Collection #${getRandomInt(10000)}`;
             const nftMetadataJsonUrl = inputParametersData.nftMetadataJsonUrl as string;
             const nftMetadataHash = inputParametersData.nftMetadataHash as string;
-            const nftSupply = inputParametersData.nftSupply as number;
+            const nftSupply = 1;
             const solidityVersion = inputParametersData.solidityVersion as string;
 
             const input = {
@@ -339,7 +338,7 @@ class CreateNFT implements INode {
                 encodePacked = metadata.substring(0, metadata.lastIndexOf("/") + 1);
             }
 
-            const nftContractName = nftName.replace(/\s/g, "");
+            nftContractName = nftContractName.replace(/\s/g, "");
             const tokenId = 0;
 
             const contractCode = 
