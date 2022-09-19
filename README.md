@@ -59,6 +59,10 @@ npm install -g yarn
 	```
 	git clone https://github.com/Outerbridgeio/Outerbridge.git
 	```
+	For MacOS and Linux, you may need to gain full access to the folder
+	```
+	chmod -R 777 Outerbridge
+	```
 
 2. Go into repository folder
 	```
