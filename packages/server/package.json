@@ -1,6 +1,6 @@
 {
    "name": "outerbridge",
-   "version": "1.0.6",
+   "version": "1.0.7",
    "description": "Outerbridge Server",
    "main": "dist/index",
    "types": "dist/index.d.ts",
@@ -62,8 +62,8 @@
       "mongodb": "^3.6.0",
       "node-abort-controller": "^3.0.1",
       "@oclif/core": "^1.13.10",
-      "outerbridge-components": "^1.0.1",
-      "outerbridge-ui": "^1.0.2",
+      "outerbridge-components": "^1.0.2",
+      "outerbridge-ui": "^1.0.3",
       "pg": "^8.4.0",
       "reflect-metadata": "^0.1.13",
       "socket.io": "^4.5.1",
