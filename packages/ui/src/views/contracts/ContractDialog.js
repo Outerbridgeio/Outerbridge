@@ -35,6 +35,7 @@ import { ethers } from 'ethers';
 // project imports
 import InputParameters from 'views/inputs/InputParameters';
 import CredentialInput from 'views/inputs/CredentialInput';
+import EditVariableDialog from 'ui-component/dialog/EditVariableDialog';
 
 // Icons
 import { IconExclamationMark, IconCheck, IconX, IconArrowUpRightCircle, IconCopy } from '@tabler/icons';
@@ -79,6 +80,8 @@ const ContractDialog = ({
     const [invalidAddress, setInvalidAddress] = useState(false);
     const [invalidABI, setInvalidABI] = useState('');
     const [isReadyToAdd, setIsReadyToAdd] = useState(false);
+    const [isEditVariableDialogOpen, setEditVariableDialog] = useState(false);
+    const [editVariableDialogProps, setEditVariableDialogProps] = useState({});
     const contractParamsType = ['networks', 'credentials', 'contractInfo'];
 
     const getSpecificContractApi = useApi(contractsApi.getSpecificContract);
@@ -108,6 +111,20 @@ const ContractDialog = ({
         }
         setIsReadyToAdd(true);
     };
+
+    const onEditVariableDialogOpen = (input, values, arrayItemBody) => {
+        const dialogProps = {
+            input,
+            values,
+            arrayItemBody,
+            cancelButtonName: 'Cancel',
+            confirmButtonName: 'Save',
+            hideVariables: true
+        }
+
+        setEditVariableDialogProps(dialogProps);
+        setEditVariableDialog(true);
+    }
 
     const addNewContract = async() => {
         const createNewContractBody = {
@@ -561,6 +578,7 @@ const ContractDialog = ({
                                 valueChanged={valueChanged}
                                 onSubmit={onSubmit}
                                 setVariableSelectorState={() => null}
+                                onEditVariableDialogOpen={onEditVariableDialogOpen}
                             />
                         </AccordionDetails>
                     </Accordion>
@@ -641,6 +659,7 @@ const ContractDialog = ({
                                 valueChanged={valueChanged}
                                 onSubmit={onSubmit}
                                 setVariableSelectorState={() => null}
+                                onEditVariableDialogOpen={onEditVariableDialogOpen}
                             />
                             {invalidAddress && <Chip sx={{mt: 2, mb: 1}} icon={<IconX />} label="Invalid Contract Address" color="error" />}
                             {invalidABI && <Chip sx={{mt: 2, mb: 1, ml: invalidAddress ? 2 : 0}} icon={<IconX />} label={invalidABI} color="error" />}
@@ -648,6 +667,16 @@ const ContractDialog = ({
                     </Accordion>
                     <Divider />
                 </Box>
+                <EditVariableDialog 
+                    key={JSON.stringify(editVariableDialogProps)} 
+                    show={isEditVariableDialogOpen}
+                    dialogProps={editVariableDialogProps}
+                    onCancel={() => setEditVariableDialog(false)}
+                    onConfirm={(updateValues) => {
+                        valueChanged(updateValues, expanded);
+                        setEditVariableDialog(false);
+                    }}
+                />
             </DialogContent>
             <DialogActions>
                 <Button onClick={onCancel}>

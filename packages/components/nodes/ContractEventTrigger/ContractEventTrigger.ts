@@ -1,5 +1,5 @@
 
-import { utils } from "ethers";
+import { ethers, utils } from "ethers";
 import {
 	IContract,
 	IDbCollection,
@@ -241,6 +241,8 @@ class ContractEventTrigger extends EventEmitter implements INode {
 			if (!provider) throw new Error('Invalid Network Provider');
 
 			const address = contractDetails.address;
+			let abi = contractDetails.abi;
+			abi = JSON.parse(abi);
 			const event = actionsData.event as string || '';
 			const emitEventKey = nodeData.emitEventKey as string;
 
@@ -251,8 +253,13 @@ class ContractEventTrigger extends EventEmitter implements INode {
 				]
 			};
 
-			provider.on(filter, (log: any) => {
+			provider.on(filter, async(log: any) => {
 				const txHash = log.transactionHash;
+				const iface = new ethers.utils.Interface(abi);
+				const logs = await provider.getLogs(filter);
+				const events = logs.map((log) => iface.parseLog(log));
+	
+				log['logs'] = events;
 				log['explorerLink'] = `${networkExplorers[network]}/tx/${txHash}`;
 				this.emit(emitEventKey, returnNodeExecutionData(log));
 			});

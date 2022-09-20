@@ -196,7 +196,7 @@ const EditVariableDialog = ({
                     </PerfectScrollbar>
                 </div>
                 }
-                <div style={{ flex: 1 }}>
+                {!dialogProps.hideVariables && (<div style={{ flex: 1 }}>
                     <Typography sx={{ mb: 2, ml: 2 }} variant="h4">Variables</Typography>
                     {dialogProps.availableNodesForVariable.length === 0 && 
                     <div style={{ padding: 10, marginLeft: 10 }}>
@@ -262,7 +262,7 @@ const EditVariableDialog = ({
                             </List>
                         </Box>
                     </PerfectScrollbar>}
-                </div>
+                </div>)}
                 <ExpandDataDialog
                     enableClipboard
                     show={showExpandDialog}
