@@ -1,5 +1,6 @@
-import { utils } from "ethers";
+import { BigNumber, ethers, utils } from "ethers";
 import {
+	ICommonObject,
 	INode, 
     INodeData, 
     INodeOptionsValue, 
@@ -18,7 +19,9 @@ import {
 	getNetworkProvidersList,
 	NETWORK,
 	getNetworkProvider,
-	NETWORK_PROVIDER
+	NETWORK_PROVIDER,
+	tokenAbi,
+	eventTransferAbi
 } from '../../src/ChainNetwork';
 
 class ERC20TransferTrigger extends EventEmitter implements INode {
@@ -136,27 +139,30 @@ class ERC20TransferTrigger extends EventEmitter implements INode {
 						name: 'to',
 						description: 'Transfer to wallet address'
 					},
+					{
+						label: 'Both From and To',
+						name: 'fromTo',
+						description: 'Transfer from a wallet address to another wallet address'
+					},
 				],
 				default: '',
 			},
 			{
-				label: 'From',
+				label: 'From Wallet Address',
 				name: 'fromAddress',
 				type: 'string',
 				default: '',
-				description: 'Wallet address',
 				show: {
-					'inputParameters.direction': ['from']
+					'inputParameters.direction': ['from', 'fromTo']
 				}
 			},
 			{
-				label: 'To',
+				label: 'To Wallet Address',
 				name: 'toAddress',
 				type: 'string',
 				default: '',
-				description: 'Wallet address',
 				show: {
-					'inputParameters.direction': ['to']
+					'inputParameters.direction': ['to', 'fromTo']
 				}
 			},
 		] as INodeParams[];
@@ -210,13 +216,36 @@ class ERC20TransferTrigger extends EventEmitter implements INode {
 			]
 		};
 		if (erc20Address) (filter as any)['address'] = erc20Address;
-		
-		provider.on(filter, (log: any) => {
+
+		provider.on(filter, async(log: any) => {
 			const txHash = log.transactionHash;
-			log['explorerLink'] = `${networkExplorers[network]}/tx/${txHash}`;
+			const contractInstance = new ethers.Contract(log.address, tokenAbi, provider);
+			const iface = new ethers.utils.Interface(eventTransferAbi);
+			const logs = await provider.getLogs(filter);
+			const events = logs.map((log) => iface.parseLog(log));
+			const fromWallet = events.length ? events[0].args[0] : '';
+			const toWallet = events.length ? events[0].args[1] : '';
+			const value: BigNumber = events.length ? events[0].args[2] : '';
+
 			//ERC20 has 3 topics length
 			if (log.topics.length === 3) {
-				this.emit(emitEventKey, returnNodeExecutionData(log));
+				const returnItem = {} as ICommonObject;
+
+				const name = await contractInstance.name();
+				const symbol = await contractInstance.symbol();
+				const decimals = await contractInstance.decimals();
+				const amount = utils.formatUnits(value.toString(), decimals);
+
+				returnItem['Token Name'] = name;
+				returnItem['Token Symbol'] = symbol;
+				returnItem['Token Address'] = log.address;
+				returnItem['From Wallet'] = fromWallet;
+				returnItem['To Wallet'] = toWallet;
+				returnItem['Amount Transfered'] = parseFloat(amount);
+				returnItem['txHash'] = txHash;
+				returnItem['explorerLink'] = `${networkExplorers[network]}/tx/${txHash}`;
+	
+				this.emit(emitEventKey, returnNodeExecutionData(returnItem));
 			}
 		});
 

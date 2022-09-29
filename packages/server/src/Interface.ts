@@ -46,7 +46,6 @@ export interface IWebhook {
     workflowShortId: string;
     webhookEndpoint: string;
     httpMethod: WebhookMethod;
-    clientId: string;
     webhookId: string;
     nodeId: string;
     updatedDate: Date;
@@ -114,6 +113,18 @@ export interface IActiveTestTriggerPool {
     [key: string]: INodeData
 }
 
+export interface IActiveTestWebhookPool {
+    [key: string]: {
+        nodes: IReactFlowNode[];
+        edges: IReactFlowEdge[];
+        nodeData: INodeData;
+        webhookNodeId: string;
+        clientId: string;
+        isTestWorkflow: boolean;
+        webhookId?: string;
+    }
+}
+
 export interface ICredentialBody {
     name: string;
     nodeCredentialName: string;
@@ -155,12 +166,14 @@ export interface IWorkflowExecutedData {
     nodeLabel: string;
     nodeId: string;
     data: INodeExecutionData[] | IWebhookNodeExecutionData[];
+    status?: ExecutionState;
 }
 
 export interface ITestNodeBody {
-    nodeData: INodeData;
+    nodeId: string;
     nodes: IReactFlowNode[];
-    clientId: string;
+    edges: IReactFlowEdge[];
+    clientId?: string;
 }
 
 export interface IDeployedWorkflowsPool {
@@ -242,3 +255,24 @@ export interface IWalletRequestBody {
     providerCredential?: string;
     privateKey?: string;
 }
+
+export interface IOAuth2Response {
+    access_token: string;
+    token_type: string;
+    expires_in: number;
+    refresh_token: string;
+}
+
+export interface IExploredNode {
+    [key: string]: {
+        remainingLoop: number;
+        lastSeenDepth: number;
+    }
+}
+
+export interface INodeQueue {
+    nodeId: string;
+    depth: number;
+}
+
+export interface ITestWorkflowBody extends ITestNodeBody {}

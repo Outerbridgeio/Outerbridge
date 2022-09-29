@@ -33,6 +33,7 @@ import lodash from 'lodash';
 // project imports
 import InputParameters from 'views/inputs/InputParameters';
 import CredentialInput from 'views/inputs/CredentialInput';
+import EditVariableDialog from 'ui-component/dialog/EditVariableDialog';
 
 // Icons
 import { IconCheck, IconX, IconArrowUpRightCircle, IconCopy, IconKey } from '@tabler/icons';
@@ -76,6 +77,8 @@ const WalletDialog = ({
     const [walletCredential, setWalletCredential] = useState({});
     const [expanded, setExpanded] = useState(false);
     const [isReadyToAdd, setIsReadyToAdd] = useState(false);
+    const [isEditVariableDialogOpen, setEditVariableDialog] = useState(false);
+    const [editVariableDialogProps, setEditVariableDialogProps] = useState({});
     const walletParamsType = ['networks', 'credentials', 'walletInfo'];
 
     const getSpecificWalletApi = useApi(walletsApi.getSpecificWallet);
@@ -105,6 +108,20 @@ const WalletDialog = ({
         }
         setIsReadyToAdd(true);
     };
+
+    const onEditVariableDialogOpen = (input, values, arrayItemBody) => {
+        const dialogProps = {
+            input,
+            values,
+            arrayItemBody,
+            cancelButtonName: 'Cancel',
+            confirmButtonName: 'Save',
+            hideVariables: true
+        }
+
+        setEditVariableDialogProps(dialogProps);
+        setEditVariableDialog(true);
+    }
 
     const addNewWallet = async(type) => {
         const createNewWalletBody = {
@@ -530,6 +547,7 @@ const WalletDialog = ({
                                 valueChanged={valueChanged}
                                 onSubmit={onSubmit}
                                 setVariableSelectorState={() => null}
+                                onEditVariableDialogOpen={onEditVariableDialogOpen}
                             />
                         </AccordionDetails>
                     </Accordion>
@@ -610,11 +628,22 @@ const WalletDialog = ({
                                 valueChanged={valueChanged}
                                 onSubmit={onSubmit}
                                 setVariableSelectorState={() => null}
+                                onEditVariableDialogOpen={onEditVariableDialogOpen}
                             />
                         </AccordionDetails>
                     </Accordion>
                     <Divider />
                 </Box>
+                <EditVariableDialog 
+                    key={JSON.stringify(editVariableDialogProps)} 
+                    show={isEditVariableDialogOpen}
+                    dialogProps={editVariableDialogProps}
+                    onCancel={() => setEditVariableDialog(false)}
+                    onConfirm={(updateValues) => {
+                        valueChanged(updateValues, expanded);
+                        setEditVariableDialog(false);
+                    }}
+                />
             </DialogContent>
             <DialogActions>
                 <Button onClick={onCancel}>

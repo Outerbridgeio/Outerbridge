@@ -40,7 +40,6 @@ export interface IWebhook {
     workflowShortId: string;
     webhookEndpoint: string;
     httpMethod: WebhookMethod;
-    clientId: string;
     webhookId: string;
     nodeId: string;
     updatedDate: Date;
@@ -69,7 +68,6 @@ export interface IWallet {
     createdDate: Date;
 }
 
-
 /**
  * Types
  */
@@ -84,6 +82,7 @@ export type NodeParamsType = 'asyncOptions' | 'options' | 'string' | 'number' | 
 export type DbCollectionName = 'Contract' | 'Webhook' | 'Workflow' | 'Credential' | 'Execution' | 'Wallet';
 
 export type CommonType = string | number | boolean | undefined | null;
+
 
 /**
  * Others
@@ -185,14 +184,13 @@ export interface INode extends INodeProperties {
 }
 
 export interface INodeData extends INodeProperties {
-    nodeId: string;
-    workflowShortId?: string;
     emitEventKey?: string; // event emitter key for triggers
     
     actions?: ICommonObject
     credentials?: ICommonObject
     networks?: ICommonObject
     inputParameters?: ICommonObject;
+    outputResponses?: ICommonObject;
 
     loadMethod?: string; // method to load async options
     loadFromDbCollections?: DbCollectionName[]; // method to load async options
@@ -218,3 +216,8 @@ export interface IProviders {
 		filter?: any
 	}
 }
+
+export interface IOAuth2RefreshResponse {
+    access_token: string;
+    expires_in: string;
+} 

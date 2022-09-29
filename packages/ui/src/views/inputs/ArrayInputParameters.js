@@ -26,18 +26,22 @@ import { IconX, IconUpload } from '@tabler/icons';
 
 // third party
 import lodash from 'lodash';
-import JSONInput from "react-json-editor-ajrm";
-import locale from "react-json-editor-ajrm/locale/en";
 import Editor from 'react-simple-code-editor';
+import PerfectScrollbar from 'react-perfect-scrollbar';
 import { highlight, languages } from 'prismjs/components/prism-core';
 import 'prismjs/components/prism-clike';
 import 'prismjs/components/prism-javascript';
+import 'prismjs/components/prism-json';
+import 'prismjs/components/prism-markup';
 import 'prismjs/themes/prism.css';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 // utils
 import { convertDateStringToDateObject, getFileName, getFolderName } from 'utils/genericHelper';
+
+//css
+import './InputParameters.css';
 
 const StyledPopper = styled(Popper)({
     boxShadow: '0px 8px 10px -5px rgb(0 0 0 / 20%), 0px 16px 24px 2px rgb(0 0 0 / 14%), 0px 6px 30px 5px rgb(0 0 0 / 12%)',
@@ -93,7 +97,8 @@ const ArrayInputParameters = ({
     onArrayInputChange, 
     onArrayInputBlur, 
     onArrayItemRemove,
-    onArrayItemMouseUp
+    onArrayItemMouseUp,
+    onEditVariableDialogOpen,
 }) => {
      
     const theme = useTheme();
@@ -296,7 +301,7 @@ const ArrayInputParameters = ({
                             </FormControl>)
                         }
 
-                        if (input.type === 'json') {
+                        if (input.type === 'json' || input.type === 'code') {
 
                             const inputName = input.name;
 
@@ -309,74 +314,49 @@ const ArrayInputParameters = ({
                                     Boolean(errors[index][inputName]) : false
                                 }
                             >
-                                <Stack direction="row">
+                                <Stack sx={{ position: 'relative' }} direction="row">
                                     <Typography variant="overline">{input.label}</Typography>
                                     {input.description && (
                                     <Tooltip title={input.description} placement="right">
                                         <IconButton ><Info style={{ height: 18, width: 18 }}/></IconButton>
                                     </Tooltip>
                                     )}
+                                    <Button sx={{ position: 'absolute', fontSize: '0.6875rem', right: 0, top: 5, height: 25, width: 'max-content' }} 
+                                        variant="outlined" onClick={() => onEditVariableDialogOpen(input, values, index)}>
+                                        Edit Variables
+                                    </Button>
                                 </Stack>
-                                <JSONInput
-                                    id={inputName}
-                                    placeholder={JSON.parse(values[inputName] || '{}') || JSON.parse(input.default || '{}') || {}}
-                                    theme="light_mitsuketa_tribute"
-                                    locale={locale}
-                                    height="200px"
-                                    width="100%"
-                                    style={{
-                                        container: {
-                                            border: '1px solid',
-                                            borderColor: theme.palette.grey['500'],
-                                            borderRadius: '12px',
-                                        },
-                                        body: {
-                                            fontSize: '0.875rem'
-                                        }
-                                    }}
-                                    onBlur={e => {
-                                        if (!e.error) {
-                                            const inputValue = e.json;
-                                            onInputBlur(inputValue, inputName, values, index);
-                                        }
-                                    }}
-                                />
-                            </FormControl>)
-                        }
-
-                        if (input.type === 'code') {
-
-                            const inputName = input.name;
-
-                            return (
-                            <FormControl 
-                                key={`${inputName}_${paramIndex}`}
-                                fullWidth 
-                                sx={{ mb: 1, mt: 1 }}
-                                error={errors && errors.length > 0 && errors[index] ?
-                                    Boolean(errors[index][inputName]) : false
-                                }
-                            >
-                                <Stack direction="row">
-                                    <Typography variant="overline">{input.label}</Typography>
-                                    {input.description && (
-                                    <Tooltip title={input.description} placement="right">
-                                        <IconButton ><Info style={{ height: 18, width: 18 }}/></IconButton>
-                                    </Tooltip>
-                                    )}
-                                </Stack>
-                                <Editor
-                                    value={values[inputName] || ''}
-                                    onValueChange={code => onInputChange(code, inputName, values, index)}
-                                    highlight={code => highlight(code, languages.js)}
-                                    padding={10}
-                                    style={{
-                                        fontSize: '0.875rem',
+                                <PerfectScrollbar 
+                                    style={{ 
                                         border: '1px solid',
                                         borderColor: theme.palette.grey['500'],
-                                        borderRadius: '12px',
+                                        borderRadius: '12px', 
+                                        height: '200px', 
+                                        maxHeight: '200px', 
+                                        overflowX: 'hidden',
+                                        backgroundColor: 'white'
                                     }}
-                                />
+                                    onScroll={e => e.stopPropagation()}
+                                    >
+                                    <Editor
+                                        placeholder={input.placeholder}
+                                        value={values[inputName] || ''}
+                                        onBlur={e => {
+                                            onInputBlur(e.target.value, inputName, values, index);
+                                            onMouseUp(e, inputName, index);
+                                        }}
+                                        onValueChange={code => onInputChange(code, inputName, values, index)}
+                                        onMouseUp={e => onMouseUp(e, inputName, index)}
+                                        highlight={code => highlight(code, input.type === 'json' ? languages.json : languages.js)}
+                                        padding={10}
+                                        style={{
+                                            fontSize: '0.875rem',
+                                            minHeight: '200px',
+                                            width: '100%',
+                                        }}
+                                        textareaClassName="editor__textarea"
+                                    />
+                                </PerfectScrollbar>
                             </FormControl>)
                         }
 
@@ -411,6 +391,7 @@ const ArrayInputParameters = ({
                                     onChange={(date) => {
                                         const inputValue = date ? date.toISOString() : null;
                                         onInputChange(inputValue, inputName, values, index);
+                                        onArrayItemMouseUp(false);
                                     }}
                                 />
                             </FormControl>)
@@ -429,12 +410,18 @@ const ArrayInputParameters = ({
                                     Boolean(errors[index][inputName]) : false
                                 }
                             >
-                                <Stack direction="row">
+                                <Stack sx={{ position: 'relative' }} direction="row">
                                     <Typography variant="overline">{input.label}</Typography>
                                     {input.description && (
                                     <Tooltip title={input.description} placement="right">
                                         <IconButton ><Info style={{ height: 18, width: 18 }}/></IconButton>
                                     </Tooltip>
+                                    )}
+                                    {(input.type === 'string' || input.type === 'number') && (
+                                    <Button sx={{ position: 'absolute', fontSize: '0.6875rem', right: 0, top: 5, height: 25, width: 'max-content' }} 
+                                        variant="outlined" onClick={() => onEditVariableDialogOpen(input, values, index)}>
+                                        Edit Variables
+                                    </Button>
                                     )}
                                 </Stack>
                                 <OutlinedInput
@@ -563,6 +550,7 @@ ArrayInputParameters.propTypes = {
     onArrayInputBlur: PropTypes.func,
     onArrayItemRemove: PropTypes.func,
     onArrayItemMouseUp: PropTypes.func,
+    onEditVariableDialogOpen: PropTypes.func, 
 };
 
 export default ArrayInputParameters;

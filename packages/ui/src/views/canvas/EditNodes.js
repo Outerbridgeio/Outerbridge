@@ -32,6 +32,7 @@ import InputParameters from 'views/inputs/InputParameters';
 import CredentialInput from 'views/inputs/CredentialInput';
 import OutputResponses from 'views/output/OutputResponses';
 import VariableSelector from './VariableSelector';
+import EditVariableDialog from 'ui-component/dialog/EditVariableDialog';
 
 // API
 import nodesApi from "api/nodes";
@@ -47,7 +48,7 @@ import { getAvailableNodeIdsForVariable, numberOrExpressionRegex, handleCredenti
 
 // ==============================|| EDIT NODES||============================== //
 
-const EditNodes = ({ node, nodes, edges, workflow, rfInstance, onNodeLabelUpdate, onNodeValuesUpdate }) => {
+const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValuesUpdate }) => {
 
     const theme = useTheme();
 
@@ -63,6 +64,8 @@ const EditNodes = ({ node, nodes, edges, workflow, rfInstance, onNodeLabelUpdate
     const [isVariableSelectorOpen, setVariableSelectorOpen] = useState(false);
     const [variableBody, setVariableBody] = useState({});
     const [availableNodesForVariable, setAvailableNodesForVariable] = useState(null);
+    const [isEditVariableDialogOpen, setEditVariableDialog] = useState(false);
+    const [editVariableDialogProps, setEditVariableDialogProps] = useState({});
 
     const anchorRef = useRef(null);
     const ps = useRef();
@@ -101,6 +104,29 @@ const EditNodes = ({ node, nodes, edges, workflow, rfInstance, onNodeLabelUpdate
     const saveNodeLabel = () => {
         onNodeLabelUpdate(nodeLabel);
     };
+
+    const onEditVariableDialogOpen = (input, values, arrayItemBody) => {
+        const variableNodesIds = getAvailableNodeIdsForVariable(nodes, edges, node.id);
+           
+        const nodesForVariable = [];
+        for (let i = 0; i < variableNodesIds.length; i+=1 ) {
+            const nodeId = variableNodesIds[i];
+            const node = nodes.find((nd) => nd.id === nodeId);
+            nodesForVariable.push(node);
+        }
+
+        const dialogProps = {
+            input,
+            values,
+            arrayItemBody,
+            availableNodesForVariable: nodesForVariable,
+            cancelButtonName: 'Cancel',
+            confirmButtonName: 'Save',
+        }
+
+        setEditVariableDialogProps(dialogProps);
+        setEditVariableDialog(true);
+    }
     
     const setVariableSelectorState = (variableSelectorState, body) => {
         setVariableSelectorOpen(variableSelectorState);
@@ -112,9 +138,7 @@ const EditNodes = ({ node, nodes, edges, workflow, rfInstance, onNodeLabelUpdate
             for (let i = 0; i < variableNodesIds.length; i+=1 ) {
                 const nodeId = variableNodesIds[i];
                 const node = nodes.find((nd) => nd.id === nodeId);
-                if (node && node.data.outputResponses) {
-                    nodesForVariable.push(node);
-                }
+                nodesForVariable.push(node);
             }
             setAvailableNodesForVariable(nodesForVariable);
         }
@@ -568,12 +592,14 @@ const EditNodes = ({ node, nodes, edges, workflow, rfInstance, onNodeLabelUpdate
                                                     </AccordionSummary>
                                                     <AccordionDetails>
                                                         <InputParameters 
+                                                            key={node.id} // to reload whenever node changed
                                                             params={nodeParams} 
                                                             paramsType="actions"
                                                             initialValues={nodeParamsInitialValues} 
                                                             nodeParamsValidation={nodeParamsValidation}
                                                             nodeFlowData={nodeFlowData}
                                                             setVariableSelectorState={setVariableSelectorState}
+                                                            onEditVariableDialogOpen={onEditVariableDialogOpen}
                                                             valueChanged={valueChanged}
                                                             onSubmit={onSubmit}
                                                         />
@@ -611,12 +637,14 @@ const EditNodes = ({ node, nodes, edges, workflow, rfInstance, onNodeLabelUpdate
                                                     </AccordionSummary>
                                                     <AccordionDetails>
                                                         <InputParameters 
+                                                            key={node.id} // to reload whenever node changed
                                                             params={nodeParams} 
                                                             paramsType="networks"
                                                             initialValues={nodeParamsInitialValues} 
                                                             nodeParamsValidation={nodeParamsValidation}
                                                             nodeFlowData={nodeFlowData}
                                                             setVariableSelectorState={setVariableSelectorState}
+                                                            onEditVariableDialogOpen={onEditVariableDialogOpen}
                                                             valueChanged={valueChanged}
                                                             onSubmit={onSubmit}
                                                         />
@@ -654,6 +682,7 @@ const EditNodes = ({ node, nodes, edges, workflow, rfInstance, onNodeLabelUpdate
                                                     </AccordionSummary>
                                                     <AccordionDetails>
                                                         <CredentialInput 
+                                                            key={node.id} // to reload whenever node changed
                                                             initialParams={nodeParams} 
                                                             paramsType="credentials"
                                                             initialValues={nodeParamsInitialValues} 
@@ -696,12 +725,14 @@ const EditNodes = ({ node, nodes, edges, workflow, rfInstance, onNodeLabelUpdate
                                                     </AccordionSummary>
                                                     <AccordionDetails>
                                                         <InputParameters 
+                                                            key={node.id} // to reload whenever node changed
                                                             params={nodeParams} 
                                                             paramsType="inputParameters"
                                                             initialValues={nodeParamsInitialValues}
                                                             nodeParamsValidation={nodeParamsValidation}
                                                             nodeFlowData={nodeFlowData}
                                                             setVariableSelectorState={setVariableSelectorState}
+                                                            onEditVariableDialogOpen={onEditVariableDialogOpen}
                                                             valueChanged={valueChanged}
                                                             onSubmit={onSubmit}
                                                         />
@@ -739,12 +770,13 @@ const EditNodes = ({ node, nodes, edges, workflow, rfInstance, onNodeLabelUpdate
                                                     </AccordionSummary>
                                                     <AccordionDetails>
                                                         <OutputResponses 
+                                                            key={node.id} // to reload whenever node changed
                                                             nodeId={node.id}
                                                             nodeParamsType={nodeParamsType}
                                                             nodeFlowData={nodeFlowData}
                                                             nodes={nodes}
+                                                            edges={edges}
                                                             workflow={workflow}
-                                                            rfInstance={rfInstance}
                                                             onSubmit={onSubmit}
                                                         />
                                                     </AccordionDetails>
@@ -754,14 +786,24 @@ const EditNodes = ({ node, nodes, edges, workflow, rfInstance, onNodeLabelUpdate
                                         }
                                     </PerfectScrollbar>
                                     <VariableSelector 
+                                        key={JSON.stringify(availableNodesForVariable)} 
                                         nodes={availableNodesForVariable} 
                                         isVariableSelectorOpen={isVariableSelectorOpen} 
                                         anchorEl={anchorRef.current}
                                         onVariableSelected={(returnVariablePath) => onVariableSelected(returnVariablePath)} 
                                         handleClose={() => setVariableSelectorOpen(false)}
                                     />
+                                    <EditVariableDialog 
+                                        key={JSON.stringify(editVariableDialogProps)} 
+                                        show={isEditVariableDialogOpen}
+                                        dialogProps={editVariableDialogProps}
+                                        onCancel={() => setEditVariableDialog(false)}
+                                        onConfirm={(updateValues) => {
+                                            valueChanged(updateValues, expanded);
+                                            setEditVariableDialog(false);
+                                        }}
+                                    />
                                 </MainCard>
-                                
                             </ClickAwayListener>
                         </Paper>
                     </Transitions>
@@ -776,7 +818,6 @@ EditNodes.propTypes = {
     nodes: PropTypes.array,
     edges: PropTypes.array,
     workflow: PropTypes.object,
-    rfInstance: PropTypes.any,
     onNodeLabelUpdate: PropTypes.func,
     onNodeValuesUpdate: PropTypes.func,
 };

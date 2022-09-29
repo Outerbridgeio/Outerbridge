@@ -22,10 +22,10 @@ export class ActiveTestTriggerPool {
 
     
     /**
-     * Remove triggers from the pool
+     * Remove all triggers from the pool
      * @param {IComponentNodesPool} componentNodes
      */
-    async remove(componentNodes: IComponentNodesPool) {
+    async removeAll(componentNodes: IComponentNodesPool) {
         const toBeDeleted: string[] = [];
         for (const nodeName in this.activeTestTriggers) {
             const triggerNodeInstance = componentNodes[nodeName];
@@ -34,6 +34,20 @@ export class ActiveTestTriggerPool {
         }
         
         for (const nodeName in toBeDeleted) {
+            delete this.activeTestTriggers[nodeName];
+        }
+    }
+
+
+    /**
+     * Remove single trigger from the pool
+     * @param {string} nodeName
+     * @param {IComponentNodesPool} componentNodes
+     */
+     async remove(nodeName: string, componentNodes: IComponentNodesPool) {
+        if (Object.prototype.hasOwnProperty.call(this.activeTestTriggers, nodeName)) {
+            const triggerNodeInstance = componentNodes[nodeName];
+            await triggerNodeInstance.removeTrigger!.call(triggerNodeInstance, this.activeTestTriggers[nodeName]);
             delete this.activeTestTriggers[nodeName];
         }
     }

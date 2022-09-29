@@ -115,7 +115,7 @@ class Alchemy implements INode {
 				label: 'Parameters',
 				name: 'parameters',
 				type: 'json',
-				default: '[]',
+				placeholder: '["param1", "param2"]',
 				optional: true,
 				description: 'Operation parameters in array. Ex: ["param1", "param2"]',
 				show: {
@@ -263,13 +263,10 @@ class Alchemy implements INode {
 			let bodyParameters: any[] = []; // tslint:disable-line: no-any
 			const returnData: ICommonObject[] = [];
 
-			let parameters = inputParametersData.parameters as string || '';
-			//Remove whitespaces
-			parameters = parameters.replace(/\s/g, '');
-			
+			const parameters = inputParametersData.parameters as string;
 			if (parameters) {
 				try {
-					bodyParameters = JSON.parse(parameters);
+					bodyParameters = JSON.parse(parameters.replace(/\s/g, ''));
 				} catch(error) {
 					throw handleErrorMessage(error);
 				}
@@ -298,7 +295,6 @@ class Alchemy implements INode {
 						'Content-Type': 'application/json',
 					},
 				}
-
 				const response = await axios(axiosConfig);
 				responseData = response.data;
 			}

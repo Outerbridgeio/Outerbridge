@@ -8,6 +8,7 @@ import {
 
 import path from 'path';
 import { Dirent } from "fs";
+import { getNodeModulesPackagePath } from "./utils";
 const { readdir } = require('fs').promises;
 
 export class CredentialsPool {
@@ -18,8 +19,8 @@ export class CredentialsPool {
 	 * Initialize to get all credentials
 	 */
     async initialize() {
-	
-		const credPath = path.join(__dirname, "..", "node_modules", "outerbridge-components", "dist", "credentials");
+        const packagePath = getNodeModulesPackagePath("outerbridge-components");
+		const credPath = path.join(packagePath, "dist", "credentials");
         const credFiles = await this.getFiles(credPath);
         credFiles.forEach(file => {
             if (file.endsWith('.js')) {

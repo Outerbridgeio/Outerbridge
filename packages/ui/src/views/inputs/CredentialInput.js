@@ -17,24 +17,36 @@ import {
 } from '@mui/material';
 import { Info } from '@mui/icons-material';
 import Autocomplete, { autocompleteClasses } from '@mui/material/Autocomplete';
-import { styled } from '@mui/material/styles';
+import { useTheme, styled } from '@mui/material/styles';
 
 // third party
 import * as Yup from 'yup';
 import { Formik } from 'formik';
+import PerfectScrollbar from 'react-perfect-scrollbar';
+import Editor from 'react-simple-code-editor';
+import { highlight, languages } from 'prismjs/components/prism-core';
+import 'prismjs/components/prism-clike';
+import 'prismjs/components/prism-javascript';
+import 'prismjs/components/prism-json';
+import 'prismjs/components/prism-markup';
+import 'prismjs/themes/prism.css';
 
 // project imports
 import AnimateButton from 'ui-component/extended/AnimateButton';
 
 // API
 import credentialApi from "api/credential";
+import oauth2Api from "api/oauth2";
 
 // Hooks
 import useApi from "hooks/useApi";
 import useScriptRef from 'hooks/useScriptRef';
 
 // icons
-import { IconTrash } from '@tabler/icons';
+import { IconTrash, IconCopy } from '@tabler/icons';
+
+//css
+import './InputParameters.css';
 
 const StyledPopper = styled(Popper)({
     boxShadow: '0px 8px 10px -5px rgb(0 0 0 / 20%), 0px 16px 24px 2px rgb(0 0 0 / 14%), 0px 6px 30px 5px rgb(0 0 0 / 12%)',
@@ -63,11 +75,15 @@ const CredentialInput = ({
     ...others 
 }) => {
     const scriptedRef = useScriptRef();
+    const theme = useTheme();
+
     const [credentialValidation, setCredentialValidation] = useState({});
     const [credentialValues, setCredentialValues] = useState({});
     const [nodeCredentialName, setNodeCredentialName] = useState('');
     const [credentialParams, setCredentialParams] = useState([]);
     const [credentialOptions, setCredentialOptions] = useState([]);
+    const [oAuth2RedirectURL, setOAuth2RedirectURL] = useState('');
+
     const getCredentialParamsApi = useApi(credentialApi.getCredentialParams);
     const getRegisteredCredentialsApi = useApi(credentialApi.getCredentials);
     const getSpecificCredentialApi = useApi(credentialApi.getSpecificCredential);
@@ -88,13 +104,13 @@ const CredentialInput = ({
         }
         delete credentialData.name;
 
-        const createBody = {
+        const credBody = {
             name: values.name,
             nodeCredentialName: values.credentialMethod,
             credentialData
         };
 
-        return createBody;
+        return credBody;
     }
 
     const updateYupValidation = (inputName, validationKey) => {
@@ -105,9 +121,11 @@ const CredentialInput = ({
         setCredentialValidation(updateValidation);
     };
 
-    const resetCredentialParams = () => {
+    const clearCredentialParams = () => {
         const updateParams = initialParams.filter(item => credentialParams.every(paramItem => item.name !== paramItem.name));
         setCredentialParams([]);
+        setOAuth2RedirectURL('');
+
         paramsChanged(updateParams, paramsType);
     }
 
@@ -128,9 +146,20 @@ const CredentialInput = ({
     const onDeleteCredential = async(credentialId) => {
         const response = await credentialApi.deleteCredential(credentialId);
         if (response.data) {
-            resetCredentialParams();
+            clearCredentialParams();
             clearCredentialParamsValues('');
         }
+    }
+
+    const openOAuth2PopUpWindow = (oAuth2PopupURL) => {
+        const windowWidth = 500;
+        const windowHeight = 400;
+        const left = window.screenX + (window.outerWidth - windowWidth) / 2;
+        const top = window.screenY + (window.outerHeight - windowHeight) / 2.5;
+        const title = `Connect Credential`;
+        const url = oAuth2PopupURL;
+        const popup = window.open(url, title, `width=${windowWidth},height=${windowHeight},left=${left},top=${top}`);
+        return popup;
     }
 
     const findMatchingOptions = (options, value) => options.find((option) => option.name === value);
@@ -140,12 +169,18 @@ const CredentialInput = ({
     // getRegisteredCredentialsApi successful
     useEffect(() => {
         if (getRegisteredCredentialsApi.data) {
-            const credentialOptions = [
-                ...getRegisteredCredentialsApi.data,
-                {
-                    name: ADD_NEW_CREDENTIAL
+            const credentialOptions = [];
+            if (getRegisteredCredentialsApi.data.length) {
+                for (let i = 0; i < getRegisteredCredentialsApi.data.length; i+=1 ) {
+                    credentialOptions.push({
+                        _id: getRegisteredCredentialsApi.data[i]._id,
+                        name: getRegisteredCredentialsApi.data[i].name,
+                    });
                 }
-            ];
+            }
+            credentialOptions.push({
+                name: ADD_NEW_CREDENTIAL
+            });
             setCredentialOptions(credentialOptions);
             if (initialParams.find((prm) => prm.name === 'registeredCredential')) {
                 updateYupValidation('registeredCredential', 'name');
@@ -154,6 +189,7 @@ const CredentialInput = ({
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [getRegisteredCredentialsApi.data]);
+
 
     // getCredentialParamsApi successful
     useEffect(() => {
@@ -186,6 +222,7 @@ const CredentialInput = ({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [getCredentialParamsApi.data]);
 
+
     // getSpecificCredentialApi successful
     useEffect(() => {
         if (getSpecificCredentialApi.data) {
@@ -200,6 +237,7 @@ const CredentialInput = ({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [getSpecificCredentialApi.data]);
 
+
     // Initialize values
     useEffect(() => {
         setCredentialValues(initialValues);
@@ -211,11 +249,13 @@ const CredentialInput = ({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [initialValues]);
 
+
     // Initialize validation
     useEffect(() => {
         setCredentialValidation(initialValidation);
-
+    
     }, [initialValidation]);
+
 
     return (
         <>
@@ -243,12 +283,47 @@ const CredentialInput = ({
                                     response = await credentialApi.updateCredential(values.registeredCredential._id, body);
                                 }
                                 if (response.data) {
+
+                                    // Open oAuth2 window
+                                    if (values.credentialMethod.toLowerCase().includes('oauth2')) {
+                                        const oAuth2PopupURL = await oauth2Api.geOAuth2PopupURL(response.data._id);
+                                        const popUpWindow = openOAuth2PopUpWindow(oAuth2PopupURL.data);
+
+                                        const oAuth2Completed = async(event) => {
+                                            if (event.data === 'success') {
+                                                window.removeEventListener('message', oAuth2Completed, false);
+
+                                                const submitValues = {
+                                                    credentialMethod: values.credentialMethod,
+                                                    registeredCredential: {
+                                                        _id: response.data._id,
+                                                        name: response.data.name,
+                                                    },
+                                                    submit: true
+                                                }
+                                                clearCredentialParams();
+                                                onSubmit(submitValues, paramsType);
+                                                setStatus({ success: true });
+                                                setSubmitting(false);
+
+                                                if (popUpWindow) {
+                                                    popUpWindow.close();
+                                                }
+                                            }
+                                        };
+                                        window.addEventListener('message', oAuth2Completed, false);
+                                        return;
+                                    }
+
                                     const submitValues = {
                                         credentialMethod: values.credentialMethod,
-                                        registeredCredential: response.data,
+                                        registeredCredential: {
+                                            _id: response.data._id,
+                                            name: response.data.name,
+                                        },
                                         submit: true
                                     }
-                                    resetCredentialParams();
+                                    clearCredentialParams();
                                     onSubmit(submitValues, paramsType);
                                     setStatus({ success: true });
                                     setSubmitting(false);
@@ -303,7 +378,7 @@ const CredentialInput = ({
                                                 [inputName]: value
                                             };
                                             onChanged(overwriteValues);
-                                            resetCredentialParams();
+                                            clearCredentialParams();
                                             if (selection) {
                                                 getRegisteredCredentialsApi.request(value);
                                                 setNodeCredentialName(value);
@@ -358,7 +433,7 @@ const CredentialInput = ({
                                 options={credentialOptions}
                                 value={values.registeredCredential && values.credentialMethod ? values.registeredCredential : " "}
                                 getOptionLabel={(option) => option.name || " "}
-                                onChange={(e, selectedCredential) => {
+                                onChange={async(e, selectedCredential) => {
                                     setFieldValue('registeredCredential', selectedCredential !== null ? selectedCredential : initialValues.registeredCredential);
                                     const overwriteValues = {
                                         ...values,
@@ -372,11 +447,15 @@ const CredentialInput = ({
                                             clearCredentialParamsValues(selectedCredential);
                                         }
                                         getCredentialParamsApi.request(nodeCredentialName);
+                                        if (values.credentialMethod.toLowerCase().includes('oauth2')) {
+                                            const redirectURLResp = await oauth2Api.geOAuth2RedirectURL();
+                                            if (redirectURLResp.data) setOAuth2RedirectURL(redirectURLResp.data);
+                                        }
                                     }
                                 }}
                                 onInputChange={(e, value) => {
                                     if (!value) {
-                                        resetCredentialParams();
+                                        clearCredentialParams();
                                         clearCredentialParamsValues('');
                                     }
                                 }}
@@ -408,7 +487,76 @@ const CredentialInput = ({
                             Delete Credential
                         </Button>)}
 
+                        {oAuth2RedirectURL &&
+                        <div>
+                            <Typography variant="overline">OAuth2 Redirect URL</Typography>
+                            <Stack direction="row">
+                                <Typography sx={{ p: 1, borderRadius: 10, backgroundColor: theme.palette.primary.light, width: 'max-content', height: 'max-content' }} variant="h5">{oAuth2RedirectURL}</Typography>
+                                <IconButton title="Copy URL" color="primary" onClick={() => navigator.clipboard.writeText(oAuth2RedirectURL)}>
+                                    <IconCopy />
+                                </IconButton>
+                            </Stack>
+                        </div>}
+
                         {values.credentialMethod && credentialParams.map((input) => {
+
+                            if (input.type === 'json') {
+
+                                const inputName = input.name;
+
+                                return (
+                                <FormControl 
+                                    key={inputName}
+                                    fullWidth 
+                                    sx={{ mb: 1, mt: 1 }}
+                                    error={Boolean(errors[inputName])}
+                                >
+                                    <Stack direction="row">
+                                        <Typography variant="overline">{input.label}</Typography>
+                                        {input.description && (
+                                        <Tooltip title={input.description} placement="right">
+                                            <IconButton ><Info style={{ height: 18, width: 18 }}/></IconButton>
+                                        </Tooltip>
+                                        )}
+                                    </Stack>
+                                    <PerfectScrollbar 
+                                        style={{ 
+                                            border: '1px solid',
+                                            borderColor: theme.palette.grey['500'],
+                                            borderRadius: '12px', 
+                                            height: '200px', 
+                                            maxHeight: '200px', 
+                                            overflowX: 'hidden',
+                                            backgroundColor: 'white'
+                                        }}
+                                        onScroll={e => e.stopPropagation()}
+                                        >
+                                        <Editor
+                                            placeholder={input.placeholder}
+                                            value={values[inputName] || ''}
+                                            onBlur={e => {
+                                                const overwriteValues = {
+                                                    ...values,
+                                                    [inputName]: e.target.value
+                                                };
+                                                onChanged(overwriteValues);
+                                            }}
+                                            onValueChange={code => {
+                                                setFieldValue(inputName, code);
+                                            }}
+                                            highlight={code => highlight(code, languages.json)}
+                                            padding={10}
+                                            style={{
+                                                fontSize: '0.875rem',
+                                                minHeight: '200px',
+                                                width: '100%',
+                                            }}
+                                            textareaClassName="editor__textarea"
+                                        />
+                                    </PerfectScrollbar>
+                                    {errors[inputName] && <span style={{ color: 'red', fontSize: '0.7rem', fontStyle: 'italic' }}>*{errors[inputName]}</span>}
+                                </FormControl>)
+                            }
 
                             if (input.type === 'string' || input.type === 'password' || input.type === 'number') {
 

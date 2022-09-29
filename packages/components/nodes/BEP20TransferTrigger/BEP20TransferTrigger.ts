@@ -1,5 +1,6 @@
-import { utils } from "ethers";
+import { BigNumber, ethers, utils } from "ethers";
 import {
+	ICommonObject,
 	INode, 
     INodeData, 
     INodeParams, 
@@ -14,7 +15,9 @@ import {
 	binanceNetworkProviders,
 	NETWORK_PROVIDER,
 	NETWORK,
-	getNetworkProvider
+	getNetworkProvider,
+	tokenAbi,
+	eventTransferAbi
 } from '../../src/ChainNetwork';
 
 class BEP20TransferTrigger extends EventEmitter implements INode {
@@ -104,27 +107,30 @@ class BEP20TransferTrigger extends EventEmitter implements INode {
 						name: 'to',
 						description: 'Transfer to wallet address'
 					},
+					{
+						label: 'Both From and To',
+						name: 'fromTo',
+						description: 'Transfer from a wallet address to another wallet address'
+					},
 				],
 				default: '',
 			},
 			{
-				label: 'From',
+				label: 'From Wallet Address',
 				name: 'fromAddress',
 				type: 'string',
 				default: '',
-				description: 'Wallet address',
 				show: {
-					'inputParameters.direction': ['from']
+					'inputParameters.direction': ['from', 'fromTo']
 				}
 			},
 			{
-				label: 'To',
+				label: 'To Wallet Address',
 				name: 'toAddress',
 				type: 'string',
 				default: '',
-				description: 'Wallet address',
 				show: {
-					'inputParameters.direction': ['to']
+					'inputParameters.direction': ['to', 'fromTo']
 				}
 			},
 		] as INodeParams[];
@@ -150,7 +156,7 @@ class BEP20TransferTrigger extends EventEmitter implements INode {
 		)
 
 		if (!provider) throw new Error('Invalid Network Provider');
-		
+
 		const emitEventKey = nodeData.emitEventKey as string;
 		const bep20Address = inputParametersData.bep20Address as string || null;
 		const fromAddress = inputParametersData.fromAddress as string || null;
@@ -165,11 +171,41 @@ class BEP20TransferTrigger extends EventEmitter implements INode {
 		} as any;
 		if (bep20Address) filter['address'] = bep20Address;
 		
-		provider.on(filter, (log: any) => {
+		provider.on(filter, async(log: any) => {
+
 			const txHash = log.transactionHash;
-			log['explorerLink'] = `${networkExplorers[network]}/tx/${txHash}`;
+			const contractInstance = new ethers.Contract(log.address, tokenAbi, provider);
+		
+			/* events are empty at the moment
+			const iface = new ethers.utils.Interface(eventTransferAbi);
+			const logs = await provider.getLogs(filter);
+			const events = logs.map((log) => iface.parseLog(log));
+
+			const fromWallet = events.length ? events[0].args[0] : '';
+			const toWallet = events.length ? events[0].args[1] : '';
+			const value: BigNumber = events.length ? events[0].args[2] : '';
+			*/
+
 			//BEP20 has 3 topics length
-			if (log.topics.length === 3) this.emit(emitEventKey, returnNodeExecutionData(log));
+			if (log.topics.length === 3) {
+				const returnItem = {} as ICommonObject;
+
+				const name = await contractInstance.name();
+				const symbol = await contractInstance.symbol();
+				//const decimals = await contractInstance.decimals();
+				//const amount = utils.formatUnits(value.toString(), decimals);
+
+				returnItem['Token Name'] = name;
+				returnItem['Token Symbol'] = symbol;
+				returnItem['Token Address'] = log.address;
+				if (fromAddress) returnItem['From Wallet'] = fromAddress;
+				if (toAddress) returnItem['To Wallet'] = toAddress;
+				//returnItem['Amount Transfered'] = parseFloat(amount);
+				returnItem['txHash'] = txHash;
+				returnItem['explorerLink'] = `${networkExplorers[network]}/tx/${txHash}`;
+	
+				this.emit(emitEventKey, returnNodeExecutionData(returnItem));
+			}
 		});
 
 		this.providers[emitEventKey] = { provider, filter };

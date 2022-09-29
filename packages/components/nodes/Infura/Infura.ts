@@ -129,7 +129,7 @@ class Infura implements INode {
 				label: 'Parameters',
 				name: 'parameters',
 				type: 'json',
-				default: '[]',
+				placeholder: '["param1", "param2"]',
 				optional: true,
 				description: 'Operation parameters in array. Ex: ["param1", "param2"]',
 				show: {
@@ -220,13 +220,10 @@ class Infura implements INode {
 			let bodyParameters: any[] = []; // tslint:disable-line: no-any
 			const returnData: ICommonObject[] = [];
 
-			let parameters = inputParametersData.parameters as string || '';
-			//Remove whitespaces
-			parameters = parameters.replace(/\s/g, '');
-			
+			const parameters = inputParametersData.parameters as string;
 			if (parameters) {
 				try {
-					bodyParameters = JSON.parse(parameters);
+					bodyParameters = JSON.parse(parameters.replace(/\s/g, ''));
 				} catch(error) {
 					throw handleErrorMessage(error);
 				}

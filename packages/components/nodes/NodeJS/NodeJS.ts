@@ -3,7 +3,6 @@ import {
 	INode, 
     INodeData, 
     INodeExecutionData, 
-    INodeOptionsValue, 
     INodeParams, 
     NodeType,
 } from '../../src/Interface';
@@ -42,10 +41,24 @@ class NodeJS implements INode {
 				default: `console.log($nodeData);\nconst example = 'Hello World!';\nreturn example;`,
                 description: 'Custom code to run'
 			},
+			{
+				label: 'External Modules',
+				name: 'external',
+				type: 'json',
+				placeholder: '["axios"]',
+                description: 'Import installed dependencies within Outerbridge',
+				optional: true
+			},
         ] as INodeParams[];
 	};
 
 	async run(nodeData: INodeData): Promise<INodeExecutionData[] | null> {
+
+		const inputParametersData = nodeData.inputParameters;
+
+        if (inputParametersData === undefined) {
+            throw new Error('Required data missing');
+        }
 
 		const returnData: ICommonObject[] = [];
 
@@ -54,23 +67,27 @@ class NodeJS implements INode {
 			$nodeData: nodeData,
 		};
 
-		const vm = new NodeVM({
+		const options = {
 			console: 'inherit',
 			sandbox,
 			require: {
-				external: true,
+				external: false as boolean | { modules: string[] },
 				builtin: ['*'],
-				root: "./",
 			},
-		});
-
-		const inputParametersData = nodeData.inputParameters;
-
-        if (inputParametersData === undefined) {
-            throw new Error('Required data missing');
-        }
+		} as any;
 
         const code = inputParametersData.code as string || '';
+		const external = inputParametersData.external as string;
+		if (external) {
+			const deps = JSON.parse(external);
+			if (deps && deps.length) {
+				options.require.external = {
+					modules: deps,
+				};
+			}
+		}
+
+		const vm = new NodeVM(options);
 
 		let responseData: any; // tslint:disable-line: no-any
 

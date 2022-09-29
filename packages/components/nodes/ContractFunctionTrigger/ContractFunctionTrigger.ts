@@ -63,7 +63,7 @@ class ContractFunctionTrigger extends EventEmitter implements INode {
 				label: 'Function Parameters',
 				name: 'funcParameters',
 				type: 'json',
-				default: '[]',
+				placeholder: '["param1", "param2"]',
 				description: 'Function parameters in array. Ex: ["param1", "param2"]',
 				optional: true
 			},
@@ -286,14 +286,13 @@ class ContractFunctionTrigger extends EventEmitter implements INode {
 				
 			const emitEventKey = nodeData.emitEventKey as string;
 			const functionName = actionsData.function as string || '';
-			let inputParameters = actionsData.funcParameters as string || '';
-			inputParameters = inputParameters.replace(/\s/g, '');
-
+		
 			let contractParameters: any[] = [];
 
-			if (inputParameters) {
+			const funcParameters = actionsData.funcParameters as string;
+			if (funcParameters) {
 				try {
-					contractParameters = JSON.parse(inputParameters);
+					contractParameters = JSON.parse(funcParameters.replace(/\s/g, ''));
 				} catch(error) {
 					throw handleErrorMessage(error);
 				}

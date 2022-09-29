@@ -7,6 +7,10 @@ import { useTheme } from '@mui/material/styles';
 // third party
 import ReactJson from 'react-json-view';
 
+// utils
+import { copyToClipboard } from 'utils/genericHelper';
+
+
 // ==============================|| OPTION PARAMS RESPONSE ||============================== //
 
 const OptionParamsResponse = ({
@@ -77,6 +81,7 @@ const OptionParamsResponse = ({
                     <ReactJson 
                         collapsed 
                         src={JSON.parse(getSelectedOptionExampleParams(value))}
+                        enableClipboard={e => copyToClipboard(e)}
                     />
                 </Box>
             )}
@@ -97,6 +102,7 @@ const OptionParamsResponse = ({
                     <ReactJson 
                         collapsed 
                         src={getSelectedOptionExampleResponse(value)}
+                        enableClipboard={e => copyToClipboard(e)}
                     />
                 </Box>
             )}

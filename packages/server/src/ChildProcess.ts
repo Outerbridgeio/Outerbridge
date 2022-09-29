@@ -1,20 +1,14 @@
 import { ICommonObject, INodeData } from "outerbridge-components";
-import { IChildProcessMessage, IRunWorkflowMessageValue, IVariableDict, IWorkflowExecutedData } from "./Interface";
-import { decryptCredentials } from "./utils";
+import { IChildProcessMessage, IExploredNode, INodeQueue, IRunWorkflowMessageValue, IVariableDict, IWorkflowExecutedData } from "./Interface";
+import { checkOAuth2TokenRefreshed, decryptCredentials } from "./utils";
+import { DataSource } from "typeorm";
+import { Workflow } from "./entity/Workflow"
+import { Execution } from "./entity/Execution"
+import { Credential } from "./entity/Credential"
+import { Webhook } from "./entity/Webhook"
+import { Contract } from "./entity/Contract"
+import { Wallet } from "./entity/Wallet"
 import lodash from 'lodash';
-
-
-interface IExploredNode {
-    [key: string]: {
-        remainingLoop: number;
-        lastSeenDepth: number;
-    }
-}
-
-interface INodeQueue {
-    nodeId: string;
-    depth: number;
-}
 
 export class ChildProcess {
 
@@ -27,7 +21,6 @@ export class ChildProcess {
 		}, 50000);
 	}
     
-    
     /**
      * Run the workflow using Breadth First Search Topological Sort
      * @param {IRunWorkflowMessageValue} messageValue
@@ -39,6 +32,8 @@ export class ChildProcess {
 		process.on('SIGINT', ChildProcess.stopChildProcess);
 
         await sendToParentProcess('start', '_');
+
+        const childAppDataSource = await initDB();
 
         // Create a Queue and add our initial node in it
         const { 
@@ -74,12 +69,14 @@ export class ChildProcess {
                     const nodeInstanceFilePath = componentNodes[reactFlowNode.data.name].filePath;
                     const nodeModule = require(nodeInstanceFilePath);
                     const newNodeInstance = new nodeModule.nodeClass();
-
-                    await decryptCredentials(reactFlowNode.data);
-
+                   
+                    await decryptCredentials(reactFlowNode.data, childAppDataSource);
+                    
                     const reactFlowNodeData: INodeData = resolveVariables(reactFlowNode.data, workflowExecutedData);
 
-                    const result = await newNodeInstance.run!.call(newNodeInstance, reactFlowNodeData);
+                    let result = await newNodeInstance.run!.call(newNodeInstance, reactFlowNodeData);
+                  
+                    checkOAuth2TokenRefreshed(result, reactFlowNodeData, childAppDataSource)
                 
                     // Determine which nodes to route next when it comes to ifElse
                     if (result && nodeId.includes('ifElse')) {
@@ -148,6 +145,24 @@ export class ChildProcess {
         };
         await sendToParentProcess('finish', workflowExecutedData);
     }
+}
+
+/**
+ * Initalize DB in child process
+ * @returns {DataSource}
+ */
+async function initDB() {
+    const childAppDataSource = new DataSource({
+        type: "mongodb",
+        url: `mongodb://${process.env.MONGO_HOST || 'localhost'}:27017/outerbridge`,
+        useNewUrlParser: true,
+        synchronize: true,
+        logging: false,
+        entities: [Workflow, Execution, Credential, Webhook, Contract, Wallet],
+        migrations: [],
+        subscribers: [],
+    });
+    return await childAppDataSource.initialize()
 }
 
 

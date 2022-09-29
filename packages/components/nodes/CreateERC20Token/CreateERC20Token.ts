@@ -10,23 +10,28 @@ import {
     NodeType,
 } from '../../src/Interface';
 import {
+    getNodeModulesPackagePath,
 	handleErrorMessage,
     returnNodeExecutionData
 } from '../../src/utils';
 import { ethers } from "ethers";
 import * as fs from 'fs';
-import * as path from 'path';
 import { 
+    ArbitrumNetworks,
+    BSCNetworks,
+    ETHNetworks,
     getNetworkProvider, 
     getNetworkProvidersList, 
     NETWORK, 
     networkExplorers, 
-    NETWORK_PROVIDER, 
+    NETWORK_PROVIDER,
+    OptimismNetworks,
+    PolygonNetworks, 
 } from '../../src/ChainNetwork';
 
 const solc = require('solc');
 
-class CreateToken implements INode {
+class CreateERC20Token implements INode {
 
     label: string;
     name: string;
@@ -45,39 +50,26 @@ class CreateToken implements INode {
 
 		this.label = 'Create Token';
 		this.name = 'createToken';
-		this.icon = 'token.svg';
+		this.icon = 'createERC20.svg';
 		this.type = 'action';
 		this.version = 1.0;
-		this.description = 'Create new cryptocurrency token';
+		this.description = 'Create new cryptocurrency token (ERC20)';
         this.incoming = 1;
         this.outgoing = 1;
-        this.actions = [
-            {
-                label: 'Token Standard',
-                name: 'tokenStandard',
-                type: 'options',
-                options: [
-                    {
-                        label: 'ERC20',
-                        name: 'ERC20',
-                    },
-                    {
-                        label: 'ERC721 (NFT)',
-                        name: 'ERC721',
-                    },
-                ],
-                default: 'ERC20',
-            },
-            {
-				label: 'Select Wallet',
-				name: 'wallet',
-				type: 'asyncOptions',
-                description: 'Creating token is a transaction (action) on blockchain. It requires a wallet to sign the transaction and pay for the gas fee.',
-				loadFromDbCollections: ['Wallet'],
-				loadMethod: 'getWallets',
-			},
-        ] as INodeParams[];
 		this.networks = [
+			{
+				label: 'Network',
+				name: 'network',
+				type: 'options',
+				options: [
+					...ETHNetworks,
+                    ...PolygonNetworks,
+                    ...ArbitrumNetworks,
+                    ...OptimismNetworks,
+                    ...BSCNetworks
+				],
+				default: 'goerli',
+			},
 			{
 				label: 'Network Provider',
 				name: 'networkProvider',
@@ -131,6 +123,14 @@ class CreateToken implements INode {
 			},
 		] as INodeParams[];
 		this.inputParameters = [
+            {
+				label: 'Select Wallet',
+				name: 'wallet',
+				type: 'asyncOptions',
+                description: 'Wallet account to create ERC20 Token.',
+				loadFromDbCollections: ['Wallet'],
+				loadMethod: 'getWallets',
+			},
 			{
 				label: 'Token Name',
 				name: 'tokenName',
@@ -193,47 +193,43 @@ class CreateToken implements INode {
 		async getWallets(nodeData: INodeData, dbCollection?: IDbCollection): Promise<INodeOptionsValue[]> {
 			const returnData: INodeOptionsValue[] = [];
 
-            if (dbCollection === undefined || !dbCollection || !dbCollection.Wallet) {
+			const networksData = nodeData.networks;
+            if (networksData === undefined) {
                 return returnData;
             }
 
-			const wallets: IWallet[] = dbCollection.Wallet;
+			try {
+				if (dbCollection === undefined || !dbCollection || !dbCollection.Wallet) {
+					return returnData;
+				}
 
-			for (let i = 0; i < wallets.length; i+=1) {
-				const wallet = wallets[i];
-				const data = {
-					label: `${wallet.name} (${wallet.network})`,
-					name: JSON.stringify(wallet),
-					description: wallet.address
-				} as INodeOptionsValue;
-				returnData.push(data);
+				const wallets: IWallet[] = dbCollection.Wallet;
+
+				for (let i = 0; i < wallets.length; i+=1) {
+					const wallet = wallets[i];
+					const data = {
+						label: `${wallet.name} (${wallet.network})`,
+						name: JSON.stringify(wallet),
+						description: wallet.address
+					} as INodeOptionsValue;
+					returnData.push(data);
+				}
+
+				return returnData;
+
+			} catch(e) {
+				return returnData;
 			}
-
-			return returnData;
 		},
 
         async getNetworkProviders(nodeData: INodeData): Promise<INodeOptionsValue[]> {
 			const returnData: INodeOptionsValue[] = [];
 
-			const actionData = nodeData.actions;
-            if (actionData === undefined) {
-                return returnData;
-            }
+			const networksData = nodeData.networks;
+            if (networksData === undefined) return returnData;
 
-			const walletString = actionData.wallet as string || '';
-			if (!walletString) return returnData;
-
-			try {
-				const walletDetails = JSON.parse(walletString);
-
-				if (!walletDetails.network) return returnData;
-
-                const network = walletDetails.network;
-				return getNetworkProvidersList(network);
-				
-			} catch(e) {
-				return returnData;
-			}
+			const network = networksData.network as NETWORK;
+			return getNetworkProvidersList(network);
 		},
 
     }
@@ -241,18 +237,17 @@ class CreateToken implements INode {
 	async run(nodeData: INodeData): Promise<INodeExecutionData[] | null> {
 
         const networksData = nodeData.networks;
-		const actionsData = nodeData.actions;
 		const credentials = nodeData.credentials;
         const inputParametersData = nodeData.inputParameters;
 
-        if (networksData === undefined || actionsData === undefined || inputParametersData === undefined) {
+        if (networksData === undefined || inputParametersData === undefined) {
             throw new Error('Required data missing');
         }
 
         try {
-            const walletString = actionsData.wallet as string;
+            const walletString = inputParametersData.wallet as string;
 			const walletDetails: IWallet = JSON.parse(walletString);
-			const network = walletDetails.network as NETWORK;
+			const network = networksData.network as NETWORK;
 
             const provider = await getNetworkProvider(
 				networksData.networkProvider as NETWORK_PROVIDER,
@@ -268,7 +263,6 @@ class CreateToken implements INode {
             const walletCredential = JSON.parse(walletDetails.walletCredential);
             const wallet = new ethers.Wallet(walletCredential.privateKey as string, provider);
 
-            const tokenStandard = actionsData.tokenStandard as string;
             const tokenName = inputParametersData.tokenName as string;
             const tokenSupply = inputParametersData.tokenSupply as number;
             const tokenSymbol = inputParametersData.tokenSymbol as string;
@@ -287,49 +281,22 @@ class CreateToken implements INode {
             } as any;
     
             function findImports(_path: any) {
-                const filepath = path.join(path.resolve(__dirname, '..', '..', '..', '..', '..'), 'node_modules', _path);
+                const filepath = getNodeModulesPackagePath(_path);
                 const contents = fs.readFileSync(filepath).toString();
                 return { contents }
             }
     
-            let contractCode = '';
-
-            if (tokenStandard === 'ERC20') {
-                contractCode = 
-                `// SPDX-License-Identifier: MIT
-                pragma solidity ^${solidityVersion};
-                import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-                
-                contract ${tokenName.trim()} is ERC20 {
-                    constructor(uint256 initialSupply) ERC20("${tokenName} Token", "${tokenSymbol}"){
-                        _mint(msg.sender, initialSupply);
-                    }
-                }`
-            }
-            else if (tokenStandard === 'ERC20') {
-                contractCode = 
-                `// SPDX-License-Identifier: MIT
-                pragma solidity ^${solidityVersion};
-                
-                import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-                import "@openzeppelin/contracts/utils/Counters.sol";
-                
-                contract ${tokenName.trim()} is ERC721URIStorage {
-                    using Counters for Counters.Counter;
-                    Counters.Counter private _tokenIds;
-
-                    constructor () public ERC721 ("${tokenName}", "${tokenSymbol}") {}
-                
-                    function createCollectible(string memory tokenURI) public returns (uint256){
-                        _tokenIds.increment();
-                        uint256 newItemId = _tokenIds.current();
-                        _safeMint(msg.sender, newItemId);
-                        _setTokenURI(newItemId, tokenURI);
-                        return newItemId;
-                    }
-                }`
-            }
-
+            const contractCode = 
+            `// SPDX-License-Identifier: MIT
+            pragma solidity ^${solidityVersion};
+            import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+            
+            contract ${tokenName.trim()} is ERC20 {
+                constructor(uint256 initialSupply) ERC20("${tokenName} Token", "${tokenSymbol}"){
+                    _mint(msg.sender, initialSupply);
+                }
+            }`;
+            
             input.sources[tokenName+'.sol'] = {content: contractCode};
             const output = JSON.parse(solc.compile(JSON.stringify(input), {import: findImports}));
     
@@ -360,4 +327,4 @@ class CreateToken implements INode {
 	}
 }
 
-module.exports = { nodeClass: CreateToken }
+module.exports = { nodeClass: CreateERC20Token }

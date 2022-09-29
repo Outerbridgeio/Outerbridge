@@ -60,7 +60,7 @@ class ExecuteContractFunction implements INode {
 				label: 'Function Parameters',
 				name: 'funcParameters',
 				type: 'json',
-				default: '[]',
+				placeholder: '["param1", "param2"]',
 				description: 'Function parameters in array. Ex: ["param1", "param2"]',
 				optional: true
 			},
@@ -305,11 +305,16 @@ class ExecuteContractFunction implements INode {
 			const abi = JSON.parse(abiString);
 			
 			let functionName = actionsData.function as string || '';
-			let inputParameters = actionsData.funcParameters as string || '';
-			inputParameters = inputParameters.replace(/\s/g, '');
-
+		
 			let contractParameters: any[] = [];
-			if (inputParameters) contractParameters = JSON.parse(inputParameters);
+			const funcParameters = actionsData.funcParameters as string;
+			if (funcParameters) {
+				try {
+					contractParameters = JSON.parse(funcParameters.replace(/\s/g, ''));
+				} catch(error) {
+					throw handleErrorMessage(error);
+				}
+			}
 
 			let contractInstance: ethers.Contract;
 			if (new RegExp('(\\(payable\\)|\\(nonpayable\\))').test(functionName)) {

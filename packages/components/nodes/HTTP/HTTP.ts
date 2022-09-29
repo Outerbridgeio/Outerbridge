@@ -12,7 +12,7 @@ import {
     returnNodeExecutionData,
 	serializeQueryParams
 } from '../../src/utils';
-import axios, { AxiosRequestConfig, AxiosRequestHeaders, Method } from 'axios';
+import axios, { AxiosRequestConfig, AxiosRequestHeaders, Method, ResponseType } from 'axios';
 
 class HTTP implements INode {
 
@@ -164,7 +164,7 @@ class HTTP implements INode {
                 show: {
                     'inputParameters.bodyType': ['json']
                 },
-                default: '{}',
+                placeholder: '{"var1": "value1"}',
                 optional: true,
             },
             {
@@ -177,6 +177,30 @@ class HTTP implements INode {
                 default: '',
                 optional: true,
             },
+			{
+				label: 'Response Type',
+				name: 'responseType',
+				type: 'options',
+				options: [
+					{
+						label: 'JSON',
+						name: 'json',
+					},
+                    {
+						label: 'Text',
+						name: 'text',
+					},
+					{
+						label: 'Array Buffer',
+						name: 'arraybuffer',
+					},
+					{
+						label: 'Raw (Base64)',
+						name: 'base64',
+					},
+				],
+                optional: true,
+			},
 		]
 	};
 
@@ -200,6 +224,7 @@ class HTTP implements INode {
         const queryParams = inputParametersData.queryParams as ICommonObject[] || [];
         const bodyType = inputParametersData.bodyType as string;
         const body = inputParametersData.body as string;
+		const responseType = inputParametersData.responseType as string;
 
         const returnData: ICommonObject = {};
 
@@ -221,7 +246,7 @@ class HTTP implements INode {
             }
 
             if (bodyType && bodyType === 'json' && body) {
-                data = JSON.parse(body);
+                data = JSON.parse(body.replace(/\s/g, ' '));
 
             } else if (bodyType && bodyType === 'text' && body) {
                 data = body;
@@ -249,6 +274,11 @@ class HTTP implements INode {
 				axiosConfig.headers = queryHeaders;
 			}
 
+			if (responseType) {
+				axiosConfig.responseType = responseType as ResponseType;
+				if (responseType === 'base64') axiosConfig.responseType = 'arraybuffer';
+			}
+
             if (credentialMethod === 'httpBasicAuth') {
                 axiosConfig.auth = {
                     username: credentials!.userName as string,
@@ -257,7 +287,21 @@ class HTTP implements INode {
             }
 
             const response = await axios(axiosConfig);
-            returnData['data'] = response.data;	
+
+			if (responseType && responseType === 'base64') {
+				const content = `data:${response.headers["content-type"]};base64,${response.data.toString('base64')}`;
+				const attachment = {
+					contentType: response.headers["content-type"],
+					size: response.headers["content-length"],
+					content
+				}
+				returnData['data'] = content;
+				returnData.attachments = [attachment];
+
+			} else {
+				returnData['data'] = response.data;
+			}
+			
             returnData['status'] = response.status;
             returnData['statusText'] = response.statusText;
             returnData['headers'] = response.headers;

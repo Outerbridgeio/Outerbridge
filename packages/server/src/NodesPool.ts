@@ -4,6 +4,7 @@ import {
 
 import path from 'path';
 import { Dirent } from "fs";
+import { getNodeModulesPackagePath } from './utils';
 const { readdir } = require('fs').promises;
 
 export class NodesPool {
@@ -15,7 +16,8 @@ export class NodesPool {
 	 */
     async initialize() {
 	
-		const nodesPath = path.join(__dirname, "..", "node_modules", "outerbridge-components", "dist", "nodes");
+        const packagePath = getNodeModulesPackagePath("outerbridge-components");
+		const nodesPath = path.join(packagePath, "dist", "nodes");
         const nodeFiles = await this.getFiles(nodesPath);
         nodeFiles.forEach(file => {
             if (file.endsWith('.js')) {
