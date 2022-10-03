@@ -1,4 +1,5 @@
 import { ICommonObject } from ".";
+import { NETWORK, NETWORK_PROVIDER } from "./ChainNetwork";
 
 export interface IETHOperation {
 	name: string;
@@ -7,13 +8,66 @@ export interface IETHOperation {
 	description?: string;
     body: ICommonObject;
     method: string;
-    providers: string[];
-    networks: string[];
+    providerNetworks: {
+        [key: string]: NETWORK[],
+    }
+    overrideUrl?: string;
     inputParameters?: string;
 	exampleParameters?: string;
 	outputResponse?: string;
 	exampleResponse?: ICommonObject;
 }
+
+export const operationCategoryMapping = {
+    retrievingBlocks: 'Retrieving Blocks',
+    evmExecution: 'EVM/Smart Contract Execution',
+    readingTransactions: 'Reading Transactions',
+    accountInformation: 'Account Information',
+    eventLogs: 'Event Logs',
+    chainInformation: 'Chain Information',
+    txReceiptInformation: 'Transaction Receipt Information',
+    retrievingUncles: 'Retrieving Uncles',
+    filters: 'Filters',
+    readWriteTransactions: 'Reading & Writing Transactions',
+    gettingBlocks: 'Getting Blocks',
+    networkInformation: 'Network Information',
+    slotInformation: 'Slot Information',
+    nodeInformation: 'Node Information',
+    tokenInformation: 'Token Information',
+    networkInflation: 'Network Inflation',
+} as any;
+
+export const alchemySupportedNetworks = [
+    NETWORK.MAINNET, 
+    NETWORK.RINKEBY, 
+    NETWORK.GÖRLI,
+    NETWORK.ROPSTEN,
+    NETWORK.KOVAN,
+    NETWORK.MATIC,
+    NETWORK.MATIC_MUMBAI,
+    NETWORK.OPTIMISM,
+    NETWORK.OPTIMISM_KOVAN,
+    NETWORK.OPTIMISM_GOERLI,
+    NETWORK.ARBITRUM,
+    NETWORK.ARBITRUM_RINKEBY,
+    NETWORK.ARBITRUM_GOERLI
+];
+
+export const infuraSupportedNetworks = [
+    ...alchemySupportedNetworks,
+    NETWORK.AVALANCHE,
+    NETWORK.AVALANCHE_TESTNET
+];
+
+export const qnSupportedNetworks = [
+    ...infuraSupportedNetworks,
+    NETWORK.ARBITRUM_NOVA,
+    NETWORK.GNOSIS,
+    NETWORK.BSC,
+    NETWORK.BSC_TESTNET,
+    NETWORK.FANTOM,
+    NETWORK.CELO,
+];
 
 export const ethOperations = [
     {
@@ -21,8 +75,11 @@ export const ethOperations = [
         value: 'eth_blockNumber',
         parentGroup: 'Retrieving Blocks',
         description: 'Returns the number of the most recent block.',
-        providers: ['alchemy', 'infura'],
-        networks: ['homestead', 'rinkeby', 'goerli', 'ropsten', 'kovan', 'matic', 'maticmum', 'optimism', 'optimism-kovan', 'arbitrum', 'arbitrum-rinkeby'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.ALCHEMY]: alchemySupportedNetworks,
+            [NETWORK_PROVIDER.INFURA]: infuraSupportedNetworks,
+            [NETWORK_PROVIDER.QUICKNODE]: qnSupportedNetworks
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -41,8 +98,11 @@ export const ethOperations = [
         value: 'eth_getBlockByHash',
         parentGroup: 'Retrieving Blocks',
         description: 'Returns information about a block by hash.',
-        providers: ['alchemy', 'infura'],
-        networks: ['homestead', 'rinkeby', 'goerli', 'ropsten', 'kovan', 'matic', 'maticmum', 'optimism', 'optimism-kovan', 'arbitrum', 'arbitrum-rinkeby'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.ALCHEMY]: alchemySupportedNetworks,
+            [NETWORK_PROVIDER.INFURA]: infuraSupportedNetworks,
+            [NETWORK_PROVIDER.QUICKNODE]: qnSupportedNetworks
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -93,8 +153,11 @@ export const ethOperations = [
         value: 'eth_call',
         parentGroup: 'EVM/Smart Contract Execution',
         description: "Executes a new message call immediately without creating a transaction on the block chain.",
-        providers: ['alchemy', 'infura'],
-        networks: ['homestead', 'rinkeby', 'goerli', 'ropsten', 'kovan', 'matic', 'maticmum', 'optimism', 'optimism-kovan', 'arbitrum', 'arbitrum-rinkeby'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.ALCHEMY]: alchemySupportedNetworks,
+            [NETWORK_PROVIDER.INFURA]: infuraSupportedNetworks,
+            [NETWORK_PROVIDER.QUICKNODE]: qnSupportedNetworks
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -137,8 +200,11 @@ export const ethOperations = [
         value: 'eth_sendRawTransaction',
         parentGroup: 'EVM/Smart Contract Execution',
         description: 'Submits a pre-signed transaction for broadcast to the Ethereum network.',
-        providers: ['alchemy', 'infura'],
-        networks: ['homestead', 'rinkeby', 'goerli', 'ropsten', 'kovan', 'matic', 'maticmum', 'optimism', 'optimism-kovan', 'arbitrum', 'arbitrum-rinkeby'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.ALCHEMY]: alchemySupportedNetworks,
+            [NETWORK_PROVIDER.INFURA]: infuraSupportedNetworks,
+            [NETWORK_PROVIDER.QUICKNODE]: qnSupportedNetworks
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -164,8 +230,9 @@ export const ethOperations = [
         value: 'eth_submitWork',
         parentGroup: 'EVM/Smart Contract Execution',
         description: 'Used for submitting a proof-of-work solution.',
-        providers: ['infura'],
-        networks: ['homestead', 'rinkeby', 'goerli', 'ropsten', 'kovan', 'matic', 'maticmum', 'optimism', 'optimism-kovan', 'arbitrum', 'arbitrum-rinkeby'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.INFURA]: infuraSupportedNetworks
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -195,8 +262,11 @@ export const ethOperations = [
         value: 'eth_getBlockByNumber',
         parentGroup: 'Retrieving Blocks',
         description: 'Returns information about a block by block number.',
-        providers: ['alchemy', 'infura'],
-        networks: ['homestead', 'rinkeby', 'goerli', 'ropsten', 'kovan', 'matic', 'maticmum', 'optimism', 'optimism-kovan', 'arbitrum', 'arbitrum-rinkeby'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.ALCHEMY]: alchemySupportedNetworks,
+            [NETWORK_PROVIDER.INFURA]: infuraSupportedNetworks,
+            [NETWORK_PROVIDER.QUICKNODE]: qnSupportedNetworks
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -245,8 +315,11 @@ export const ethOperations = [
         value: 'eth_getTransactionByHash',
         parentGroup: 'Reading Transactions',
         description: 'Returns the information about a transaction requested by transaction hash. In the response object, `blockHash`, `blockNumber`, and `transactionIndex` are `null` when the transaction is pending.',
-        providers: ['alchemy', 'infura'],
-        networks: ['homestead', 'rinkeby', 'goerli', 'ropsten', 'kovan', 'matic', 'maticmum', 'optimism', 'optimism-kovan', 'arbitrum', 'arbitrum-rinkeby'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.ALCHEMY]: alchemySupportedNetworks,
+            [NETWORK_PROVIDER.INFURA]: infuraSupportedNetworks,
+            [NETWORK_PROVIDER.QUICKNODE]: qnSupportedNetworks
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -287,8 +360,11 @@ export const ethOperations = [
         value: 'eth_getTransactionCount',
         parentGroup: 'Reading Transactions',
         description: 'Returns the number of transactions sent from an address.',
-        providers: ['alchemy', 'infura'],
-        networks: ['homestead', 'rinkeby', 'goerli', 'ropsten', 'kovan', 'matic', 'maticmum', 'optimism', 'optimism-kovan', 'arbitrum', 'arbitrum-rinkeby'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.ALCHEMY]: alchemySupportedNetworks,
+            [NETWORK_PROVIDER.INFURA]: infuraSupportedNetworks,
+            [NETWORK_PROVIDER.QUICKNODE]: qnSupportedNetworks
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -316,8 +392,11 @@ export const ethOperations = [
         value: 'eth_getTransactionReceipt',
         parentGroup: 'Reading Transactions',
         description: 'Returns the receipt of a transaction by transaction hash.',
-        providers: ['alchemy', 'infura'],
-        networks: ['homestead', 'rinkeby', 'goerli', 'ropsten', 'kovan', 'matic', 'maticmum', 'optimism', 'optimism-kovan', 'arbitrum', 'arbitrum-rinkeby'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.ALCHEMY]: alchemySupportedNetworks,
+            [NETWORK_PROVIDER.INFURA]: infuraSupportedNetworks,
+            [NETWORK_PROVIDER.QUICKNODE]: qnSupportedNetworks
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -373,8 +452,11 @@ export const ethOperations = [
         value: 'eth_getBlockTransactionCountByHash',
         parentGroup: 'Reading Transactions',
         description: 'Returns the number of transactions in a block matching the given block hash.',
-        providers: ['alchemy', 'infura'],
-        networks: ['homestead', 'rinkeby', 'goerli', 'ropsten', 'kovan', 'matic', 'maticmum', 'optimism', 'optimism-kovan', 'arbitrum', 'arbitrum-rinkeby'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.ALCHEMY]: alchemySupportedNetworks,
+            [NETWORK_PROVIDER.INFURA]: infuraSupportedNetworks,
+            [NETWORK_PROVIDER.QUICKNODE]: qnSupportedNetworks
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -400,8 +482,11 @@ export const ethOperations = [
         value: 'eth_getBlockTransactionCountByNumber',
         parentGroup: 'Reading Transactions',
         description: 'Returns the number of transactions in a block matching the given block number.',
-        providers: ['alchemy', 'infura'],
-        networks: ['homestead', 'rinkeby', 'goerli', 'ropsten', 'kovan', 'matic', 'maticmum', 'optimism', 'optimism-kovan', 'arbitrum', 'arbitrum-rinkeby'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.ALCHEMY]: alchemySupportedNetworks,
+            [NETWORK_PROVIDER.INFURA]: infuraSupportedNetworks,
+            [NETWORK_PROVIDER.QUICKNODE]: qnSupportedNetworks
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -427,8 +512,11 @@ export const ethOperations = [
         value: 'eth_getTransactionByBlockHashAndIndex',
         parentGroup: 'Reading Transactions',
         description: 'Returns information about a transaction by block hash and transaction index position.',
-        providers: ['alchemy', 'infura'],
-        networks: ['homestead', 'rinkeby', 'goerli', 'ropsten', 'kovan', 'matic', 'maticmum', 'optimism', 'optimism-kovan', 'arbitrum', 'arbitrum-rinkeby'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.ALCHEMY]: alchemySupportedNetworks,
+            [NETWORK_PROVIDER.INFURA]: infuraSupportedNetworks,
+            [NETWORK_PROVIDER.QUICKNODE]: qnSupportedNetworks
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -471,8 +559,11 @@ export const ethOperations = [
         value: 'eth_getTransactionByBlockNumberAndIndex',
         parentGroup: 'Reading Transactions',
         description: 'Returns information about a transaction by block number and transaction index position.',
-        providers: ['alchemy', 'infura'],
-        networks: ['homestead', 'rinkeby', 'goerli', 'ropsten', 'kovan', 'matic', 'maticmum', 'optimism', 'optimism-kovan', 'arbitrum', 'arbitrum-rinkeby'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.ALCHEMY]: alchemySupportedNetworks,
+            [NETWORK_PROVIDER.INFURA]: infuraSupportedNetworks,
+            [NETWORK_PROVIDER.QUICKNODE]: qnSupportedNetworks
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -516,8 +607,11 @@ export const ethOperations = [
         value: 'eth_getBalance',
         parentGroup: 'Account Information',
         description: 'Returns the balance of the account of a given address.',
-        providers: ['alchemy', 'infura'],
-        networks: ['homestead', 'rinkeby', 'goerli', 'ropsten', 'kovan', 'matic', 'maticmum', 'optimism', 'optimism-kovan', 'arbitrum', 'arbitrum-rinkeby'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.ALCHEMY]: alchemySupportedNetworks,
+            [NETWORK_PROVIDER.INFURA]: infuraSupportedNetworks,
+            [NETWORK_PROVIDER.QUICKNODE]: qnSupportedNetworks
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -545,8 +639,11 @@ export const ethOperations = [
         value: 'eth_getCode',
         parentGroup: 'Account Information',
         description: 'Returns code at a given address.',
-        providers: ['alchemy', 'infura'],
-        networks: ['homestead', 'rinkeby', 'goerli', 'ropsten', 'kovan', 'matic', 'maticmum', 'optimism', 'optimism-kovan', 'arbitrum', 'arbitrum-rinkeby'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.ALCHEMY]: alchemySupportedNetworks,
+            [NETWORK_PROVIDER.INFURA]: infuraSupportedNetworks,
+            [NETWORK_PROVIDER.QUICKNODE]: qnSupportedNetworks
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -574,8 +671,11 @@ export const ethOperations = [
         value: 'eth_getStorageAt',
         parentGroup: 'Account Information',
         description: "Returns the value from a storage position at a given address, or in other words, returns the state of the contract's storage, which may not be exposed via the contract's methods.",
-        providers: ['alchemy', 'infura'],
-        networks: ['homestead', 'rinkeby', 'goerli', 'ropsten', 'kovan', 'matic', 'maticmum', 'arbitrum', 'arbitrum-rinkeby'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.ALCHEMY]: alchemySupportedNetworks,
+            [NETWORK_PROVIDER.INFURA]: infuraSupportedNetworks,
+            [NETWORK_PROVIDER.QUICKNODE]: qnSupportedNetworks
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -605,8 +705,10 @@ export const ethOperations = [
         value: 'eth_accounts',
         parentGroup: 'Account Information',
         description: 'Returns a list of addresses owned by client.',
-        providers: ['alchemy', 'infura'],
-        networks: ['homestead', 'rinkeby', 'goerli', 'ropsten', 'kovan', 'matic', 'maticmum', 'optimism', 'optimism-kovan', 'arbitrum', 'arbitrum-rinkeby'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.ALCHEMY]: alchemySupportedNetworks,
+            [NETWORK_PROVIDER.INFURA]: infuraSupportedNetworks,
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -625,8 +727,9 @@ export const ethOperations = [
         value: 'parity_nextNonce',
         parentGroup: 'Account Information',
         description: 'Returns next available nonce for transaction from given account. Includes pending block and transaction queue.',
-        providers: ['infura'],
-        networks: ['homestead', 'rinkeby', 'goerli', 'ropsten', 'kovan', 'matic', 'maticmum', 'optimism', 'optimism-kovan'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.INFURA]: infuraSupportedNetworks,
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -652,8 +755,10 @@ export const ethOperations = [
         value: 'eth_getProof',
         parentGroup: 'Account Information',
         description: 'Returns the account and storage values of the specified account including the Merkle-proof. This call can be used to verify that the data you are pulling from is not tampered with.',
-        providers: ['alchemy', 'infura'],
-        networks: ['homestead', 'rinkeby', 'goerli', 'ropsten', 'kovan', 'matic', 'maticmum', 'optimism', 'optimism-kovan'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.ALCHEMY]: alchemySupportedNetworks,
+            [NETWORK_PROVIDER.INFURA]: infuraSupportedNetworks,
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -705,8 +810,11 @@ export const ethOperations = [
         value: 'eth_getLogs',
         parentGroup: 'Event Logs',
         description: "Returns an array of all logs matching a given filter object.",
-        providers: ['alchemy', 'infura'],
-        networks: ['homestead', 'rinkeby', 'goerli', 'ropsten', 'kovan', 'matic', 'maticmum', 'optimism', 'optimism-kovan', 'arbitrum', 'arbitrum-rinkeby'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.ALCHEMY]: alchemySupportedNetworks,
+            [NETWORK_PROVIDER.INFURA]: infuraSupportedNetworks,
+            [NETWORK_PROVIDER.QUICKNODE]: qnSupportedNetworks
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -774,8 +882,19 @@ export const ethOperations = [
         value: 'eth_protocolVersion',
         parentGroup: 'Chain Information',
         description: 'Returns the current ethereum protocol version.',
-        providers: ['alchemy', 'infura'],
-        networks: ['homestead', 'rinkeby', 'goerli', 'ropsten', 'kovan', 'optimism', 'optimism-kovan'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.ALCHEMY]: [
+                NETWORK.MAINNET,
+                NETWORK.RINKEBY,
+                NETWORK.GÖRLI,
+                NETWORK.ROPSTEN,
+                NETWORK.KOVAN,
+                NETWORK.OPTIMISM,
+                NETWORK.OPTIMISM_GOERLI,
+                NETWORK.OPTIMISM_KOVAN
+            ],
+            [NETWORK_PROVIDER.INFURA]: infuraSupportedNetworks,
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -794,8 +913,11 @@ export const ethOperations = [
         value: 'eth_gasPrice',
         parentGroup: 'Chain Information',
         description: 'Returns the current price per gas in wei.',
-        providers: ['alchemy', 'infura'],
-        networks: ['homestead', 'rinkeby', 'goerli', 'ropsten', 'kovan', 'matic', 'maticmum', 'optimism', 'optimism-kovan', 'arbitrum', 'arbitrum-rinkeby'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.ALCHEMY]: alchemySupportedNetworks,
+            [NETWORK_PROVIDER.INFURA]: infuraSupportedNetworks,
+            [NETWORK_PROVIDER.QUICKNODE]: qnSupportedNetworks
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -810,12 +932,125 @@ export const ethOperations = [
         }
     },
     {
+        name: 'rollup_gasPrices',
+        value: 'rollup_gasPrices',
+        parentGroup: 'Chain Information',
+        description: 'Returns the L1 and L2 gas prices that are being used by the Sequencer to calculate fees.',
+        providerNetworks: {
+            [NETWORK_PROVIDER.QUICKNODE]: [ 
+                NETWORK.OPTIMISM,
+                NETWORK.OPTIMISM_KOVAN,
+                NETWORK.OPTIMISM_GOERLI 
+            ]
+        },
+        method: 'POST',
+        body: {
+            "jsonrpc":"2.0",
+            "method":"rollup_gasPrices",
+            "params":[],
+            "id":1
+        },
+        exampleResponse: {
+            "jsonrpc": "2.0",
+            "id": 0,
+            "result": {
+                "l1gasprice": "0x98bca5a00",
+                "l2gasprice": "0x98bca5a00"
+            }
+        }
+    },
+    {
+        name: 'rollup_getInfo',
+        value: 'rollup_getInfo',
+        parentGroup: 'Chain Information',
+        description: 'Returns useful L2-specific information about the current node.',
+        providerNetworks: {
+            [NETWORK_PROVIDER.QUICKNODE]: [ 
+                NETWORK.OPTIMISM,
+                NETWORK.OPTIMISM_KOVAN,
+                NETWORK.OPTIMISM_GOERLI 
+            ]
+        },
+        method: 'POST',
+        body: {
+            "jsonrpc":"2.0",
+            "method":"rollup_getInfo",
+            "params":[],
+            "id":1
+        },
+        exampleResponse: {
+            "jsonrpc": "2.0",
+            "id": 0,
+            "result": {
+                "mode": "sequencer",
+                "syncing": true,
+                "blocknumber": "0x123",
+                "timestamp": "189238123123",
+                "queueindex": "0x1",
+                "index": "0x1",
+                "verifiedindex": "0x1",
+            }
+        }
+    },
+    {
+        name: 'eth_estimateExecutionGas',
+        value: 'eth_estimateExecutionGas',
+        parentGroup: 'Chain Information',
+        description: 'Returns an estimation of gas for a given transaction.',
+        providerNetworks: {
+            [NETWORK_PROVIDER.QUICKNODE]: [ 
+                NETWORK.OPTIMISM,
+                NETWORK.OPTIMISM_KOVAN,
+                NETWORK.OPTIMISM_GOERLI 
+            ]
+        },
+        method: 'POST',
+        body: {
+            "jsonrpc":"2.0",
+            "method":"eth_estimateExecutionGas",
+            "params":[],
+            "id":1
+        },
+        inputParameters: `
+        <ul>
+			<li><code class="inline">Object</code> - The transaction call object</li>
+		    <ul>
+			    <li><code class="inline">from</code>: <code class="inline">DATA</code>, 20 Bytes - (optional) The address the transaction is sent from.</li>
+				<li><code class="inline">to</code>: <code class="inline">DATA</code>, 20 Bytes - The address the transaction is directed to.</li>
+				<li><code class="inline">gas</code>: <code class="inline">QUANTITY</code> - (optional) Integer of the gas provided for the transaction execution. <code class="inline">eth_estimateGas</code> consumes zero gas, but this parameter may be needed by some executions. NOTE: this parameter has a cap of 550 Million gas per request.</li>
+				<li><code class="inline">gasPrice</code>: <code class="inline">QUANTITY</code> - (optional) Integer of the gasPrice used for each paid gas.</li>
+				<li><code class="inline">value</code>: <code class="inline">QUANTITY</code> - (optional) Integer of the value sent with this transaction.</li>
+				<li><code class="inline">data</code>: <code class="inline">DATA</code> - (optional) Hash of the method signature and encoded parameters.</li>
+			</ul>
+			<li><code class="inline">QUANTITY|TAG</code> - integer block number, or the string "latest", "earliest" or "pending"</li>
+		</ul>`,
+        exampleParameters: `[
+  {
+    "from": "0xb60e8dd61c5d32be8058bb8eb970870f07233155",
+    "to": "0xd46e8dd67c5d32be8058bb8eb970870f07244567",
+    "gas": "0x76c0",
+    "gasPrice": "0x9184e72a000",
+    "value": "0x9184e72a",
+    "data": "0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675"
+  }, 
+  "latest"
+]`,
+        exampleResponse: {
+            "jsonrpc": "2.0",
+            "id": 0,
+            "result": "0x98bca5a00"
+        }
+    },
+    {
         name: 'eth_syncing',
         value: 'eth_syncing',
         parentGroup: 'Chain Information',
         description: 'Returns an object with data about the sync status or false.',
-        providers: ['infura'],
-        networks: ['homestead', 'rinkeby', 'goerli', 'ropsten', 'kovan', 'matic', 'maticmum', 'optimism', 'optimism-kovan', 'arbitrum', 'arbitrum-rinkeby'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.ALCHEMY]: alchemySupportedNetworks,
+            [NETWORK_PROVIDER.INFURA]: infuraSupportedNetworks,
+            [NETWORK_PROVIDER.QUICKNODE]: qnSupportedNetworks
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -830,12 +1065,37 @@ export const ethOperations = [
         }
     },
     {
+        name: 'eth_mining',
+        value: 'eth_mining',
+        parentGroup: 'Chain Information',
+        description: 'Returns true if the node is mining, otherwise false.',
+        providerNetworks: {
+            [NETWORK_PROVIDER.INFURA]: infuraSupportedNetworks,
+            [NETWORK_PROVIDER.QUICKNODE]: qnSupportedNetworks
+        },
+        method: 'POST',
+        body: {
+            "jsonrpc":"2.0",
+            "method":"eth_mining",
+            "params":[],
+            "id":0
+        },
+        exampleResponse: {
+            "jsonrpc": "2.0",
+            "id": 0,
+            "result": true
+        },
+    },
+    {
         name: 'eth_estimateGas',
         value: 'eth_estimateGas',
         parentGroup: 'Chain Information',
         description: 'Generates and returns an estimate of how much gas is necessary to allow the transaction to complete. The transaction will not be added to the blockchain.',
-        providers: ['alchemy', 'infura'],
-        networks: ['homestead', 'rinkeby', 'goerli', 'ropsten', 'kovan', 'matic', 'maticmum', 'arbitrum', 'arbitrum-rinkeby'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.ALCHEMY]: alchemySupportedNetworks,
+            [NETWORK_PROVIDER.INFURA]: infuraSupportedNetworks,
+            [NETWORK_PROVIDER.QUICKNODE]: qnSupportedNetworks
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -878,8 +1138,16 @@ export const ethOperations = [
         value: 'eth_feeHistory',
         parentGroup: 'Chain Information',
         description: 'Returns a collection of historical gas information',
-        providers: ['alchemy', 'infura'],
-        networks: ['ethereum', 'optimism', 'optimism-kovan'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.ALCHEMY]: [
+                NETWORK.MAINNET,
+                NETWORK.RINKEBY,
+                NETWORK.GÖRLI,
+                NETWORK.ROPSTEN,
+                NETWORK.KOVAN,
+            ],
+            [NETWORK_PROVIDER.INFURA]: infuraSupportedNetworks,
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -943,8 +1211,16 @@ export const ethOperations = [
         value: 'eth_maxPriorityFeePerGas',
         parentGroup: 'Chain Information',
         description: 'Returns a fee per gas that is an estimate of how much you can pay as a priority fee, or "tip", to get a transaction included in the current block.',
-        providers: ['alchemy'],
-        networks: ['ethereum'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.ALCHEMY]: [
+                NETWORK.MAINNET,
+                NETWORK.RINKEBY,
+                NETWORK.GÖRLI,
+                NETWORK.ROPSTEN,
+                NETWORK.KOVAN,
+            ],
+            [NETWORK_PROVIDER.INFURA]: infuraSupportedNetworks,
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -963,8 +1239,11 @@ export const ethOperations = [
         value: 'eth_chainId',
         parentGroup: 'Chain Information',
         description: 'Returns the currently configured chain ID, a value used in replay-protected transaction signing as introduced by EIP-155.',
-        providers: ['alchemy', 'infura'],
-        networks: ['homestead', 'rinkeby', 'goerli', 'ropsten', 'kovan', 'matic', 'maticmum', 'optimism', 'optimism-kovan', 'arbitrum', 'arbitrum-rinkeby'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.ALCHEMY]: alchemySupportedNetworks,
+            [NETWORK_PROVIDER.INFURA]: infuraSupportedNetworks,
+            [NETWORK_PROVIDER.QUICKNODE]: qnSupportedNetworks
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -983,8 +1262,11 @@ export const ethOperations = [
         value: 'net_version',
         parentGroup: 'Chain Information',
         description: 'Returns the current network id.',
-        providers: ['alchemy', 'infura'],
-        networks: ['homestead', 'rinkeby', 'goerli', 'ropsten', 'kovan', 'matic', 'maticmum', 'optimism', 'optimism-kovan', 'arbitrum', 'arbitrum-rinkeby'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.ALCHEMY]: alchemySupportedNetworks,
+            [NETWORK_PROVIDER.INFURA]: infuraSupportedNetworks,
+            [NETWORK_PROVIDER.QUICKNODE]: qnSupportedNetworks
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -1003,8 +1285,11 @@ export const ethOperations = [
         value: 'net_listening',
         parentGroup: 'Chain Information',
         description: 'Returns true if client is actively listening for network connections.',
-        providers: ['alchemy', 'infura'],
-        networks: ['homestead', 'rinkeby', 'goerli', 'ropsten', 'kovan', 'matic', 'maticmum', 'optimism', 'optimism-kovan', 'arbitrum', 'arbitrum-rinkeby'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.ALCHEMY]: alchemySupportedNetworks,
+            [NETWORK_PROVIDER.INFURA]: infuraSupportedNetworks,
+            [NETWORK_PROVIDER.QUICKNODE]: qnSupportedNetworks
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -1023,8 +1308,10 @@ export const ethOperations = [
         value: 'net_peerCount',
         parentGroup: 'Chain Information',
         description: 'Returns the number of peers currently connected to the client.',
-        providers: ['infura'],
-        networks: ['homestead', 'rinkeby', 'goerli', 'ropsten', 'kovan', 'matic', 'maticmum', 'optimism', 'optimism-kovan', 'arbitrum', 'arbitrum-rinkeby'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.INFURA]: infuraSupportedNetworks,
+            [NETWORK_PROVIDER.QUICKNODE]: qnSupportedNetworks
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -1043,8 +1330,10 @@ export const ethOperations = [
         value: 'eth_getUncleByBlockNumberAndIndex',
         parentGroup: 'Retrieving Uncles',
         description: 'Returns information about an uncle of a block by number and uncle index position.',
-        providers: ['alchemy', 'infura'],
-        networks: ['homestead', 'rinkeby', 'goerli', 'ropsten', 'kovan', 'matic', 'maticmum', 'optimism', 'optimism-kovan'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.ALCHEMY]: alchemySupportedNetworks,
+            [NETWORK_PROVIDER.INFURA]: infuraSupportedNetworks,
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -1091,8 +1380,10 @@ export const ethOperations = [
         value: 'eth_getUncleByBlockHashAndIndex',
         parentGroup: 'Retrieving Uncles',
         description: 'Returns information about an uncle of a block by hash and uncle index position.',
-        providers: ['alchemy', 'infura'],
-        networks: ['homestead', 'rinkeby', 'goerli', 'ropsten', 'kovan', 'matic', 'maticmum', 'optimism', 'optimism-kovan'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.ALCHEMY]: alchemySupportedNetworks,
+            [NETWORK_PROVIDER.INFURA]: infuraSupportedNetworks,
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -1139,8 +1430,11 @@ export const ethOperations = [
         value: 'eth_getUncleCountByBlockHash',
         parentGroup: 'Retrieving Uncles',
         description: 'Returns the number of uncles in a block matching the given block hash.',
-        providers: ['alchemy', 'infura'],
-        networks: ['homestead', 'rinkeby', 'goerli', 'ropsten', 'kovan', 'matic', 'maticmum', 'optimism', 'optimism-kovan'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.ALCHEMY]: alchemySupportedNetworks,
+            [NETWORK_PROVIDER.INFURA]: infuraSupportedNetworks,
+            [NETWORK_PROVIDER.QUICKNODE]: qnSupportedNetworks
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -1166,8 +1460,11 @@ export const ethOperations = [
         value: 'eth_getUncleCountByBlockNumber',
         parentGroup: 'Retrieving Uncles',
         description: 'Returns the number of uncles in a block matching the give block number.',
-        providers: ['alchemy', 'infura'],
-        networks: ['homestead', 'rinkeby', 'goerli', 'ropsten', 'kovan', 'matic', 'maticmum', 'optimism', 'optimism-kovan'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.ALCHEMY]: alchemySupportedNetworks,
+            [NETWORK_PROVIDER.INFURA]: infuraSupportedNetworks,
+            [NETWORK_PROVIDER.QUICKNODE]: qnSupportedNetworks
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -1193,8 +1490,11 @@ export const ethOperations = [
         value: 'eth_getFilterChanges',
         parentGroup: 'Filters',
         description: 'Polling method for a filter, which returns an array of logs which occurred since last poll.',
-        providers: ['alchemy', 'infura'],
-        networks: ['homestead', 'rinkeby', 'goerli', 'ropsten', 'kovan', 'matic', 'maticmum', 'optimism', 'optimism-kovan', 'arbitrum', 'arbitrum-rinkeby'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.ALCHEMY]: alchemySupportedNetworks,
+            [NETWORK_PROVIDER.INFURA]: infuraSupportedNetworks,
+            [NETWORK_PROVIDER.QUICKNODE]: qnSupportedNetworks
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -1240,8 +1540,11 @@ export const ethOperations = [
         value: 'eth_getFilterLogs',
         parentGroup: 'Filters',
         description: 'Returns an array of all logs matching filter with given id.',
-        providers: ['alchemy', 'infura'],
-        networks: ['homestead', 'rinkeby', 'goerli', 'ropsten', 'kovan', 'matic', 'maticmum', 'optimism', 'optimism-kovan', 'arbitrum', 'arbitrum-rinkeby'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.ALCHEMY]: alchemySupportedNetworks,
+            [NETWORK_PROVIDER.INFURA]: infuraSupportedNetworks,
+            [NETWORK_PROVIDER.QUICKNODE]: qnSupportedNetworks
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -1287,8 +1590,11 @@ export const ethOperations = [
         value: 'eth_newBlockFilter',
         parentGroup: 'Filters',
         description: 'Creates a filter in the node, to notify when a new block arrives.',
-        providers: ['alchemy', 'infura'],
-        networks: ['homestead', 'rinkeby', 'goerli', 'ropsten', 'kovan', 'matic', 'maticmum', 'optimism', 'optimism-kovan', 'arbitrum', 'arbitrum-rinkeby'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.ALCHEMY]: alchemySupportedNetworks,
+            [NETWORK_PROVIDER.INFURA]: infuraSupportedNetworks,
+            [NETWORK_PROVIDER.QUICKNODE]: qnSupportedNetworks
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -1314,8 +1620,11 @@ export const ethOperations = [
         value: 'eth_newFilter',
         parentGroup: 'Filters',
         description: 'Creates a filter object, based on filter options, to notify when the state changes (logs).',
-        providers: ['alchemy', 'infura'],
-        networks: ['homestead', 'rinkeby', 'goerli', 'ropsten', 'kovan', 'matic', 'maticmum', 'optimism', 'optimism-kovan', 'arbitrum', 'arbitrum-rinkeby'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.ALCHEMY]: alchemySupportedNetworks,
+            [NETWORK_PROVIDER.INFURA]: infuraSupportedNetworks,
+            [NETWORK_PROVIDER.QUICKNODE]: qnSupportedNetworks
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -1367,8 +1676,11 @@ export const ethOperations = [
         value: 'eth_newPendingTransactionFilter',
         parentGroup: 'Filters',
         description: 'Creates a filter in the node, to notify when new pending transactions arrive. To check if the state has changed, call eth_getFilterChanges.',
-        providers: ['alchemy', 'infura'],
-        networks: ['homestead', 'rinkeby', 'goerli', 'ropsten', 'kovan', 'matic', 'maticmum'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.ALCHEMY]: alchemySupportedNetworks,
+            [NETWORK_PROVIDER.INFURA]: infuraSupportedNetworks,
+            [NETWORK_PROVIDER.QUICKNODE]: qnSupportedNetworks
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -1387,8 +1699,10 @@ export const ethOperations = [
         value: 'eth_uninstallFilter',
         parentGroup: 'Filters',
         description: 'Uninstalls a filter with given id.',
-        providers: ['alchemy', 'infura'],
-        networks: ['homestead', 'rinkeby', 'goerli', 'ropsten', 'kovan', 'matic', 'maticmum', 'optimism', 'optimism-kovan', 'arbitrum', 'arbitrum-rinkeby'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.ALCHEMY]: alchemySupportedNetworks,
+            [NETWORK_PROVIDER.INFURA]: infuraSupportedNetworks,
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -1407,6 +1721,37 @@ export const ethOperations = [
             "result": false
         }
     },
+    {
+        name: 'qn_broadcastRawTransaction',
+        value: 'qn_broadcastRawTransaction',
+        parentGroup: 'Broadcast Transaction',
+        description: 'Sends a transaction to multiple regions to encourage faster mining.',
+        providerNetworks: {
+            [NETWORK_PROVIDER.QUICKNODE]: [
+                NETWORK.MAINNET,
+                NETWORK.GÖRLI,
+                NETWORK.BSC,
+                NETWORK.BSC_TESTNET,
+            ]
+        },
+        method: 'POST',
+        body: {
+            "jsonrpc":"2.0",
+            "method":"qn_broadcastRawTransaction",
+            "params":[],
+            "id":1
+        },
+        inputParameters: `
+        <ul>
+			<li><code class="inline">DATA</code> - The signed transaction (typically signed with a library, using your private key)</li>
+        </ul>`,
+        exampleParameters: `["0xf8680685051f4d5c00833d090094ac2d0226ade52e6b4ccc97359359f01e34d50352834c4b40802aa004f4410acfc636f5d65e75ca37448fd0b1e90632661ad3ea071594b646e7621fa0186d78ddbeef43bc372fcc650ad4e77e0629206426cd183d751e9ddcc8d5e777"]`,
+        exampleResponse: {
+            "id":1,
+            "jsonrpc": "2.0",
+            "result": "0x41ba07c3d8213288869c0c59c3d341074fc63e64359a612a353949de2ed3586a"
+        }
+    },
 ] as IETHOperation[];
 
 
@@ -1416,8 +1761,10 @@ export const polygonOperations = [
         value: 'bor_getAuthor',
         parentGroup: 'Account Information',
         description: 'Returns address of Author',
-        providers: ['alchemy', 'infura'],
-        networks: ['matic', 'maticmum'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.ALCHEMY]: [NETWORK.MATIC, NETWORK.MATIC_MUMBAI],
+            [NETWORK_PROVIDER.INFURA]: [NETWORK.MATIC, NETWORK.MATIC_MUMBAI],
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -1441,8 +1788,10 @@ export const polygonOperations = [
         value: 'bor_getCurrentValidators',
         parentGroup: 'Account Information',
         description: 'Returns current validators',
-        providers: ['alchemy', 'infura'],
-        networks: ['matic', 'maticmum'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.ALCHEMY]: [NETWORK.MATIC, NETWORK.MATIC_MUMBAI],
+            [NETWORK_PROVIDER.INFURA]: [NETWORK.MATIC, NETWORK.MATIC_MUMBAI],
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -1492,8 +1841,10 @@ export const polygonOperations = [
         value: 'bor_getCurrentProposer',
         parentGroup: 'Account Information',
         description: "Returns current proposer's address",
-        providers: ['alchemy', 'infura'],
-        networks: ['matic', 'maticmum'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.ALCHEMY]: [NETWORK.MATIC, NETWORK.MATIC_MUMBAI],
+            [NETWORK_PROVIDER.INFURA]: [NETWORK.MATIC, NETWORK.MATIC_MUMBAI],
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -1512,8 +1863,10 @@ export const polygonOperations = [
         value: 'bor_getRootHash',
         parentGroup: 'Account Information',
         description: "Returns the root hash given a block range",
-        providers: ['alchemy', 'infura'],
-        networks: ['matic', 'maticmum'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.ALCHEMY]: [NETWORK.MATIC, NETWORK.MATIC_MUMBAI],
+            [NETWORK_PROVIDER.INFURA]: [NETWORK.MATIC, NETWORK.MATIC_MUMBAI],
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -1538,8 +1891,9 @@ export const polygonOperations = [
         value: 'eth_getSignersAtHash',
         parentGroup: 'Account Information',
         description: "Returns all signs given a blockhash",
-        providers: ['alchemy'],
-        networks: ['matic', 'maticmum'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.ALCHEMY]: [NETWORK.MATIC, NETWORK.MATIC_MUMBAI],
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -1571,8 +1925,9 @@ export const polygonOperations = [
         value: 'eth_getTransactionReceiptsByBlock',
         parentGroup: 'Reading Transactions',
         description: "Returns all transaction receipts for the given block number or hash",
-        providers: ['alchemy'],
-        networks: ['matic', 'maticmum'],
+        providerNetworks: {
+            [NETWORK_PROVIDER.ALCHEMY]: [NETWORK.MATIC, NETWORK.MATIC_MUMBAI],
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",

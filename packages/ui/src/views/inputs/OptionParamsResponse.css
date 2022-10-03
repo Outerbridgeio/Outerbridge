@@ -1,0 +1,17 @@
+.params ul {
+    line-height: 1.75em;
+}
+    
+.params li {
+    margin-bottom: 1em;
+}
+
+.inline {
+    background-color: white;
+    color: #4527a0;
+    font-weight: 600;
+    padding: 0.2em;
+    padding-left: 0.4em;
+    padding-right: 0.4em;
+    border-radius: 0.5em;
+}

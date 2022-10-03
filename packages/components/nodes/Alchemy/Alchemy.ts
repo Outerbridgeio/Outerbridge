@@ -12,17 +12,24 @@ import {
     returnNodeExecutionData,
 	serializeQueryParams
 } from '../../src/utils';
-import { alchemyHTTPAPIs, ETHNetworks, PolygonNetworks, OptimismNetworks, ArbitrumNetworks, NETWORK } from "../../src/ChainNetwork";
-import { ethOperations, IETHOperation, polygonOperations } from "../../src/ETHOperations";
+import { alchemyHTTPAPIs, NETWORK } from "../../src/ChainNetwork";
+import { alchemySupportedNetworks, ethOperations, IETHOperation, operationCategoryMapping, polygonOperations } from "../../src/ETHOperations";
 import { 
+	getContractsForOwnerProperties,
 	getNFTMetadataProperties, 
 	getNFTsForCollectionProperties, 
 	getNFTsProperties, 
+	getOwnersForCollectionProperties, 
+	getOwnersForTokenProperties, 
+	isHolderOfCollectionProperties, 
 	NFTOperationsOptions, 
+	searchContractMetadataProperties, 
 	tokenAPIOperations, 
 	transactionReceiptsOperations 
 } from './extendedOperation';
 import axios, { AxiosRequestConfig, Method } from 'axios';
+import { solanaAPIOperations, solanaOperationsNetworks } from './solanaOperation';
+import { AlchemySupportedNetworks } from './supportedNetwork';
 
 class Alchemy implements INode {
 	
@@ -34,7 +41,6 @@ class Alchemy implements INode {
 	icon: string;
     incoming: number;
 	outgoing: number;
-    actions: INodeParams[];
 	credentials?: INodeParams[];
 	networks?: INodeParams[];
     inputParameters?: INodeParams[];
@@ -45,40 +51,20 @@ class Alchemy implements INode {
 		this.name = 'alchemy';
 		this.icon = 'alchemy.svg';
 		this.type = 'action';
-		this.version = 1.0;
+		this.version = 1.1;
 		this.description = 'Perform Alchemy onchain operations';
 		this.incoming = 1;
         this.outgoing = 1;
-		this.actions = [
-            {
-				label: 'API',
-				name: 'api',
+		this.networks = [
+			{
+				label: 'Network',
+				name: 'network',
 				type: 'options',
-				options: [
-					{
-						label: 'Chain API',
-						name: 'chainAPI',
-						description: 'API for fetching standard onchain data using Alchemy supported calls'
-					},
-					{
-						label: 'NFT API',
-						name: 'nftAPI',
-						description: 'API for fetching NFT data, including ownership, metadata attributes, and more.'
-					},
-					{
-						label: 'Transaction Receipts API',
-						name: 'txReceiptsAPI',
-						description: 'API that gets all transaction receipts for a given block by number or block hash.'
-					},
-					{
-						label: 'Token API',
-						name: 'tokenAPI',
-						description: 'The Token API allows you to easily get token information, minimizing the number of necessary requests.'
-					},
-				],
-				default: 'chainAPI'
+                options: [
+                    ...AlchemySupportedNetworks,
+                ],
 			},
-        ] as INodeParams[];
+		] as INodeParams[];
 		this.credentials = [
 			{
 				label: 'Credential Method',
@@ -93,15 +79,178 @@ class Alchemy implements INode {
 				default: 'alchemyApi',
 			},
 		] as INodeParams[];
-		this.networks = [
-			{
-				label: 'Network',
-				name: 'network',
-				type: 'asyncOptions',
-				loadMethod: 'getSupportedNetworks',
-			},
-		] as INodeParams[];
 		this.inputParameters = [
+			{
+				label: 'API',
+				name: 'api',
+				type: 'options',
+				options: [
+					{
+						label: 'EVM Chain API',
+						name: 'chainAPI',
+						description: 'API for fetching standard EVM onchain data using Alchemy supported calls',
+						show: {
+							'networks.network': alchemySupportedNetworks,
+						}
+					},
+					{
+						label: 'NFT API',
+						name: 'nftAPI',
+						description: 'API for fetching NFT data, including ownership, metadata attributes, and more.',
+						show: {
+							'networks.network': [
+								NETWORK.MAINNET, 
+								NETWORK.RINKEBY, 
+								NETWORK.GÖRLI,
+								NETWORK.ROPSTEN,
+								NETWORK.KOVAN,
+								NETWORK.MATIC,
+								NETWORK.MATIC_MUMBAI,
+							]
+						}
+					},
+					{
+						label: 'Transaction Receipts API',
+						name: 'txReceiptsAPI',
+						description: 'API that gets all transaction receipts for a given block by number or block hash.',
+						show: {
+							'networks.network': [
+								NETWORK.MAINNET,
+								NETWORK.RINKEBY,
+								NETWORK.GÖRLI,
+								NETWORK.ROPSTEN,
+								NETWORK.KOVAN,
+								NETWORK.MATIC,
+								NETWORK.MATIC_MUMBAI,
+								NETWORK.ARBITRUM,
+								NETWORK.ARBITRUM_RINKEBY,
+								NETWORK.ARBITRUM_GOERLI,
+							]
+						}
+					},
+					{
+						label: 'Token API',
+						name: 'tokenAPI',
+						description: 'The Token API allows you to easily get token information, minimizing the number of necessary requests.',
+						show: {
+							'networks.network': alchemySupportedNetworks,
+						}
+					},
+					{
+						label: 'Solana API',
+						name: 'solanaAPI',
+						description: 'API for fetching Solana on-chain data using Alchemy supported calls',
+						show: {
+							'networks.network': solanaOperationsNetworks
+						}
+					},
+				],
+				default: 'chainAPI'
+			},
+			{
+				label: 'Chain Category',
+				name: 'chainCategory',
+				type: 'options',
+				options: [
+					{
+						label: 'Retrieving Blocks',
+						name: 'retrievingBlocks',
+						description: 'Retrieve onchain blocks data'
+					},
+					{
+						label: 'EVM/Smart Contract Execution',
+						name: 'evmExecution',
+						description: 'Execute or submit transaction onto blockchain'
+					},
+					{
+						label: 'Reading Transactions',
+						name: 'readingTransactions',
+						description: 'Read onchain transactions data'
+					},
+					{
+						label: 'Account Information',
+						name: 'accountInformation',
+						description: 'Retrieve onchain account information'
+					},
+					{
+						label: 'Event Logs',
+						name: 'eventLogs',
+						description: 'Fetch onchain logs',
+					},
+					{
+						label: 'Chain Information',
+						name: 'chainInformation',
+						description: 'Get general selected blockchain information'
+					},
+					{
+						label: 'Retrieving Uncles',
+						name: 'retrievingUncles',
+						description: 'Retrieve onchain uncles blocks data'
+					},
+					{
+						label: 'Filters',
+						name: 'filters',
+						description: 'Get block filters and logs, or create new filter'
+					},
+				],
+				show: {
+					'inputParameters.api': [
+						'chainAPI'
+					]
+				},
+			},
+			{
+				label: 'Chain Category',
+				name: 'chainCategory',
+				type: 'options',
+				options: [
+					{
+						label: 'Reading & Writing Transactions',
+						name: 'readWriteTransactions',
+						description: 'Read and Write transactins onto Solana chain'
+					},
+					{
+						label: 'Getting Blocks',
+						name: 'gettingBlocks',
+						description: 'Get Solana blocks data'
+					},
+					{
+						label: 'Account Information',
+						name: 'accountInformation',
+						description: 'Retrieve Solana onchain account information'
+					},
+					{
+						label: 'Network Information',
+						name: 'networkInformation',
+						description: 'Get Solana network onchain information'
+					},
+					{
+						label: 'Slot Information',
+						name: 'slotInformation',
+						description: 'Fetch Solana slot information'
+					},
+					{
+						label: 'Node Information',
+						name: 'nodeInformation',
+						description: 'Retrieve Solana node onchain information'
+					},
+					{
+						label: 'Token Information',
+						name: 'tokenInformation',
+						description: 'Fetch Solana onchain token information',
+					},
+					{
+						label: 'Network Inflation',
+						name: 'networkInflation',
+						description: 'Retrieve Solana network inflation onchain data'
+					},
+				],
+				show: {
+					'inputParameters.api': [
+						'solanaAPI'
+					]
+				},
+			},
 			{
 				label: 'Operation',
 				name: 'operation',
@@ -111,6 +260,11 @@ class Alchemy implements INode {
 			...getNFTsProperties,
 			...getNFTMetadataProperties,
 			...getNFTsForCollectionProperties,
+			...getOwnersForCollectionProperties,
+			...getOwnersForTokenProperties,
+			...searchContractMetadataProperties,
+			...isHolderOfCollectionProperties,
+			...getContractsForOwnerProperties,
 			{
 				label: 'Parameters',
 				name: 'parameters',
@@ -119,10 +273,11 @@ class Alchemy implements INode {
 				optional: true,
 				description: 'Operation parameters in array. Ex: ["param1", "param2"]',
 				show: {
-					'actions.api': [
+					'inputParameters.api': [
 						'chainAPI',
 						'txReceiptsAPI',
-						'tokenAPI'
+						'tokenAPI',
+						'solanaAPI'
 					]
 				},
 			},
@@ -130,61 +285,33 @@ class Alchemy implements INode {
 	}
 
 	loadMethods = {
-        async getSupportedNetworks(nodeData: INodeData): Promise<INodeOptionsValue[]> {
-
-			const returnData: INodeOptionsValue[] = [];
-			const actionData = nodeData.actions;
-            if (actionData === undefined) {
-                return returnData;
-            }
-
-			const api = actionData.api as string;
-
-			if (api === 'chainAPI') {
-				return [...ETHNetworks, ...PolygonNetworks, ...ArbitrumNetworks, ...OptimismNetworks];;
-			} else if (api === 'nftAPI') {
-				return [...ETHNetworks, ...PolygonNetworks];
-			} else if (api === 'txReceiptsAPI') {
-				return [...ETHNetworks, ...PolygonNetworks, ...ArbitrumNetworks];
-			} else if (api === 'tokenAPI') {
-				return [ 
-					{
-						label: 'Mainnet',
-						name: 'homestead',
-						parentGroup: 'Ethereum'
-					},
-					...PolygonNetworks,
-					...ArbitrumNetworks,
-					...OptimismNetworks,
-				] as INodeOptionsValue[];
-			} else {
-				return returnData;
-			}
-		},
 
 		async getOperations(nodeData: INodeData): Promise<INodeOptionsValue[]> {
 
 			const returnData: INodeOptionsValue[] = [];
-			const actionData = nodeData.actions;
+			const inputParametersData = nodeData.inputParameters;
 			const networksData = nodeData.networks;
-            if (actionData === undefined || networksData === undefined ) {
+
+            if (inputParametersData === undefined || networksData === undefined ) {
                 return returnData;
             }
 
-			const api = actionData.api as string;
+			const api = inputParametersData.api as string;
+			const chainCategory = inputParametersData.chainCategory as string;
 			const network = networksData.network as NETWORK;
 			
-			if (api === 'chainAPI') {
+			if (api === 'chainAPI' || api === 'txReceiptsAPI' || api === 'tokenAPI' || api === 'solanaAPI') {
 
-				let totalOperations: IETHOperation[] = [];
+				const operations = getSelectedOperations(api, network).filter((op: IETHOperation) => Object.prototype.hasOwnProperty.call(op.providerNetworks, 'alchemy') && 
+					op.providerNetworks['alchemy'].includes(network));
+				
+				if (api === 'chainAPI' && !chainCategory) return returnData;
+				if (api === 'solanaAPI' && !chainCategory) return returnData;
 
-				const filteredOperations = ethOperations.filter((op: IETHOperation) => op.networks.includes(network) && op.providers.includes('alchemy'));
-				if (network === NETWORK.MATIC || network === NETWORK.MATIC_MUMBAI) {
-					totalOperations = [...polygonOperations, ...filteredOperations];
-				} else {
-					totalOperations = filteredOperations;
-				}
-				for (const op of totalOperations) {
+				let filteredOperations: IETHOperation[] = operations;
+				if (api === 'chainAPI' || api === 'solanaAPI') filteredOperations = operations.filter((op: IETHOperation) => op.parentGroup === (operationCategoryMapping[chainCategory]));
+				
+				for (const op of filteredOperations) {
 					returnData.push({
 						label: op.name,
 						name: op.value,
@@ -196,37 +323,11 @@ class Alchemy implements INode {
 					});
 				}
 				return returnData;
-			} 
-			else if (api === 'nftAPI') {
+
+			} else if (api === 'nftAPI') {
 				return NFTOperationsOptions;
-			} 
-			else if (api === 'txReceiptsAPI') {
-				for (const op of transactionReceiptsOperations) {
-					returnData.push({
-						label: op.name,
-						name: op.value,
-						description: op.description,
-						inputParameters: op.inputParameters,
-						exampleParameters: op.exampleParameters,
-						exampleResponse: op.exampleResponse,
-					});
-				}
-				return returnData;
-			} 
-			else if (api === 'tokenAPI') {
-				for (const op of tokenAPIOperations) {
-					returnData.push({
-						label: op.name,
-						name: op.value,
-						description: op.description,
-						inputParameters: op.inputParameters,
-						exampleParameters: op.exampleParameters,
-						exampleResponse: op.exampleResponse,
-					});
-				}
-				return returnData;
-			}
-			else {
+
+			} else {
 				return returnData;
 			}
 		},
@@ -234,17 +335,20 @@ class Alchemy implements INode {
 	
 	async run(nodeData: INodeData): Promise<INodeExecutionData[] | null> {
 
-		const actionData = nodeData.actions;
 		const networksData = nodeData.networks;
         const inputParametersData = nodeData.inputParameters;
 		const credentials = nodeData.credentials;
 
-		if (actionData === undefined || inputParametersData === undefined || credentials === undefined || networksData === undefined) {
+		if (inputParametersData === undefined || networksData === undefined) {
             throw new Error('Required data missing');
         }
 
+		if (credentials === undefined) {
+			throw new Error('Missing credentials');
+		};
+
 		// GET api
-		const api = actionData.api as string;
+		const api = inputParametersData.api as string;
 		
 		// GET network
 		const network = networksData.network as NETWORK;
@@ -255,9 +359,9 @@ class Alchemy implements INode {
 		// GET operation
 		const operation = inputParametersData.operation as string;
 
-		if (api === 'chainAPI' || api === 'txReceiptsAPI' || api === 'tokenAPI') {
+		if (api === 'chainAPI' || api === 'txReceiptsAPI' || api === 'tokenAPI' || api === 'solanaAPI') {
 
-			const uri = alchemyHTTPAPIs[network] + apiKey;
+			const uri = `${alchemyHTTPAPIs[network]}${apiKey}`;
 
 			let responseData: any; // tslint:disable-line: no-any
 			let bodyParameters: any[] = []; // tslint:disable-line: no-any
@@ -274,18 +378,17 @@ class Alchemy implements INode {
 
 			try {
 				let totalOperations: IETHOperation[] = [];
-				if (api === 'chainAPI') totalOperations = [...polygonOperations, ...ethOperations];
-				if (api === 'txReceiptsAPI') totalOperations = transactionReceiptsOperations;
-				if (api === 'tokenAPI') totalOperations = tokenAPIOperations;
-				
+				totalOperations = getSelectedOperations(api, network);
+
 				const result = totalOperations.find(obj => {
-					return obj.name === operation
+					return obj.value === operation
 				});
 
 				if (result === undefined) throw new Error('Invalid Operation');
 
-				const requestBody = result.body;
-				requestBody.params = bodyParameters;
+				const requestBody = JSON.parse(JSON.stringify(result.body));
+				const bodyParams = requestBody.params;
+				requestBody.params = Array.isArray(bodyParameters) ? bodyParameters.concat(bodyParams) : bodyParameters;
 
 				const axiosConfig: AxiosRequestConfig = {
 					method: result.method as Method,
@@ -343,13 +446,90 @@ class Alchemy implements INode {
 				const startToken = inputParametersData.startToken as string;
 				const withMetadata = inputParametersData.withMetadata as boolean;
 				const limit = inputParametersData.limit as number;
+				const tokenUriTimeoutInMs = inputParametersData.tokenUriTimeoutInMs as number;
+
+				queryParameters['contractAddress'] = contractAddress;
+				if (startToken) queryParameters['startToken'] = startToken;
+				if (withMetadata) queryParameters['withMetadata'] = withMetadata;
+				if (limit) queryParameters['limit'] = limit;
+				if (tokenUriTimeoutInMs) queryParameters['tokenUriTimeoutInMs'] = tokenUriTimeoutInMs;
+			}
+			else if (operation === 'getOwnersForCollection') {
+
+				const contractAddress = inputParametersData.contractAddress as string;
+				const withTokenBalances = inputParametersData.withTokenBalances as boolean;
+				const block = inputParametersData.block as string;
+				const pageKey = inputParametersData.pageKey as string;
 				
 				queryParameters['contractAddress'] = contractAddress;
-				queryParameters['startToken'] = startToken;
-				queryParameters['withMetadata'] = withMetadata;
-				queryParameters['limit'] = limit;
+				if (withTokenBalances) queryParameters['withTokenBalances'] = withTokenBalances;
+				if (block) queryParameters['block'] = block;
+				if (pageKey) queryParameters['pageKey'] = pageKey;
 			}
-			
+			else if (operation === 'getOwnersForToken' || operation === 'computeRarity') {
+
+				const contractAddress = inputParametersData.contractAddress as string;
+				const tokenId = inputParametersData.tokenId as string;
+				
+				queryParameters['contractAddress'] = contractAddress;
+				queryParameters['tokenId'] = tokenId;
+			}
+			else if (
+				operation === 'isSpamContract' || operation === 'reingestContract' ||
+				operation === 'getFloorPrice' || operation === 'summarizeNFTAttributes' || 
+				operation === 'reportSpamContract'
+			) {
+				const contractAddress = inputParametersData.contractAddress as string;
+				queryParameters['contractAddress'] = contractAddress;
+			}
+			else if (operation === 'searchContractMetadata') {
+
+				const query = inputParametersData.query as string;
+				queryParameters['query'] = query;
+			}
+			else if (operation === 'isHolderOfCollection') {
+
+				const contractAddress = inputParametersData.contractAddress as string;
+				const wallet = inputParametersData.wallet as string;
+				
+				queryParameters['contractAddress'] = contractAddress;
+				queryParameters['wallet'] = wallet;
+			}
+			else if (operation === 'getNFTSales') {
+
+				const contractAddress = inputParametersData.contractAddress as string;
+				const tokenId = inputParametersData.tokenId as string;
+				const startBlock = inputParametersData.startBlock as string;
+				const startLogIndex = inputParametersData.startLogIndex as number;
+				const startBundleIndex = inputParametersData.startBundleIndex as number;
+				const ascendingOrder = inputParametersData.ascendingOrder as boolean;
+				const marketplace = inputParametersData.marketplace as string;
+				const buyerAddress = inputParametersData.buyerAddress as string;
+				const sellerAddress = inputParametersData.sellerAddress as string;
+				const buyerIsMaker = inputParametersData.buyerIsMaker as boolean;
+				const limit = inputParametersData.limit as number;
+
+				queryParameters['contractAddress'] = contractAddress;
+				queryParameters['tokenId'] = tokenId;
+				if (startBlock) queryParameters['startBlock'] = startBlock;
+				if (startLogIndex) queryParameters['startLogIndex'] = startLogIndex;
+				if (startBundleIndex) queryParameters['startBundleIndex'] = startBundleIndex;
+				if (ascendingOrder) queryParameters['ascendingOrder'] = ascendingOrder;
+				if (marketplace) queryParameters['marketplace'] = marketplace;
+				if (buyerAddress) queryParameters['buyerAddress'] = buyerAddress;
+				if (sellerAddress) queryParameters['sellerAddress'] = sellerAddress;
+				if (buyerIsMaker) queryParameters['buyerIsMaker'] = buyerIsMaker;
+				if (limit) queryParameters['limit'] = limit;
+			}
+			else if (operation === 'getContractsForOwner') {
+
+				const owner = inputParametersData.owner as string;
+				const pageKey = inputParametersData.pageKey as string;
+
+				queryParameters['owner'] = owner;
+				if (pageKey) queryParameters['pageKey'] = pageKey;
+			}
+
 			try {
 				const axiosConfig: AxiosRequestConfig = {
 					method : 'GET',
@@ -374,6 +554,24 @@ class Alchemy implements INode {
 			return returnNodeExecutionData(returnData);
 		}
 		return returnNodeExecutionData([]);
+	}
+}
+
+const getSelectedOperations = (api: string, network: string) => {
+	switch (api) {
+		case 'chainAPI':
+			if (network === NETWORK.MATIC || network === NETWORK.MATIC_MUMBAI)
+				return [...polygonOperations, ...ethOperations];
+			else
+				return ethOperations;
+		case 'txReceiptsAPI':
+			return transactionReceiptsOperations;
+		case 'tokenAPI':
+			return tokenAPIOperations;
+		case 'solanaAPI':
+			return solanaAPIOperations;
+		default:
+			return ethOperations;
 	}
 }
 

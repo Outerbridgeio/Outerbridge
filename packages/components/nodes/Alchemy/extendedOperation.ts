@@ -1,4 +1,4 @@
-import { INodeOptionsValue, INodeParams } from '../../src';
+import { INodeOptionsValue, INodeParams, NETWORK } from '../../src';
 import { IETHOperation } from '../../src/ETHOperations';
 
 export const NFTOperationsOptions = [
@@ -6,6 +6,14 @@ export const NFTOperationsOptions = [
         label: 'Get NFTs',
         name: 'getNFTs',
         description: 'Gets all NFTs currently owned by a given address',
+    },
+    {
+        label: 'Get NFT Sales',
+        name: 'getNFTSales',
+        description: 'Gets NFT sales that have happened through on-chain marketplaces',
+        show: {
+            'networks.network': [NETWORK.MAINNET]
+        }
     },
     {
         label: 'Get NFT Metadata',
@@ -16,8 +24,89 @@ export const NFTOperationsOptions = [
         label: 'Get NFTs For Collection',
         name: 'getNFTsForCollection',
         description: 'Gets all NFTs for a given NFT contract',
+    },
+    {
+        label: 'Get Owners For Collection',
+        name: 'getOwnersForCollection',
+        description: 'Gets all owners for a given NFT contract.',
+    },
+    {
+        label: 'Get Owners For Token',
+        name: 'getOwnersForToken',
+        description: 'Get the owner(s) for a token.',
+    },
+    {
+        label: 'Get Contracts For Owner',
+        name: 'getContractsForOwner',
+        description: 'Gets all NFT contracts held by an owner address.',
+    },
+    {
+        label: 'Get Spam Contracts',
+        name: 'getSpamContracts',
+        description: 'Returns a list of all spam contracts marked by Alchemy.',
         show: {
-            'networks.network': ['homestead', 'goerli', 'matic', 'maticmum']
+            'networks.network': [NETWORK.MAINNET]
+        }
+    },
+    {
+        label: 'Is Spam Contracts',
+        name: 'isSpamContract',
+        description: 'Returns whether a contract is marked as spam or not by Alchemy.',
+        show: {
+            'networks.network': [NETWORK.MAINNET]
+        }
+    },
+    {
+        label: 'Reingest Contract',
+        name: 'reingestContract',
+        description: 'Triggers metadata refresh for an entire NFT collection and refreshes stale metadata after a collection reveal/collection changes.',
+        show: {
+            'networks.network': [NETWORK.MAINNET]
+        }
+    },
+    {
+        label: 'Get Floor Price',
+        name: 'getFloorPrice',
+        description: 'Returns the floor prices of a NFT collection by marketplace.',
+        show: {
+            'networks.network': [NETWORK.MAINNET]
+        }
+    },
+    {
+        label: 'Compute Rarity',
+        name: 'computeRarity',
+        description: 'Computes the rarity of each attribute of an NFT.',
+        show: {
+            'networks.network': [NETWORK.MAINNET]
+        }
+    },
+    {
+        label: 'Search Contract Metadata',
+        name: 'searchContractMetadata',
+        description: 'Search for a keyword across metadata of all ERC-721 and ERC-1155 smart contracts',
+        show: {
+            'networks.network': [NETWORK.MAINNET]
+        }
+    },
+    {
+        label: 'Summarize NFT Attributes',
+        name: 'summarizeNFTAttributes',
+        description: 'Generate a summary of attribute prevalence for an NFT collection.',
+        show: {
+            'networks.network': [NETWORK.MAINNET]
+        }
+    },
+    {
+        label: 'Is Holder Of Collection',
+        name: 'isHolderOfCollection',
+        description: 'Checks whether a wallet holds a NFT in a given collection',
+    },
+    {
+        label: 'Report Spam Contract',
+        name: 'reportSpamContract',
+        description: 'Report a particular contract address to our APIs if you think it is spam',
+        show: {
+            'networks.network': [NETWORK.MAINNET]
         }
     },
 ] as INodeOptionsValue[];
@@ -30,7 +119,8 @@ export const getNFTsProperties = [
         description: 'Address for NFT owner (can be in ENS format!)',
         default: '',
         show: {
-            'inputParameters.operation': ['getNFTs']
+            'inputParameters.api': ['nftAPI'],
+            'inputParameters.operation': ['getNFTs'],
         }
     },
     {
@@ -40,6 +130,7 @@ export const getNFTsProperties = [
         description: 'UUID for pagination. If more results are available, a UUID pageKey will be returned in the response. Pass that UUID into pageKey to fetch the next 100 NFTs.',
         default: '',
         show: {
+            'inputParameters.api': ['nftAPI'],
             'inputParameters.operation': ['getNFTs']
         },
         optional: true
@@ -51,6 +142,7 @@ export const getNFTsProperties = [
         description: 'If boolean is set to true the query will include metadata for each returned token.',
         default: true,
         show: {
+            'inputParameters.api': ['nftAPI'],
             'inputParameters.operation': ['getNFTs']
         }
     },
@@ -64,6 +156,7 @@ export const getNFTMetadataProperties = [
         description: 'Address of NFT contract',
         default: '',
         show: {
+            'inputParameters.api': ['nftAPI'],
             'inputParameters.operation': ['getNFTMetadata']
         }
     },
@@ -74,6 +167,7 @@ export const getNFTMetadataProperties = [
         description: 'Id for NFT',
         default: '',
         show: {
+            'inputParameters.api': ['nftAPI'],
             'inputParameters.operation': ['getNFTMetadata']
         }
     },
@@ -98,6 +192,7 @@ export const getNFTMetadataProperties = [
         ],
         default: '',
         show: {
+            'inputParameters.api': ['nftAPI'],
             'inputParameters.operation': ['getNFTMetadata']
         }
     },
@@ -111,6 +206,7 @@ export const getNFTsForCollectionProperties = [
         description: 'Contract address for the NFT collection',
         default: '',
         show: {
+            'inputParameters.api': ['nftAPI'],
             'inputParameters.operation': ['getNFTsForCollection']
         }
     },
@@ -122,6 +218,7 @@ export const getNFTsForCollectionProperties = [
         default: '',
         optional: true,
         show: {
+            'inputParameters.api': ['nftAPI'],
             'inputParameters.operation': ['getNFTsForCollection']
         }
     },
@@ -133,6 +230,7 @@ export const getNFTsForCollectionProperties = [
         default: true,
         optional: true,
         show: {
+            'inputParameters.api': ['nftAPI'],
             'inputParameters.operation': ['getNFTsForCollection']
         }
     },
@@ -144,7 +242,333 @@ export const getNFTsForCollectionProperties = [
         default: 100,
         optional: true,
         show: {
+            'inputParameters.api': ['nftAPI'],
             'inputParameters.operation': ['getNFTsForCollection']
+        }
+    },
+    {
+        label: 'Token Uri Timeout In Ms',
+        name: 'tokenUriTimeoutInMs',
+        type: 'number',
+        description: 'No set timeout by default - When metadata is requested, this parameter is the timeout (in milliseconds) for the website hosting the metadata to respond. If you want to only access the cache and not live fetch any metadata for cache misses then set this value to 0.',
+        optional: true,
+        show: {
+            'inputParameters.api': ['nftAPI'],
+            'inputParameters.operation': ['getNFTsForCollection']
+        }
+    },
+] as INodeParams[];
+
+export const getOwnersForCollectionProperties = [
+    {
+        label: 'Contract Address',
+        name: 'contractAddress',
+        type: 'string',
+        description: 'Contract address for the NFT collection (ERC721 and ERC1155 supported).',
+        default: '',
+        show: {
+            'inputParameters.api': ['nftAPI'],
+            'inputParameters.operation': ['getOwnersForCollection']
+        }
+    },
+    {
+        label: 'With Token Balances',
+        name: 'withTokenBalances',
+        type: 'boolean',
+        description: 'If set to true the query will include the token balances per token id for each owner. false by default.',
+        default: false,
+        optional: true,
+        show: {
+            'inputParameters.api': ['nftAPI'],
+            'inputParameters.operation': ['getOwnersForCollection']
+        }
+    },
+    {
+        label: 'Block',
+        name: 'block',
+        type: 'string',
+        description: 'The point in time or block number (in hex or decimal) to fetch collection ownership information for.',
+        default: '',
+        optional: true,
+        show: {
+            'inputParameters.api': ['nftAPI'],
+            'inputParameters.operation': ['getOwnersForCollection']
+        }
+    },
+    {
+        label: 'PageKey',
+        name: 'pageKey',
+        type: 'string',
+        description: 'used for collections with >50,000 owners. pageKey field can be passed back as request parameter to get the next page of results.',
+        default: '',
+        show: {
+            'inputParameters.api': ['nftAPI'],
+            'inputParameters.operation': ['getOwnersForCollection']
+        },
+        optional: true
+    },
+] as INodeParams[];
+
+export const getOwnersForTokenProperties = [
+    {
+        label: 'Contract Address',
+        name: 'contractAddress',
+        type: 'string',
+        description: 'Contract address for the NFT collection (ERC721 and ERC1155 supported).',
+        default: '',
+        show: {
+            'inputParameters.api': ['nftAPI'],
+            'inputParameters.operation': [
+                'getOwnersForToken',
+                'isSpamContract',
+                'reingestContract',
+                'getFloorPrice',
+                'computeRarity',
+                'summarizeNFTAttributes',
+                'reportSpamContract'
+            ]
+        }
+    },
+    {
+        label: 'Token Id',
+        name: 'tokenId',
+        type: 'string',
+        description: 'The ID of the token. Can be in hex or decimal format.',
+        show: {
+            'inputParameters.api': ['nftAPI'],
+            'inputParameters.operation': [
+                'getOwnersForToken',
+                'computeRarity'
+            ]
+        }
+    },
+] as INodeParams[];
+
+export const searchContractMetadataProperties = [
+    {
+        label: 'Query',
+        name: 'query',
+        type: 'string',
+        description: 'The search string that you want to search for in contract metadata',
+        default: '',
+        show: {
+            'inputParameters.api': ['nftAPI'],
+            'inputParameters.operation': [
+                'searchContractMetadata',
+            ]
+        }
+    },
+] as INodeParams[];
+
+export const isHolderOfCollectionProperties = [
+    {
+        label: 'Contract Address',
+        name: 'contractAddress',
+        type: 'string',
+        description: 'Contract address for the NFT collection (ERC721 and ERC1155 supported).',
+        default: '',
+        show: {
+            'inputParameters.api': ['nftAPI'],
+            'inputParameters.operation': [
+                'isHolderOfCollection',
+            ]
+        }
+    },
+    {
+        label: 'Wallet',
+        name: 'wallet',
+        type: 'string',
+        description: 'Wallet address to check for collection ownership.',
+        show: {
+            'inputParameters.api': ['nftAPI'],
+            'inputParameters.operation': [
+                'isHolderOfCollection'
+            ]
+        }
+    },
+] as INodeParams[];
+
+export const getNFTSalesProperties = [
+    {
+        label: 'Contract Address',
+        name: 'contractAddress',
+        type: 'string',
+        description: 'The contract address of a NFT collection to filter sales by. Defaults to returning all NFT contracts.',
+        default: '',
+        show: {
+            'inputParameters.api': ['nftAPI'],
+            'inputParameters.operation': [
+                'getNFTSales',
+            ]
+        }
+    },
+    {
+        label: 'Token Id',
+        name: 'tokenId',
+        type: 'string',
+        description: 'The token ID of an NFT within the collection specified by contractAddress to filter sales by. Defaults to returning all token IDs.',
+        show: {
+            'inputParameters.api': ['nftAPI'],
+            'inputParameters.operation': [
+                'getNFTSales',
+            ]
+        }
+    },
+    {
+        label: 'Start Block',
+        name: 'startBlock',
+        type: 'string',
+        description: 'The block number to start fetching NFT sales data from. Allowed values are decimal integers and "latest". Defaults to "latest".',
+        optional: true,
+        default: 'latest',
+        show: {
+            'inputParameters.api': ['nftAPI'],
+            'inputParameters.operation': [
+                'getNFTSales',
+            ]
+        }
+    },
+    {
+        label: 'Start Log Index',
+        name: 'startLogIndex',
+        type: 'number',
+        description: 'The log index within the startBlock to start fetching NFT sales data from. Defaults to 0.',
+        optional: true,
+        default: 0,
+        show: {
+            'inputParameters.api': ['nftAPI'],
+            'inputParameters.operation': [
+                'getNFTSales'
+            ]
+        }
+    },
+    {
+        label: 'Start Bundle Index',
+        name: 'startBundleIndex',
+        type: 'number',
+        description: 'The index of an NFT within a sale bundle to start fetching NFT sales data from. Defaults to 0.',
+        optional: true,
+        default: 0,
+        show: {
+            'inputParameters.api': ['nftAPI'],
+            'inputParameters.operation': [
+                'getNFTSales'
+            ]
+        }
+    },
+    {
+        label: 'Ascending Order',
+        name: 'ascendingOrder',
+        type: 'boolean',
+        description: 'Whether to return the results ascending from startBlock or descending from startBlock. Defaults to ascending (true).',
+        optional: true,
+        default: true,
+        show: {
+            'inputParameters.api': ['nftAPI'],
+            'inputParameters.operation': [
+                'getNFTSales'
+            ]
+        }
+    },
+    {
+        label: 'Marketplace',
+        name: 'marketplace',
+        type: 'options',
+        description: 'The name of the NFT marketplace to filter sales by. Currently only "seaport" is supported.',
+        options: [
+            {
+                label: 'Seaport',
+                name: 'seaport'
+            }
+        ],
+        optional: true,
+        default: 'seaport',
+        show: {
+            'inputParameters.api': ['nftAPI'],
+            'inputParameters.operation': [
+                'getNFTSales'
+            ]
+        }
+    },
+    {
+        label: 'Buyer Address',
+        name: 'buyerAddress',
+        type: 'string',
+        description: 'The address of the NFT buyer to filter sales by. Defaults to returning sales involving any buyer.',
+        optional: true,
+        show: {
+            'inputParameters.api': ['nftAPI'],
+            'inputParameters.operation': [
+                'getNFTSales'
+            ]
+        }
+    },
+    {
+        label: 'Seller Address',
+        name: 'sellerAddress',
+        type: 'string',
+        description: 'The address of the NFT seller to filter sales by. Defaults to returning sales involving any seller.',
+        optional: true,
+        show: {
+            'inputParameters.api': ['nftAPI'],
+            'inputParameters.operation': [
+                'getNFTSales'
+            ]
+        }
+    },
+    {
+        label: 'Buyer Is Maker',
+        name: 'buyerIsMaker',
+        type: 'boolean',
+        description: 'Filter by whether if the buyer was the maker in the trade, i.e. if the sale involved a buyer offering a bid and the seller then accepting the bid. Defaults to returning both maker and taker orders.',
+        optional: true,
+        show: {
+            'inputParameters.api': ['nftAPI'],
+            'inputParameters.operation': [
+                'getNFTSales'
+            ]
+        }
+    },
+    {
+        label: 'Limit',
+        name: 'limit',
+        type: 'number',
+        description: 'The maximum number of NFT sales to return. Defaults to 100.',
+        optional: true,
+        show: {
+            'inputParameters.api': ['nftAPI'],
+            'inputParameters.operation': [
+                'getNFTSales'
+            ]
+        }
+    },
+] as INodeParams[];
+
+export const getContractsForOwnerProperties = [
+    {
+        label: 'Owner',
+        name: 'owner',
+        type: 'string',
+        description: 'Address for NFT owner (can be in ENS format!).',
+        placeholder: 'vitalk.eth',
+        show: {
+            'inputParameters.api': ['nftAPI'],
+            'inputParameters.operation': [
+                'getContractsForOwner',
+            ]
+        }
+    },
+    {
+        label: 'PageKey',
+        name: 'pageKey',
+        type: 'string',
+        description: 'key for pagination. If more results are available, a pageKey will be returned in the response. Pass back the pageKey as a param to fetch the next page of results.',
+        optional: true,
+        show: {
+            'inputParameters.api': ['nftAPI'],
+            'inputParameters.operation': [
+                'getContractsForOwner',
+            ]
         }
     },
 ] as INodeParams[];
@@ -153,9 +577,22 @@ export const transactionReceiptsOperations = [
     {
         name: 'alchemy_getTransactionReceipts',
         value: 'alchemy_getTransactionReceipts',
+        parentGroup: 'Transaction Receipt Information',
         description: 'Fetch all transaction receipts for a block number or a block hash in one API call ',
-        providers: ['alchemy'],
-        networks: ['homestead', 'rinkeby', 'goerli', 'ropsten', 'kovan', 'matic', 'maticmum', 'arbitrum', 'arbitrum-rinkeby'],
+        providerNetworks: {
+            'alchemy': [
+                NETWORK.MAINNET,
+                NETWORK.RINKEBY,
+                NETWORK.GÖRLI,
+                NETWORK.ROPSTEN,
+                NETWORK.KOVAN,
+                NETWORK.MATIC,
+                NETWORK.MATIC_MUMBAI,
+                NETWORK.ARBITRUM,
+                NETWORK.ARBITRUM_RINKEBY,
+                NETWORK.ARBITRUM_GOERLI,
+            ]
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -221,9 +658,25 @@ export const tokenAPIOperations = [
     {
         name: 'alchemy_getTokenAllowance',
         value: 'alchemy_getTokenAllowance',
+        parentGroup: 'Token Information',
         description: 'Returns the amount which the spender is allowed to withdraw from the owner.',
-        providers: ['alchemy'],
-        networks: ['homestead', 'matic', 'maticmum', 'arbitrum', 'arbitrum-rinkeby', 'optimism', 'optimism-kovan'],
+        providerNetworks: {
+            'alchemy': [
+                NETWORK.MAINNET,
+                NETWORK.RINKEBY,
+                NETWORK.GÖRLI,
+                NETWORK.ROPSTEN,
+                NETWORK.KOVAN,
+                NETWORK.MATIC,
+                NETWORK.MATIC_MUMBAI,
+                NETWORK.ARBITRUM,
+                NETWORK.ARBITRUM_RINKEBY,
+                NETWORK.ARBITRUM_GOERLI,
+                NETWORK.OPTIMISM,
+                NETWORK.OPTIMISM_GOERLI,
+                NETWORK.OPTIMISM_KOVAN,
+            ]
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -256,9 +709,25 @@ export const tokenAPIOperations = [
     {
         name: 'alchemy_getTokenBalances',
         value: 'alchemy_getTokenBalances',
+        parentGroup: 'Token Information',
         description: 'Returns token balances for a specific address given a list of contracts.',
-        providers: ['alchemy'],
-        networks: ['homestead', 'matic', 'maticmum', 'arbitrum', 'arbitrum-rinkeby', 'optimism', 'optimism-kovan'],
+        providerNetworks: {
+            'alchemy': [
+                NETWORK.MAINNET,
+                NETWORK.RINKEBY,
+                NETWORK.GÖRLI,
+                NETWORK.ROPSTEN,
+                NETWORK.KOVAN,
+                NETWORK.MATIC,
+                NETWORK.MATIC_MUMBAI,
+                NETWORK.ARBITRUM,
+                NETWORK.ARBITRUM_RINKEBY,
+                NETWORK.ARBITRUM_GOERLI,
+                NETWORK.OPTIMISM,
+                NETWORK.OPTIMISM_GOERLI,
+                NETWORK.OPTIMISM_KOVAN,
+            ]
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",
@@ -303,9 +772,25 @@ export const tokenAPIOperations = [
     {
         name: 'alchemy_getTokenMetadata',
         value: 'alchemy_getTokenMetadata',
+        parentGroup: 'Token Information',
         description: 'Returns metadata (name, symbol, decimals, logo) for a given token contract address.',
-        providers: ['alchemy'],
-        networks: ['homestead', 'matic', 'maticmum', 'arbitrum', 'arbitrum-rinkeby', 'optimism', 'optimism-kovan'],
+        providerNetworks: {
+            'alchemy': [
+                NETWORK.MAINNET,
+                NETWORK.RINKEBY,
+                NETWORK.GÖRLI,
+                NETWORK.ROPSTEN,
+                NETWORK.KOVAN,
+                NETWORK.MATIC,
+                NETWORK.MATIC_MUMBAI,
+                NETWORK.ARBITRUM,
+                NETWORK.ARBITRUM_RINKEBY,
+                NETWORK.ARBITRUM_GOERLI,
+                NETWORK.OPTIMISM,
+                NETWORK.OPTIMISM_GOERLI,
+                NETWORK.OPTIMISM_KOVAN,
+            ]
+        },
         method: 'POST',
         body: {
             "jsonrpc":"2.0",

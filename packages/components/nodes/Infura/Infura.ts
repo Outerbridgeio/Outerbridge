@@ -12,8 +12,8 @@ import {
     handleErrorMessage,
     returnNodeExecutionData, serializeQueryParams
 } from '../../src/utils';
-import { infuraHTTPAPIs, ETHNetworks, PolygonNetworks, OptimismNetworks, ArbitrumNetworks, NETWORK } from "../../src/ChainNetwork";
-import { ethOperations, IETHOperation, polygonOperations } from "../../src/ETHOperations";
+import { infuraHTTPAPIs, ETHNetworks, PolygonNetworks, OptimismNetworks, ArbitrumNetworks, NETWORK, AvalancheNetworks } from "../../src/ChainNetwork";
+import { ethOperations, IETHOperation, operationCategoryMapping, polygonOperations } from "../../src/ETHOperations";
 import axios, { AxiosRequestConfig, AxiosRequestHeaders, Method } from 'axios';
 import FormData from "form-data";
 import { 
@@ -48,7 +48,7 @@ class Infura implements INode {
 		this.name = 'infura';
 		this.icon = 'infura.svg';
 		this.type = 'action';
-		this.version = 1.0;
+		this.version = 1.1;
 		this.description = 'Perform Infura onchain operations';
 		this.incoming = 1;
         this.outgoing = 1;
@@ -68,13 +68,6 @@ class Infura implements INode {
 						name: 'ipfsAPI',
 						description: 'API for interacting with IPFS, a distributed, peer-to-peer (p2p) storage network used for storing and accessing files, websites, applications, and data.'
 					},
-                    /*
-					{
-						label: 'Filecoin API',
-						name: 'filecoinAPI',
-						description: 'API for interacting with Filecoin, a decentralized storage network built on IPFS.'
-					},
-                    */
 				],
 				default: 'chainAPI'
 			},
@@ -102,7 +95,8 @@ class Infura implements INode {
                     ...ETHNetworks,
                     ...PolygonNetworks,
                     ...ArbitrumNetworks,
-                    ...OptimismNetworks
+                    ...OptimismNetworks,
+                    ...AvalancheNetworks,
                 ],
 				show: {
                     'actions.api': [
@@ -112,6 +106,59 @@ class Infura implements INode {
 			},
 		] as INodeParams[];
 		this.inputParameters = [
+            {
+				label: 'Chain Category',
+				name: 'chainCategory',
+				type: 'options',
+				options: [
+					{
+						label: 'Retrieving Blocks',
+						name: 'retrievingBlocks',
+						description: 'Retrieve onchain blocks data'
+					},
+					{
+						label: 'EVM/Smart Contract Execution',
+						name: 'evmExecution',
+						description: 'Execute or submit transaction onto blockchain'
+					},
+					{
+						label: 'Reading Transactions',
+						name: 'readingTransactions',
+						description: 'Read onchain transactions data'
+					},
+					{
+						label: 'Account Information',
+						name: 'accountInformation',
+						description: 'Retrieve onchain account information'
+					},
+					{
+						label: 'Event Logs',
+						name: 'eventLogs',
+						description: 'Fetch onchain logs'
+					},
+					{
+						label: 'Chain Information',
+						name: 'chainInformation',
+						description: 'Get general selected blockchain information'
+					},
+					{
+						label: 'Retrieving Uncles',
+						name: 'retrievingUncles',
+						description: 'Retrieve onchain uncles blocks data'
+					},
+					{
+						label: 'Filters',
+						name: 'filters',
+						description: 'Get block filters and logs, or create new filter'
+					},
+				],
+				show: {
+					'actions.api': [
+						'chainAPI'
+					]
+				},
+				default: 'retrievingBlocks'
+			},
 			{
 				label: 'Operation',
 				name: 'operation',
@@ -148,7 +195,9 @@ class Infura implements INode {
 			const returnData: INodeOptionsValue[] = [];
 			const actionData = nodeData.actions;
 			const networksData = nodeData.networks;
-            if (actionData === undefined || networksData === undefined ) {
+            const inputParametersData = nodeData.inputParameters;
+
+            if (actionData === undefined || networksData === undefined || inputParametersData === undefined) {
                 return returnData;
             }
 
@@ -159,14 +208,18 @@ class Infura implements INode {
                 const network = networksData.network as NETWORK;
 			
 				let totalOperations: IETHOperation[] = [];
+                const chainCategory = inputParametersData.chainCategory as string;
 
-				let filteredOperations = ethOperations.filter((op: IETHOperation) => op.providers.includes('infura'));
+                const filteredOperations = ethOperations.filter((op: IETHOperation) => Object.prototype.hasOwnProperty.call(op.providerNetworks, 'infura') && 
+					op.providerNetworks['infura'].includes(network) && op.parentGroup === operationCategoryMapping[chainCategory]);
+
 				if (network === NETWORK.MATIC || network === NETWORK.MATIC_MUMBAI) {
-                    filteredOperations = ethOperations.filter((op: IETHOperation) => op.providers.includes('infura') && op.networks.includes(network));
 					totalOperations = [...polygonOperations, ...filteredOperations];
+
 				} else {
 					totalOperations = filteredOperations;
 				}
+
 				for (const op of totalOperations) {
 					returnData.push({
 						label: op.name,
@@ -234,13 +287,14 @@ class Infura implements INode {
 				if (api === 'chainAPI') totalOperations = [...polygonOperations, ...ethOperations];
 		
 				const result = totalOperations.find(obj => {
-					return obj.name === operation
+					return obj.value === operation
 				});
 
 				if (result === undefined) throw new Error('Invalid Operation');
 
-				const requestBody = result.body;
-				requestBody.params = bodyParameters;
+				const requestBody = JSON.parse(JSON.stringify(result.body));
+			    const bodyParams = requestBody.params;
+			    requestBody.params = Array.isArray(bodyParameters) ? bodyParameters.concat(bodyParams) : bodyParameters;
 
 				const axiosConfig: AxiosRequestConfig = {
 					method: result.method as Method,
