@@ -14,15 +14,24 @@ export enum NETWORK {
     MATIC = 'matic',
     OPTIMISM = 'optimism',
     OPTIMISM_KOVAN = 'optimism-kovan',
+    OPTIMISM_GOERLI = 'optimism-goerli',
     ARBITRUM = 'arbitrum',
     ARBITRUM_RINKEBY = 'arbitrum-rinkeby',
+    ARBITRUM_GOERLI = 'arbitrum-goerli',
+    ARBITRUM_NOVA = 'arbitrum-nova',
     BSC = 'bsc',
     BSC_TESTNET = 'bsc-testnet',
     AVALANCHE = 'avalanche',
     AVALANCHE_TESTNET = 'avalanche-testnet',
     FANTOM = 'fantom',
+    FANTOM_TESTNET = 'fantom-testnet',
     CRONOS = 'cronos',
-    CRONOS_TESTNET = 'cronos-testnet'
+    CRONOS_TESTNET = 'cronos-testnet',
+    GNOSIS = 'gnosis',
+    CELO = 'celo',
+    SOLANA = 'solana',
+    SOLANA_TESTNET = 'solana-testnet',
+    SOLANA_DEVNET = 'solana-devnet'
 }
 
 export enum NETWORK_LABEL {
@@ -35,20 +44,30 @@ export enum NETWORK_LABEL {
     MATIC = 'Polygon Mainnet',
     OPTIMISM = 'Optimism Mainnet',
     OPTIMISM_KOVAN = 'Optimism Kovan',
+    OPTIMISM_GOERLI = 'Optimism Goerli',
     ARBITRUM = 'Arbitrum Mainnet',
     ARBITRUM_RINKEBY = 'Arbitrum Rinkeby',
+    ARBITRUM_GOERLI = 'Arbitrum Goerli',
+    ARBITRUM_NOVA = 'Arbitrum Nova',
     BSC = 'Binance Smart Chain Mainnet',
     BSC_TESTNET = 'Binance Smart Chain Testnet',
     AVALANCHE = 'Avalanche Mainnet',
     AVALANCHE_TESTNET = 'Avalanche Testnet',
     FANTOM = 'Fantom',
+    FANTOM_TESTNET = 'Fantom Testnet',
     CRONOS = 'Cronos',
-    CRONOS_TESTNET = 'Cronos Testnet'
+    CRONOS_TESTNET = 'Cronos Testnet',
+    GNOSIS = 'Gnosis',
+    CELO = 'Celo',
+    SOLANA = 'Solana',
+    SOLANA_TESTNET = 'Solana Testnet',
+    SOLANA_DEVNET = 'Solana Devnet'
 }
 
 export enum NETWORK_PROVIDER {
     INFURA = 'infura',
     ALCHEMY = 'alchemy',
+    QUICKNODE = 'quicknode',
     CLOUDFARE = 'cloudfare',
     CUSTOMRPC = 'customRPC',
     CUSTOMWSS = 'customWebsocket',
@@ -67,9 +86,20 @@ export enum CHAIN_ID {
     MATIC = 137,
     MATIC_MUMBAI = 80001,
     ARB_MAINNET = 42161,
-    ARB_TESTNET = 421611,
+    ARB_TESTNET_RINKEBY = 421611,
+    ARB_TESTNET_GOERLI = 421613,
+    ARB_NOVA = 42170,
     OPT_MAINNET = 10,
-    OPT_TESTNET = 69
+    OPT_TESTNET_KOVAN = 69,
+    OPT_TESTNET_GOERLI = 420,
+    CRONOS_MAINNET = 25,
+    CRONOS_TESTNET = 338,
+    AVALANCHE_MAINNET = 43114,
+    AVALANCHE_TESTNET = 43113,
+    FANTOM_MAINNET = 250,
+    FANTOM_TESTNET = 4002,
+    GNOSIS = 100,
+    CELO = 42220,
 }
 
 export enum DOMAIN_ID {
@@ -147,6 +177,11 @@ export const ArbitrumNetworks = [
         name: NETWORK.ARBITRUM_RINKEBY,
         parentGroup: 'Arbitrum'
     },
+    {
+        label: NETWORK_LABEL.ARBITRUM_GOERLI,
+        name: NETWORK.ARBITRUM_GOERLI,
+        parentGroup: 'Arbitrum'
+    },
 ] as INodeOptionsValue[];
 
 export const OptimismNetworks = [ 
@@ -160,8 +195,43 @@ export const OptimismNetworks = [
         name: NETWORK.OPTIMISM_KOVAN,
         parentGroup: 'Optimism'
     },
+    {
+        label: NETWORK_LABEL.OPTIMISM_GOERLI,
+        name: NETWORK.OPTIMISM_GOERLI,
+        parentGroup: 'Optimism'
+    },
 ] as INodeOptionsValue[];
 
+export const AvalancheNetworks = [ 
+    {
+        label: NETWORK_LABEL.AVALANCHE,
+        name: NETWORK.AVALANCHE,
+        parentGroup: 'Avalanche'
+    },
+    {
+        label: NETWORK_LABEL.AVALANCHE_TESTNET,
+        name: NETWORK.AVALANCHE_TESTNET,
+        parentGroup: 'Avalanche'
+    },
+] as INodeOptionsValue[];
+
+export const SolanaNetworks = [ 
+    {
+        label: NETWORK_LABEL.SOLANA,
+        name: NETWORK.SOLANA,
+        parentGroup: 'Solana'
+    },
+    {
+        label: NETWORK_LABEL.SOLANA_DEVNET,
+        name: NETWORK.SOLANA_DEVNET,
+        parentGroup: 'Solana'
+    },
+    {
+        label: NETWORK_LABEL.SOLANA_TESTNET,
+        name: NETWORK.SOLANA_TESTNET,
+        parentGroup: 'Solana'
+    },
+] as INodeOptionsValue[];
 
 /**
  * Network Providers
@@ -199,15 +269,26 @@ export const alchemyNetworkProviders = [
     },
 ] as INodeOptionsValue[];
 
+export const quickNodeNetworkProviders = [
+    {
+        label: 'QuickNode',
+        name: NETWORK_PROVIDER.QUICKNODE,
+        description: 'QuickNode HTTP and WSS Endpoints',
+        parentGroup: 'Private Nodes'
+    },
+] as INodeOptionsValue[];
+
 export const ethTestNetworkProviders = [
     ...alchemyNetworkProviders,
     ...infuraNetworkProviders,
+    ...quickNodeNetworkProviders,
     ...customNetworkProviders,
 ] as INodeOptionsValue[];
 
 export const ethNetworkProviders = [
     ...alchemyNetworkProviders,
     ...infuraNetworkProviders,
+    ...quickNodeNetworkProviders,
     {
         label: 'Cloudfare',
         name: NETWORK_PROVIDER.CLOUDFARE,
@@ -220,6 +301,7 @@ export const ethNetworkProviders = [
 export const polygonNetworkProviders = [
     ...alchemyNetworkProviders,
     ...infuraNetworkProviders,
+    ...quickNodeNetworkProviders,
     {
         label: 'Polygon',
         name: NETWORK_PROVIDER.POLYGON,
@@ -236,6 +318,7 @@ export const binanceNetworkProviders = [
         description: 'Public Binance RPC/Websocket',
         parentGroup: 'Public Nodes'
     },
+    ...quickNodeNetworkProviders,
     ...customNetworkProviders,
 ] as INodeOptionsValue[];
 
@@ -346,6 +429,8 @@ export async function getNetworkProvider(
                 apiKey: credentials!.apiKey,
                 secretKey: credentials!.secretKey
             });
+        case NETWORK_PROVIDER.QUICKNODE:
+            return new ethers.providers.JsonRpcProvider(credentials!.httpProvider as string);
         case NETWORK_PROVIDER.CLOUDFARE:
             return new ethers.providers.CloudflareProvider();
         case NETWORK_PROVIDER.BINANCE:
@@ -379,9 +464,11 @@ export function getNetworkProvidersList(network: NETWORK): INodeOptionsValue[] {
             return polygonNetworkProviders;
         case NETWORK.OPTIMISM:
         case NETWORK.OPTIMISM_KOVAN:
+        case NETWORK.OPTIMISM_GOERLI:
             return ethTestNetworkProviders;
         case NETWORK.ARBITRUM:
         case NETWORK.ARBITRUM_RINKEBY:
+        case NETWORK.ARBITRUM_GOERLI:
             return ethTestNetworkProviders;
         case NETWORK.BSC:
         case NETWORK.BSC_TESTNET:
@@ -390,6 +477,44 @@ export function getNetworkProvidersList(network: NETWORK): INodeOptionsValue[] {
             return [];
     }
 }
+
+export const networkProviderCredentials = [
+    {
+        label: 'Credential Method',
+        name: 'credentialMethod',
+        type: 'options',
+        options: [
+            {
+                label: 'Alchemy API Key',
+                name: 'alchemyApi',
+                show: {
+                    'networks.networkProvider': [NETWORK_PROVIDER.ALCHEMY]
+                }
+            },
+            {
+                label: 'Infura API Key',
+                name: 'infuraApi',
+                show: {
+                    'networks.networkProvider': [NETWORK_PROVIDER.INFURA]
+                }
+            },
+            {
+                label: 'QuickNode Endpoints',
+				name: 'quickNodeEndpoints',
+                show: {
+                    'networks.networkProvider': [NETWORK_PROVIDER.QUICKNODE]
+                }
+            },
+        ],
+        show: {
+            'networks.networkProvider': [
+                NETWORK_PROVIDER.ALCHEMY,
+                NETWORK_PROVIDER.INFURA,
+                NETWORK_PROVIDER.QUICKNODE
+            ]
+        }
+    }
+];
 
 /**
  * URLs
@@ -404,6 +529,7 @@ export const etherscanAPIs = {
     [NETWORK.MATIC_MUMBAI]: 'https://api-testnet.polygonscan.com/api',
     [NETWORK.OPTIMISM]: 'https://api-optimistic.etherscan.io/api',
     [NETWORK.OPTIMISM_KOVAN]: 'https://api-kovan-optimistic.etherscan.io/api',
+    [NETWORK.OPTIMISM_GOERLI]: 'https://api-goerli-optimistic.etherscan.io/api',
     [NETWORK.ARBITRUM]: 'https://api.arbiscan.io/api',
     [NETWORK.ARBITRUM_RINKEBY]: 'https://api-testnet.arbiscan.io/api',
     [NETWORK.BSC]: 'https://api.bscscan.com/api',
@@ -420,8 +546,10 @@ export const infuraHTTPAPIs = {
     [NETWORK.MATIC_MUMBAI]: 'https://polygon-mumbai.infura.io/v3/',
     [NETWORK.OPTIMISM]: 'https://optimism-mainnet.infura.io/v3/',
     [NETWORK.OPTIMISM_KOVAN]: 'https://optimism-kovan.infura.io/v3/',
+    [NETWORK.OPTIMISM_GOERLI]: 'https://optimism-goerli.infura.io/v3/',
     [NETWORK.ARBITRUM]: 'https://arbitrum-mainnet.infura.io/v3/',
     [NETWORK.ARBITRUM_RINKEBY]: 'https://arbitrum-rinkeby.infura.io/v3/',
+    [NETWORK.ARBITRUM_GOERLI]: 'https://arbitrum-goerli.infura.io/v3/',
 } as INetworkMapping;
 
 export const infuraWSSAPIs = {
@@ -434,8 +562,10 @@ export const infuraWSSAPIs = {
     [NETWORK.MATIC_MUMBAI]: 'wss://polygon-mumbai.infura.io/ws/v3/',
     [NETWORK.OPTIMISM]: 'wss://optimism-mainnet.infura.io/ws/v3/',
     [NETWORK.OPTIMISM_KOVAN]: 'wss://optimism-kovan.infura.io/ws/v3/',
+    [NETWORK.OPTIMISM_GOERLI]: 'wss://optimism-goerli.infura.io/ws/v3/',
     [NETWORK.ARBITRUM]: 'wss://arbitrum-mainnet.infura.io/ws/v3/',
     [NETWORK.ARBITRUM_RINKEBY]: 'wss://arbitrum-rinkeby.infura.io/ws/v3/',
+    [NETWORK.ARBITRUM_GOERLI]: 'wss://arbitrum-goerli.infura.io/ws/v3/',
 } as INetworkMapping;
 
 export const alchemyHTTPAPIs = {
@@ -448,8 +578,12 @@ export const alchemyHTTPAPIs = {
     [NETWORK.MATIC_MUMBAI]: 'https://polygon-mumbai.g.alchemy.com/v2/',
     [NETWORK.OPTIMISM]: 'https://opt-mainnet.g.alchemy.com/v2/',
     [NETWORK.OPTIMISM_KOVAN]: 'https://opt-kovan.g.alchemy.com/v2/',
+    [NETWORK.OPTIMISM_GOERLI]: 'https://opt-goerli.g.alchemy.com/v2/',
     [NETWORK.ARBITRUM]: 'https://arb-mainnet.g.alchemy.com/v2/',
     [NETWORK.ARBITRUM_RINKEBY]: 'https://arb-rinkeby.g.alchemy.com/v2/',
+    [NETWORK.ARBITRUM_GOERLI]: 'https://arb-goerli.g.alchemy.com/v2/',
+    [NETWORK.SOLANA]: 'https://solana-mainnet.g.alchemy.com/v2/',
+    [NETWORK.SOLANA_DEVNET]: 'https://solana-devnet.g.alchemy.com/v2/',
 } as INetworkMapping;
 
 export const alchemyWSSAPIs = {
@@ -462,8 +596,12 @@ export const alchemyWSSAPIs = {
     [NETWORK.MATIC_MUMBAI]: 'wss://polygon-mumbai.g.alchemy.com/v2/',
     [NETWORK.OPTIMISM]: 'wss://opt-mainnet.g.alchemy.com/v2/',
     [NETWORK.OPTIMISM_KOVAN]: 'wss://opt-kovan.g.alchemy.com/v2/',
+    [NETWORK.OPTIMISM_GOERLI]: 'wss://opt-goerli.g.alchemy.com/v2/',
     [NETWORK.ARBITRUM]: 'wss://arb-mainnet.g.alchemy.com/v2/',
     [NETWORK.ARBITRUM_RINKEBY]: 'wss://arb-rinkeby.g.alchemy.com/v2/',
+    [NETWORK.ARBITRUM_GOERLI]: 'wss://arb-goerli.g.alchemy.com/v2/',
+    [NETWORK.SOLANA]: 'wss://solana-mainnet.g.alchemy.com/v2/',
+    [NETWORK.SOLANA_DEVNET]: 'wss://solana-devnet.g.alchemy.com/v2/',
 } as INetworkMapping;
 
 export const networkExplorers = {
@@ -476,8 +614,10 @@ export const networkExplorers = {
     [NETWORK.MATIC_MUMBAI]: 'https://mumbai.polygonscan.com',
     [NETWORK.OPTIMISM]: 'https://optimistic.etherscan.io',
     [NETWORK.OPTIMISM_KOVAN]: 'https://kovan-optimistic.etherscan.io',
+    [NETWORK.OPTIMISM_GOERLI]: 'https://goerli-optimistic.etherscan.io',
     [NETWORK.ARBITRUM]: 'https://arbiscan.io',
     [NETWORK.ARBITRUM_RINKEBY]: 'https://rinkeby-explorer.arbitrum.io',
+    [NETWORK.ARBITRUM_GOERLI]: 'https://goerli-explorer.arbitrum.io',
     [NETWORK.BSC]: 'https://bscscan.com',
     [NETWORK.BSC_TESTNET]: 'https://testnet.bscscan.com',
 } as INetworkMapping;
@@ -525,11 +665,22 @@ export const chainIdLookup = {
     [NETWORK.MATIC]: CHAIN_ID.MATIC,
     [NETWORK.MATIC_MUMBAI]: CHAIN_ID.MATIC_MUMBAI,
     [NETWORK.OPTIMISM]: CHAIN_ID.OPT_MAINNET,
-    [NETWORK.OPTIMISM_KOVAN]: CHAIN_ID.OPT_TESTNET,
+    [NETWORK.OPTIMISM_KOVAN]: CHAIN_ID.OPT_TESTNET_KOVAN,
+    [NETWORK.OPTIMISM_GOERLI]: CHAIN_ID.OPT_TESTNET_GOERLI,
     [NETWORK.ARBITRUM]: CHAIN_ID.ARB_MAINNET,
-    [NETWORK.ARBITRUM_RINKEBY]: CHAIN_ID.ARB_TESTNET,
+    [NETWORK.ARBITRUM_RINKEBY]: CHAIN_ID.ARB_TESTNET_RINKEBY,
+    [NETWORK.ARBITRUM_GOERLI]: CHAIN_ID.ARB_TESTNET_GOERLI,
+    [NETWORK.ARBITRUM_NOVA]: CHAIN_ID.ARB_NOVA,
     [NETWORK.BSC]: CHAIN_ID.BINANCE_MAINNET,
     [NETWORK.BSC_TESTNET]: CHAIN_ID.BINANCE_TESTNET,
+    [NETWORK.CRONOS]: CHAIN_ID.CRONOS_MAINNET,
+    [NETWORK.CRONOS_TESTNET]: CHAIN_ID.CRONOS_TESTNET,
+    [NETWORK.AVALANCHE]: CHAIN_ID.AVALANCHE_MAINNET,
+    [NETWORK.AVALANCHE_TESTNET]: CHAIN_ID.AVALANCHE_TESTNET,
+    [NETWORK.FANTOM]: CHAIN_ID.FANTOM_MAINNET,
+    [NETWORK.FANTOM_TESTNET]: CHAIN_ID.FANTOM_TESTNET,
+    [NETWORK.GNOSIS]: CHAIN_ID.GNOSIS,
+    [NETWORK.CELO]: CHAIN_ID.CELO,
 } as INetworkMapping;
 
 export const domainIdLookup = {
@@ -549,8 +700,10 @@ export const nativeCurrency = {
     [NETWORK.MATIC_MUMBAI]: 'MATIC',
     [NETWORK.OPTIMISM]: 'ETH',
     [NETWORK.OPTIMISM_KOVAN]: 'ETH',
+    [NETWORK.OPTIMISM_GOERLI]: 'ETH',
     [NETWORK.ARBITRUM]: 'ETH',
     [NETWORK.ARBITRUM_RINKEBY]: 'ETH',
+    [NETWORK.ARBITRUM_GOERLI]: 'ETH',
     [NETWORK.BSC]: 'BNB',
     [NETWORK.BSC_TESTNET]: 'BNB',
 } as INetworkMapping;

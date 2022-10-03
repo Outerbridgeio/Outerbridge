@@ -20,6 +20,7 @@ import {
 	NETWORK,
 	getNetworkProvider,
 	NETWORK_PROVIDER,
+	NETWORK_LABEL,
 } from '../../src/ChainNetwork';
 import IWETH from '@uniswap/v2-periphery/build/IWETH.json';
 import axios, { AxiosRequestConfig, Method } from "axios";
@@ -82,8 +83,8 @@ class Uniswap implements INode {
 				type: 'options',
 				options: [
 					{
-						label: 'Mainnet',
-						name: 'homestead',
+						label: NETWORK_LABEL.MAINNET,
+						name: NETWORK.MAINNET,
 						parentGroup: 'Ethereum'
 					},
 				],
@@ -141,20 +142,31 @@ class Uniswap implements INode {
 						label: 'Alchemy API Key',
 						name: 'alchemyApi',
 						show: {
-							'networks.networkProvider': ['alchemy']
+							'networks.networkProvider': [NETWORK_PROVIDER.ALCHEMY]
 						}
 					},
 					{
 						label: 'Infura API Key',
 						name: 'infuraApi',
 						show: {
-							'networks.networkProvider': ['infura']
+							'networks.networkProvider': [NETWORK_PROVIDER.INFURA]
+						}
+					},
+					{
+						label: 'QuickNode Endpoints',
+						name: 'quickNodeEndpoints',
+						show: {
+							'networks.networkProvider': [NETWORK_PROVIDER.QUICKNODE]
 						}
 					},
 				],
 				default: '',
 				show: {
-					'networks.networkProvider': ['infura', 'alchemy'],
+					'networks.networkProvider': [
+						NETWORK_PROVIDER.ALCHEMY,
+						NETWORK_PROVIDER.INFURA,
+						NETWORK_PROVIDER.QUICKNODE
+					],
 					'actions.operation': ['swapTokens']
 				}
 			},

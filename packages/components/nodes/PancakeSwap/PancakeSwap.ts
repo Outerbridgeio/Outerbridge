@@ -40,6 +40,7 @@ class PancakeSwap implements INode {
 	outgoing: number;
 	networks?: INodeParams[];
     actions?: INodeParams[];
+	credentials?: INodeParams[];
     inputParameters?: INodeParams[];
 
 	constructor() {
@@ -190,6 +191,26 @@ class PancakeSwap implements INode {
 					'actions.operation': ['swapTokens']
 				}
 			},
+		] as INodeParams[];
+		this.credentials = [
+			{
+				label: 'Credential Method',
+				name: 'credentialMethod',
+				type: 'options',
+				options: [
+					{
+						label: 'QuickNode Endpoints',
+						name: 'quickNodeEndpoints',
+						show: {
+							'networks.networkProvider': [NETWORK_PROVIDER.QUICKNODE]
+						}
+					},
+				],
+				show: {
+					'networks.networkProvider': [NETWORK_PROVIDER.QUICKNODE],
+					'actions.operation': ['swapTokens']
+				}
+			}
 		] as INodeParams[];
         this.inputParameters = [
 			{
