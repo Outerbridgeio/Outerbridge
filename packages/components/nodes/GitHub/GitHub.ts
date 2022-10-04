@@ -8,8 +8,8 @@ import {
   NodeType,
 } from "../../src/Interface";
 import {
-  notEmptyRegex,
   handleErrorMessage,
+  notEmptyRegex,
   numberOrExpressionRegex,
   returnNodeExecutionData,
   serializeQueryParams,
@@ -45,6 +45,16 @@ class GitHub implements INode {
         name: "operation",
         type: "options",
         options: [
+          {
+            label: "List User Repositories",
+            name: "listUserRepositories",
+            description: "Lists public repositories for the specified user.",
+          },
+          {
+            label: "List Organization Repositories",
+            name: "listOrganizationRepositories",
+            description: "Lists repositories for the specified organization.",
+          },
           {
             label: "List repository issues",
             name: "listRepositoryIssues",
@@ -97,7 +107,7 @@ class GitHub implements INode {
     ] as INodeParams[];
     this.inputParameters = [
       {
-        label: "Owner",
+        label: "Owner/Organization",
         name: "owner",
         type: "string",
         show: {
@@ -108,10 +118,56 @@ class GitHub implements INode {
             "updateIssue",
             "lockIssue",
             "unlockIssue",
+            "listUserRepositories",
+            "listOrganizationRepositories",
           ],
         },
         description:
           "The account owner of the repository. The name is not case sensitive.",
+      },
+      {
+        label: "Type",
+        name: "type",
+        type: "options",
+        options: [
+          {
+            label: "All",
+            name: "all",
+          },
+          {
+            label: "Public",
+            name: "public",
+          },
+          {
+            label: "Private",
+            name: "private",
+          },
+          {
+            label: "Forks",
+            name: "forks",
+          },
+          {
+            label: "Sources",
+            name: "sources",
+          },
+          {
+            label: "Member",
+            name: "member",
+          },
+          {
+            label: "Internal",
+            name: "internal",
+          },
+        ],
+        show: {
+          "actions.operation": [
+            "listUserRepositories",
+            "listOrganizationRepositories",
+          ],
+        },
+        description: "Specifies the types of repositories you want returned.",
+        optional: true,
+        default: "all",
       },
       {
         label: "Repository",
@@ -224,8 +280,18 @@ class GitHub implements INode {
       };
       let dataString: any = {};
       const queryBody: ICommonObject = {};
-
-      if (operation === "listRepositoryIssues") {
+      if (
+        operation === "listUserRepositories" ||
+        operation === "listOrganizationRepositories"
+      ) {
+        const owner = inputParametersData.owner as string;
+        const type = inputParametersData.type as string;
+        const path = operation === "listUserRepositories" ? "users" : "orgs";
+        method = "GET";
+        url = `https://api.github.com/${path}/${owner}/repos`;
+        if (type) url += url.includes("?") ? `type=${type};` : `?type=${type}`;
+        // if (type) dataString["type"] = type;
+      } else if (operation === "listRepositoryIssues") {
         const owner = inputParametersData.owner as string;
         const repo = inputParametersData.repo as string;
         method = "GET";
@@ -237,7 +303,7 @@ class GitHub implements INode {
         const body = inputParametersData.body as string;
         method = "POST";
         url = "https://api.github.com/repos/" + owner + "/" + repo + "/issues";
-        dataString = { title: title };
+        if (title) dataString["title"] = title;
         if (body) dataString["body"] = body;
       } else if (operation === "getIssue") {
         const owner = inputParametersData.owner as string;
@@ -305,6 +371,7 @@ class GitHub implements INode {
         headers,
         data: dataString,
       };
+      console.log(`axiosConfig: ${JSON.stringify(axiosConfig)}`);
       if (Object.keys(queryBody).length > 0) {
         axiosConfig.data = queryBody;
       }
