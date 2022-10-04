@@ -87,7 +87,7 @@ npm install -g yarn
 
 6. For development build:
 	```
-	yarn run dev
+	yarn dev
 	```
 	Any code changes will reload the app automatically on http://localhost:8080
 

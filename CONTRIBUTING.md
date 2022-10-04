@@ -52,9 +52,12 @@ Outerbridge uses MongoDB as database. Download and install one [here](https://ww
 
 1. Fork the official [Outerbridge Github Repository](https://github.com/Outerbridgeio/Outerbridge).
 
-2. Clone your forked repository.
+2. Clone your forked repository. For MacOS and Linux, you may need to gain full access to the folder
+	```
+	chmod -R 777 Outerbridge
+	```
 
-3. Create a new branch. Naming conventions:
+3. Create a new branch, see [guide](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-and-deleting-branches-within-your-repository). Naming conventions:
     - For feature branch: `feature/<Your New Feature>`
     - For bugfix branch: `bugfix/<Your New Bugfix>`.
 
@@ -67,30 +70,38 @@ Outerbridge uses MongoDB as database. Download and install one [here](https://ww
 
 6. Install all dependencies of all modules and link them together:
 	```
-	lerna bootstrap --hoist
+	yarn bootstrap
 	```
 
 7. Build all the code:
 	```
-	yarn run build
+	yarn build
 	```
     
-8. Start the app:
+8. Start the app on http://localhost:3000:
 	```
-	yarn run start
+	yarn start
 	```
     
 9. For development, run
     ```
-	yarn run dev
+	yarn dev
 	```
-    After making changes, run
+	Any changes made in `packages/ui` or `packages/server` will be reflected on http://localhost:8080
+	
+	For changes made in `packages/components`, run `yarn build` again to pickup the changes.
+
+10. After making all the changes, run
     ```
-	yarn run build
+	yarn build
+	```
+	and
+	```
+	yarn start
 	```
     to make sure everything works fine in production.
 
-10. Commit code and submit Pull Request from forked branch pointing to [Outerbridge master](https://github.com/Outerbridgeio/Outerbridge/tree/master). Example [PR](https://github.com/Outerbridgeio/Outerbridge/pull/23).
+10. Commit code and submit Pull Request from forked branch pointing to [Outerbridge master](https://github.com/Outerbridgeio/Outerbridge/tree/master). Example [PR](https://github.com/Outerbridgeio/Outerbridge/pull/50).
 
 ## 📖 Contribute to Docs
 

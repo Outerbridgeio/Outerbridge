@@ -17,7 +17,8 @@ import {
 	NETWORK,
 	getNetworkProvider,
 	tokenAbi,
-	eventTransferAbi
+	eventTransferAbi,
+	networkProviderCredentials
 } from '../../src/ChainNetwork';
 
 class BEP20TransferTrigger extends EventEmitter implements INode {
@@ -84,6 +85,9 @@ class BEP20TransferTrigger extends EventEmitter implements INode {
 				}
 			},
 		] as INodeParams[];
+		this.credentials = [
+			...networkProviderCredentials
+		] as INodeParams[];
 		this.inputParameters = [
 			{
 				label: 'BEP20 Address',
@@ -140,6 +144,7 @@ class BEP20TransferTrigger extends EventEmitter implements INode {
 
 		const networksData = nodeData.networks;
 		const inputParametersData = nodeData.inputParameters;
+		const credentials = nodeData.credentials;
 
         if (networksData === undefined || inputParametersData === undefined) {
             throw new Error('Required data missing');
@@ -150,7 +155,7 @@ class BEP20TransferTrigger extends EventEmitter implements INode {
 		const provider = await getNetworkProvider(
 			networksData.networkProvider as NETWORK_PROVIDER,
 			network,
-			undefined,
+			credentials,
 			networksData.jsonRPC as string,
 			networksData.websocketRPC as string,
 		)

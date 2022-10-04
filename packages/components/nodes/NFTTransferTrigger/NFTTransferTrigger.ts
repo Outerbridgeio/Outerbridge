@@ -24,7 +24,8 @@ import {
 	NETWORK_PROVIDER,
 	eventTransferAbi,
 	erc1155SingleTransferAbi,
-	erc1155BatchTransferAbi
+	erc1155BatchTransferAbi,
+	networkProviderCredentials
 } from '../../src/ChainNetwork';
 
 class NFTTransferTrigger extends EventEmitter implements INode {
@@ -93,31 +94,7 @@ class NFTTransferTrigger extends EventEmitter implements INode {
 			
 		] as INodeParams[];
 		this.credentials = [
-			{
-				label: 'Credential Method',
-				name: 'credentialMethod',
-				type: 'options',
-				options: [
-					{
-						label: 'Alchemy API Key',
-						name: 'alchemyApi',
-						show: {
-							'networks.networkProvider': ['alchemy']
-						}
-					},
-					{
-						label: 'Infura API Key',
-						name: 'infuraApi',
-						show: {
-							'networks.networkProvider': ['infura']
-						}
-					},
-				],
-				default: '',
-				show: {
-					'networks.networkProvider': ['infura', 'alchemy']
-				}
-			},
+			...networkProviderCredentials
 		] as INodeParams[];
 		this.inputParameters = [
 			{

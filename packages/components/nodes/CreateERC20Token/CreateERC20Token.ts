@@ -24,6 +24,7 @@ import {
     getNetworkProvidersList, 
     NETWORK, 
     networkExplorers, 
+    networkProviderCredentials, 
     NETWORK_PROVIDER,
     OptimismNetworks,
     PolygonNetworks, 
@@ -96,31 +97,7 @@ class CreateERC20Token implements INode {
 			},
 		] as INodeParams[];
 		this.credentials = [
-			{
-				label: 'Credential Method',
-				name: 'credentialMethod',
-				type: 'options',
-				options: [
-					{
-						label: 'Alchemy API Key',
-						name: 'alchemyApi',
-						show: {
-							'networks.networkProvider': ['alchemy']
-						}
-					},
-					{
-						label: 'Infura API Key',
-						name: 'infuraApi',
-						show: {
-							'networks.networkProvider': ['infura']
-						}
-					},
-				],
-				default: '',
-				show: {
-					'networks.networkProvider': ['infura', 'alchemy']
-				}
-			},
+			...networkProviderCredentials
 		] as INodeParams[];
 		this.inputParameters = [
             {

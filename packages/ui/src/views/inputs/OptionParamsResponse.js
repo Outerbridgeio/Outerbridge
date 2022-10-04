@@ -10,6 +10,8 @@ import ReactJson from 'react-json-view';
 // utils
 import { copyToClipboard } from 'utils/genericHelper';
 
+//css
+import './OptionParamsResponse.css';
 
 // ==============================|| OPTION PARAMS RESPONSE ||============================== //
 
@@ -61,7 +63,7 @@ const OptionParamsResponse = ({
                     <Typography sx={{p: 1}} variant="h6">
                         Parameters
                     </Typography>
-                    <div dangerouslySetInnerHTML={{ __html: getSelectedOptionInputParams(value) }} />
+                    <div className='params' dangerouslySetInnerHTML={{ __html: getSelectedOptionInputParams(value) }} />
                 </Box>
             )}
             
