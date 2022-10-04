@@ -46,6 +46,7 @@
    },
    "license": "SEE LICENSE IN LICENSE.md",
    "dependencies": {
+      "@oclif/core": "^1.13.10",
       "@types/cors": "^2.8.12",
       "@types/crypto-js": "^4.1.1",
       "@types/localtunnel": "^2.0.1",
@@ -61,7 +62,6 @@
       "moment-timezone": "^0.5.34",
       "mongodb": "^3.6.0",
       "node-abort-controller": "^3.0.1",
-      "@oclif/core": "^1.13.10",
       "outerbridge-components": "^1.0.4",
       "outerbridge-ui": "^1.0.5",
       "pg": "^8.4.0",
@@ -75,6 +75,7 @@
       "concurrently": "^7.1.0",
       "nodemon": "^2.0.15",
       "oclif": "^3",
+      "prettier": "^2.7.1",
       "run-script-os": "^1.0.7",
       "shx": "^0.3.3",
       "ts-node": "10.7.0",

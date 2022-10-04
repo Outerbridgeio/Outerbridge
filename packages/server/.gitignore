@@ -6,3 +6,5 @@ tmp/
 temp/
 dist/
 encryption.key
+package-lock.json
+yarn.lock
