@@ -13,9 +13,10 @@ class TelegramApi implements INodeCredential {
                 label: 'Bot Token',
                 name: 'botToken',
                 type: 'string',
-                default: 'eg: 1234567890:ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHI',
+                placeholder: 'eg: 1234567890:ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHI',
+                default: '',
                 description:
-                    '<s>Telegram bot token.<a target="_blank" href="https://www.youtube.com/watch?v=MZixi8oIdaA">Learn how to get it</a></s>'
+                    'Telegram bot token. <a target="_blank" href="https://www.youtube.com/watch?v=MZixi8oIdaA">Learn how to get it</a>'
             }
         ];
     }

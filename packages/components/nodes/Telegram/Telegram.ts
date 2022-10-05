@@ -33,7 +33,8 @@ class Telegram implements INode {
                         name: 'telegramApi'
                     }
                 ],
-                default: 'eg: 1234567890:ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHI'
+                placeholder: 'eg: 1234567890:ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHI',
+                default: ''
             }
         ] as INodeParams[];
         this.inputParameters = [
@@ -41,9 +42,10 @@ class Telegram implements INode {
                 label: 'Channel ID',
                 name: 'channelID',
                 type: 'string',
-                default: 'eg: MyAwesomeChannel',
+                placeholder: 'eg: MyAwesomeChannel',
+                default: '',
                 description:
-                    '<s>Your channel ID.<a target="_blank" href="https://www.youtube.com/watch?v=gk_tPOY1TDM">See how to how to add bot in your channel.</a></s>',
+                    'Your channel ID. <a target="_blank" href="https://www.youtube.com/watch?v=gk_tPOY1TDM">See how to how to add bot in your channel.</a>',
                 optional: true
             },
             {
@@ -59,8 +61,6 @@ class Telegram implements INode {
     async run(nodeData: INodeData): Promise<INodeExecutionData[] | null> {
         const inputParametersData = nodeData.inputParameters;
         const credentials = nodeData.credentials;
-
-        console.log({ inputParametersData, credentials });
 
         if (inputParametersData === undefined || credentials === undefined) {
             throw new Error('Required data missing');
