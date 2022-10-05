@@ -13,8 +13,5 @@
         "sourceMap": true,
         "strictPropertyInitialization": false,
         "declaration": true,
-        "paths": {
-            "outerbridge-components": ["../components/dist/src"]
-        }
     }
 }
