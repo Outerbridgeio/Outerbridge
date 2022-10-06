@@ -1,35 +1,34 @@
-
 import express, { Express, Request, Response } from 'express';
 import path from 'path';
 import cors from 'cors';
 import localtunnel from 'localtunnel';
 import { ObjectId } from 'mongodb';
-import { Server, Socket } from "socket.io";
-import http from "http";
+import { Server, Socket } from 'socket.io';
+import http from 'http';
 import { ethers } from 'ethers';
 
-import { 
-    IComponentCredentialsPool, 
-    IComponentNodesPool, 
-    IContractRequestBody, 
-    ICredentialBody, 
-    ICredentialDataDecrpyted, 
-    ICredentialResponse, 
-    IOAuth2Response, 
-    IReactFlowEdge, 
-    IReactFlowNode, 
-    IReactFlowObject, 
-    ITestNodeBody, 
-    ITestWorkflowBody, 
-    ITriggerNode, 
-    IWalletRequestBody, 
-    IWalletResponse, 
-    IWebhookNode, 
-    IWorkflowExecutedData, 
-    IWorkflowResponse, 
+import {
+    IComponentCredentialsPool,
+    IComponentNodesPool,
+    IContractRequestBody,
+    ICredentialBody,
+    ICredentialDataDecrpyted,
+    ICredentialResponse,
+    IOAuth2Response,
+    IReactFlowEdge,
+    IReactFlowNode,
+    IReactFlowObject,
+    ITestNodeBody,
+    ITestWorkflowBody,
+    ITriggerNode,
+    IWalletRequestBody,
+    IWalletResponse,
+    IWebhookNode,
+    IWorkflowExecutedData,
+    IWorkflowResponse,
     WebhookMethod
-} from "./Interface";
-import { 
+} from './Interface';
+import {
     INodeData,
     INodeOptionsValue,
     IDbCollection,
@@ -37,17 +36,17 @@ import {
     nativeCurrency,
     NETWORK,
     INodeExecutionData,
-    INode,
-} from "outerbridge-components";
+    INode
+} from 'outerbridge-components';
 import { CredentialsPool } from './CredentialsPool';
-import { NodesPool } from "./NodesPool";
-import { 
-    decryptCredentialData, 
-    getEncryptionKey, 
-    processWebhook, 
-    decryptCredentials, 
-    resolveVariables, 
-    transformToCredentialEntity, 
+import { NodesPool } from './NodesPool';
+import {
+    decryptCredentialData,
+    getEncryptionKey,
+    processWebhook,
+    decryptCredentials,
+    resolveVariables,
+    transformToCredentialEntity,
     constructGraphsAndGetStartingNodes,
     encryptCredentialData,
     getOAuth2HTMLPath,
@@ -55,23 +54,24 @@ import {
     constructGraphs,
     testWorkflow,
     getNodeModulesPackagePath,
-    getRandomSubdomain,
+    getRandomSubdomain
 } from './utils';
 import { DeployedWorkflowPool } from './DeployedWorkflowPool';
 import { ActiveTestTriggerPool } from './ActiveTestTriggerPool';
 import { ActiveTestWebhookPool } from './ActiveTestWebhookPool';
 import axios, { AxiosRequestConfig, Method } from 'axios';
 
-import { Workflow } from "./entity/Workflow"
-import { Execution } from "./entity/Execution"
-import { Credential } from "./entity/Credential"
-import { Webhook } from "./entity/Webhook"
-import { Contract } from "./entity/Contract"
-import { Wallet } from "./entity/Wallet"
+import { Workflow } from './entity/Workflow';
+import { Execution } from './entity/Execution';
+import { Credential } from './entity/Credential';
+import { Webhook } from './entity/Webhook';
+import { Contract } from './entity/Contract';
+import { Wallet } from './entity/Wallet';
 import { getDataSource } from './DataSource';
 
-export class App {
+export { IContractRequestBody } from './Interface';
 
+export class App {
     app: express.Application;
     componentNodes: IComponentNodesPool = {};
     componentCredentials: IComponentCredentialsPool = {};
@@ -81,143 +81,135 @@ export class App {
     AppDataSource = getDataSource();
 
     constructor() {
-		this.app = express();
+        this.app = express();
     }
 
     async initDatabase() {
         // Initialize database
-        this.AppDataSource
-        .initialize()
-        .then( async() => {
-            console.log("📦[server]: Data Source has been initialized!");
+        this.AppDataSource.initialize()
+            .then(async () => {
+                console.log('📦[server]: Data Source has been initialized!');
 
-            // Initialize localtunnel
-            if (process.env.ENABLE_TUNNEL === 'true') {
-                const subdomain = getRandomSubdomain();
+                // Initialize localtunnel
+                if (process.env.ENABLE_TUNNEL === 'true') {
+                    const subdomain = getRandomSubdomain();
 
-                const tunnelSettings: localtunnel.TunnelConfig = {
-                    subdomain
-                };
+                    const tunnelSettings: localtunnel.TunnelConfig = {
+                        subdomain
+                    };
 
-                const port = parseInt(process.env.PORT || '', 10) || 3000;
+                    const port = parseInt(process.env.PORT || '', 10) || 3000;
 
-                const createTunnel = (timeout: number): Promise<localtunnel.Tunnel | string> => {
-                    return new Promise(function(resolve, reject) {
-                        localtunnel(port, tunnelSettings).then(resolve, reject);
-                        setTimeout(resolve, timeout, 'TUNNEL_TIMED_OUT');
-                    });
+                    const createTunnel = (timeout: number): Promise<localtunnel.Tunnel | string> => {
+                        return new Promise(function (resolve, reject) {
+                            localtunnel(port, tunnelSettings).then(resolve, reject);
+                            setTimeout(resolve, timeout, 'TUNNEL_TIMED_OUT');
+                        });
+                    };
+
+                    const newTunnel = await createTunnel(10000);
+
+                    if (typeof newTunnel !== 'string') {
+                        process.env.TUNNEL_BASE_URL = `${newTunnel.url}/`;
+                        console.log('🌐[server]: TUNNEL_BASE_URL = ', process.env.TUNNEL_BASE_URL);
+                    }
                 }
 
-                const newTunnel = await createTunnel(10000);
+                // Initialize node instances
+                const nodesPool = new NodesPool();
+                await nodesPool.initialize();
+                this.componentNodes = nodesPool.componentNodes;
 
-                if (typeof newTunnel !== 'string') {
-                    process.env.TUNNEL_BASE_URL = `${newTunnel.url}/`;
-                    console.log('🌐[server]: TUNNEL_BASE_URL = ', process.env.TUNNEL_BASE_URL);
-                }
-            }
+                // Initialize credential instances
+                const credsPool = new CredentialsPool();
+                await credsPool.initialize();
+                this.componentCredentials = credsPool.componentCredentials;
 
-            // Initialize node instances
-            const nodesPool = new NodesPool();
-            await nodesPool.initialize();
-            this.componentNodes = nodesPool.componentNodes;
+                // Initialize deployed worklows instances
+                this.deployedWorkflowsPool = new DeployedWorkflowPool();
+                await this.deployedWorkflowsPool.initialize(this.AppDataSource, this.componentNodes);
 
-            
-            // Initialize credential instances
-            const credsPool = new CredentialsPool();
-            await credsPool.initialize();
-            this.componentCredentials = credsPool.componentCredentials;
+                // Initialize activeTestTriggerPool instance
+                this.activeTestTriggerPool = new ActiveTestTriggerPool();
 
-            
-            // Initialize deployed worklows instances
-            this.deployedWorkflowsPool = new DeployedWorkflowPool();
-            await this.deployedWorkflowsPool.initialize(this.AppDataSource, this.componentNodes);
-
-
-            // Initialize activeTestTriggerPool instance
-            this.activeTestTriggerPool = new ActiveTestTriggerPool();
-
-
-            // Initialize activeTestWebhookPool instance
-            this.activeTestWebhookPool = new ActiveTestWebhookPool();
-            
-        })
-        .catch((err) => {
-            console.error("❌[server]: Error during Data Source initialization:", err);
-        });
+                // Initialize activeTestWebhookPool instance
+                this.activeTestWebhookPool = new ActiveTestWebhookPool();
+            })
+            .catch((err) => {
+                console.error('❌[server]: Error during Data Source initialization:', err);
+            });
     }
 
     async config(io: Server) {
-    
-        // Limit is needed to allow sending/receiving base64 encoded string 
-        this.app.use(express.json({limit: '50mb'}));
-        this.app.use(express.urlencoded({limit: '50mb'}));
+        // Limit is needed to allow sending/receiving base64 encoded string
+        this.app.use(express.json({ limit: '50mb' }));
+        this.app.use(express.urlencoded({ limit: '50mb' }));
 
         // Allow access from ui when yarn run dev
         if (process.env.NODE_ENV !== 'production') {
-            this.app.use(cors({credentials: true, origin: 'http://localhost:8080'}));
+            this.app.use(cors({ credentials: true, origin: 'http://localhost:8080' }));
         }
-        
+
         // ----------------------------------------
         // Workflows
         // ----------------------------------------
 
         // Get all workflows
-        this.app.get("/api/v1/workflows", async (req: Request, res: Response) => {
-            const workflows: IWorkflowResponse[] = await this.AppDataSource.getMongoRepository(Workflow).aggregate(
-                [
+        this.app.get('/api/v1/workflows', async (req: Request, res: Response) => {
+            const workflows: IWorkflowResponse[] = await this.AppDataSource.getMongoRepository(Workflow)
+                .aggregate([
                     {
-                        $lookup: { 
-                            from: "execution", 
-                            localField: "shortId", 
-                            foreignField: "workflowShortId",
-                            as: "execution"
+                        $lookup: {
+                            from: 'execution',
+                            localField: 'shortId',
+                            foreignField: 'workflowShortId',
+                            as: 'execution'
                         }
                     },
                     {
                         $addFields: {
                             executionCount: {
-                                $size: "$execution"
+                                $size: '$execution'
                             }
                         }
                     }
-                ]
-            ).toArray();
+                ])
+                .toArray();
             return res.json(workflows);
         });
 
         // Get specific workflow via shortId
-        this.app.get("/api/v1/workflows/:shortId", async (req: Request, res: Response) => {
+        this.app.get('/api/v1/workflows/:shortId', async (req: Request, res: Response) => {
             const workflows: IWorkflowResponse[] = await this.AppDataSource.getMongoRepository(Workflow)
-            .aggregate(
-                [
+                .aggregate([
                     {
                         $match: {
-                            shortId: req.params.shortId,
+                            shortId: req.params.shortId
                         }
                     },
                     {
-                        $lookup: { 
-                            from: "execution", 
-                            localField: "shortId", 
-                            foreignField: "workflowShortId",
-                            as: "execution"
+                        $lookup: {
+                            from: 'execution',
+                            localField: 'shortId',
+                            foreignField: 'workflowShortId',
+                            as: 'execution'
                         }
                     },
                     {
                         $addFields: {
                             executionCount: {
-                                $size: "$execution"
+                                $size: '$execution'
                             }
                         }
                     }
-                ]
-            ).toArray();
+                ])
+                .toArray();
             if (workflows.length) return res.json(workflows[0]);
             return res.status(404).send(`Workflow ${req.params.shortId} not found`);
         });
 
         // Create new workflow
-        this.app.post("/api/v1/workflows", async (req: Request, res: Response) => {
+        this.app.post('/api/v1/workflows', async (req: Request, res: Response) => {
             const body = req.body;
             const newWorkflow = new Workflow();
             Object.assign(newWorkflow, body);
@@ -225,38 +217,37 @@ export class App {
             const workflow = await this.AppDataSource.getMongoRepository(Workflow).create(newWorkflow);
             const results = await this.AppDataSource.getMongoRepository(Workflow).save(workflow);
             const returnWorkflows: IWorkflowResponse[] = await this.AppDataSource.getMongoRepository(Workflow)
-            .aggregate(
-                [
+                .aggregate([
                     {
                         $match: {
-                            shortId: results.shortId,
+                            shortId: results.shortId
                         }
                     },
                     {
-                        $lookup: { 
-                            from: "execution", 
-                            localField: "shortId", 
-                            foreignField: "workflowShortId",
-                            as: "execution"
+                        $lookup: {
+                            from: 'execution',
+                            localField: 'shortId',
+                            foreignField: 'workflowShortId',
+                            as: 'execution'
                         }
                     },
                     {
                         $addFields: {
                             executionCount: {
-                                $size: "$execution"
+                                $size: '$execution'
                             }
                         }
                     }
-                ]
-            ).toArray();
+                ])
+                .toArray();
             if (returnWorkflows.length) return res.json(returnWorkflows[0]);
             return res.status(404).send(`Workflow ${results.shortId} not found`);
         });
 
         // Update workflow
-        this.app.put("/api/v1/workflows/:shortId", async (req: Request, res: Response) => {
+        this.app.put('/api/v1/workflows/:shortId', async (req: Request, res: Response) => {
             const workflow = await this.AppDataSource.getMongoRepository(Workflow).findOneBy({
-                shortId: req.params.shortId,
+                shortId: req.params.shortId
             });
 
             if (!workflow) {
@@ -264,7 +255,7 @@ export class App {
                 return;
             }
 
-            // If workflow is deployed, remove from deployedWorkflowsPool, then add it again for new changes to be picked up 
+            // If workflow is deployed, remove from deployedWorkflowsPool, then add it again for new changes to be picked up
             if (workflow.deployed && workflow.flowData) {
                 try {
                     const flowDataString = workflow.flowData;
@@ -278,13 +269,8 @@ export class App {
 
                     const { graph, startingNodeIds } = response;
 
-                    await this.deployedWorkflowsPool.remove(
-                        startingNodeIds, 
-                        reactFlowNodes, 
-                        this.componentNodes, 
-                        workflowShortId
-                    );
-                } catch(e) {
+                    await this.deployedWorkflowsPool.remove(startingNodeIds, reactFlowNodes, this.componentNodes, workflowShortId);
+                } catch (e) {
                     return res.status(500).send(e);
                 }
             }
@@ -296,30 +282,29 @@ export class App {
             this.AppDataSource.getMongoRepository(Workflow).merge(workflow, updateWorkflow);
             const results = await this.AppDataSource.getMongoRepository(Workflow).save(workflow);
             const returnWorkflows: IWorkflowResponse[] = await this.AppDataSource.getMongoRepository(Workflow)
-            .aggregate(
-                [
+                .aggregate([
                     {
                         $match: {
-                            shortId: results.shortId,
+                            shortId: results.shortId
                         }
                     },
                     {
-                        $lookup: { 
-                            from: "execution", 
-                            localField: "shortId", 
-                            foreignField: "workflowShortId",
-                            as: "execution"
+                        $lookup: {
+                            from: 'execution',
+                            localField: 'shortId',
+                            foreignField: 'workflowShortId',
+                            as: 'execution'
                         }
                     },
                     {
                         $addFields: {
                             executionCount: {
-                                $size: "$execution"
+                                $size: '$execution'
                             }
                         }
                     }
-                ]
-            ).toArray();
+                ])
+                .toArray();
             if (returnWorkflows.length) {
                 const returnWorkflow = returnWorkflows[0];
                 if (returnWorkflow.deployed && returnWorkflow.flowData) {
@@ -334,15 +319,15 @@ export class App {
 
                         const { graph, startingNodeIds } = response;
                         await this.deployedWorkflowsPool.add(
-                            startingNodeIds, 
-                            graph, 
-                            reactFlowNodes, 
-                            this.componentNodes, 
+                            startingNodeIds,
+                            graph,
+                            reactFlowNodes,
+                            this.componentNodes,
                             workflowShortId,
                             this.activeTestTriggerPool,
                             this.activeTestWebhookPool
                         );
-                    } catch(e) {
+                    } catch (e) {
                         return res.status(500).send(e);
                     }
                 }
@@ -352,9 +337,9 @@ export class App {
         });
 
         // Delete workflow via shortId
-        this.app.delete("/api/v1/workflows/:shortId", async (req: Request, res: Response) => {
+        this.app.delete('/api/v1/workflows/:shortId', async (req: Request, res: Response) => {
             const workflow = await this.AppDataSource.getMongoRepository(Workflow).findOneBy({
-                shortId: req.params.shortId,
+                shortId: req.params.shortId
             });
 
             if (!workflow) {
@@ -376,13 +361,8 @@ export class App {
 
                     const { graph, startingNodeIds } = response;
 
-                    await this.deployedWorkflowsPool.remove(
-                        startingNodeIds, 
-                        reactFlowNodes, 
-                        this.componentNodes, 
-                        workflowShortId
-                    );
-                } catch(e) {
+                    await this.deployedWorkflowsPool.remove(startingNodeIds, reactFlowNodes, this.componentNodes, workflowShortId);
+                } catch (e) {
                     return res.status(500).send(e);
                 }
             }
@@ -393,10 +373,9 @@ export class App {
         });
 
         // Deploy/Halt workflow via shortId
-        this.app.post("/api/v1/workflows/deploy/:shortId", async (req: Request, res: Response) => {
-
+        this.app.post('/api/v1/workflows/deploy/:shortId', async (req: Request, res: Response) => {
             const workflow = await this.AppDataSource.getMongoRepository(Workflow).findOneBy({
-                shortId: req.params.shortId,
+                shortId: req.params.shortId
             });
 
             if (!workflow) {
@@ -404,7 +383,7 @@ export class App {
                 return;
             }
 
-            try {    
+            try {
                 const flowDataString = workflow.flowData;
                 const flowData: IReactFlowObject = JSON.parse(flowDataString);
                 const reactFlowNodes = flowData.nodes as IReactFlowNode[];
@@ -418,54 +397,48 @@ export class App {
 
                 if (!haltDeploy) {
                     await this.deployedWorkflowsPool.add(
-                        startingNodeIds, 
-                        graph, 
-                        reactFlowNodes, 
-                        this.componentNodes, 
+                        startingNodeIds,
+                        graph,
+                        reactFlowNodes,
+                        this.componentNodes,
                         workflowShortId,
                         this.activeTestTriggerPool,
                         this.activeTestWebhookPool
                     );
                 } else {
-                    await this.deployedWorkflowsPool.remove(
-                        startingNodeIds, 
-                        reactFlowNodes, 
-                        this.componentNodes, 
-                        workflowShortId
-                    );
+                    await this.deployedWorkflowsPool.remove(startingNodeIds, reactFlowNodes, this.componentNodes, workflowShortId);
                 }
 
                 const body = { deployed: haltDeploy ? false : true };
                 const updateWorkflow = new Workflow();
                 Object.assign(updateWorkflow, body);
-            
+
                 this.AppDataSource.getMongoRepository(Workflow).merge(workflow, updateWorkflow);
                 const results = await this.AppDataSource.getMongoRepository(Workflow).save(workflow);
                 const returnWorkflows: IWorkflowResponse[] = await this.AppDataSource.getMongoRepository(Workflow)
-                .aggregate(
-                    [
+                    .aggregate([
                         {
                             $match: {
-                                shortId: results.shortId,
+                                shortId: results.shortId
                             }
                         },
                         {
-                            $lookup: { 
-                                from: "execution", 
-                                localField: "shortId", 
-                                foreignField: "workflowShortId",
-                                as: "execution"
+                            $lookup: {
+                                from: 'execution',
+                                localField: 'shortId',
+                                foreignField: 'workflowShortId',
+                                as: 'execution'
                             }
                         },
                         {
                             $addFields: {
                                 executionCount: {
-                                    $size: "$execution"
+                                    $size: '$execution'
                                 }
                             }
                         }
-                    ]
-                ).toArray();
+                    ])
+                    .toArray();
                 if (returnWorkflows.length) return res.json(returnWorkflows[0]);
                 return res.status(404).send(`Workflow ${results.shortId} not found`);
             } catch (e) {
@@ -475,7 +448,7 @@ export class App {
         });
 
         // Test Workflow from a starting point to end
-        this.app.post("/api/v1/workflows/test/:startingNodeId", async (req: Request, res: Response) => {
+        this.app.post('/api/v1/workflows/test/:startingNodeId', async (req: Request, res: Response) => {
             const body = req.body as ITestWorkflowBody;
             const nodes = body.nodes || [];
             const edges = body.edges || [];
@@ -487,7 +460,6 @@ export class App {
             const startNode = nodes.find((nd: IReactFlowNode) => nd.id === startingNodeId);
 
             if (startNode && startNode.data) {
-
                 let nodeData = startNode.data;
                 await decryptCredentials(nodeData);
                 nodeData = resolveVariables(nodeData, nodes);
@@ -502,7 +474,7 @@ export class App {
                     const emitEventKey = startingNodeId;
                     nodeData.emitEventKey = emitEventKey;
 
-                    triggerNodeInstance.once(emitEventKey, async(result: INodeExecutionData[]) => {
+                    triggerNodeInstance.once(emitEventKey, async (result: INodeExecutionData[]) => {
                         await triggerNodeInstance.removeTrigger!.call(triggerNodeInstance, nodeData);
                         await this.activeTestTriggerPool.remove(nodeData.name, this.componentNodes);
 
@@ -515,25 +487,16 @@ export class App {
 
                         io.to(clientId).emit('testWorkflowNodeResponse', newWorkflowExecutedData);
 
-                        testWorkflow(
-                            startingNodeId,
-                            nodes,
-                            edges,
-                            graph,
-                            this.componentNodes,
-                            clientId,
-                            io
-                        );
+                        testWorkflow(startingNodeId, nodes, edges, graph, this.componentNodes, clientId, io);
                     });
 
                     await triggerNodeInstance.runTrigger!.call(triggerNodeInstance, nodeData);
                     this.activeTestTriggerPool.add(nodeData.name, nodeData);
-                }
-                else if (nodeData.type === 'webhook') {
+                } else if (nodeData.type === 'webhook') {
                     const webhookNodeInstance = this.componentNodes[nodeData.name] as IWebhookNode;
                     const newBody = {
                         webhookEndpoint: nodeData.webhookEndpoint,
-                        httpMethod: nodeData.inputParameters?.httpMethod as WebhookMethod || 'POST',
+                        httpMethod: (nodeData.inputParameters?.httpMethod as WebhookMethod) || 'POST'
                     } as any;
 
                     if (webhookNodeInstance.webhookMethods?.createWebhook) {
@@ -541,10 +504,14 @@ export class App {
                             res.status(500).send(`Please enable tunnel by setting ENABLE_TUNNEL to true in env file`);
                             return;
                         }
-                        
+
                         const webhookFullUrl = `${process.env.TUNNEL_BASE_URL}api/v1/webhook/${nodeData.webhookEndpoint}`;
-                        const webhookId = await webhookNodeInstance.webhookMethods?.createWebhook.call(webhookNodeInstance, nodeData, webhookFullUrl);
-            
+                        const webhookId = await webhookNodeInstance.webhookMethods?.createWebhook.call(
+                            webhookNodeInstance,
+                            nodeData,
+                            webhookFullUrl
+                        );
+
                         if (webhookId !== undefined) {
                             newBody.webhookId = webhookId;
                         }
@@ -561,13 +528,11 @@ export class App {
                         true,
                         newBody?.webhookId
                     );
-                }
-                else if (nodeData.type === 'action') {
-                    
+                } else if (nodeData.type === 'action') {
                     const actionNodeInstance = this.componentNodes[nodeData.name] as INode;
                     let result = await actionNodeInstance.run!.call(actionNodeInstance, nodeData);
-                    checkOAuth2TokenRefreshed(result, nodeData)
-                    
+                    checkOAuth2TokenRefreshed(result, nodeData);
+
                     const newWorkflowExecutedData = {
                         nodeId: startingNodeId,
                         nodeLabel: nodeData.label,
@@ -585,7 +550,7 @@ export class App {
                         reactFlowNodes[nodeIndex].data.outputResponses = {
                             ...reactFlowNodes[nodeIndex].data.outputResponses,
                             output: result
-                        }
+                        };
                     } else {
                         reactFlowNodes[nodeIndex].data.outputResponses = {
                             submit: true,
@@ -594,40 +559,31 @@ export class App {
                         };
                     }
 
-                    testWorkflow(
-                        startingNodeId,
-                        reactFlowNodes,
-                        edges,
-                        graph,
-                        this.componentNodes,
-                        clientId,
-                        io
-                    );
+                    testWorkflow(startingNodeId, reactFlowNodes, edges, graph, this.componentNodes, clientId, io);
                 }
             }
         });
 
-        
         // ----------------------------------------
         // Execution
         // ----------------------------------------
 
         // Get all executions
-        this.app.get("/api/v1/executions", async (req: Request, res: Response) => {
+        this.app.get('/api/v1/executions', async (req: Request, res: Response) => {
             const executions = await this.AppDataSource.getMongoRepository(Execution).find();
             return res.json(executions);
         });
 
         // Get specific execution via shortId
-        this.app.get("/api/v1/executions/:shortId", async (req: Request, res: Response) => {
+        this.app.get('/api/v1/executions/:shortId', async (req: Request, res: Response) => {
             const results = await this.AppDataSource.getMongoRepository(Execution).findOneBy({
-                shortId: req.params.shortId,
+                shortId: req.params.shortId
             });
             return res.json(results);
         });
 
         // Create new execution
-        this.app.post("/api/v1/executions", async (req: Request, res: Response) => {
+        this.app.post('/api/v1/executions', async (req: Request, res: Response) => {
             const body = req.body;
             const newExecution = new Execution();
             Object.assign(newExecution, body);
@@ -638,9 +594,9 @@ export class App {
         });
 
         // Update execution
-        this.app.put("/api/v1/executions/:shortId", async (req: Request, res: Response) => {
+        this.app.put('/api/v1/executions/:shortId', async (req: Request, res: Response) => {
             const execution = await this.AppDataSource.getMongoRepository(Execution).findOneBy({
-                shortId: req.params.shortId,
+                shortId: req.params.shortId
             });
 
             if (!execution) {
@@ -658,36 +614,39 @@ export class App {
         });
 
         // Delete execution via shortId
-        this.app.delete("/api/v1/executions/:shortId", async (req: Request, res: Response) => {
+        this.app.delete('/api/v1/executions/:shortId', async (req: Request, res: Response) => {
             const results = await this.AppDataSource.getMongoRepository(Execution).delete({ shortId: req.params.shortId });
             return res.json(results);
         });
 
-        
         // ----------------------------------------
         // Nodes
         // ----------------------------------------
 
         // Get all component nodes
-        this.app.get("/api/v1/nodes", (req: Request, res: Response) => {
+        this.app.get('/api/v1/nodes', (req: Request, res: Response) => {
             const returnData = [];
             for (const nodeName in this.componentNodes) {
                 // Remove certain node properties to avoid error of Converting circular structure to JSON
-                const clonedNode = JSON.parse(JSON.stringify(this.componentNodes[nodeName], (key, val) => {
-                    if (key !== "cronJobs" && key !== "providers") return val;
-                }));
+                const clonedNode = JSON.parse(
+                    JSON.stringify(this.componentNodes[nodeName], (key, val) => {
+                        if (key !== 'cronJobs' && key !== 'providers') return val;
+                    })
+                );
                 returnData.push(clonedNode);
             }
             return res.json(returnData);
         });
 
         // Get specific component node via name
-        this.app.get("/api/v1/nodes/:name", (req: Request, res: Response) => {
+        this.app.get('/api/v1/nodes/:name', (req: Request, res: Response) => {
             if (Object.prototype.hasOwnProperty.call(this.componentNodes, req.params.name)) {
                 // Remove certain node properties to avoid error of Converting circular structure to JSON
-                const clonedNode = JSON.parse(JSON.stringify(this.componentNodes[req.params.name], (key, val) => {
-                    if (key !== "cronJobs" && key !== "providers") return val;
-                }));
+                const clonedNode = JSON.parse(
+                    JSON.stringify(this.componentNodes[req.params.name], (key, val) => {
+                        if (key !== 'cronJobs' && key !== 'providers') return val;
+                    })
+                );
                 return res.json(clonedNode);
             } else {
                 throw new Error(`Node ${req.params.name} not found`);
@@ -695,27 +654,26 @@ export class App {
         });
 
         // Returns specific component node icon via name
-        this.app.get("/api/v1/node-icon/:name", (req: Request, res: Response) => {
+        this.app.get('/api/v1/node-icon/:name', (req: Request, res: Response) => {
             if (Object.prototype.hasOwnProperty.call(this.componentNodes, req.params.name)) {
                 const nodeInstance = this.componentNodes[req.params.name];
                 if (nodeInstance.icon === undefined) {
                     throw new Error(`Node ${req.params.name} icon not found`);
                 }
-            
+
                 if (nodeInstance.icon.endsWith('.svg') || nodeInstance.icon.endsWith('.png') || nodeInstance.icon.endsWith('.jpg')) {
                     const filepath = nodeInstance.icon;
                     res.sendFile(filepath);
                 } else {
                     throw new Error(`Node ${req.params.name} icon is missing icon`);
                 }
-
             } else {
                 throw new Error(`Node ${req.params.name} not found`);
             }
         });
 
         // Test a node
-        this.app.post("/api/v1/node-test/:name", async (req: Request, res: Response) => {
+        this.app.post('/api/v1/node-test/:name', async (req: Request, res: Response) => {
             const body: ITestNodeBody = req.body;
             const { nodes, edges, nodeId, clientId } = body;
 
@@ -734,28 +692,26 @@ export class App {
                     if (nodeType === 'action') {
                         const reactFlowNodeData: INodeData = resolveVariables(nodeData, nodes);
                         let result = await nodeInstance.run!.call(nodeInstance, reactFlowNodeData);
-                    
-                        checkOAuth2TokenRefreshed(result, reactFlowNodeData)
-                    
-                        return res.json(result);
 
+                        checkOAuth2TokenRefreshed(result, reactFlowNodeData);
+
+                        return res.json(result);
                     } else if (nodeType === 'trigger') {
                         const triggerNodeInstance = nodeInstance as ITriggerNode;
                         const emitEventKey = nodeId;
                         nodeData.emitEventKey = emitEventKey;
-                        triggerNodeInstance.once(emitEventKey, async(result: INodeExecutionData[]) => {
+                        triggerNodeInstance.once(emitEventKey, async (result: INodeExecutionData[]) => {
                             await triggerNodeInstance.removeTrigger!.call(triggerNodeInstance, nodeData);
                             await this.activeTestTriggerPool.remove(nodeData.name, this.componentNodes);
                             return res.json(result);
                         });
                         await triggerNodeInstance.runTrigger!.call(triggerNodeInstance, nodeData);
                         this.activeTestTriggerPool.add(req.params.name, nodeData);
-                        
                     } else if (nodeType === 'webhook') {
                         const webhookNodeInstance = nodeInstance as IWebhookNode;
                         const newBody = {
                             webhookEndpoint: nodeData.webhookEndpoint,
-                            httpMethod: nodeData.inputParameters?.httpMethod as WebhookMethod || 'POST',
+                            httpMethod: (nodeData.inputParameters?.httpMethod as WebhookMethod) || 'POST'
                         } as any;
 
                         if (webhookNodeInstance.webhookMethods?.createWebhook) {
@@ -763,10 +719,14 @@ export class App {
                                 res.status(500).send(`Please enable tunnel by setting ENABLE_TUNNEL to true in env file`);
                                 return;
                             }
-                            
+
                             const webhookFullUrl = `${process.env.TUNNEL_BASE_URL}api/v1/webhook/${nodeData.webhookEndpoint}`;
-                            const webhookId = await webhookNodeInstance.webhookMethods?.createWebhook.call(webhookNodeInstance, nodeData, webhookFullUrl);
-                
+                            const webhookId = await webhookNodeInstance.webhookMethods?.createWebhook.call(
+                                webhookNodeInstance,
+                                nodeData,
+                                webhookFullUrl
+                            );
+
                             if (webhookId !== undefined) {
                                 newBody.webhookId = webhookId;
                             }
@@ -791,7 +751,6 @@ export class App {
                     console.error(error);
                     return;
                 }
-
             } else {
                 res.status(404).send(`Node ${req.params.name} not found`);
                 return;
@@ -799,7 +758,7 @@ export class App {
         });
 
         // load async options
-        this.app.post("/api/v1/node-load-method/:name", async (req: Request, res: Response) => {
+        this.app.post('/api/v1/node-load-method/:name', async (req: Request, res: Response) => {
             const nodeData: INodeData = req.body;
 
             if (Object.prototype.hasOwnProperty.call(this.componentNodes, req.params.name)) {
@@ -809,7 +768,7 @@ export class App {
                     const loadFromDbCollections = nodeData.loadFromDbCollections || [];
                     const dbCollection = {} as IDbCollection;
 
-                    for (let i = 0; i < loadFromDbCollections.length; i+=1) {
+                    for (let i = 0; i < loadFromDbCollections.length; i += 1) {
                         let collection: any;
 
                         if (loadFromDbCollections[i] === 'Contract') collection = Contract;
@@ -818,7 +777,7 @@ export class App {
                         else if (loadFromDbCollections[i] === 'Execution') collection = Execution;
                         else if (loadFromDbCollections[i] === 'Credential') collection = Credential;
                         else if (loadFromDbCollections[i] === 'Wallet') collection = Wallet;
-                        
+
                         const res = await this.AppDataSource.getMongoRepository(collection).find();
                         dbCollection[loadFromDbCollections[i]] = res;
                     }
@@ -832,24 +791,21 @@ export class App {
                     );
 
                     return res.json(returnOptions);
-                    
                 } catch (error) {
                     return res.json([]);
                 }
-
             } else {
                 res.status(404).send(`Node ${req.params.name} not found`);
                 return;
             }
         });
 
-        
         // ----------------------------------------
         // Credential
         // ----------------------------------------
 
         // Create new credential
-        this.app.post("/api/v1/credentials", async (req: Request, res: Response) => {
+        this.app.post('/api/v1/credentials', async (req: Request, res: Response) => {
             const body: ICredentialBody = req.body;
 
             const newCredential = await transformToCredentialEntity(body);
@@ -859,7 +815,7 @@ export class App {
         });
 
         // Get node credential via specific nodeCredentialName
-        this.app.get("/api/v1/node-credentials/:nodeCredentialName", (req: Request, res: Response) => {
+        this.app.get('/api/v1/node-credentials/:nodeCredentialName', (req: Request, res: Response) => {
             const credentials = [];
 
             for (const credName in this.componentCredentials) {
@@ -874,25 +830,24 @@ export class App {
         });
 
         // Get list of registered credentials via nodeCredentialName
-        this.app.get("/api/v1/credentials", async (req: Request, res: Response) => {
+        this.app.get('/api/v1/credentials', async (req: Request, res: Response) => {
             const credentials = await this.AppDataSource.getMongoRepository(Credential).find({
                 // @ts-ignore
                 where: {
-                    nodeCredentialName: { $eq: req.query.nodeCredentialName },
+                    nodeCredentialName: { $eq: req.query.nodeCredentialName }
                 }
             });
             return res.json(credentials);
         });
 
         // Get registered credential via objectId
-        this.app.get("/api/v1/credentials/:id", async (req: Request, res: Response) => {
-
+        this.app.get('/api/v1/credentials/:id', async (req: Request, res: Response) => {
             const isEncrypted = req.query.isEncrypted;
 
             const encryptKey = await getEncryptionKey();
-        
+
             const credential = await this.AppDataSource.getMongoRepository(Credential).findOneBy({
-                _id: new ObjectId(req.params.id),
+                _id: new ObjectId(req.params.id)
             });
 
             if (!credential) {
@@ -902,22 +857,21 @@ export class App {
 
             if (isEncrypted) {
                 return res.json(credential);
-
             } else {
                 // Decrpyt credentialData
                 const decryptedCredentialData = decryptCredentialData(credential.credentialData, encryptKey);
                 const credentialResponse: ICredentialResponse = {
                     ...credential,
                     credentialData: decryptedCredentialData
-                }
+                };
                 return res.json(credentialResponse);
             }
         });
 
         // Update credential
-        this.app.put("/api/v1/credentials/:id", async (req: Request, res: Response) => {
+        this.app.put('/api/v1/credentials/:id', async (req: Request, res: Response) => {
             const credential = await this.AppDataSource.getMongoRepository(Credential).findOneBy({
-                _id: new ObjectId(req.params.id),
+                _id: new ObjectId(req.params.id)
             });
 
             if (!credential) {
@@ -937,41 +891,40 @@ export class App {
                     ...decryptedCredentialData,
                     ...credentialData
                 }
-            }
+            };
             const updateCredential = await transformToCredentialEntity(newBody);
-            
+
             this.AppDataSource.getMongoRepository(Credential).merge(credential, updateCredential);
             const results = await this.AppDataSource.getMongoRepository(Credential).save(credential);
             return res.json(results);
         });
 
         // Delete credential via id
-        this.app.delete("/api/v1/credentials/:id", async (req: Request, res: Response) => {
+        this.app.delete('/api/v1/credentials/:id', async (req: Request, res: Response) => {
             const results = await this.AppDataSource.getMongoRepository(Credential).deleteOne({ _id: new ObjectId(req.params.id) });
             return res.json(results);
         });
 
-        
         // ----------------------------------------
         // Contract
         // ----------------------------------------
 
         // Get all contracts
-        this.app.get("/api/v1/contracts", async (req: Request, res: Response) => {
+        this.app.get('/api/v1/contracts', async (req: Request, res: Response) => {
             const contracts = await this.AppDataSource.getMongoRepository(Contract).find();
             return res.json(contracts);
         });
 
         // Get specific contract via id
-        this.app.get("/api/v1/contracts/:id", async (req: Request, res: Response) => {
+        this.app.get('/api/v1/contracts/:id', async (req: Request, res: Response) => {
             const results = await this.AppDataSource.getMongoRepository(Contract).findOneBy({
-                _id: new ObjectId(req.params.id),
-            });    
+                _id: new ObjectId(req.params.id)
+            });
             return res.json(results);
         });
 
         // Create new contract
-        this.app.post("/api/v1/contracts", async (req: Request, res: Response) => {
+        this.app.post('/api/v1/contracts', async (req: Request, res: Response) => {
             try {
                 const body = req.body;
                 const newContract = new Contract();
@@ -980,16 +933,15 @@ export class App {
                 const contract = await this.AppDataSource.getMongoRepository(Contract).create(newContract);
                 const results = await this.AppDataSource.getMongoRepository(Contract).save(contract);
                 return res.json(results);
-
-            } catch(e) {
+            } catch (e) {
                 return res.status(500).send(e);
             }
         });
 
         // Update contract
-        this.app.put("/api/v1/contracts/:id", async (req: Request, res: Response) => {
+        this.app.put('/api/v1/contracts/:id', async (req: Request, res: Response) => {
             const contract = await this.AppDataSource.getMongoRepository(Contract).findOneBy({
-                _id: new ObjectId(req.params.id),
+                _id: new ObjectId(req.params.id)
             });
 
             if (!contract) {
@@ -1005,13 +957,13 @@ export class App {
             try {
                 const results = await this.AppDataSource.getMongoRepository(Contract).save(contract);
                 return res.json(results);
-            } catch(e) {
+            } catch (e) {
                 return res.status(500).send(e);
             }
         });
 
         // Delete contract via id
-        this.app.delete("/api/v1/contracts/:id", async (req: Request, res: Response) => {
+        this.app.delete('/api/v1/contracts/:id', async (req: Request, res: Response) => {
             const deletQuery = {
                 _id: new ObjectId(req.params.id)
             } as any;
@@ -1020,8 +972,7 @@ export class App {
         });
 
         // Get contract ABI
-        this.app.post("/api/v1/contracts/getabi", async (req: Request, res: Response) => {
-            
+        this.app.post('/api/v1/contracts/getabi', async (req: Request, res: Response) => {
             const body: IContractRequestBody = req.body;
 
             if (body.networks === undefined || body.credentials === undefined || body.contractInfo === undefined) {
@@ -1034,10 +985,10 @@ export class App {
                 const credentialId: string = body.credentials.registeredCredential?._id;
 
                 const credential = await this.AppDataSource.getMongoRepository(Credential).findOneBy({
-                    _id: new ObjectId(credentialId),
+                    _id: new ObjectId(credentialId)
                 });
-                if (!credential) return res.status(404).send(`Credential with id: ${credentialId} not found`);;
-                
+                if (!credential) return res.status(404).send(`Credential with id: ${credentialId} not found`);
+
                 const encryptKey = await getEncryptionKey();
                 const decryptedCredentialData = decryptCredentialData(credential.credentialData, encryptKey);
 
@@ -1053,7 +1004,7 @@ export class App {
             }
 
             const options: AxiosRequestConfig = {
-                method: "GET",
+                method: 'GET',
                 url
             };
 
@@ -1063,30 +1014,29 @@ export class App {
             } catch (e) {
                 console.error(e);
                 const errorObject = {
-                    status: "0",
-                    message: "NOTOK",
-                    result: "Unable to fetch ABI, please use correct API Key for higher rate limit"
-                }
+                    status: '0',
+                    message: 'NOTOK',
+                    result: 'Unable to fetch ABI, please use correct API Key for higher rate limit'
+                };
                 return res.json(errorObject);
             }
         });
-
 
         // ----------------------------------------
         // Wallets
         // ----------------------------------------
 
         // Get all wallets
-        this.app.get("/api/v1/wallets", async (req: Request, res: Response) => {
+        this.app.get('/api/v1/wallets', async (req: Request, res: Response) => {
             const wallets = await this.AppDataSource.getMongoRepository(Wallet).find();
             return res.json(wallets);
         });
 
         // Get specific wallet via id
-        this.app.get("/api/v1/wallets/:id", async (req: Request, res: Response) => {
+        this.app.get('/api/v1/wallets/:id', async (req: Request, res: Response) => {
             try {
                 const wallet = await this.AppDataSource.getMongoRepository(Wallet).findOneBy({
-                    _id: new ObjectId(req.params.id),
+                    _id: new ObjectId(req.params.id)
                 });
 
                 if (!wallet) {
@@ -1096,9 +1046,9 @@ export class App {
 
                 const walletResponse: IWalletResponse = {
                     ...wallet,
-                    balance: '',
-                }
-                
+                    balance: ''
+                };
+
                 // Decrpyt providerCredential
                 const encryptKey = await getEncryptionKey();
                 const providerCredential = JSON.parse(wallet.providerCredential);
@@ -1109,10 +1059,10 @@ export class App {
                     const credentialId: string = providerCredential.registeredCredential?._id;
 
                     const credential = await this.AppDataSource.getMongoRepository(Credential).findOneBy({
-                        _id: new ObjectId(credentialId),
+                        _id: new ObjectId(credentialId)
                     });
-                    if (!credential) return res.status(404).send(`Credential with id: ${credentialId} not found`);;
-                    
+                    if (!credential) return res.status(404).send(`Credential with id: ${credentialId} not found`);
+
                     // Decrpyt credentialData
                     decryptedCredentialData = decryptCredentialData(credential.credentialData, encryptKey);
                 }
@@ -1123,34 +1073,36 @@ export class App {
 
                 // Get Balance
                 if (
-                    decryptedCredentialData.apiKey && (
-                    credentialMethod === 'etherscanApi' || 
-                    credentialMethod === 'polygonscanApi' || 
-                    credentialMethod === 'bscscanApi' || 
-                    credentialMethod === 'optimisticEtherscanApi' ||
-                    credentialMethod === 'arbiscanApi')
+                    decryptedCredentialData.apiKey &&
+                    (credentialMethod === 'etherscanApi' ||
+                        credentialMethod === 'polygonscanApi' ||
+                        credentialMethod === 'bscscanApi' ||
+                        credentialMethod === 'optimisticEtherscanApi' ||
+                        credentialMethod === 'arbiscanApi')
                 ) {
-                    url = `${etherscanAPIs[network]}?module=account&action=balance&address=${wallet.address}&tag=latest&apikey=${decryptedCredentialData.apiKey as string}`;
-                
+                    url = `${etherscanAPIs[network]}?module=account&action=balance&address=${wallet.address}&tag=latest&apikey=${
+                        decryptedCredentialData.apiKey as string
+                    }`;
                 } else {
                     url = `${etherscanAPIs[network]}?module=account&action=balance&address=${wallet.address}&tag=latest`;
                 }
 
                 const options: AxiosRequestConfig = {
-                    method: "GET",
+                    method: 'GET',
                     url
                 };
 
                 try {
                     const response = await axios.request(options);
                     if (response.data && response.data.result) {
-                        walletResponse.balance = `${ethers.utils.formatEther(ethers.BigNumber.from(response.data.result))} ${nativeCurrency[wallet.network as NETWORK]}`;
+                        walletResponse.balance = `${ethers.utils.formatEther(ethers.BigNumber.from(response.data.result))} ${
+                            nativeCurrency[wallet.network as NETWORK]
+                        }`;
                     }
                 } catch (e) {
                     walletResponse.balance = 'Unable to fetch balance, please use correct API Key for higher rate limit';
                 }
                 return res.json(walletResponse);
-
             } catch (e) {
                 console.error(e);
                 return res.status(500).send(e);
@@ -1158,7 +1110,7 @@ export class App {
         });
 
         // Create new wallet
-        this.app.post("/api/v1/wallets", async (req: Request, res: Response) => {
+        this.app.post('/api/v1/wallets', async (req: Request, res: Response) => {
             try {
                 const body: IWalletRequestBody = req.body;
                 const { name, network, providerCredential, privateKey } = body;
@@ -1173,21 +1125,19 @@ export class App {
 
                 let randomWallet: ethers.Wallet;
 
-                if (privateKey)
-                    randomWallet = new ethers.Wallet(privateKey);
-                else
-                    randomWallet = ethers.Wallet.createRandom();
-                
+                if (privateKey) randomWallet = new ethers.Wallet(privateKey);
+                else randomWallet = ethers.Wallet.createRandom();
+
                 newBody.address = randomWallet.address;
 
                 const walletCredential = {
-                    privateKey: randomWallet.privateKey,
+                    privateKey: randomWallet.privateKey
                 } as any;
 
                 // Imported wallet doesn't have mnemonic and path
                 if (!privateKey) {
                     walletCredential.mnemonic = randomWallet.mnemonic.phrase;
-                    walletCredential.path = randomWallet.mnemonic.path
+                    walletCredential.path = randomWallet.mnemonic.path;
                 }
                 newBody.walletCredential = encryptCredentialData(walletCredential, encryptKey) as string;
 
@@ -1197,17 +1147,15 @@ export class App {
                 const wallet = await this.AppDataSource.getMongoRepository(Wallet).create(newWallet);
                 const results = await this.AppDataSource.getMongoRepository(Wallet).save(wallet);
                 return res.json(results);
-
-            } catch(e) {
+            } catch (e) {
                 return res.status(500).send(e);
             }
         });
 
-
         // Update wallet
-        this.app.put("/api/v1/wallets/:id", async (req: Request, res: Response) => {
+        this.app.put('/api/v1/wallets/:id', async (req: Request, res: Response) => {
             const wallet = await this.AppDataSource.getMongoRepository(Wallet).findOneBy({
-                _id: new ObjectId(req.params.id),
+                _id: new ObjectId(req.params.id)
             });
 
             if (!wallet) {
@@ -1223,13 +1171,13 @@ export class App {
             try {
                 const results = await this.AppDataSource.getMongoRepository(Wallet).save(wallet);
                 return res.json(results);
-            } catch(e) {
+            } catch (e) {
                 return res.status(500).send(e);
             }
         });
 
         // Delete wallet via id
-        this.app.delete("/api/v1/wallets/:id", async (req: Request, res: Response) => {
+        this.app.delete('/api/v1/wallets/:id', async (req: Request, res: Response) => {
             const deletQuery = {
                 _id: new ObjectId(req.params.id)
             } as any;
@@ -1238,10 +1186,10 @@ export class App {
         });
 
         // Get wallet credentials
-        this.app.get("/api/v1/wallets/credential/:id", async (req: Request, res: Response) => {
+        this.app.get('/api/v1/wallets/credential/:id', async (req: Request, res: Response) => {
             try {
                 const wallet = await this.AppDataSource.getMongoRepository(Wallet).findOneBy({
-                    _id: new ObjectId(req.params.id),
+                    _id: new ObjectId(req.params.id)
                 });
 
                 if (!wallet) {
@@ -1255,33 +1203,30 @@ export class App {
                 const decryptedCredentialData = decryptCredentialData(wallet.walletCredential, encryptKey);
 
                 return res.json(decryptedCredentialData);
-
             } catch (e) {
                 console.error(e);
                 return res.status(500).send(e);
             }
         });
 
-
         // ----------------------------------------
         // Active Test Pools
         // ----------------------------------------
 
         // Remove active test triggers
-        this.app.post("/api/v1/remove-test-triggers", async (req: Request, res: Response) => {
+        this.app.post('/api/v1/remove-test-triggers', async (req: Request, res: Response) => {
             if (this.activeTestTriggerPool) await this.activeTestTriggerPool.removeAll(this.componentNodes);
             res.status(200).send('success');
             return;
         });
 
         // Remove active test webhooks
-        this.app.post("/api/v1/remove-test-webhooks", async (req: Request, res: Response) => {
+        this.app.post('/api/v1/remove-test-webhooks', async (req: Request, res: Response) => {
             if (this.activeTestWebhookPool) await this.activeTestWebhookPool.removeAll(this.componentNodes);
             res.status(200).send('success');
             return;
         });
 
-                
         // ----------------------------------------
         // Webhook
         // ----------------------------------------
@@ -1289,12 +1234,12 @@ export class App {
         // GET webhook requests
         this.app.get(`/api/v1/webhook/*`, express.raw(), async (req: Request, res: Response) => {
             const splitUrl = req.path.split('/api/v1/webhook/');
-            const webhookEndpoint = splitUrl[splitUrl.length-1];
+            const webhookEndpoint = splitUrl[splitUrl.length - 1];
             await processWebhook(
-                res, 
-                req, 
-                this.AppDataSource, 
-                webhookEndpoint, 
+                res,
+                req,
+                this.AppDataSource,
+                webhookEndpoint,
                 'GET',
                 this.componentNodes,
                 io,
@@ -1306,32 +1251,30 @@ export class App {
         // POST webhook requests
         this.app.post(`/api/v1/webhook/*`, express.raw(), async (req: Request, res: Response) => {
             const splitUrl = req.path.split('/api/v1/webhook/');
-            const webhookEndpoint = splitUrl[splitUrl.length-1];
+            const webhookEndpoint = splitUrl[splitUrl.length - 1];
             await processWebhook(
-                res, 
-                req, 
-                this.AppDataSource, 
-                webhookEndpoint, 
+                res,
+                req,
+                this.AppDataSource,
+                webhookEndpoint,
                 'POST',
                 this.componentNodes,
                 io,
                 this.deployedWorkflowsPool,
-                this.activeTestWebhookPool,
+                this.activeTestWebhookPool
             );
         });
-
 
         // ----------------------------------------
         // OAuth2
         // ----------------------------------------
-        this.app.get("/api/v1/oauth2", async(req: Request, res: Response) => {
-        
+        this.app.get('/api/v1/oauth2', async (req: Request, res: Response) => {
             if (!req.query.credentialId) return res.status(404).send('Credential not found');
 
             const credentialId = req.query.credentialId;
 
             const credential = await this.AppDataSource.getMongoRepository(Credential).findOneBy({
-                _id: new ObjectId(credentialId as string),
+                _id: new ObjectId(credentialId as string)
             });
 
             if (!credential) return res.status(404).send(`Credential with Id ${credentialId} not found`);
@@ -1361,8 +1304,7 @@ export class App {
             res.send(returnURL);
         });
 
-        this.app.get("/api/v1/oauth2/callback", async(req: Request, res: Response) => {
-
+        this.app.get('/api/v1/oauth2/callback', async (req: Request, res: Response) => {
             const code = req.query.code;
             if (!code) return res.status(500).send('Unable to retrieve authorization code from oAuth2 callback');
 
@@ -1370,12 +1312,11 @@ export class App {
             if (!credentialId) return res.status(500).send('Unable to retrieve credentialId from oAuth2 callback');
 
             const credential = await this.AppDataSource.getMongoRepository(Credential).findOneBy({
-                _id: new ObjectId(credentialId as string),
+                _id: new ObjectId(credentialId as string)
             });
 
             if (!credential) return res.status(404).send(`Credential with Id ${credentialId} not found`);
 
-        
             // Decrpyt credentialData
             const encryptKey = await getEncryptionKey();
             const decryptedCredentialData = decryptCredentialData(credential.credentialData, encryptKey);
@@ -1386,7 +1327,7 @@ export class App {
             const client_secret = decryptedCredentialData.clientSecret as string;
             const baseURL = req.get('host');
             const redirect_uri = `${req.protocol}://${baseURL}/api/v1/oauth2/callback`;
-            
+
             const axiosConfig: AxiosRequestConfig = {
                 method: 'POST' as Method,
                 url: accessTokenUrl,
@@ -1398,8 +1339,8 @@ export class App {
                     redirect_uri
                 },
                 headers: {
-                    'Content-Type': 'application/json; charset=utf-8',
-                },
+                    'Content-Type': 'application/json; charset=utf-8'
+                }
             };
 
             const response = await axios(axiosConfig);
@@ -1415,9 +1356,9 @@ export class App {
                     access_token,
                     token_type,
                     expires_in,
-                    refresh_token,
+                    refresh_token
                 }
-            }
+            };
 
             const updateCredential = await transformToCredentialEntity(body);
 
@@ -1427,19 +1368,18 @@ export class App {
             return res.sendFile(getOAuth2HTMLPath());
         });
 
-        this.app.get("/api/v1/oauth2-redirecturl", async(req: Request, res: Response) => {
+        this.app.get('/api/v1/oauth2-redirecturl', async (req: Request, res: Response) => {
             const baseURL = req.get('host');
             res.send(`${req.protocol}://${baseURL}/api/v1/oauth2/callback`);
         });
-
 
         // ----------------------------------------
         // Serve UI static
         // ----------------------------------------
 
-        const packagePath = getNodeModulesPackagePath("outerbridge-ui");
-        const uiBuildPath = path.join(packagePath, "build");
-        const uiHtmlPath = path.join(packagePath, "build", "index.html");
+        const packagePath = getNodeModulesPackagePath('outerbridge-ui');
+        const uiBuildPath = path.join(packagePath, 'build');
+        const uiHtmlPath = path.join(packagePath, 'build', 'index.html');
 
         this.app.use('/', express.static(uiBuildPath));
 
@@ -1452,21 +1392,17 @@ export class App {
     async stopApp() {
         try {
             const removePromises: any[] = [];
-            
+
             // Remove deployed workflows pools
-            if (this.deployedWorkflowsPool)
-                removePromises.push(this.deployedWorkflowsPool.removeAll(this.componentNodes));
-            
+            if (this.deployedWorkflowsPool) removePromises.push(this.deployedWorkflowsPool.removeAll(this.componentNodes));
+
             // Remove test trigger pools
-            if (this.activeTestTriggerPool)
-                removePromises.push(this.activeTestTriggerPool.removeAll(this.componentNodes));
+            if (this.activeTestTriggerPool) removePromises.push(this.activeTestTriggerPool.removeAll(this.componentNodes));
 
             // Remove test webhook pools
-            if (this.activeTestWebhookPool)
-                removePromises.push(this.activeTestWebhookPool.removeAll(this.componentNodes));
-            
-            await Promise.all(removePromises);
+            if (this.activeTestWebhookPool) removePromises.push(this.activeTestWebhookPool.removeAll(this.componentNodes));
 
+            await Promise.all(removePromises);
         } catch (e) {
             console.error(`❌[server]: Outerbridge Server shut down error: ${e}`);
         }
@@ -1476,33 +1412,32 @@ export class App {
 let serverApp: App | undefined;
 
 export async function start(): Promise<void> {
-	serverApp = new App();
+    serverApp = new App();
 
     const port = parseInt(process.env.PORT || '', 10) || 3000;
     const server = http.createServer(serverApp.app);
-    const io = new Server(server, { 
+    const io = new Server(server, {
         cors: {
             origin: 'http://localhost:8080'
         }
     });
 
-    io.on("connection", (socket: Socket) => {
+    io.on('connection', (socket: Socket) => {
         console.log('👥[server]: client connected: ', socket.id);
-    
+
         socket.on('disconnect', (reason) => {
             console.log('👤[server]: client disconnected = ', reason);
         });
     });
 
     await serverApp.initDatabase();
-	await serverApp.config(io);
+    await serverApp.config(io);
 
     server.listen(port, () => {
         console.log(`⚡️[server]: Outerbridge Server is listening at ${port}`);
     });
 }
 
-
 export function getInstance(): App | undefined {
-	return serverApp;
+    return serverApp;
 }
