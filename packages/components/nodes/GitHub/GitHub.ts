@@ -127,7 +127,7 @@ class GitHub implements INode {
       },
       {
         label: "Type",
-        name: "type",
+        name: "orgType",
         type: "options",
         options: [
           {
@@ -160,14 +160,92 @@ class GitHub implements INode {
           },
         ],
         show: {
+          "actions.operation": ["listOrganizationRepositories"],
+        },
+        description: "Specifies the types of repositories you want returned.",
+        optional: true,
+        default: "all",
+      },
+      {
+        label: "Type",
+        name: "userType",
+        type: "options",
+        options: [
+          {
+            label: "All",
+            name: "all",
+          },
+          {
+            label: "Owner",
+            name: "owner",
+          },
+          {
+            label: "Member",
+            name: "member",
+          },
+        ],
+        show: {
+          "actions.operation": ["listUserRepositories"],
+        },
+        description: "Specifies the types of repositories you want returned.",
+        optional: true,
+        default: "owner",
+      },
+      {
+        label: "Sort",
+        name: "sort",
+        type: "options",
+        options: [
+          {
+            label: "Created",
+            name: "created",
+          },
+          {
+            label: "Updated",
+            name: "updated",
+          },
+          {
+            label: "Pushed",
+            name: "pushed",
+          },
+          {
+            label: "Full Name",
+            name: "full_name",
+          },
+        ],
+        show: {
           "actions.operation": [
             "listUserRepositories",
             "listOrganizationRepositories",
           ],
         },
-        description: "Specifies the types of repositories you want returned.",
+        description: "The property to sort the results by.",
         optional: true,
-        default: "all",
+        default: "created",
+      },
+      {
+        label: "Direction of sort",
+        name: "direction",
+        type: "options",
+        options: [
+          {
+            label: "Ascending",
+            name: "asc",
+          },
+          {
+            label: "Descending",
+            name: "desc",
+          },
+        ],
+        show: {
+          "actions.operation": [
+            "listUserRepositories",
+            "listOrganizationRepositories",
+          ],
+        },
+        description: "The order to sort by.",
+        optional: true,
+        default: "desc",
       },
       {
         label: "Repository",
@@ -285,12 +363,21 @@ class GitHub implements INode {
         operation === "listOrganizationRepositories"
       ) {
         const owner = inputParametersData.owner as string;
-        const type = inputParametersData.type as string;
+        const type =
+          operation === "listUserRepositories"
+            ? inputParametersData.userType
+            : inputParametersData.orgType;
         const path = operation === "listUserRepositories" ? "users" : "orgs";
+        const sort = inputParametersData.sort as string;
+        const direction = inputParametersData.direction as string;
         method = "GET";
         url = `https://api.github.com/${path}/${owner}/repos`;
-        if (type) url += url.includes("?") ? `type=${type};` : `?type=${type}`;
-        // if (type) dataString["type"] = type;
+        if (type) url += url.includes("?") ? `&type=${type};` : `?type=${type}`;
+        if (sort) url += url.includes("?") ? `&sort=${sort};` : `?sort=${sort}`;
+        if (direction)
+          url += url.includes("?")
+            ? `&direction=${direction};`
+            : `?direction=${direction}`;
       } else if (operation === "listRepositoryIssues") {
         const owner = inputParametersData.owner as string;
         const repo = inputParametersData.repo as string;
