@@ -145,7 +145,7 @@ const ArrayInputParameters = ({
         onArrayItemMouseUp(true, body);
     }
 
-    const handleFolderUpload = (e, onInputChange, values, inputName, index) => {
+    const handleFolderUpload = (e, values, inputName, index) => {
 
         if (!e.target.files) return;
         const files = e.target.files;
@@ -287,7 +287,7 @@ const ArrayInputParameters = ({
                                     <input
                                         type="file"
                                         hidden
-                                        onChange={(e) => handleFileUpload(e, setFieldValue, values, inputName, index)}
+                                        onChange={(e) => handleFileUpload(e, values, inputName, index)}
                                     />}
                                     {input.type === 'folder' && 
                                     <input
@@ -295,7 +295,7 @@ const ArrayInputParameters = ({
                                         directory=""
                                         webkitdirectory=""
                                         hidden
-                                        onChange={(e) => handleFolderUpload(e, setFieldValue, values, inputName, index)}
+                                        onChange={(e) => handleFolderUpload(e, values, inputName, index)}
                                     />}
                                 </Button>
                             </FormControl>)
