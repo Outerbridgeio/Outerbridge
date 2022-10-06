@@ -54,12 +54,11 @@ const AddNodes = ({ nodesData, node }) => {
             if (value) {
                 const returnData = nodesData.filter((nd) => nd.name.toLowerCase().includes(value.toLowerCase()));
                 setNodes(returnData);
-
             } else if (value === '') {
                 setNodes(nodesData);
             }
         }, 500);
-    }
+    };
 
     const handleClose = (event) => {
         if (anchorRef.current && anchorRef.current.contains(event.target)) {
@@ -95,12 +94,12 @@ const AddNodes = ({ nodesData, node }) => {
 
     return (
         <>
-            <Fab 
-                sx={{ left: 20, top: 20 }} 
+            <Fab
+                sx={{ left: 20, top: 20 }}
                 ref={anchorRef}
-                size="small" 
-                color="primary" 
-                aria-label="add" 
+                size="small"
+                color="primary"
+                aria-label="add"
                 title="Add Node"
                 onClick={handleToggle}
             >
@@ -123,7 +122,7 @@ const AddNodes = ({ nodesData, node }) => {
                         }
                     ]
                 }}
-                sx={{zIndex: 1000}}
+                sx={{ zIndex: 1000 }}
             >
                 {({ TransitionProps }) => (
                     <Transitions in={open} {...TransitionProps}>
@@ -181,11 +180,31 @@ const AddNodes = ({ nodesData, node }) => {
                                                         >
                                                             <ListItem alignItems="center">
                                                                 <ListItemAvatar>
-                                                                    <div style={{ width: 50, height: 50, borderRadius: '50%', backgroundColor: 'white' }}>
-                                                                        <img style={{ width: '100%', height: '100%', padding: 10, objectFit: 'contain' }} alt={node.name} src={`${baseURL}/api/v1/node-icon/${node.name}`} />
+                                                                    <div
+                                                                        style={{
+                                                                            width: 50,
+                                                                            height: 50,
+                                                                            borderRadius: '50%',
+                                                                            backgroundColor: 'white'
+                                                                        }}
+                                                                    >
+                                                                        <img
+                                                                            style={{
+                                                                                width: '100%',
+                                                                                height: '100%',
+                                                                                padding: 10,
+                                                                                objectFit: 'contain'
+                                                                            }}
+                                                                            alt={node.name}
+                                                                            src={`${baseURL}/api/v1/node-icon/${node.name}`}
+                                                                        />
                                                                     </div>
                                                                 </ListItemAvatar>
-                                                                <ListItemText sx={{ ml: 1 }} primary={node.label} secondary={node.description} />
+                                                                <ListItemText
+                                                                    sx={{ ml: 1 }}
+                                                                    primary={node.label}
+                                                                    secondary={node.description}
+                                                                />
                                                             </ListItem>
                                                         </ListItemButton>
                                                         <Divider />
@@ -206,7 +225,7 @@ const AddNodes = ({ nodesData, node }) => {
 
 AddNodes.propTypes = {
     nodesData: PropTypes.array,
-    node: PropTypes.object,
+    node: PropTypes.object
 };
 
 export default AddNodes;

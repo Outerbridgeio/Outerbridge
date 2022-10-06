@@ -16,7 +16,7 @@ import {
     Popper,
     Typography,
     TextField,
-    Avatar,
+    Avatar
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
@@ -35,10 +35,10 @@ import VariableSelector from './VariableSelector';
 import EditVariableDialog from 'ui-component/dialog/EditVariableDialog';
 
 // API
-import nodesApi from "api/nodes";
+import nodesApi from 'api/nodes';
 
 // Hooks
-import useApi from "hooks/useApi";
+import useApi from 'hooks/useApi';
 
 // icons
 import { IconPencil, IconMinus, IconCheck } from '@tabler/icons';
@@ -49,7 +49,6 @@ import { getAvailableNodeIdsForVariable, numberOrExpressionRegex, handleCredenti
 // ==============================|| EDIT NODES||============================== //
 
 const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValuesUpdate }) => {
-
     const theme = useTheme();
 
     const [nodeFlowData, setNodeFlowData] = useState(null);
@@ -71,7 +70,7 @@ const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValu
     const ps = useRef();
 
     const getSpecificNodeApi = useApi(nodesApi.getSpecificNode);
- 
+
     const scrollTop = () => {
         const curr = ps.current;
         if (curr) {
@@ -107,9 +106,9 @@ const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValu
 
     const onEditVariableDialogOpen = (input, values, arrayItemBody) => {
         const variableNodesIds = getAvailableNodeIdsForVariable(nodes, edges, node.id);
-           
+
         const nodesForVariable = [];
-        for (let i = 0; i < variableNodesIds.length; i+=1 ) {
+        for (let i = 0; i < variableNodesIds.length; i += 1) {
             const nodeId = variableNodesIds[i];
             const node = nodes.find((nd) => nd.id === nodeId);
             nodesForVariable.push(node);
@@ -121,21 +120,21 @@ const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValu
             arrayItemBody,
             availableNodesForVariable: nodesForVariable,
             cancelButtonName: 'Cancel',
-            confirmButtonName: 'Save',
-        }
+            confirmButtonName: 'Save'
+        };
 
         setEditVariableDialogProps(dialogProps);
         setEditVariableDialog(true);
-    }
-    
+    };
+
     const setVariableSelectorState = (variableSelectorState, body) => {
         setVariableSelectorOpen(variableSelectorState);
         if (body) {
             setVariableBody(body);
             const variableNodesIds = getAvailableNodeIdsForVariable(nodes, edges, node.id);
-           
+
             const nodesForVariable = [];
-            for (let i = 0; i < variableNodesIds.length; i+=1 ) {
+            for (let i = 0; i < variableNodesIds.length; i += 1) {
                 const nodeId = variableNodesIds[i];
                 const node = nodes.find((nd) => nd.id === nodeId);
                 nodesForVariable.push(node);
@@ -145,13 +144,12 @@ const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValu
     };
 
     const paramsChanged = (formParams, paramsType) => {
-
-        // Because formParams options can be changed due to show hide options, 
+        // Because formParams options can be changed due to show hide options,
         // To avoid that, replace with original details options
 
         const credentialMethodParam = formParams.find((param) => param.name === 'credentialMethod');
         const credentialMethodParamIndex = formParams.findIndex((param) => param.name === 'credentialMethod');
-        
+
         if (credentialMethodParam !== undefined) {
             const originalParam = nodeDetails[paramsType].find((param) => param.name === 'credentialMethod');
             if (originalParam !== undefined) {
@@ -192,7 +190,7 @@ const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValu
             lodash.set(clonedNodeFlowData, path, newInput);
             valueChanged(clonedNodeFlowData[paramsType], paramsType);
         }
-    }
+    };
 
     const onSubmit = (formValues, paramsType) => {
         const updateNodeFlowData = {
@@ -204,7 +202,7 @@ const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValu
 
         const index = nodeParamsType.indexOf(paramsType);
         if (index >= 0 && index !== nodeParamsType.length - 1) {
-            setExpanded(nodeParamsType[index+1]);
+            setExpanded(nodeParamsType[index + 1]);
             scrollTop();
         }
     };
@@ -213,8 +211,8 @@ const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValu
         const displayOptions = input[displayType];
         Object.keys(displayOptions).forEach((path) => {
             const comparisonValue = displayOptions[path];
-            if (path.includes("$index")) {
-                path = path.replace("$index", index);
+            if (path.includes('$index')) {
+                path = path.replace('$index', index);
             }
             const groundValue = lodash.get(nodeFlowData, path, '');
 
@@ -226,26 +224,26 @@ const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValu
                     toBeDeleteParams.push(input);
                 }
             } else if (typeof comparisonValue === 'string') {
-                if (displayType === 'show' && !((comparisonValue === groundValue) || (new RegExp(comparisonValue).test(groundValue)))) {
+                if (displayType === 'show' && !(comparisonValue === groundValue || new RegExp(comparisonValue).test(groundValue))) {
                     toBeDeleteParams.push(input);
                 }
-                if (displayType === 'hide' && ((comparisonValue === groundValue) || (new RegExp(comparisonValue).test(groundValue)))) {
+                if (displayType === 'hide' && (comparisonValue === groundValue || new RegExp(comparisonValue).test(groundValue))) {
                     toBeDeleteParams.push(input);
                 }
             }
         });
-    }
+    };
 
     const displayParameters = (params, paramsType, arrayIndex) => {
         const toBeDeleteParams = [];
- 
-        for (let i = 0; i < params.length; i+= 1) {
+
+        for (let i = 0; i < params.length; i += 1) {
             const input = params[i];
 
             if (input.type === 'array') {
                 const arrayInitialValue = lodash.get(nodeFlowData, `${paramsType}.${input.name}`, []);
                 const inputArray = [];
-                for (let j = arrayIndex; j < arrayInitialValue.length; j+= 1) {
+                for (let j = arrayIndex; j < arrayInitialValue.length; j += 1) {
                     inputArray.push(displayParameters(input.array || [], paramsType, j));
                 }
                 input.arrayParams = inputArray;
@@ -259,26 +257,25 @@ const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValu
         }
 
         let returnParams = params;
-        for (let i = 0; i < toBeDeleteParams.length; i+= 1) {
+        for (let i = 0; i < toBeDeleteParams.length; i += 1) {
             returnParams = returnParams.filter((prm) => JSON.stringify(prm) !== JSON.stringify(toBeDeleteParams[i]));
         }
         return returnParams;
     };
 
     const showHideOptions = (displayType, index, options) => {
-       
         let returnOptions = options;
         const toBeDeleteOptions = [];
 
-        for (let i = 0; i < returnOptions.length; i+= 1) {
+        for (let i = 0; i < returnOptions.length; i += 1) {
             const option = returnOptions[i];
             const displayOptions = option[displayType];
             if (displayOptions) {
                 Object.keys(displayOptions).forEach((path) => {
                     const comparisonValue = displayOptions[path];
 
-                    if (path.includes("$index")) {
-                        path = path.replace("$index", index);
+                    if (path.includes('$index')) {
+                        path = path.replace('$index', index);
                     }
                     const groundValue = lodash.get(nodeFlowData, path, '');
 
@@ -290,10 +287,10 @@ const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValu
                             toBeDeleteOptions.push(option);
                         }
                     } else if (typeof comparisonValue === 'string') {
-                        if (displayType === 'show' && !((comparisonValue === groundValue) || (new RegExp(comparisonValue).test(groundValue)))) {
+                        if (displayType === 'show' && !(comparisonValue === groundValue || new RegExp(comparisonValue).test(groundValue))) {
                             toBeDeleteOptions.push(option);
                         }
-                        if (displayType === 'hide' && ((comparisonValue === groundValue) || (new RegExp(comparisonValue).test(groundValue)))) {
+                        if (displayType === 'hide' && (comparisonValue === groundValue || new RegExp(comparisonValue).test(groundValue))) {
                             toBeDeleteOptions.push(option);
                         }
                     }
@@ -301,80 +298,76 @@ const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValu
             }
         }
 
-        for (let i = 0; i < toBeDeleteOptions.length; i+= 1) {
+        for (let i = 0; i < toBeDeleteOptions.length; i += 1) {
             returnOptions = returnOptions.filter((opt) => JSON.stringify(opt) !== JSON.stringify(toBeDeleteOptions[i]));
         }
 
         return returnOptions;
-    }
+    };
 
     const displayOptions = (params, paramsType, arrayIndex) => {
-      
         let clonedParams = params;
 
-        for (let i = 0; i < clonedParams.length; i+= 1) {
+        for (let i = 0; i < clonedParams.length; i += 1) {
             const input = clonedParams[i];
 
             if (input.type === 'array') {
                 const arrayInitialValue = lodash.get(nodeFlowData, `${paramsType}.${input.name}`, []);
                 const inputArray = [];
-                for (let j = arrayIndex; j < arrayInitialValue.length; j+= 1) {
+                for (let j = arrayIndex; j < arrayInitialValue.length; j += 1) {
                     inputArray.push(displayOptions(input.arrayParams[j] || [], paramsType, j));
                 }
                 input.arrayParams = inputArray;
             }
-            
+
             if (input.type === 'options') {
                 input.options = showHideOptions('show', arrayIndex, input.options);
                 input.options = showHideOptions('hide', arrayIndex, input.options);
             }
         }
-      
+
         return clonedParams;
     };
 
     const setYupValidation = (params) => {
         const validationSchema = {};
-        for (let i = 0; i < params.length; i+= 1) {
+        for (let i = 0; i < params.length; i += 1) {
             const input = params[i];
             let inputOptional = input.optional;
 
             if (typeof input.optional === 'object' && input.optional !== null) {
                 const keys = Object.keys(input.optional);
                 inputOptional = true;
-                for (let j = 0; j < keys.length; j+= 1) {
+                for (let j = 0; j < keys.length; j += 1) {
                     const path = keys[j];
                     const comparisonValue = input.optional[path];
                     const groundValue = lodash.get(nodeFlowData, path, '');
 
                     if (Array.isArray(comparisonValue)) {
                         inputOptional = inputOptional && comparisonValue.includes(groundValue);
-                        
                     } else if (typeof comparisonValue === 'string') {
-                        inputOptional = inputOptional && ((comparisonValue === groundValue) || (new RegExp(comparisonValue).test(groundValue)));
+                        inputOptional = inputOptional && (comparisonValue === groundValue || new RegExp(comparisonValue).test(groundValue));
                     }
                 }
             }
 
-            if ((
-                input.type === 'string' || 
-                input.type === 'password' || 
-                input.type === 'date' || 
-                input.type === 'code' || 
-                input.type === 'json' || 
-                input.type === 'file' || 
-                input.type === 'options' || 
-                input.type === 'asyncOptions'
-                ) && !inputOptional ) {
+            if (
+                (input.type === 'string' ||
+                    input.type === 'password' ||
+                    input.type === 'date' ||
+                    input.type === 'code' ||
+                    input.type === 'json' ||
+                    input.type === 'file' ||
+                    input.type === 'options' ||
+                    input.type === 'asyncOptions') &&
+                !inputOptional
+            ) {
                 validationSchema[input.name] = Yup.string().required(`${input.label} is required. Type: ${input.type}`);
-
             } else if (input.type === 'number' && !inputOptional) {
-                validationSchema[input.name] = Yup.string().required(`${input.label} is required. Type: ${input.type}`).matches(
-                    numberOrExpressionRegex,
-                    `${input.label} must be numbers or a variable expression.`
-                );
-
-            }  else if (input.type === 'array' && !inputOptional) {
+                validationSchema[input.name] = Yup.string()
+                    .required(`${input.label} is required. Type: ${input.type}`)
+                    .matches(numberOrExpressionRegex, `${input.label} must be numbers or a variable expression.`);
+            } else if (input.type === 'array' && !inputOptional) {
                 /*
                 ************
                 * Limitation on different object shape within array: https://github.com/jquense/yup/issues/757
@@ -388,21 +381,20 @@ const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValu
     };
 
     const initializeFormValuesAndParams = (paramsType) => {
-
         const initialValues = {};
 
         const reorganizedParams = displayParameters(nodeDetails[paramsType] || [], paramsType, 0);
         let nodeParams = displayOptions(lodash.cloneDeep(reorganizedParams), paramsType, 0);
 
         nodeParams = handleCredentialParams(nodeParams, paramsType, reorganizedParams, nodeFlowData);
-        
-        for (let i = 0; i < nodeParams.length; i+= 1) {
+
+        for (let i = 0; i < nodeParams.length; i += 1) {
             const input = nodeParams[i];
 
             // Load from nodeFlowData values
             if (paramsType in nodeFlowData && input.name in nodeFlowData[paramsType]) {
                 initialValues[input.name] = nodeFlowData[paramsType][input.name];
-         
+
                 // Check if option value is still available from the list of options
                 if (input.type === 'options') {
                     const optionVal = input.options.find((option) => option.name === initialValues[input.name]);
@@ -415,16 +407,16 @@ const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValu
                 // Special case for array, always initialize the item if default is not set
                 if (input.type === 'array' && !input.default) {
                     const newObj = {};
-                    for (let j = 0; j < input.array.length; j+= 1) {
+                    for (let j = 0; j < input.array.length; j += 1) {
                         newObj[input.array[j].name] = input.array[j].default || '';
                     }
                     initialValues[input.name] = [newObj];
                 }
             }
         }
-        
+
         initialValues.submit = null;
-        
+
         setNodeParamsInitialValues(initialValues);
         setNodeParamsValidation(setYupValidation(nodeParams));
         setNodeParams(nodeParams);
@@ -438,14 +430,11 @@ const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValu
         }
 
         prevOpen.current = open;
-
     }, [open]);
-
 
     // Get Node Details from API
     useEffect(() => {
         if (getSpecificNodeApi.data) {
-
             const nodeDetails = getSpecificNodeApi.data;
 
             setNodeDetails(nodeDetails);
@@ -465,10 +454,8 @@ const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValu
                 scrollTop();
             }
         }
+    }, [getSpecificNodeApi.data]);
 
-    }, [getSpecificNodeApi.data]); 
-
-   
     // Initialization
     useEffect(() => {
         if (node) {
@@ -479,8 +466,7 @@ const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValu
         }
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [node]); 
-
+    }, [node]);
 
     // Initialize Parameters Initial Values & Validation
     useEffect(() => {
@@ -493,14 +479,7 @@ const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValu
 
     return (
         <>
-            <Fab 
-                sx={{ left: 40, top: 20 }} 
-                ref={anchorRef}
-                size="small" 
-                color="secondary" 
-                onClick={handleToggle}
-                title="Edit Node"
-            >
+            <Fab sx={{ left: 40, top: 20 }} ref={anchorRef} size="small" color="secondary" onClick={handleToggle} title="Edit Node">
                 {open ? <IconMinus /> : <IconPencil />}
             </Fab>
             <Popper
@@ -520,7 +499,7 @@ const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValu
                         }
                     ]
                 }}
-                sx={{zIndex: 1000}}
+                sx={{ zIndex: 1000 }}
             >
                 {({ TransitionProps }) => (
                     <Transitions in={open} {...TransitionProps}>
@@ -532,13 +511,28 @@ const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValu
                                             <Typography variant="h4">Edit Nodes</Typography>
                                         </Stack>
                                     </Box>
-                                    <PerfectScrollbar containerRef={(el) => {ps.current = el}} style={{ height: '100%', maxHeight: 'calc(100vh - 250px)', overflowX: 'hidden' }}>
-                                        
+                                    <PerfectScrollbar
+                                        containerRef={(el) => {
+                                            ps.current = el;
+                                        }}
+                                        style={{ height: '100%', maxHeight: 'calc(100vh - 250px)', overflowX: 'hidden' }}
+                                    >
                                         {!node && <Box sx={{ p: 2 }}>No data</Box>}
 
                                         {nodeFlowData && nodeFlowData.label && (
-                                            <Box sx={{ pl: 4, pr: 4, pt: 2, pb: 2, textAlign: 'center', display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                                                <TextField 
+                                            <Box
+                                                sx={{
+                                                    pl: 4,
+                                                    pr: 4,
+                                                    pt: 2,
+                                                    pb: 2,
+                                                    textAlign: 'center',
+                                                    display: 'flex',
+                                                    flexDirection: 'row',
+                                                    alignItems: 'center'
+                                                }}
+                                            >
+                                                <TextField
                                                     id={nodeFlowData.name}
                                                     label="Node Label"
                                                     variant="outlined"
@@ -546,56 +540,55 @@ const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValu
                                                     onChange={handleNodeLabelChange}
                                                     fullWidth
                                                 />
-                                                <Fab 
-                                                    sx={{ 
-                                                        minHeight: 10, 
-                                                        height: 27, width: 30, 
-                                                        backgroundColor: theme.palette.secondary.light, 
-                                                        color: theme.palette.secondary.main, 
+                                                <Fab
+                                                    sx={{
+                                                        minHeight: 10,
+                                                        height: 27,
+                                                        width: 30,
+                                                        backgroundColor: theme.palette.secondary.light,
+                                                        color: theme.palette.secondary.main,
                                                         ml: 2
-                                                    }} 
+                                                    }}
                                                     size="small"
                                                     title="Validate and Save"
                                                     onClick={saveNodeLabel}
                                                 >
                                                     <IconCheck />
                                                 </Fab>
-                                                
                                             </Box>
                                         )}
 
                                         {/* actions */}
-                                        {nodeParamsType.includes('actions') && 
-                                            (<Box sx={{ p: 2 }}>
+                                        {nodeParamsType.includes('actions') && (
+                                            <Box sx={{ p: 2 }}>
                                                 <Accordion expanded={expanded === 'actions'} onChange={handleAccordionChange('actions')}>
                                                     <AccordionSummary
                                                         expandIcon={<ExpandMoreIcon />}
                                                         aria-controls="actions-content"
-                                                        id="actions-header" 
+                                                        id="actions-header"
                                                     >
-                                                        <Typography variant="h4">
-                                                            Actions
-                                                        </Typography>
-                                                        {nodeFlowData && nodeFlowData.actions && nodeFlowData.actions.submit &&
-                                                        (<Avatar
-                                                            variant="rounded"
-                                                            sx={{
-                                                                ...theme.typography.smallAvatar,
-                                                                borderRadius: '50%',
-                                                                background: theme.palette.success.dark,
-                                                                color: 'white',
-                                                                ml: 2
-                                                            }}
-                                                        >
-                                                            <IconCheck />
-                                                        </Avatar>)}
+                                                        <Typography variant="h4">Actions</Typography>
+                                                        {nodeFlowData && nodeFlowData.actions && nodeFlowData.actions.submit && (
+                                                            <Avatar
+                                                                variant="rounded"
+                                                                sx={{
+                                                                    ...theme.typography.smallAvatar,
+                                                                    borderRadius: '50%',
+                                                                    background: theme.palette.success.dark,
+                                                                    color: 'white',
+                                                                    ml: 2
+                                                                }}
+                                                            >
+                                                                <IconCheck />
+                                                            </Avatar>
+                                                        )}
                                                     </AccordionSummary>
                                                     <AccordionDetails>
-                                                        <InputParameters 
+                                                        <InputParameters
                                                             key={node.id} // to reload whenever node changed
-                                                            params={nodeParams} 
+                                                            params={nodeParams}
                                                             paramsType="actions"
-                                                            initialValues={nodeParamsInitialValues} 
+                                                            initialValues={nodeParamsInitialValues}
                                                             nodeParamsValidation={nodeParamsValidation}
                                                             nodeFlowData={nodeFlowData}
                                                             setVariableSelectorState={setVariableSelectorState}
@@ -606,41 +599,40 @@ const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValu
                                                     </AccordionDetails>
                                                 </Accordion>
                                                 <Divider />
-                                            </Box>)
-                                        }
+                                            </Box>
+                                        )}
 
                                         {/* networks */}
-                                        {nodeParamsType.includes('networks') && 
-                                            (<Box sx={{ p: 2 }}>
+                                        {nodeParamsType.includes('networks') && (
+                                            <Box sx={{ p: 2 }}>
                                                 <Accordion expanded={expanded === 'networks'} onChange={handleAccordionChange('networks')}>
                                                     <AccordionSummary
                                                         expandIcon={<ExpandMoreIcon />}
                                                         aria-controls="networks-content"
-                                                        id="networks-header" 
+                                                        id="networks-header"
                                                     >
-                                                        <Typography variant="h4">
-                                                            Networks
-                                                        </Typography>
-                                                        {nodeFlowData && nodeFlowData.networks && nodeFlowData.networks.submit &&
-                                                        (<Avatar
-                                                            variant="rounded"
-                                                            sx={{
-                                                                ...theme.typography.smallAvatar,
-                                                                borderRadius: '50%',
-                                                                background: theme.palette.success.dark,
-                                                                color: 'white',
-                                                                ml: 2
-                                                            }}
-                                                        >
-                                                            <IconCheck />
-                                                        </Avatar>)}
+                                                        <Typography variant="h4">Networks</Typography>
+                                                        {nodeFlowData && nodeFlowData.networks && nodeFlowData.networks.submit && (
+                                                            <Avatar
+                                                                variant="rounded"
+                                                                sx={{
+                                                                    ...theme.typography.smallAvatar,
+                                                                    borderRadius: '50%',
+                                                                    background: theme.palette.success.dark,
+                                                                    color: 'white',
+                                                                    ml: 2
+                                                                }}
+                                                            >
+                                                                <IconCheck />
+                                                            </Avatar>
+                                                        )}
                                                     </AccordionSummary>
                                                     <AccordionDetails>
-                                                        <InputParameters 
+                                                        <InputParameters
                                                             key={node.id} // to reload whenever node changed
-                                                            params={nodeParams} 
+                                                            params={nodeParams}
                                                             paramsType="networks"
-                                                            initialValues={nodeParamsInitialValues} 
+                                                            initialValues={nodeParamsInitialValues}
                                                             nodeParamsValidation={nodeParamsValidation}
                                                             nodeFlowData={nodeFlowData}
                                                             setVariableSelectorState={setVariableSelectorState}
@@ -651,41 +643,43 @@ const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValu
                                                     </AccordionDetails>
                                                 </Accordion>
                                                 <Divider />
-                                            </Box>)
-                                        }
+                                            </Box>
+                                        )}
 
                                         {/* credentials */}
-                                        {nodeParamsType.includes('credentials') && 
-                                            (<Box sx={{ p: 2 }}>
-                                                <Accordion expanded={expanded === 'credentials'} onChange={handleAccordionChange('credentials')}>
+                                        {nodeParamsType.includes('credentials') && (
+                                            <Box sx={{ p: 2 }}>
+                                                <Accordion
+                                                    expanded={expanded === 'credentials'}
+                                                    onChange={handleAccordionChange('credentials')}
+                                                >
                                                     <AccordionSummary
                                                         expandIcon={<ExpandMoreIcon />}
                                                         aria-controls="credentials-content"
-                                                        id="credentials-header" 
+                                                        id="credentials-header"
                                                     >
-                                                        <Typography variant="h4">
-                                                            Credentials
-                                                        </Typography>
-                                                        {nodeFlowData && nodeFlowData.credentials && nodeFlowData.credentials.submit &&
-                                                        (<Avatar
-                                                            variant="rounded"
-                                                            sx={{
-                                                                ...theme.typography.smallAvatar,
-                                                                borderRadius: '50%',
-                                                                background: theme.palette.success.dark,
-                                                                color: 'white',
-                                                                ml: 2
-                                                            }}
-                                                        >
-                                                            <IconCheck />
-                                                        </Avatar>)}
+                                                        <Typography variant="h4">Credentials</Typography>
+                                                        {nodeFlowData && nodeFlowData.credentials && nodeFlowData.credentials.submit && (
+                                                            <Avatar
+                                                                variant="rounded"
+                                                                sx={{
+                                                                    ...theme.typography.smallAvatar,
+                                                                    borderRadius: '50%',
+                                                                    background: theme.palette.success.dark,
+                                                                    color: 'white',
+                                                                    ml: 2
+                                                                }}
+                                                            >
+                                                                <IconCheck />
+                                                            </Avatar>
+                                                        )}
                                                     </AccordionSummary>
                                                     <AccordionDetails>
-                                                        <CredentialInput 
+                                                        <CredentialInput
                                                             key={node.id} // to reload whenever node changed
-                                                            initialParams={nodeParams} 
+                                                            initialParams={nodeParams}
                                                             paramsType="credentials"
-                                                            initialValues={nodeParamsInitialValues} 
+                                                            initialValues={nodeParamsInitialValues}
                                                             initialValidation={nodeParamsValidation}
                                                             valueChanged={valueChanged}
                                                             paramsChanged={paramsChanged}
@@ -694,39 +688,43 @@ const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValu
                                                     </AccordionDetails>
                                                 </Accordion>
                                                 <Divider />
-                                            </Box>)
-                                        }
+                                            </Box>
+                                        )}
 
                                         {/* inputParameters */}
-                                        {nodeParamsType.includes('inputParameters') && 
-                                            (<Box sx={{ p: 2 }}>
-                                                <Accordion expanded={expanded === 'inputParameters'} onChange={handleAccordionChange('inputParameters')}>
+                                        {nodeParamsType.includes('inputParameters') && (
+                                            <Box sx={{ p: 2 }}>
+                                                <Accordion
+                                                    expanded={expanded === 'inputParameters'}
+                                                    onChange={handleAccordionChange('inputParameters')}
+                                                >
                                                     <AccordionSummary
                                                         expandIcon={<ExpandMoreIcon />}
                                                         aria-controls="inputParameters-content"
-                                                        id="inputParameters-header" 
+                                                        id="inputParameters-header"
                                                     >
-                                                        <Typography variant="h4">
-                                                            Input Parameters
-                                                        </Typography>
-                                                        {nodeFlowData && nodeFlowData.inputParameters && nodeFlowData.inputParameters.submit &&
-                                                        (<Avatar
-                                                            variant="rounded"
-                                                            sx={{
-                                                                ...theme.typography.smallAvatar,
-                                                                borderRadius: '50%',
-                                                                background: theme.palette.success.dark,
-                                                                color: 'white',
-                                                                ml: 2
-                                                            }}
-                                                        >
-                                                            <IconCheck />
-                                                        </Avatar>)}
+                                                        <Typography variant="h4">Input Parameters</Typography>
+                                                        {nodeFlowData &&
+                                                            nodeFlowData.inputParameters &&
+                                                            nodeFlowData.inputParameters.submit && (
+                                                                <Avatar
+                                                                    variant="rounded"
+                                                                    sx={{
+                                                                        ...theme.typography.smallAvatar,
+                                                                        borderRadius: '50%',
+                                                                        background: theme.palette.success.dark,
+                                                                        color: 'white',
+                                                                        ml: 2
+                                                                    }}
+                                                                >
+                                                                    <IconCheck />
+                                                                </Avatar>
+                                                            )}
                                                     </AccordionSummary>
                                                     <AccordionDetails>
-                                                        <InputParameters 
+                                                        <InputParameters
                                                             key={node.id} // to reload whenever node changed
-                                                            params={nodeParams} 
+                                                            params={nodeParams}
                                                             paramsType="inputParameters"
                                                             initialValues={nodeParamsInitialValues}
                                                             nodeParamsValidation={nodeParamsValidation}
@@ -739,37 +737,41 @@ const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValu
                                                     </AccordionDetails>
                                                 </Accordion>
                                                 <Divider />
-                                            </Box>)
-                                        }
+                                            </Box>
+                                        )}
 
                                         {/* outputResponses */}
-                                        {nodeDetails && nodeFlowData && 
-                                            (<Box sx={{ p: 2 }}>
-                                                <Accordion expanded={expanded === 'outputResponses'} onChange={handleAccordionChange('outputResponses')}>
+                                        {nodeDetails && nodeFlowData && (
+                                            <Box sx={{ p: 2 }}>
+                                                <Accordion
+                                                    expanded={expanded === 'outputResponses'}
+                                                    onChange={handleAccordionChange('outputResponses')}
+                                                >
                                                     <AccordionSummary
                                                         expandIcon={<ExpandMoreIcon />}
                                                         aria-controls="outputResponses-content"
-                                                        id="outputResponses-header" 
+                                                        id="outputResponses-header"
                                                     >
-                                                        <Typography variant="h4">
-                                                            Output Responses
-                                                        </Typography>
-                                                        {nodeFlowData && nodeFlowData.outputResponses && nodeFlowData.outputResponses.submit &&
-                                                        (<Avatar
-                                                            variant="rounded"
-                                                            sx={{
-                                                                ...theme.typography.smallAvatar,
-                                                                borderRadius: '50%',
-                                                                background: theme.palette.success.dark,
-                                                                color: 'white',
-                                                                ml: 2
-                                                            }}
-                                                        >
-                                                            <IconCheck />
-                                                        </Avatar>)}
+                                                        <Typography variant="h4">Output Responses</Typography>
+                                                        {nodeFlowData &&
+                                                            nodeFlowData.outputResponses &&
+                                                            nodeFlowData.outputResponses.submit && (
+                                                                <Avatar
+                                                                    variant="rounded"
+                                                                    sx={{
+                                                                        ...theme.typography.smallAvatar,
+                                                                        borderRadius: '50%',
+                                                                        background: theme.palette.success.dark,
+                                                                        color: 'white',
+                                                                        ml: 2
+                                                                    }}
+                                                                >
+                                                                    <IconCheck />
+                                                                </Avatar>
+                                                            )}
                                                     </AccordionSummary>
                                                     <AccordionDetails>
-                                                        <OutputResponses 
+                                                        <OutputResponses
                                                             key={node.id} // to reload whenever node changed
                                                             nodeId={node.id}
                                                             nodeParamsType={nodeParamsType}
@@ -782,19 +784,19 @@ const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValu
                                                     </AccordionDetails>
                                                 </Accordion>
                                                 <Divider />
-                                            </Box>)
-                                        }
+                                            </Box>
+                                        )}
                                     </PerfectScrollbar>
-                                    <VariableSelector 
-                                        key={JSON.stringify(availableNodesForVariable)} 
-                                        nodes={availableNodesForVariable} 
-                                        isVariableSelectorOpen={isVariableSelectorOpen} 
+                                    <VariableSelector
+                                        key={JSON.stringify(availableNodesForVariable)}
+                                        nodes={availableNodesForVariable}
+                                        isVariableSelectorOpen={isVariableSelectorOpen}
                                         anchorEl={anchorRef.current}
-                                        onVariableSelected={(returnVariablePath) => onVariableSelected(returnVariablePath)} 
+                                        onVariableSelected={(returnVariablePath) => onVariableSelected(returnVariablePath)}
                                         handleClose={() => setVariableSelectorOpen(false)}
                                     />
-                                    <EditVariableDialog 
-                                        key={JSON.stringify(editVariableDialogProps)} 
+                                    <EditVariableDialog
+                                        key={JSON.stringify(editVariableDialogProps)}
                                         show={isEditVariableDialogOpen}
                                         dialogProps={editVariableDialogProps}
                                         onCancel={() => setEditVariableDialog(false)}
@@ -819,7 +821,7 @@ EditNodes.propTypes = {
     edges: PropTypes.array,
     workflow: PropTypes.object,
     onNodeLabelUpdate: PropTypes.func,
-    onNodeValuesUpdate: PropTypes.func,
+    onNodeValuesUpdate: PropTypes.func
 };
 
 export default EditNodes;

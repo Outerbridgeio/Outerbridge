@@ -1,6 +1,6 @@
-import client from "./client";
+import client from './client';
 
-const getAllWorkflows = () => client.get("/workflows");
+const getAllWorkflows = () => client.get('/workflows');
 
 const getSpecificWorkflow = (shortId) => client.get(`/workflows/${shortId}`);
 

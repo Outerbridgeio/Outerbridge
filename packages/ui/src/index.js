@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { SnackbarProvider } from 'notistack';
-import ConfirmContextProvider from "store/context/ConfirmContextProvider";
+import ConfirmContextProvider from 'store/context/ConfirmContextProvider';
 
 // project imports
 import * as serviceWorker from 'serviceWorker';

@@ -35,7 +35,7 @@ const dashboard = {
             icon: icons.IconWallet,
             breadcrumbs: true
         }
-    ],
+    ]
 };
 
 export default dashboard;

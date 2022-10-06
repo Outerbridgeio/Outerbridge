@@ -1,6 +1,6 @@
-import client from "./client";
+import client from './client';
 
-const getAllExecutions = () => client.get("/executions");
+const getAllExecutions = () => client.get('/executions');
 
 const getSpecificExecution = (shortId) => client.get(`/executions/${shortId}`);
 
@@ -15,5 +15,5 @@ export default {
     getSpecificExecution,
     createNewExecution,
     updateExecution,
-    deleteExecution,
+    deleteExecution
 };

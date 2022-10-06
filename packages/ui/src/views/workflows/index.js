@@ -11,10 +11,10 @@ import { gridSpacing } from 'store/constant';
 import WorkflowEmptySVG from 'assets/images/workflow_empty.svg';
 
 // API
-import workflowsApi from "api/workflows";
+import workflowsApi from 'api/workflows';
 
 // Hooks
-import useApi from "hooks/useApi";
+import useApi from 'hooks/useApi';
 
 // const
 import { baseURL } from 'store/constant';
@@ -26,7 +26,7 @@ const Workflows = () => {
 
     const [isLoading, setLoading] = useState(true);
     const [images, setImages] = useState({});
- 
+
     const getAllWorkflowsApi = useApi(workflowsApi.getAllWorkflows);
 
     const addNew = () => {
@@ -47,20 +47,19 @@ const Workflows = () => {
         setLoading(getAllWorkflowsApi.loading);
     }, [getAllWorkflowsApi.loading]);
 
-
     useEffect(() => {
         if (getAllWorkflowsApi.data) {
             try {
                 const workflows = getAllWorkflowsApi.data;
                 const images = {};
 
-                for (let i = 0; i < workflows.length; i+=1 ) {
+                for (let i = 0; i < workflows.length; i += 1) {
                     const flowDataStr = workflows[i].flowData;
                     const flowData = JSON.parse(flowDataStr);
                     const nodes = flowData.nodes || [];
                     images[workflows[i].shortId] = [];
 
-                    for (let j = 0; j < nodes.length; j+=1 ) {
+                    for (let j = 0; j < nodes.length; j += 1) {
                         const imageSrc = `${baseURL}/api/v1/node-icon/${nodes[j].data.name}`;
                         if (!images[workflows[i].shortId].includes(imageSrc)) {
                             images[workflows[i].shortId].push(imageSrc);
@@ -68,12 +67,10 @@ const Workflows = () => {
                     }
                 }
                 setImages(images);
-
             } catch (e) {
                 console.error(e);
             }
         }
-
     }, [getAllWorkflowsApi.data]);
 
     return (
@@ -90,15 +87,13 @@ const Workflows = () => {
                 </Grid>
             </Stack>
             <Grid container spacing={gridSpacing}>
-                {!isLoading && getAllWorkflowsApi.data && getAllWorkflowsApi.data.map((data, index) => (
-                    <Grid key={index} item lg={4} md={6} sm={6} xs={12}>
-                        <ItemCard 
-                            onClick={() => goToCanvas(data)} 
-                            data={data}
-                            images={images[data.shortId]}
-                        />
-                    </Grid>
-                ))}
+                {!isLoading &&
+                    getAllWorkflowsApi.data &&
+                    getAllWorkflowsApi.data.map((data, index) => (
+                        <Grid key={index} item lg={4} md={6} sm={6} xs={12}>
+                            <ItemCard onClick={() => goToCanvas(data)} data={data} images={images[data.shortId]} />
+                        </Grid>
+                    ))}
             </Grid>
             {!isLoading && (!getAllWorkflowsApi.data || getAllWorkflowsApi.data.length === 0) && (
                 <Stack sx={{ alignItems: 'center', justifyContent: 'center' }} flexDirection="column">

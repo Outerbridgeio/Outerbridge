@@ -16,23 +16,23 @@ const settings = {
             title: 'Load Workflow',
             type: 'item',
             url: '',
-            icon: icons.IconFileUpload,
+            icon: icons.IconFileUpload
         },
         {
             id: 'exportWorkflow',
             title: 'Export Workflow',
             type: 'item',
             url: '',
-            icon: icons.IconFileExport,
+            icon: icons.IconFileExport
         },
         {
             id: 'deleteWorkflow',
             title: 'Delete Workflow',
             type: 'item',
             url: '',
-            icon: icons.IconTrash,
+            icon: icons.IconTrash
         }
-    ],
+    ]
 };
 
 export default settings;

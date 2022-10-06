@@ -2,10 +2,7 @@ import { createPortal } from 'react-dom';
 import PropTypes from 'prop-types';
 import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { 
-    enqueueSnackbar as enqueueSnackbarAction,
-    closeSnackbar as closeSnackbarAction,
-} from 'store/actions';
+import { enqueueSnackbar as enqueueSnackbarAction, closeSnackbar as closeSnackbarAction } from 'store/actions';
 
 import {
     Avatar,
@@ -15,13 +12,13 @@ import {
     Box,
     Divider,
     Typography,
-    Button, 
-    Dialog, 
+    Button,
+    Dialog,
     DialogActions,
-    DialogContent, 
+    DialogContent,
     DialogTitle,
     Stack,
-    IconButton,
+    IconButton
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useTheme } from '@mui/material/styles';
@@ -39,25 +36,19 @@ import EditVariableDialog from 'ui-component/dialog/EditVariableDialog';
 import { IconCheck, IconX, IconArrowUpRightCircle, IconCopy, IconKey } from '@tabler/icons';
 
 // API
-import walletsApi from "api/wallets";
+import walletsApi from 'api/wallets';
 
 // Hooks
-import useApi from "hooks/useApi";
+import useApi from 'hooks/useApi';
 
 // Const
-import { wallet_details, networkExplorers, privateKeyField } from "store/constant";
+import { wallet_details, networkExplorers, privateKeyField } from 'store/constant';
 
 // utils
 import { handleCredentialParams, initializeNodeData } from 'utils/genericHelper';
 import useNotifier from 'utils/useNotifier';
 
-const WalletDialog = ({
-    show,
-    dialogProps,
-    onCancel,
-    onConfirm
-}) => {
-
+const WalletDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
     const portalElement = document.getElementById('portal');
 
     const theme = useTheme();
@@ -96,10 +87,10 @@ const WalletDialog = ({
         setWalletCredential({});
         setIsReadyToAdd(false);
         setExpanded(false);
-    }
+    };
 
     const checkIsReadyToAdd = () => {
-        for (let i = 0; i < walletParamsType.length; i+= 1) {
+        for (let i = 0; i < walletParamsType.length; i += 1) {
             const paramType = walletParamsType[i];
             if (!walletData[paramType] || !walletData[paramType].submit) {
                 setIsReadyToAdd(false);
@@ -117,18 +108,18 @@ const WalletDialog = ({
             cancelButtonName: 'Cancel',
             confirmButtonName: 'Save',
             hideVariables: true
-        }
+        };
 
         setEditVariableDialogProps(dialogProps);
         setEditVariableDialog(true);
-    }
+    };
 
-    const addNewWallet = async(type) => {
+    const addNewWallet = async (type) => {
         const createNewWalletBody = {
             network: walletData.networks.network,
             name: walletData.walletInfo.name,
             providerCredential: JSON.stringify(walletData.credentials)
-        }
+        };
         if (type === 'IMPORT') createNewWalletBody.privateKey = walletData.walletInfo.privateKey;
         const createResp = await walletsApi.createNewWallet(createNewWalletBody);
         if (createResp.data) {
@@ -137,12 +128,12 @@ const WalletDialog = ({
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'success',
-                    action: key => (
-                        <Button style={{color: 'white'}} onClick={() => closeSnackbar(key)}>
+                    action: (key) => (
+                        <Button style={{ color: 'white' }} onClick={() => closeSnackbar(key)}>
                             <IconX />
                         </Button>
-                    ),
-                },
+                    )
+                }
             });
             onConfirm();
         } else {
@@ -152,23 +143,23 @@ const WalletDialog = ({
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
                     persist: true,
-                    action: key => (
-                        <Button style={{color: 'white'}} onClick={() => closeSnackbar(key)}>
+                    action: (key) => (
+                        <Button style={{ color: 'white' }} onClick={() => closeSnackbar(key)}>
                             <IconX />
                         </Button>
-                    ),
-                },
+                    )
+                }
             });
             onCancel();
         }
-    }
+    };
 
-    const saveWallet = async() => {
+    const saveWallet = async () => {
         const saveWalletBody = {
             network: walletData.networks.network,
             name: walletData.walletInfo.name,
             providerCredential: JSON.stringify(walletData.credentials)
-        }
+        };
         const saveResp = await walletsApi.updateWallet(dialogProps.id, saveWalletBody);
         if (saveResp.data) {
             enqueueSnackbar({
@@ -176,12 +167,12 @@ const WalletDialog = ({
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'success',
-                    action: key => (
-                        <Button style={{color: 'white'}} onClick={() => closeSnackbar(key)}>
+                    action: (key) => (
+                        <Button style={{ color: 'white' }} onClick={() => closeSnackbar(key)}>
                             <IconX />
                         </Button>
-                    ),
-                },
+                    )
+                }
             });
             onConfirm();
         } else {
@@ -191,18 +182,18 @@ const WalletDialog = ({
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
                     persist: true,
-                    action: key => (
-                        <Button style={{color: 'white'}} onClick={() => closeSnackbar(key)}>
+                    action: (key) => (
+                        <Button style={{ color: 'white' }} onClick={() => closeSnackbar(key)}>
                             <IconX />
                         </Button>
-                    ),
-                },
+                    )
+                }
             });
             onCancel();
         }
-    }
+    };
 
-    const deleteWallet = async() => {
+    const deleteWallet = async () => {
         const deleteResp = await walletsApi.deleteWallet(dialogProps.id);
         if (deleteResp.data) {
             enqueueSnackbar({
@@ -210,12 +201,12 @@ const WalletDialog = ({
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'success',
-                    action: key => (
-                        <Button style={{color: 'white'}} onClick={() => closeSnackbar(key)}>
+                    action: (key) => (
+                        <Button style={{ color: 'white' }} onClick={() => closeSnackbar(key)}>
                             <IconX />
                         </Button>
-                    ),
-                },
+                    )
+                }
             });
             onConfirm();
         } else {
@@ -225,16 +216,16 @@ const WalletDialog = ({
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
                     persist: true,
-                    action: key => (
-                        <Button style={{color: 'white'}} onClick={() => closeSnackbar(key)}>
+                    action: (key) => (
+                        <Button style={{ color: 'white' }} onClick={() => closeSnackbar(key)}>
                             <IconX />
                         </Button>
-                    ),
-                },
+                    )
+                }
             });
             onCancel();
         }
-    }
+    };
 
     const valueChanged = (formValues, paramsType) => {
         const updateWalletData = {
@@ -244,23 +235,22 @@ const WalletDialog = ({
 
         const index = walletParamsType.indexOf(paramsType);
         if (index >= 0 && index !== walletParamsType.length - 1) {
-            for (let i = index+1; i < walletParamsType.length; i+= 1) {
+            for (let i = index + 1; i < walletParamsType.length; i += 1) {
                 const paramType = walletParamsType[i];
                 if (updateWalletData[paramType]) updateWalletData[paramType].submit = null;
             }
         }
-        
+
         setWalletData(updateWalletData);
     };
 
     const paramsChanged = (formParams, paramsType) => {
-
-        // Because formParams options can be changed due to show hide options, 
+        // Because formParams options can be changed due to show hide options,
         // To avoid that, replace with original details options
 
         const credentialMethodParam = formParams.find((param) => param.name === 'credentialMethod');
         const credentialMethodParamIndex = formParams.findIndex((param) => param.name === 'credentialMethod');
-        
+
         if (credentialMethodParam !== undefined) {
             const originalParam = walletDetails[paramsType].find((param) => param.name === 'credentialMethod');
             if (originalParam !== undefined) {
@@ -275,36 +265,34 @@ const WalletDialog = ({
         setWalletDetails(updateWalletDetails);
     };
 
-    const onSubmit = async(formValues, paramsType) => {
+    const onSubmit = async (formValues, paramsType) => {
         const updateWalletData = {
             ...walletData,
             [paramsType]: formValues
         };
         setWalletData(updateWalletData);
-        
+
         const index = walletParamsType.indexOf(paramsType);
         if (index >= 0 && index !== walletParamsType.length - 1) {
-            setExpanded(walletParamsType[index+1]);
+            setExpanded(walletParamsType[index + 1]);
         } else if (index === walletParamsType.length - 1) {
             setExpanded(false);
         }
     };
 
     const showHideOptions = (displayType, options) => {
-       
         let returnOptions = options;
         const toBeDeleteOptions = [];
 
-        for (let i = 0; i < returnOptions.length; i+= 1) {
+        for (let i = 0; i < returnOptions.length; i += 1) {
             const option = returnOptions[i];
             const displayOptions = option[displayType];
 
             if (displayOptions) {
                 Object.keys(displayOptions).forEach((path) => {
-
                     const comparisonValue = displayOptions[path];
                     const groundValue = lodash.get(walletData, path, '');
-                   
+
                     if (Array.isArray(comparisonValue)) {
                         if (displayType === 'show' && !comparisonValue.includes(groundValue)) {
                             toBeDeleteOptions.push(option);
@@ -317,31 +305,30 @@ const WalletDialog = ({
             }
         }
 
-        for (let i = 0; i < toBeDeleteOptions.length; i+= 1) {
+        for (let i = 0; i < toBeDeleteOptions.length; i += 1) {
             returnOptions = returnOptions.filter((opt) => JSON.stringify(opt) !== JSON.stringify(toBeDeleteOptions[i]));
         }
 
         return returnOptions;
-    }
+    };
 
     const displayOptions = (params) => {
-      
         let clonedParams = params;
 
-        for (let i = 0; i < clonedParams.length; i+= 1) {
+        for (let i = 0; i < clonedParams.length; i += 1) {
             const input = clonedParams[i];
             if (input.type === 'options') {
                 input.options = showHideOptions('show', input.options);
                 input.options = showHideOptions('hide', input.options);
             }
         }
-      
+
         return clonedParams;
     };
 
     const setYupValidation = (params) => {
         const validationSchema = {};
-        for (let i = 0; i < params.length; i+= 1) {
+        for (let i = 0; i < params.length; i += 1) {
             const input = params[i];
             if (input.type === 'string' && !input.optional) {
                 validationSchema[input.name] = Yup.string().required(`${input.label} is required. Type: ${input.type}`);
@@ -355,7 +342,6 @@ const WalletDialog = ({
     };
 
     const initializeFormValuesAndParams = (paramsType) => {
-
         const initialValues = {};
         let walletParams = displayOptions(lodash.cloneDeep(walletDetails[paramsType] || []));
         walletParams = handleCredentialParams(walletParams, paramsType, walletDetails[paramsType], walletData);
@@ -363,14 +349,14 @@ const WalletDialog = ({
         if (dialogProps.type === 'IMPORT' && paramsType === 'walletInfo') {
             walletParams.push(...privateKeyField);
         }
-  
-        for (let i = 0; i < walletParams.length; i+= 1) {
+
+        for (let i = 0; i < walletParams.length; i += 1) {
             const input = walletParams[i];
 
             // Load from walletData values
             if (paramsType in walletData && input.name in walletData[paramsType]) {
                 initialValues[input.name] = walletData[paramsType][input.name];
-         
+
                 // Check if option value is still available from the list of options
                 if (input.type === 'options') {
                     const optionVal = input.options.find((option) => option.name === initialValues[input.name]);
@@ -381,9 +367,9 @@ const WalletDialog = ({
                 initialValues[input.name] = input.default || '';
             }
         }
-        
+
         initialValues.submit = null;
-        
+
         setWalletValues(initialValues);
         setWalletValidation(setYupValidation(walletParams));
         setWalletParams(walletParams);
@@ -394,7 +380,7 @@ const WalletDialog = ({
             networks: {},
             credentials: {},
             walletInfo: {}
-        }
+        };
 
         if (walletResponseData) {
             walletData.networks = { network: walletResponseData.network, submit: true };
@@ -402,8 +388,8 @@ const WalletDialog = ({
             if (walletResponseData.providerCredential) {
                 try {
                     walletData.credentials = JSON.parse(walletResponseData.providerCredential);
-                } catch(e) { 
-                    console.error(e); 
+                } catch (e) {
+                    console.error(e);
                 }
             }
         } else {
@@ -412,7 +398,7 @@ const WalletDialog = ({
             walletData.walletInfo = initializeNodeData(walletDetails.walletInfo);
         }
         return walletData;
-    }
+    };
 
     // Get Wallet Details from API
     useEffect(() => {
@@ -421,9 +407,7 @@ const WalletDialog = ({
             setWalletData(transformWalletResponse(walletResponseData));
             setExpanded('networks');
         }
-
-    }, [getSpecificWalletApi.data]); 
-
+    }, [getSpecificWalletApi.data]);
 
     // Get Wallet Credential from API
     useEffect(() => {
@@ -431,9 +415,7 @@ const WalletDialog = ({
             const walletCredResponseData = getWalletCredentialApi.data;
             setWalletCredential(walletCredResponseData);
         }
-
-    }, [getWalletCredentialApi.data]); 
-
+    }, [getWalletCredentialApi.data]);
 
     // Initialization
     useEffect(() => {
@@ -441,16 +423,14 @@ const WalletDialog = ({
             reset();
             setWalletData(transformWalletResponse(null, walletDetails));
             setExpanded('networks');
-
         } else if (show && dialogProps.type === 'EDIT' && dialogProps.id) {
             reset();
             getSpecificWalletApi.request(dialogProps.id);
         }
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [show, dialogProps]); 
+    }, [show, dialogProps]);
 
-    
     // Initialize Parameters Initial Values & Validation
     useEffect(() => {
         if (walletDetails && walletData && expanded) {
@@ -461,88 +441,151 @@ const WalletDialog = ({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [walletDetails, walletData, expanded]);
 
-
     const component = show ? (
-        <Dialog
-            open={show}
-            onClose={onCancel}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-        >
+        <Dialog open={show} onClose={onCancel} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
             <DialogTitle sx={{ fontSize: '1rem' }} id="alert-dialog-title">
                 {dialogProps.title}
             </DialogTitle>
             <DialogContent>
-
-                {walletData && walletData.walletInfo && walletData.walletInfo.address && dialogProps.type === 'EDIT' && 
-                <Box sx={{ p: 2 }}>
-                    <Typography sx={{ p: 1 }} variant="overline">BALANCE</Typography>
-                    <Typography sx={{ p: 1, mb: 1 }} variant="h3">{walletData.walletInfo.balance}</Typography>
-                    <Typography sx={{ p: 1 }} variant="overline">ADDRESS</Typography>
-                    <Stack direction="row" sx={{ p: 1, mb: 1}}>
-                        <Typography sx={{ p: 1, borderRadius: 10, backgroundColor: theme.palette.primary.light, width: 'max-content', height: 'max-content' }} variant="h5">{walletData.walletInfo.address}</Typography>
-                        <IconButton title="Copy Address" color="primary" onClick={() => navigator.clipboard.writeText(walletData.walletInfo.address)}>
-                            <IconCopy />
-                        </IconButton>
-                        <IconButton title="Open in Block Explorer" color="primary" onClick={() => window.open(`${networkExplorers[walletData.networks.network]}/address/${walletData.walletInfo.address}`, "_blank")}>
-                            <IconArrowUpRightCircle />
-                        </IconButton>
-                    </Stack>
-                    {walletCredential && walletCredential.privateKey && 
-                    <>
-                        <Typography sx={{ p: 1 }} variant="overline">PRIVATE KEY</Typography>
-                        <Stack direction="row" sx={{ p: 1, mb: 1}}>
-                            <Typography sx={{ p: 1, borderRadius: 10, backgroundColor: theme.palette.primary.light, width: 'max-content', height: 'max-content' }} variant="h5">{walletCredential.privateKey}</Typography>
-                            <IconButton title="Copy Key" color="primary" onClick={() => navigator.clipboard.writeText(walletCredential.privateKey)}>
+                {walletData && walletData.walletInfo && walletData.walletInfo.address && dialogProps.type === 'EDIT' && (
+                    <Box sx={{ p: 2 }}>
+                        <Typography sx={{ p: 1 }} variant="overline">
+                            BALANCE
+                        </Typography>
+                        <Typography sx={{ p: 1, mb: 1 }} variant="h3">
+                            {walletData.walletInfo.balance}
+                        </Typography>
+                        <Typography sx={{ p: 1 }} variant="overline">
+                            ADDRESS
+                        </Typography>
+                        <Stack direction="row" sx={{ p: 1, mb: 1 }}>
+                            <Typography
+                                sx={{
+                                    p: 1,
+                                    borderRadius: 10,
+                                    backgroundColor: theme.palette.primary.light,
+                                    width: 'max-content',
+                                    height: 'max-content'
+                                }}
+                                variant="h5"
+                            >
+                                {walletData.walletInfo.address}
+                            </Typography>
+                            <IconButton
+                                title="Copy Address"
+                                color="primary"
+                                onClick={() => navigator.clipboard.writeText(walletData.walletInfo.address)}
+                            >
                                 <IconCopy />
                             </IconButton>
-                        </Stack>
-                    </>}
-                    {walletCredential && walletCredential.mnemonic && 
-                    <>
-                        <Typography sx={{ p: 1 }} variant="overline">mnemonic</Typography>
-                        <Stack direction="row" sx={{ p: 1, mb: 1}}>
-                            <Typography sx={{ p: 1, borderRadius: 10, backgroundColor: theme.palette.primary.light, width: 'max-content', height: 'max-content' }} variant="h5">{walletCredential.mnemonic}</Typography>
-                            <IconButton title="Copy Mnemonic" color="primary" onClick={() => navigator.clipboard.writeText(walletCredential.mnemonic)}>
-                                <IconCopy />
+                            <IconButton
+                                title="Open in Block Explorer"
+                                color="primary"
+                                onClick={() =>
+                                    window.open(
+                                        `${networkExplorers[walletData.networks.network]}/address/${walletData.walletInfo.address}`,
+                                        '_blank'
+                                    )
+                                }
+                            >
+                                <IconArrowUpRightCircle />
                             </IconButton>
                         </Stack>
-                    </>}
-                    {!Object.keys(walletCredential).length && <Button size="small" sx={{ml: 1}} variant="contained" startIcon={<IconKey />} onClick={() => getWalletCredentialApi.request(dialogProps.id)}>
-                        View PrivateKey and Mnemonic
-                    </Button>}
-                </Box>}
+                        {walletCredential && walletCredential.privateKey && (
+                            <>
+                                <Typography sx={{ p: 1 }} variant="overline">
+                                    PRIVATE KEY
+                                </Typography>
+                                <Stack direction="row" sx={{ p: 1, mb: 1 }}>
+                                    <Typography
+                                        sx={{
+                                            p: 1,
+                                            borderRadius: 10,
+                                            backgroundColor: theme.palette.primary.light,
+                                            width: 'max-content',
+                                            height: 'max-content'
+                                        }}
+                                        variant="h5"
+                                    >
+                                        {walletCredential.privateKey}
+                                    </Typography>
+                                    <IconButton
+                                        title="Copy Key"
+                                        color="primary"
+                                        onClick={() => navigator.clipboard.writeText(walletCredential.privateKey)}
+                                    >
+                                        <IconCopy />
+                                    </IconButton>
+                                </Stack>
+                            </>
+                        )}
+                        {walletCredential && walletCredential.mnemonic && (
+                            <>
+                                <Typography sx={{ p: 1 }} variant="overline">
+                                    mnemonic
+                                </Typography>
+                                <Stack direction="row" sx={{ p: 1, mb: 1 }}>
+                                    <Typography
+                                        sx={{
+                                            p: 1,
+                                            borderRadius: 10,
+                                            backgroundColor: theme.palette.primary.light,
+                                            width: 'max-content',
+                                            height: 'max-content'
+                                        }}
+                                        variant="h5"
+                                    >
+                                        {walletCredential.mnemonic}
+                                    </Typography>
+                                    <IconButton
+                                        title="Copy Mnemonic"
+                                        color="primary"
+                                        onClick={() => navigator.clipboard.writeText(walletCredential.mnemonic)}
+                                    >
+                                        <IconCopy />
+                                    </IconButton>
+                                </Stack>
+                            </>
+                        )}
+                        {!Object.keys(walletCredential).length && (
+                            <Button
+                                size="small"
+                                sx={{ ml: 1 }}
+                                variant="contained"
+                                startIcon={<IconKey />}
+                                onClick={() => getWalletCredentialApi.request(dialogProps.id)}
+                            >
+                                View PrivateKey and Mnemonic
+                            </Button>
+                        )}
+                    </Box>
+                )}
 
                 {/* networks */}
                 <Box sx={{ p: 2 }}>
                     <Accordion expanded={expanded === 'networks'} onChange={handleAccordionChange('networks')}>
-                        <AccordionSummary
-                            expandIcon={<ExpandMoreIcon />}
-                            aria-controls="networks-content"
-                            id="networks-header" 
-                        >
-                            <Typography variant="h4">
-                                Networks
-                            </Typography>
-                            {walletData && walletData.networks && walletData.networks.submit &&
-                            (<Avatar
-                                variant="rounded"
-                                sx={{
-                                    ...theme.typography.smallAvatar,
-                                    borderRadius: '50%',
-                                    background: theme.palette.success.dark,
-                                    color: 'white',
-                                    ml: 2
-                                }}
-                            >
-                                <IconCheck />
-                            </Avatar>)}
+                        <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="networks-content" id="networks-header">
+                            <Typography variant="h4">Networks</Typography>
+                            {walletData && walletData.networks && walletData.networks.submit && (
+                                <Avatar
+                                    variant="rounded"
+                                    sx={{
+                                        ...theme.typography.smallAvatar,
+                                        borderRadius: '50%',
+                                        background: theme.palette.success.dark,
+                                        color: 'white',
+                                        ml: 2
+                                    }}
+                                >
+                                    <IconCheck />
+                                </Avatar>
+                            )}
                         </AccordionSummary>
                         <AccordionDetails>
-                            <InputParameters 
+                            <InputParameters
                                 paramsType="networks"
-                                params={walletParams} 
-                                initialValues={walletValues} 
+                                params={walletParams}
+                                initialValues={walletValues}
                                 nodeParamsValidation={walletValidation}
                                 valueChanged={valueChanged}
                                 onSubmit={onSubmit}
@@ -557,33 +600,28 @@ const WalletDialog = ({
                 {/* credentials */}
                 <Box sx={{ p: 2 }}>
                     <Accordion expanded={expanded === 'credentials'} onChange={handleAccordionChange('credentials')}>
-                        <AccordionSummary
-                            expandIcon={<ExpandMoreIcon />}
-                            aria-controls="credentials-content"
-                            id="credentials-header" 
-                        >
-                            <Typography variant="h4">
-                                Credentials
-                            </Typography>
-                            {walletData && walletData.credentials && walletData.credentials.submit &&
-                            (<Avatar
-                                variant="rounded"
-                                sx={{
-                                    ...theme.typography.smallAvatar,
-                                    borderRadius: '50%',
-                                    background: theme.palette.success.dark,
-                                    color: 'white',
-                                    ml: 2
-                                }}
-                            >
-                                <IconCheck />
-                            </Avatar>)}
+                        <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="credentials-content" id="credentials-header">
+                            <Typography variant="h4">Credentials</Typography>
+                            {walletData && walletData.credentials && walletData.credentials.submit && (
+                                <Avatar
+                                    variant="rounded"
+                                    sx={{
+                                        ...theme.typography.smallAvatar,
+                                        borderRadius: '50%',
+                                        background: theme.palette.success.dark,
+                                        color: 'white',
+                                        ml: 2
+                                    }}
+                                >
+                                    <IconCheck />
+                                </Avatar>
+                            )}
                         </AccordionSummary>
                         <AccordionDetails>
-                            <CredentialInput 
+                            <CredentialInput
                                 paramsType="credentials"
-                                initialParams={walletParams} 
-                                initialValues={walletValues} 
+                                initialParams={walletParams}
+                                initialValues={walletValues}
                                 initialValidation={walletValidation}
                                 valueChanged={valueChanged}
                                 paramsChanged={paramsChanged}
@@ -597,32 +635,27 @@ const WalletDialog = ({
                 {/* walletInfo */}
                 <Box sx={{ p: 2 }}>
                     <Accordion expanded={expanded === 'walletInfo'} onChange={handleAccordionChange('walletInfo')}>
-                        <AccordionSummary
-                            expandIcon={<ExpandMoreIcon />}
-                            aria-controls="walletInfo-content"
-                            id="walletInfo-header" 
-                        >
-                            <Typography variant="h4">
-                                Wallet Details
-                            </Typography>
-                            {walletData && walletData.walletInfo && walletData.walletInfo.submit &&
-                            (<Avatar
-                                variant="rounded"
-                                sx={{
-                                    ...theme.typography.smallAvatar,
-                                    borderRadius: '50%',
-                                    background: theme.palette.success.dark,
-                                    color: 'white',
-                                    ml: 2
-                                }}
-                            >
-                                <IconCheck />
-                            </Avatar>)}
+                        <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="walletInfo-content" id="walletInfo-header">
+                            <Typography variant="h4">Wallet Details</Typography>
+                            {walletData && walletData.walletInfo && walletData.walletInfo.submit && (
+                                <Avatar
+                                    variant="rounded"
+                                    sx={{
+                                        ...theme.typography.smallAvatar,
+                                        borderRadius: '50%',
+                                        background: theme.palette.success.dark,
+                                        color: 'white',
+                                        ml: 2
+                                    }}
+                                >
+                                    <IconCheck />
+                                </Avatar>
+                            )}
                         </AccordionSummary>
                         <AccordionDetails>
-                            <InputParameters 
+                            <InputParameters
                                 paramsType="walletInfo"
-                                params={walletParams} 
+                                params={walletParams}
                                 initialValues={walletValues}
                                 nodeParamsValidation={walletValidation}
                                 valueChanged={valueChanged}
@@ -634,8 +667,8 @@ const WalletDialog = ({
                     </Accordion>
                     <Divider />
                 </Box>
-                <EditVariableDialog 
-                    key={JSON.stringify(editVariableDialogProps)} 
+                <EditVariableDialog
+                    key={JSON.stringify(editVariableDialogProps)}
                     show={isEditVariableDialogOpen}
                     dialogProps={editVariableDialogProps}
                     onCancel={() => setEditVariableDialog(false)}
@@ -646,20 +679,18 @@ const WalletDialog = ({
                 />
             </DialogContent>
             <DialogActions>
-                <Button onClick={onCancel}>
-                    {dialogProps.cancelButtonName}
-                </Button>
-                {dialogProps.type === 'EDIT' && <Button 
+                <Button onClick={onCancel}>{dialogProps.cancelButtonName}</Button>
+                {dialogProps.type === 'EDIT' && (
+                    <Button variant="contained" color="error" onClick={() => deleteWallet()}>
+                        Delete
+                    </Button>
+                )}
+                <Button
                     variant="contained"
-                    color="error"
-                    onClick={() => deleteWallet()}
-                >
-                    Delete
-                </Button>}
-                <Button 
-                    variant="contained" 
-                    disabled={!isReadyToAdd} 
-                    onClick={() => (dialogProps.type === 'ADD' || dialogProps.type === 'IMPORT') ? addNewWallet(dialogProps.type) : saveWallet()}
+                    disabled={!isReadyToAdd}
+                    onClick={() =>
+                        dialogProps.type === 'ADD' || dialogProps.type === 'IMPORT' ? addNewWallet(dialogProps.type) : saveWallet()
+                    }
                 >
                     {dialogProps.confirmButtonName}
                 </Button>
@@ -668,14 +699,13 @@ const WalletDialog = ({
     ) : null;
 
     return createPortal(component, portalElement);
-}
+};
 
 WalletDialog.propTypes = {
-    show: PropTypes.bool, 
+    show: PropTypes.bool,
     dialogProps: PropTypes.object,
     onCancel: PropTypes.func,
-    onConfirm: PropTypes.func,
+    onConfirm: PropTypes.func
 };
 
 export default WalletDialog;
-

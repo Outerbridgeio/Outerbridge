@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState } from 'react';
 
 export default (apiFunc) => {
     const [data, setData] = useState(null);
@@ -11,7 +11,7 @@ export default (apiFunc) => {
             const result = await apiFunc(...args);
             setData(result.data);
         } catch (err) {
-            setError(err || "Unexpected Error!");
+            setError(err || 'Unexpected Error!');
         } finally {
             setLoading(false);
         }

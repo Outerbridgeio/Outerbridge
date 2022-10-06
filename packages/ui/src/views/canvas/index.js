@@ -1,21 +1,13 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import ReactFlow, {
-    ReactFlowProvider,
-    addEdge,
-    MiniMap,
-    Controls,
-    Background,
-    useNodesState,
-    useEdgesState,
-} from 'react-flow-renderer';
+import ReactFlow, { ReactFlowProvider, addEdge, MiniMap, Controls, Background, useNodesState, useEdgesState } from 'react-flow-renderer';
 import { useDispatch, useSelector } from 'react-redux';
-import { usePrompt, useNavigate } from "react-router-dom";
-import { 
-    REMOVE_DIRTY, 
-    SET_DIRTY, 
+import { usePrompt, useNavigate } from 'react-router-dom';
+import {
+    REMOVE_DIRTY,
+    SET_DIRTY,
     SET_WORKFLOW,
     enqueueSnackbar as enqueueSnackbarAction,
-    closeSnackbar as closeSnackbarAction,
+    closeSnackbar as closeSnackbarAction
 } from 'store/actions';
 
 // material-ui
@@ -32,29 +24,29 @@ import ConfirmDialog from 'ui-component/dialog/ConfirmDialog';
 import TestWorkflowDialog from 'ui-component/dialog/TestWorkflowDialog';
 
 // API
-import nodesApi from "api/nodes";
-import workflowsApi from "api/workflows";
-import webhooksApi from "api/webhooks";
+import nodesApi from 'api/nodes';
+import workflowsApi from 'api/workflows';
+import webhooksApi from 'api/webhooks';
 
 // Hooks
-import useApi from "hooks/useApi";
-import useConfirm from "hooks/useConfirm";
+import useApi from 'hooks/useApi';
+import useConfirm from 'hooks/useConfirm';
 
 // icons
 import { IconX, IconBolt } from '@tabler/icons';
 
 // third party
-import socketIOClient from "socket.io-client";
+import socketIOClient from 'socket.io-client';
 
 // utils
-import { 
-    generateWebhookEndpoint, 
-    getUniqueNodeId, 
-    checkIfNodeLabelUnique, 
+import {
+    generateWebhookEndpoint,
+    getUniqueNodeId,
+    checkIfNodeLabelUnique,
     addAnchors,
     getEdgeLabelName,
     checkMultipleTriggers
-} from  'utils/genericHelper';
+} from 'utils/genericHelper';
 import useNotifier from 'utils/useNotifier';
 
 // const
@@ -66,12 +58,11 @@ const edgeTypes = { buttonedge: ButtonEdge };
 // ==============================|| CANVAS ||============================== //
 
 const Canvas = () => {
-
     const theme = useTheme();
     const navigate = useNavigate();
 
     const URLpath = document.location.pathname.toString().split('/');
-    const workflowShortId = (URLpath[URLpath.length - 1] && URLpath[URLpath.length - 1].startsWith('W')) ? URLpath[URLpath.length - 1] : '';
+    const workflowShortId = URLpath[URLpath.length - 1] && URLpath[URLpath.length - 1].startsWith('W') ? URLpath[URLpath.length - 1] : '';
 
     const { confirm } = useConfirm();
 
@@ -93,10 +84,10 @@ const Canvas = () => {
 
     const [nodes, setNodes, onNodesChange] = useNodesState();
     const [edges, setEdges, onEdgesChange] = useEdgesState();
-   
+
     const [rfInstance, setRfInstance] = useState(null);
     const [selectedNode, setSelectedNode] = useState(null);
-   
+
     const reactFlowWrapper = useRef(null);
 
     // ==============================|| Workflow API ||============================== //
@@ -112,9 +103,9 @@ const Canvas = () => {
     // ==============================|| Events & Actions ||============================== //
 
     const onConnect = (params) => {
-        const newEdge = { 
-            ...params, 
-            type: 'buttonedge', 
+        const newEdge = {
+            ...params,
+            type: 'buttonedge',
             id: `${params.source}-${params.sourceHandle}-${params.target}-${params.targetHandle}`,
             data: { label: getEdgeLabelName(params.sourceHandle) }
         };
@@ -135,11 +126,10 @@ const Canvas = () => {
                 title: 'Test Workflow',
                 nodes: nodes.filter((nd) => !nd.id.includes('ifElse'))
             });
-            
-        } catch(e) {
+        } catch (e) {
             console.error(e);
         }
-    }
+    };
 
     const onStartingPointClick = (startingNodeId) => {
         try {
@@ -162,14 +152,14 @@ const Canvas = () => {
                 testWorkflowApi.request(startingNodeId, body);
                 setNodes((nds) =>
                     nds.map((node) => {
-                        node.data =  {
+                        node.data = {
                             ...node.data,
                             outputResponses: {
                                 ...node.data.outputResponses,
                                 submit: null,
-                                needRetest: null,
+                                needRetest: null
                             },
-                            selected: false,
+                            selected: false
                         };
                         return node;
                     })
@@ -178,18 +168,14 @@ const Canvas = () => {
             });
 
             socket.on('testWorkflowNodeResponse', (value) => {
-                const {
-                    nodeId,
-                    data,
-                    status
-                } = value;
+                const { nodeId, data, status } = value;
 
                 const node = nodes.find((nd) => nd.id === nodeId);
                 if (node) {
                     const outputValues = {
                         submit: status === 'FINISHED' ? true : null,
                         needRetest: status === 'FINISHED' ? null : true,
-                        output: data,
+                        output: data
                     };
                     const nodeData = node.data;
                     nodeData['outputResponses'] = outputValues;
@@ -198,7 +184,7 @@ const Canvas = () => {
                             if (node.id === nodeId) {
                                 node.data = {
                                     ...nodeData,
-                                    selected: false,
+                                    selected: false
                                 };
                             }
                             return node;
@@ -211,18 +197,17 @@ const Canvas = () => {
                 setIsTestingWorkflow(false);
                 socket.disconnect();
             });
-
-        } catch(e) {
+        } catch (e) {
             console.error(e);
-        }  
-    }
+        }
+    };
 
     const handleLoadWorkflow = (file) => {
         try {
             const flowData = JSON.parse(file);
             const nodes = flowData.nodes || [];
 
-            for (let i = 0; i < nodes.length; i+= 1) {
+            for (let i = 0; i < nodes.length; i += 1) {
                 const nodeData = nodes[i].data;
                 if (nodeData.type === 'webhook') nodeData.webhookEndpoint = generateWebhookEndpoint();
             }
@@ -230,18 +215,16 @@ const Canvas = () => {
             setNodes(nodes);
             setEdges(flowData.edges || []);
             setDirty();
-
-        } catch(e) {
+        } catch (e) {
             console.error(e);
         }
-    }
+    };
 
-    const handleDeployWorkflow = async() => {
+    const handleDeployWorkflow = async () => {
         if (rfInstance) {
-
             const rfInstanceObject = rfInstance.toObject();
             const flowData = JSON.stringify(rfInstanceObject);
-            
+
             try {
                 // Always save workflow first
                 let savedWorkflowResponse;
@@ -251,20 +234,20 @@ const Canvas = () => {
                         deployed: false,
                         flowData
                     };
-                    const response = await workflowsApi.createNewWorkflow(newWorkflowBody)
+                    const response = await workflowsApi.createNewWorkflow(newWorkflowBody);
                     savedWorkflowResponse = response.data;
                 } else {
                     const updateBody = {
                         flowData
                     };
-                    const response = await workflowsApi.updateWorkflow(workflow.shortId, updateBody)
+                    const response = await workflowsApi.updateWorkflow(workflow.shortId, updateBody);
                     savedWorkflowResponse = response.data;
                 }
 
                 dispatch({ type: REMOVE_DIRTY });
-                
+
                 // Then deploy
-                const response = await workflowsApi.deployWorkflow(savedWorkflowResponse.shortId)
+                const response = await workflowsApi.deployWorkflow(savedWorkflowResponse.shortId);
                 const deployedWorkflowResponse = response.data;
                 dispatch({ type: SET_WORKFLOW, workflow: deployedWorkflowResponse });
 
@@ -273,34 +256,33 @@ const Canvas = () => {
                     options: {
                         key: new Date().getTime() + Math.random(),
                         variant: 'success',
-                        action: key => (
-                            <Button style={{color: 'white'}} onClick={() => closeSnackbar(key)}>
+                        action: (key) => (
+                            <Button style={{ color: 'white' }} onClick={() => closeSnackbar(key)}>
                                 <IconX />
                             </Button>
-                        ),
-                    },
+                        )
+                    }
                 });
-
             } catch (error) {
-                const errorData =  error.response.data || `${error.response.status}: ${error.response.statusText}`;
+                const errorData = error.response.data || `${error.response.status}: ${error.response.statusText}`;
                 enqueueSnackbar({
                     message: errorData,
                     options: {
                         key: new Date().getTime() + Math.random(),
                         variant: 'error',
                         persist: true,
-                        action: key => (
-                            <Button style={{color: 'white'}} onClick={() => closeSnackbar(key)}>
+                        action: (key) => (
+                            <Button style={{ color: 'white' }} onClick={() => closeSnackbar(key)}>
                                 <IconX />
                             </Button>
-                        ),
-                    },
+                        )
+                    }
                 });
             }
         }
     };
 
-    const handleStopWorkflow = async() => {
+    const handleStopWorkflow = async () => {
         try {
             const response = await workflowsApi.deployWorkflow(workflow.shortId, { halt: true });
             const stoppedWorkflowResponse = response.data;
@@ -311,73 +293,70 @@ const Canvas = () => {
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'success',
-                    action: key => (
-                        <Button style={{color: 'white'}} onClick={() => closeSnackbar(key)}>
+                    action: (key) => (
+                        <Button style={{ color: 'white' }} onClick={() => closeSnackbar(key)}>
                             <IconX />
                         </Button>
-                    ),
-                },
+                    )
+                }
             });
-
         } catch (error) {
-            const errorData =  error.response.data || `${error.response.status}: ${error.response.statusText}`;
+            const errorData = error.response.data || `${error.response.status}: ${error.response.statusText}`;
             enqueueSnackbar({
                 message: errorData,
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
                     persist: true,
-                    action: key => (
-                        <Button style={{color: 'white'}} onClick={() => closeSnackbar(key)}>
+                    action: (key) => (
+                        <Button style={{ color: 'white' }} onClick={() => closeSnackbar(key)}>
                             <IconX />
                         </Button>
-                    ),
-                },
+                    )
+                }
             });
         }
     };
 
-    const handleDeleteWorkflow = async() => {
+    const handleDeleteWorkflow = async () => {
         const confirmPayload = {
             title: `Delete`,
             description: `Delete workflow ${workflow.name}?`,
             confirmButtonName: 'Delete',
             cancelButtonName: 'Cancel'
-        }
+        };
         const isConfirmed = await confirm(confirmPayload);
 
         if (isConfirmed) {
             try {
                 await workflowsApi.deleteWorkflow(workflow.shortId);
                 navigate(-1);
-    
             } catch (error) {
-                const errorData =  error.response.data || `${error.response.status}: ${error.response.statusText}`;
+                const errorData = error.response.data || `${error.response.status}: ${error.response.statusText}`;
                 enqueueSnackbar({
                     message: errorData,
                     options: {
                         key: new Date().getTime() + Math.random(),
                         variant: 'error',
                         persist: true,
-                        action: key => (
-                            <Button style={{color: 'white'}} onClick={() => closeSnackbar(key)}>
+                        action: (key) => (
+                            <Button style={{ color: 'white' }} onClick={() => closeSnackbar(key)}>
                                 <IconX />
                             </Button>
-                        ),
-                    },
+                        )
+                    }
                 });
             }
         }
-    }
+    };
 
-    const handleSaveFlow = (workflowName) => {        
+    const handleSaveFlow = (workflowName) => {
         if (rfInstance) {
-
             setNodes((nds) =>
                 nds.map((node) => {
-                    node.data =  {
+                    node.data = {
                         ...node.data,
-                        selected: false,
+                        selected: false
                     };
                     return node;
                 })
@@ -385,7 +364,7 @@ const Canvas = () => {
 
             const rfInstanceObject = rfInstance.toObject();
             const flowData = JSON.stringify(rfInstanceObject);
-            
+
             if (!workflow.shortId) {
                 const newWorkflowBody = {
                     name: workflowName,
@@ -409,14 +388,14 @@ const Canvas = () => {
         setNodes((nds) =>
             nds.map((node) => {
                 if (node.id === clickedNode.id) {
-                    node.data =  {
+                    node.data = {
                         ...node.data,
-                        selected: true,
+                        selected: true
                     };
                 } else {
-                    node.data =  {
+                    node.data = {
                         ...node.data,
-                        selected: false,
+                        selected: false
                     };
                 }
 
@@ -437,20 +416,20 @@ const Canvas = () => {
                                 key: new Date().getTime() + Math.random(),
                                 variant: 'error',
                                 persist: true,
-                                action: key => (
-                                    <Button style={{color: 'white'}} onClick={() => closeSnackbar(key)}>
+                                action: (key) => (
+                                    <Button style={{ color: 'white' }} onClick={() => closeSnackbar(key)}>
                                         <IconX />
                                     </Button>
-                                ),
-                            },
+                                )
+                            }
                         });
                     } else {
                         if (node.data.label !== nodeLabel) {
                             setTimeout(() => setDirty(), 0);
                         }
-                        node.data =  {
+                        node.data = {
                             ...node.data,
-                            label: nodeLabel,
+                            label: nodeLabel
                         };
                     }
                 }
@@ -468,7 +447,7 @@ const Canvas = () => {
                     node.data = {
                         ...node.data,
                         ...nodeFlowData,
-                        selected: true,
+                        selected: true
                     };
                 }
                 return node;
@@ -480,7 +459,7 @@ const Canvas = () => {
         event.preventDefault();
         event.dataTransfer.dropEffect = 'move';
     }, []);
-    
+
     const onDrop = useCallback(
         (event) => {
             event.preventDefault();
@@ -495,20 +474,19 @@ const Canvas = () => {
             nodeData = JSON.parse(nodeData);
 
             // check if workflow contains multiple triggers/webhooks
-            if ((nodeData.type === 'webhook' || nodeData.type === 'trigger') && 
-              checkMultipleTriggers(rfInstance.getNodes())) {
+            if ((nodeData.type === 'webhook' || nodeData.type === 'trigger') && checkMultipleTriggers(rfInstance.getNodes())) {
                 enqueueSnackbar({
                     message: 'Workflow can only contains 1 trigger or webhook node',
                     options: {
                         key: new Date().getTime() + Math.random(),
                         variant: 'error',
                         persist: true,
-                        action: key => (
-                            <Button style={{color: 'white'}} onClick={() => closeSnackbar(key)}>
+                        action: (key) => (
+                            <Button style={{ color: 'white' }} onClick={() => closeSnackbar(key)}>
                                 <IconX />
                             </Button>
-                        ),
-                    },
+                        )
+                    }
                 });
                 return;
             }
@@ -517,15 +495,15 @@ const Canvas = () => {
 
             const position = rfInstance.project({
                 x: event.clientX - reactFlowBounds.left - 100,
-                y: event.clientY - reactFlowBounds.top - 50,
+                y: event.clientY - reactFlowBounds.top - 50
             });
 
             const newNodeId = getUniqueNodeId(nodeData, rfInstance.getNodes());
-         
+
             const newNode = {
                 id: newNodeId,
                 position,
-                type: "customNode",
+                type: 'customNode',
                 data: addAnchors(nodeData, rfInstance.getNodes(), newNodeId)
             };
 
@@ -533,14 +511,14 @@ const Canvas = () => {
             setNodes((nds) =>
                 nds.concat(newNode).map((node) => {
                     if (node.id === newNode.id) {
-                        node.data =  {
+                        node.data = {
                             ...node.data,
-                            selected: true,
+                            selected: true
                         };
                     } else {
-                        node.data =  {
+                        node.data = {
                             ...node.data,
-                            selected: false,
+                            selected: false
                         };
                     }
 
@@ -549,7 +527,7 @@ const Canvas = () => {
             );
             setTimeout(() => setDirty(), 0);
         },
-        
+
         // eslint-disable-next-line
         [rfInstance]
     );
@@ -561,18 +539,18 @@ const Canvas = () => {
             options: {
                 key: new Date().getTime() + Math.random(),
                 variant: 'success',
-                action: key => (
-                    <Button style={{color: 'white'}} onClick={() => closeSnackbar(key)}>
+                action: (key) => (
+                    <Button style={{ color: 'white' }} onClick={() => closeSnackbar(key)}>
                         <IconX />
                     </Button>
-                ),
-            },
+                )
+            }
         });
     };
 
     const setDirty = () => {
         dispatch({ type: SET_DIRTY });
-    }
+    };
 
     // ==============================|| useEffect ||============================== //
 
@@ -584,12 +562,10 @@ const Canvas = () => {
             setNodes(initialFlow.nodes || []);
             setEdges(initialFlow.edges || []);
             dispatch({ type: SET_WORKFLOW, workflow });
-
         }
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [getSpecificWorkflowApi.data]);
-
 
     // Create new workflow successful
     useEffect(() => {
@@ -597,12 +573,11 @@ const Canvas = () => {
             const workflow = createNewWorkflowApi.data;
             dispatch({ type: SET_WORKFLOW, workflow });
             saveWorkflowSuccess();
-            window.history.replaceState(null, null, `/canvas/${workflow.shortId}`)
+            window.history.replaceState(null, null, `/canvas/${workflow.shortId}`);
         }
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [createNewWorkflowApi.data]);
-
 
     // Update workflow successful
     useEffect(() => {
@@ -614,7 +589,6 @@ const Canvas = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [updateWorkflowApi.data]);
 
-
     // Test workflow failed
     useEffect(() => {
         if (testWorkflowApi.error) {
@@ -624,30 +598,28 @@ const Canvas = () => {
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
                     persist: true,
-                    action: key => (
-                        <Button style={{color: 'white'}} onClick={() => closeSnackbar(key)}>
+                    action: (key) => (
+                        <Button style={{ color: 'white' }} onClick={() => closeSnackbar(key)}>
                             <IconX />
                         </Button>
-                    ),
-                },
+                    )
+                }
             });
         }
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [testWorkflowApi.error]);
 
-
     // Listen to edge button click remove redux event
     useEffect(() => {
         if (rfInstance) {
             const edges = rfInstance.getEdges();
-            setEdges(edges.filter(edge => edge.id !== canvasDataStore.removeEdgeId));
+            setEdges(edges.filter((edge) => edge.id !== canvasDataStore.removeEdgeId));
             setDirty();
         }
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [canvasDataStore.removeEdgeId]);
-
 
     useEffect(() => setWorkflow(canvasDataStore.workflow), [canvasDataStore.workflow]);
 
@@ -658,143 +630,138 @@ const Canvas = () => {
 
         if (workflowShortId) {
             getSpecificWorkflowApi.request(workflowShortId);
-
         } else {
             setNodes([]);
             setEdges([]);
-            dispatch({ 
-                type: SET_WORKFLOW, 
+            dispatch({
+                type: SET_WORKFLOW,
                 workflow: {
-                    name: 'Untitled workflow',
+                    name: 'Untitled workflow'
                 }
             });
         }
 
         getNodesApi.request();
-     
+
         // Clear dirty state before leaving and remove any ongoing test triggers and webhooks
         return () => {
             removeTestTriggersApi.request();
             deleteAllTestWebhooksApi.request();
 
             setTimeout(() => dispatch({ type: REMOVE_DIRTY }), 0);
-        }
+        };
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-
     useEffect(() => {
-        setCanvasDataStore(canvas)
+        setCanvasDataStore(canvas);
     }, [canvas]);
 
-    usePrompt( 'You have unsaved changes! Do you want to navigate away?', canvasDataStore.isDirty );
-    
+    usePrompt('You have unsaved changes! Do you want to navigate away?', canvasDataStore.isDirty);
+
     return (
-    <>
-        <Box>
-            <AppBar
-                enableColorOnDark
-                position="fixed"
-                color="inherit"
-                elevation={1}
-                sx={{
-                    bgcolor: theme.palette.background.default,
-                }}
-            >
-                <Toolbar>
-                    <CanvasHeader 
-                        workflow={workflow} 
-                        handleSaveFlow={handleSaveFlow} 
-                        handleDeployWorkflow={handleDeployWorkflow}
-                        handleStopWorkflow={handleStopWorkflow}
-                        handleDeleteWorkflow={handleDeleteWorkflow}
-                        handleLoadWorkflow={handleLoadWorkflow}
-                    />
-                </Toolbar>
-            </AppBar>
-            <Box sx={{ marginTop: '70px', height: '90vh', width: '100%' }} >
-                <div className="reactflow-parent-wrapper">
-                    <ReactFlowProvider>
-                        <div className="reactflow-wrapper" ref={reactFlowWrapper}>
-                            <ReactFlow
-                                nodes={nodes}
-                                edges={edges}
-                                onNodesChange={onNodesChange}
-                                onNodeDoubleClick={onNodeDoubleClick}
-                                onEdgesChange={onEdgesChange}
-                                onDrop={onDrop}
-                                onDragOver={onDragOver}
-                                onNodeDragStop={setDirty}
-                                nodeTypes={nodeTypes}
-                                edgeTypes={edgeTypes}
-                                onConnect={onConnect}
-                                onInit={setRfInstance}
-                                fitView
-                            >
-                                <MiniMap
-                                    nodeStrokeColor={() => theme.palette.primary.main }
-                                    nodeColor={() => theme.palette.primary.main }
-                                    nodeBorderRadius={2}
-                                />
-                                <Controls 
-                                    style={{
-                                        display: 'flex',
-                                        flexDirection: 'row',
-                                        left: '50%',
-                                        transform: 'translate(-50%, -50%)'
-                                    }}
-                                />
-                                <Background color="#aaa" gap={16} />
-                                <AddNodes 
-                                    nodesData={getNodesApi.data} 
-                                    node={selectedNode} 
-                                />
-                                <EditNodes 
-                                    nodes={nodes} 
-                                    edges={edges} 
-                                    node={selectedNode} 
-                                    workflow={workflow} 
-                                    onNodeLabelUpdate={onNodeLabelUpdate} 
-                                    onNodeValuesUpdate={onNodeValuesUpdate} 
-                                />
-                                <Fab 
-                                    sx={{ position: 'absolute', right: 20, top: 20,}} 
-                                    size="small" 
-                                    color="warning"
-                                    aria-label="test" 
-                                    title="Test Workflow"
-                                    disabled={isTestingWorkflow}
-                                    onClick={handleTestWorkflow}
+        <>
+            <Box>
+                <AppBar
+                    enableColorOnDark
+                    position="fixed"
+                    color="inherit"
+                    elevation={1}
+                    sx={{
+                        bgcolor: theme.palette.background.default
+                    }}
+                >
+                    <Toolbar>
+                        <CanvasHeader
+                            workflow={workflow}
+                            handleSaveFlow={handleSaveFlow}
+                            handleDeployWorkflow={handleDeployWorkflow}
+                            handleStopWorkflow={handleStopWorkflow}
+                            handleDeleteWorkflow={handleDeleteWorkflow}
+                            handleLoadWorkflow={handleLoadWorkflow}
+                        />
+                    </Toolbar>
+                </AppBar>
+                <Box sx={{ marginTop: '70px', height: '90vh', width: '100%' }}>
+                    <div className="reactflow-parent-wrapper">
+                        <ReactFlowProvider>
+                            <div className="reactflow-wrapper" ref={reactFlowWrapper}>
+                                <ReactFlow
+                                    nodes={nodes}
+                                    edges={edges}
+                                    onNodesChange={onNodesChange}
+                                    onNodeDoubleClick={onNodeDoubleClick}
+                                    onEdgesChange={onEdgesChange}
+                                    onDrop={onDrop}
+                                    onDragOver={onDragOver}
+                                    onNodeDragStop={setDirty}
+                                    nodeTypes={nodeTypes}
+                                    edgeTypes={edgeTypes}
+                                    onConnect={onConnect}
+                                    onInit={setRfInstance}
+                                    fitView
                                 >
-                                    {<IconBolt />}
-                                </Fab>
-                                {isTestingWorkflow && (
-                                    <CircularProgress
-                                        size={50}
-                                        sx={{
-                                            color: theme.palette.warning.dark,
-                                            position: 'absolute',
-                                            right: 15,
-                                            top: 15,
+                                    <MiniMap
+                                        nodeStrokeColor={() => theme.palette.primary.main}
+                                        nodeColor={() => theme.palette.primary.main}
+                                        nodeBorderRadius={2}
+                                    />
+                                    <Controls
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            left: '50%',
+                                            transform: 'translate(-50%, -50%)'
                                         }}
                                     />
-                                )}
-                            </ReactFlow>
-                        </div>
-                    </ReactFlowProvider>
-                </div>
+                                    <Background color="#aaa" gap={16} />
+                                    <AddNodes nodesData={getNodesApi.data} node={selectedNode} />
+                                    <EditNodes
+                                        nodes={nodes}
+                                        edges={edges}
+                                        node={selectedNode}
+                                        workflow={workflow}
+                                        onNodeLabelUpdate={onNodeLabelUpdate}
+                                        onNodeValuesUpdate={onNodeValuesUpdate}
+                                    />
+                                    <Fab
+                                        sx={{ position: 'absolute', right: 20, top: 20 }}
+                                        size="small"
+                                        color="warning"
+                                        aria-label="test"
+                                        title="Test Workflow"
+                                        disabled={isTestingWorkflow}
+                                        onClick={handleTestWorkflow}
+                                    >
+                                        {<IconBolt />}
+                                    </Fab>
+                                    {isTestingWorkflow && (
+                                        <CircularProgress
+                                            size={50}
+                                            sx={{
+                                                color: theme.palette.warning.dark,
+                                                position: 'absolute',
+                                                right: 15,
+                                                top: 15
+                                            }}
+                                        />
+                                    )}
+                                </ReactFlow>
+                            </div>
+                        </ReactFlowProvider>
+                    </div>
+                </Box>
+                <ConfirmDialog />
+                <TestWorkflowDialog
+                    show={isTestWorkflowDialogOpen}
+                    dialogProps={testWorkflowDialogProps}
+                    onCancel={() => setTestWorkflowDialogOpen(false)}
+                    onItemClick={onStartingPointClick}
+                />
             </Box>
-            <ConfirmDialog />
-            <TestWorkflowDialog
-                show={isTestWorkflowDialogOpen}
-                dialogProps={testWorkflowDialogProps}
-                onCancel={() => setTestWorkflowDialogOpen(false)}
-                onItemClick={onStartingPointClick}
-            />
-        </Box>
-    </>
-  );
+        </>
+    );
 };
 
 export default Canvas;

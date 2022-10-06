@@ -24,13 +24,10 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
     boxShadow: '0 2px 14px 0 rgb(32 40 45 / 8%)',
     '&:hover': {
         borderColor: theme.palette.primary.main
-    },
+    }
 }));
 
-const handlerPosition = [
-    [['50%']],
-    [['30%'], ['70%']],
-];
+const handlerPosition = [[['50%']], [['30%'], ['70%']]];
 
 // ===========================|| CANVAS NODE ||=========================== //
 
@@ -39,11 +36,11 @@ const CanvasNode = ({ data }) => {
 
     return (
         <>
-            <CardWrapper 
-                content={false} 
+            <CardWrapper
+                content={false}
                 sx={{
                     borderColor: data.selected ? theme.palette.primary.main : theme.palette.text.secondary
-                }} 
+                }}
                 border={false}
             >
                 {data && data.outputResponses && data.outputResponses.submit && (
@@ -63,7 +60,7 @@ const CanvasNode = ({ data }) => {
                         <IconCheck />
                     </Avatar>
                 )}
-                
+
                 {data && data.outputResponses && data.outputResponses.needRetest && (
                     <Avatar
                         variant="rounded"
@@ -81,25 +78,25 @@ const CanvasNode = ({ data }) => {
                         <IconExclamationMark />
                     </Avatar>
                 )}
-              
+
                 <Box>
                     {data.inputAnchors.map((inputAnchor, index) => (
-                        <Handle 
+                        <Handle
                             type="target"
-                            position={Position.Top} 
-                            key={inputAnchor.id} 
-                            id={inputAnchor.id} 
-                            style={{ 
+                            position={Position.Top}
+                            key={inputAnchor.id}
+                            id={inputAnchor.id}
+                            style={{
                                 height: 15,
                                 width: 15,
                                 top: -7.5,
                                 backgroundColor: data.selected ? theme.palette.primary.main : theme.palette.text.secondary,
-                                left: handlerPosition[data.inputAnchors.length-1][index]
-                            }} 
+                                left: handlerPosition[data.inputAnchors.length - 1][index]
+                            }}
                         />
                     ))}
-                    <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
-                        <Box item style={{width: 50, marginRight: 10}}>
+                    <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                        <Box item style={{ width: 50, marginRight: 10 }}>
                             <div
                                 style={{
                                     ...theme.typography.commonAvatar,
@@ -108,14 +105,18 @@ const CanvasNode = ({ data }) => {
                                     cursor: 'grab'
                                 }}
                             >
-                                <img style={{ width: '100%', height: '100%' }} src={`${baseURL}/api/v1/node-icon/${data.name}`} alt="Notification" />
+                                <img
+                                    style={{ width: '100%', height: '100%' }}
+                                    src={`${baseURL}/api/v1/node-icon/${data.name}`}
+                                    alt="Notification"
+                                />
                             </div>
                         </Box>
                         <Box>
                             <Typography
                                 sx={{
                                     fontSize: '1rem',
-                                    fontWeight: 500,
+                                    fontWeight: 500
                                 }}
                             >
                                 {data.label}
@@ -123,18 +124,18 @@ const CanvasNode = ({ data }) => {
                         </Box>
                     </div>
                     {data.outputAnchors.map((outputAnchor, index) => (
-                        <Handle 
-                            type="source" 
-                            position={Position.Bottom} 
-                            key={outputAnchor.id} 
-                            id={outputAnchor.id} 
-                            style={{ 
+                        <Handle
+                            type="source"
+                            position={Position.Bottom}
+                            key={outputAnchor.id}
+                            id={outputAnchor.id}
+                            style={{
                                 height: 15,
                                 width: 15,
                                 bottom: -7.5,
                                 backgroundColor: data.selected ? theme.palette.primary.main : theme.palette.text.secondary,
-                                left: handlerPosition[data.outputAnchors.length-1][index] 
-                            }} 
+                                left: handlerPosition[data.outputAnchors.length - 1][index]
+                            }}
                         />
                     ))}
                 </Box>
@@ -144,7 +145,7 @@ const CanvasNode = ({ data }) => {
 };
 
 CanvasNode.propTypes = {
-    data: PropTypes.object,
+    data: PropTypes.object
 };
 
 export default CanvasNode;

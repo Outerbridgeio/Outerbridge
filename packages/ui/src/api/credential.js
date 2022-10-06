@@ -1,12 +1,12 @@
-import client from "./client";
+import client from './client';
 
-const getCredentials = (nodeCredentialName) => client.get("/credentials", { params: { nodeCredentialName } });
+const getCredentials = (nodeCredentialName) => client.get('/credentials', { params: { nodeCredentialName } });
 
 const getCredentialParams = (name) => client.get(`/node-credentials/${name}`);
 
 const getSpecificCredential = (id, isEncrypted) => client.get(`/credentials/${id}`, { params: { isEncrypted } });
 
-const createNewCredential = (credentialBody) => client.post(`/credentials`, credentialBody); //credentialBody: ICredential 
+const createNewCredential = (credentialBody) => client.post(`/credentials`, credentialBody); //credentialBody: ICredential
 
 const updateCredential = (id, credentialBody) => client.put(`/credentials/${id}`, credentialBody); //credentialBody: ICredential
 
@@ -18,5 +18,5 @@ export default {
     getSpecificCredential,
     createNewCredential,
     updateCredential,
-    deleteCredential,
+    deleteCredential
 };

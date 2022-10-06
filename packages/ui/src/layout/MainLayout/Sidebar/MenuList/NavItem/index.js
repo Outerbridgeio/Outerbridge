@@ -51,11 +51,10 @@ const NavItem = ({ item, level, navType, onClick, onUploadFile }) => {
     }
 
     const handleFileUpload = (e) => {
-
-        if (!e.target.files)  return;
+        if (!e.target.files) return;
 
         const file = e.target.files[0];
-    
+
         const reader = new FileReader();
         reader.onload = (evt) => {
             if (!evt?.target?.result) {
@@ -70,7 +69,6 @@ const NavItem = ({ item, level, navType, onClick, onUploadFile }) => {
     const itemHandler = (id) => {
         if (navType === 'SETTINGS' && id !== 'loadWorkflow') {
             onClick(id);
-
         } else {
             dispatch({ type: MENU_OPEN, id });
             if (matchesSM) dispatch({ type: SET_MENU, opened: false });
@@ -86,7 +84,7 @@ const NavItem = ({ item, level, navType, onClick, onUploadFile }) => {
                 .findIndex((id) => id === item.id);
             if (currentIndex > -1) {
                 dispatch({ type: MENU_OPEN, id: item.id });
-            } 
+            }
             if (!document.location.pathname.toString().split('/')[1]) {
                 itemHandler('workflows');
             }
@@ -110,13 +108,7 @@ const NavItem = ({ item, level, navType, onClick, onUploadFile }) => {
             selected={customization.isOpen.findIndex((id) => id === item.id) > -1}
             onClick={() => itemHandler(item.id)}
         >
-            {item.id === 'loadWorkflow' && 
-            <input
-                type="file"
-                hidden
-                accept=".json"
-                onChange={(e) => handleFileUpload(e)}
-            />}
+            {item.id === 'loadWorkflow' && <input type="file" hidden accept=".json" onChange={(e) => handleFileUpload(e)} />}
             <ListItemIcon sx={{ my: 'auto', minWidth: !item?.icon ? 18 : 36 }}>{itemIcon}</ListItemIcon>
             <ListItemText
                 primary={
