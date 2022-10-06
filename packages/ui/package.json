@@ -54,11 +54,6 @@
         "test": "react-scripts test",
         "eject": "react-scripts eject"
     },
-    "eslintConfig": {
-        "extends": [
-            "react-app"
-        ]
-    },
     "babel": {
         "presets": [
             "@babel/preset-react"
