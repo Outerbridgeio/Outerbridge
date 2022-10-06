@@ -104,10 +104,6 @@ const AsyncSelectWrapper = ({
                 if (displayOptions) {
                     Object.keys(displayOptions).forEach((path) => {
                         const comparisonValue = displayOptions[path];
-
-                        if (path.includes("$index")) {
-                            path = path.replace("$index", index);
-                        }
                         const groundValue = lodash.get(nodeFlowData, path, '');
 
                         if (Array.isArray(comparisonValue)) {
