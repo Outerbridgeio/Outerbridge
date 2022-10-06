@@ -4,7 +4,14 @@
         "browser": true,
         "es2021": true
     },
-    "extends": ["prettier", "plugin:react/jsx-runtime", "plugin:jsx-a11y/recommended", "plugin:react-hooks/recommended", "react-app"],
+    "extends": [
+        "prettier",
+        "plugin:react/jsx-runtime",
+        "plugin:jsx-a11y/recommended",
+        "plugin:react-hooks/recommended",
+        "react-app",
+        "plugin:prettier/recommended"
+    ],
     "parser": "@babel/eslint-parser",
     "parserOptions": {
         "ecmaFeatures": {
@@ -13,7 +20,7 @@
         },
         "ecmaVersion": 12
     },
-    "plugins": ["prettier", "react", "react-hooks"],
+    "plugins": ["react", "react-hooks"],
     "rules": {
         "react/jsx-filename-extension": 0,
         "no-param-reassign": 0,
@@ -32,6 +39,12 @@
             1,
             {
                 "ignoreRestSiblings": false
+            }
+        ],
+        "prettier/prettier": [
+            "error",
+            {
+                "endOfLine": "auto"
             }
         ]
     }

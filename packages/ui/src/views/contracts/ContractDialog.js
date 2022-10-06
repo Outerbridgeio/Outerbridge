@@ -2,10 +2,7 @@ import { createPortal } from 'react-dom';
 import PropTypes from 'prop-types';
 import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { 
-    enqueueSnackbar as enqueueSnackbarAction,
-    closeSnackbar as closeSnackbarAction,
-} from 'store/actions';
+import { enqueueSnackbar as enqueueSnackbarAction, closeSnackbar as closeSnackbarAction } from 'store/actions';
 
 import {
     Avatar,
@@ -16,13 +13,13 @@ import {
     Divider,
     Chip,
     Typography,
-    Button, 
-    Dialog, 
+    Button,
+    Dialog,
     DialogActions,
-    DialogContent, 
+    DialogContent,
     DialogTitle,
     Stack,
-    IconButton,
+    IconButton
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useTheme } from '@mui/material/styles';
@@ -41,25 +38,19 @@ import EditVariableDialog from 'ui-component/dialog/EditVariableDialog';
 import { IconExclamationMark, IconCheck, IconX, IconArrowUpRightCircle, IconCopy } from '@tabler/icons';
 
 // API
-import contractsApi from "api/contracts";
+import contractsApi from 'api/contracts';
 
 // Hooks
-import useApi from "hooks/useApi";
+import useApi from 'hooks/useApi';
 
 // Const
-import { contract_details, networks, networkExplorers } from "store/constant";
+import { contract_details, networks, networkExplorers } from 'store/constant';
 
 // utils
 import { handleCredentialParams, initializeNodeData } from 'utils/genericHelper';
 import useNotifier from 'utils/useNotifier';
 
-const ContractDialog = ({
-    show,
-    dialogProps,
-    onCancel,
-    onConfirm
-}) => {
-
+const ContractDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
     const portalElement = document.getElementById('portal');
 
     const theme = useTheme();
@@ -85,7 +76,7 @@ const ContractDialog = ({
     const contractParamsType = ['networks', 'credentials', 'contractInfo'];
 
     const getSpecificContractApi = useApi(contractsApi.getSpecificContract);
-    
+
     const handleAccordionChange = (expanded) => (event, isExpanded) => {
         setExpanded(isExpanded ? expanded : false);
     };
@@ -99,10 +90,10 @@ const ContractDialog = ({
         setInvalidABI('');
         setIsReadyToAdd(false);
         setExpanded(false);
-    }
+    };
 
     const checkIsReadyToAdd = () => {
-        for (let i = 0; i < contractParamsType.length; i+= 1) {
+        for (let i = 0; i < contractParamsType.length; i += 1) {
             const paramType = contractParamsType[i];
             if (!contractData[paramType] || !contractData[paramType].submit) {
                 setIsReadyToAdd(false);
@@ -120,20 +111,20 @@ const ContractDialog = ({
             cancelButtonName: 'Cancel',
             confirmButtonName: 'Save',
             hideVariables: true
-        }
+        };
 
         setEditVariableDialogProps(dialogProps);
         setEditVariableDialog(true);
-    }
+    };
 
-    const addNewContract = async() => {
+    const addNewContract = async () => {
         const createNewContractBody = {
             network: contractData.networks.network,
             name: contractData.contractInfo.name,
             abi: contractData.contractInfo.abi,
             address: contractData.contractInfo.address,
             providerCredential: JSON.stringify(contractData.credentials)
-        }
+        };
         const createResp = await contractsApi.createNewContract(createNewContractBody);
         if (createResp.data) {
             enqueueSnackbar({
@@ -141,12 +132,12 @@ const ContractDialog = ({
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'success',
-                    action: key => (
-                        <Button style={{color: 'white'}} onClick={() => closeSnackbar(key)}>
+                    action: (key) => (
+                        <Button style={{ color: 'white' }} onClick={() => closeSnackbar(key)}>
                             <IconX />
                         </Button>
-                    ),
-                },
+                    )
+                }
             });
             onConfirm();
         } else {
@@ -156,25 +147,25 @@ const ContractDialog = ({
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
                     persist: true,
-                    action: key => (
-                        <Button style={{color: 'white'}} onClick={() => closeSnackbar(key)}>
+                    action: (key) => (
+                        <Button style={{ color: 'white' }} onClick={() => closeSnackbar(key)}>
                             <IconX />
                         </Button>
-                    ),
-                },
+                    )
+                }
             });
             onCancel();
         }
-    }
+    };
 
-    const saveContract = async() => {
+    const saveContract = async () => {
         const saveContractBody = {
             network: contractData.networks.network,
             name: contractData.contractInfo.name,
             abi: contractData.contractInfo.abi,
             address: contractData.contractInfo.address,
             providerCredential: JSON.stringify(contractData.credentials)
-        }
+        };
         const saveResp = await contractsApi.updateContract(dialogProps.id, saveContractBody);
         if (saveResp.data) {
             enqueueSnackbar({
@@ -182,12 +173,12 @@ const ContractDialog = ({
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'success',
-                    action: key => (
-                        <Button style={{color: 'white'}} onClick={() => closeSnackbar(key)}>
+                    action: (key) => (
+                        <Button style={{ color: 'white' }} onClick={() => closeSnackbar(key)}>
                             <IconX />
                         </Button>
-                    ),
-                },
+                    )
+                }
             });
             onConfirm();
         } else {
@@ -197,18 +188,18 @@ const ContractDialog = ({
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
                     persist: true,
-                    action: key => (
-                        <Button style={{color: 'white'}} onClick={() => closeSnackbar(key)}>
+                    action: (key) => (
+                        <Button style={{ color: 'white' }} onClick={() => closeSnackbar(key)}>
                             <IconX />
                         </Button>
-                    ),
-                },
+                    )
+                }
             });
             onCancel();
         }
-    }
+    };
 
-    const deleteContract = async() => {
+    const deleteContract = async () => {
         const deleteResp = await contractsApi.deleteContract(dialogProps.id);
         if (deleteResp.data) {
             enqueueSnackbar({
@@ -216,12 +207,12 @@ const ContractDialog = ({
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'success',
-                    action: key => (
-                        <Button style={{color: 'white'}} onClick={() => closeSnackbar(key)}>
+                    action: (key) => (
+                        <Button style={{ color: 'white' }} onClick={() => closeSnackbar(key)}>
                             <IconX />
                         </Button>
-                    ),
-                },
+                    )
+                }
             });
             onConfirm();
         } else {
@@ -231,18 +222,18 @@ const ContractDialog = ({
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
                     persist: true,
-                    action: key => (
-                        <Button style={{color: 'white'}} onClick={() => closeSnackbar(key)}>
+                    action: (key) => (
+                        <Button style={{ color: 'white' }} onClick={() => closeSnackbar(key)}>
                             <IconX />
                         </Button>
-                    ),
-                },
+                    )
+                }
             });
             onCancel();
         }
-    }
+    };
 
-    const fetchABI = async(formValues, paramsType) => {
+    const fetchABI = async (formValues, paramsType) => {
         const selectedNetwork = networks.find((network) => network.name === contractData.networks.network);
         if (!selectedNetwork) return;
 
@@ -252,13 +243,13 @@ const ContractDialog = ({
                 ...contractData.networks,
                 uri: selectedNetwork.uri || ''
             }
-        }
+        };
 
         const resp = await contractsApi.getContractABI(body);
         if (!resp.data) {
             const updateContractData = {
                 ...contractData,
-                [paramsType]: {...formValues, submit: null}
+                [paramsType]: { ...formValues, submit: null }
             };
             setContractData(updateContractData);
             setInvalidABI('Unable to fetch ABI');
@@ -273,8 +264,8 @@ const ContractDialog = ({
             setInvalidABI('');
             return abi === 'Invalid API Key' ? undefined : abi;
         }
-    }
-    
+    };
+
     const valueChanged = (formValues, paramsType) => {
         const updateContractData = {
             ...contractData,
@@ -283,23 +274,22 @@ const ContractDialog = ({
 
         const index = contractParamsType.indexOf(paramsType);
         if (index >= 0 && index !== contractParamsType.length - 1) {
-            for (let i = index+1; i < contractParamsType.length; i+= 1) {
+            for (let i = index + 1; i < contractParamsType.length; i += 1) {
                 const paramType = contractParamsType[i];
                 if (updateContractData[paramType]) updateContractData[paramType].submit = null;
             }
         }
-        
+
         setContractData(updateContractData);
     };
 
     const paramsChanged = (formParams, paramsType) => {
-
-        // Because formParams options can be changed due to show hide options, 
+        // Because formParams options can be changed due to show hide options,
         // To avoid that, replace with original details options
 
         const credentialMethodParam = formParams.find((param) => param.name === 'credentialMethod');
         const credentialMethodParamIndex = formParams.findIndex((param) => param.name === 'credentialMethod');
-        
+
         if (credentialMethodParam !== undefined) {
             const originalParam = contractDetails[paramsType].find((param) => param.name === 'credentialMethod');
             if (originalParam !== undefined) {
@@ -314,7 +304,7 @@ const ContractDialog = ({
         setContractDetails(updateContractDetails);
     };
 
-    const onSubmit = async(formValues, paramsType) => {
+    const onSubmit = async (formValues, paramsType) => {
         if (formValues.address) {
             if (ethers.utils.isAddress(formValues.address)) {
                 setInvalidAddress(false);
@@ -333,16 +323,15 @@ const ContractDialog = ({
                 } else {
                     const updateContractData = {
                         ...contractData,
-                        [paramsType]: {...formValues, submit: null}
+                        [paramsType]: { ...formValues, submit: null }
                     };
                     setContractData(updateContractData);
                 }
-            }
-            else {
+            } else {
                 setInvalidAddress(true);
                 const updateContractData = {
                     ...contractData,
-                    [paramsType]: {...formValues, submit: null}
+                    [paramsType]: { ...formValues, submit: null }
                 };
                 setContractData(updateContractData);
             }
@@ -356,16 +345,15 @@ const ContractDialog = ({
 
         const index = contractParamsType.indexOf(paramsType);
         if (index >= 0 && index !== contractParamsType.length - 1) {
-            setExpanded(contractParamsType[index+1]);
+            setExpanded(contractParamsType[index + 1]);
         }
     };
 
     const showHideOptions = (displayType, options) => {
-       
         let returnOptions = options;
         const toBeDeleteOptions = [];
 
-        for (let i = 0; i < returnOptions.length; i+= 1) {
+        for (let i = 0; i < returnOptions.length; i += 1) {
             const option = returnOptions[i];
             const displayOptions = option[displayType];
 
@@ -385,31 +373,30 @@ const ContractDialog = ({
             }
         }
 
-        for (let i = 0; i < toBeDeleteOptions.length; i+= 1) {
+        for (let i = 0; i < toBeDeleteOptions.length; i += 1) {
             returnOptions = returnOptions.filter((opt) => JSON.stringify(opt) !== JSON.stringify(toBeDeleteOptions[i]));
         }
 
         return returnOptions;
-    }
+    };
 
     const displayOptions = (params) => {
-      
         let clonedParams = params;
 
-        for (let i = 0; i < clonedParams.length; i+= 1) {
+        for (let i = 0; i < clonedParams.length; i += 1) {
             const input = clonedParams[i];
             if (input.type === 'options') {
                 input.options = showHideOptions('show', input.options);
                 input.options = showHideOptions('hide', input.options);
             }
         }
-      
+
         return clonedParams;
     };
 
     const setYupValidation = (params) => {
         const validationSchema = {};
-        for (let i = 0; i < params.length; i+= 1) {
+        for (let i = 0; i < params.length; i += 1) {
             const input = params[i];
             if (input.type === 'string' && !input.optional) {
                 validationSchema[input.name] = Yup.string().required(`${input.label} is required. Type: ${input.type}`);
@@ -423,18 +410,17 @@ const ContractDialog = ({
     };
 
     const initializeFormValuesAndParams = (paramsType) => {
-
         const initialValues = {};
         let contractParams = displayOptions(lodash.cloneDeep(contractDetails[paramsType] || []));
         contractParams = handleCredentialParams(contractParams, paramsType, contractDetails[paramsType], contractData);
-       
-        for (let i = 0; i < contractParams.length; i+= 1) {
+
+        for (let i = 0; i < contractParams.length; i += 1) {
             const input = contractParams[i];
 
             // Load from contractData values
             if (paramsType in contractData && input.name in contractData[paramsType]) {
                 initialValues[input.name] = contractData[paramsType][input.name];
-         
+
                 // Check if option value is still available from the list of options
                 if (input.type === 'options') {
                     const optionVal = input.options.find((option) => option.name === initialValues[input.name]);
@@ -445,9 +431,9 @@ const ContractDialog = ({
                 initialValues[input.name] = input.default || '';
             }
         }
-        
+
         initialValues.submit = null;
-        
+
         setContractValues(initialValues);
         setContractValidation(setYupValidation(contractParams));
         setContractParams(contractParams);
@@ -458,7 +444,7 @@ const ContractDialog = ({
             networks: {},
             credentials: {},
             contractInfo: {}
-        }
+        };
 
         if (contractResponseData) {
             contractData.networks = { network: contractResponseData.network, submit: true };
@@ -466,8 +452,8 @@ const ContractDialog = ({
             if (contractResponseData.providerCredential) {
                 try {
                     contractData.credentials = JSON.parse(contractResponseData.providerCredential);
-                } catch(e) { 
-                    console.error(e); 
+                } catch (e) {
+                    console.error(e);
                 }
             }
         } else {
@@ -476,7 +462,7 @@ const ContractDialog = ({
             contractData.contractInfo = initializeNodeData(contractDetails.contractInfo);
         }
         return contractData;
-    }
+    };
 
     // Get Contract Details from API
     useEffect(() => {
@@ -485,9 +471,7 @@ const ContractDialog = ({
             setContractData(transformContractResponse(contractResponseData));
             setExpanded('networks');
         }
-
-    }, [getSpecificContractApi.data]); 
-
+    }, [getSpecificContractApi.data]);
 
     // Initialization
     useEffect(() => {
@@ -495,16 +479,14 @@ const ContractDialog = ({
             reset();
             setContractData(transformContractResponse(null, contractDetails));
             setExpanded('networks');
-
         } else if (show && dialogProps.type === 'EDIT' && dialogProps.id) {
             reset();
             getSpecificContractApi.request(dialogProps.id);
         }
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [show, dialogProps]); 
+    }, [show, dialogProps]);
 
-    
     // Initialize Parameters Initial Values & Validation
     useEffect(() => {
         if (contractDetails && contractData && expanded) {
@@ -515,65 +497,87 @@ const ContractDialog = ({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [contractDetails, contractData, expanded]);
 
-
     const component = show ? (
-        <Dialog
-            open={show}
-            onClose={onCancel}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-        >
+        <Dialog open={show} onClose={onCancel} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
             <DialogTitle sx={{ fontSize: '1rem' }} id="alert-dialog-title">
                 {dialogProps.title}
             </DialogTitle>
             <DialogContent>
+                {dialogProps.type === 'ADD' && (
+                    <Chip
+                        sx={{ mb: 1 }}
+                        icon={<IconExclamationMark />}
+                        label="You can only add contract which has been publicly verified"
+                        color="warning"
+                    />
+                )}
 
-                {dialogProps.type === 'ADD' && <Chip sx={{mb: 1}} icon={<IconExclamationMark />} label="You can only add contract which has been publicly verified" color="warning" />}
-                
-                {contractData && contractData.contractInfo && contractData.contractInfo.address && dialogProps.type === 'EDIT' && 
-                <Box sx={{ p: 2 }}>
-                    <Typography sx={{ p: 1 }} variant="overline">ADDRESS</Typography>
-                    <Stack direction="row" sx={{ p: 1 }}>
-                        <Typography sx={{ p: 1, borderRadius: 10, backgroundColor: theme.palette.primary.light, width: 'max-content', height: 'max-content' }} variant="h5">{contractData.contractInfo.address}</Typography>
-                        <IconButton title="Copy Address" color="primary" onClick={() => navigator.clipboard.writeText(contractData.contractInfo.address)}>
-                            <IconCopy />
-                        </IconButton>
-                        <IconButton title="Open in Block Explorer" color="primary" onClick={() => window.open(`${networkExplorers[contractData.networks.network]}/address/${contractData.contractInfo.address}`, "_blank")}>
-                            <IconArrowUpRightCircle />
-                        </IconButton>
-                    </Stack>
-                </Box>}
+                {contractData && contractData.contractInfo && contractData.contractInfo.address && dialogProps.type === 'EDIT' && (
+                    <Box sx={{ p: 2 }}>
+                        <Typography sx={{ p: 1 }} variant="overline">
+                            ADDRESS
+                        </Typography>
+                        <Stack direction="row" sx={{ p: 1 }}>
+                            <Typography
+                                sx={{
+                                    p: 1,
+                                    borderRadius: 10,
+                                    backgroundColor: theme.palette.primary.light,
+                                    width: 'max-content',
+                                    height: 'max-content'
+                                }}
+                                variant="h5"
+                            >
+                                {contractData.contractInfo.address}
+                            </Typography>
+                            <IconButton
+                                title="Copy Address"
+                                color="primary"
+                                onClick={() => navigator.clipboard.writeText(contractData.contractInfo.address)}
+                            >
+                                <IconCopy />
+                            </IconButton>
+                            <IconButton
+                                title="Open in Block Explorer"
+                                color="primary"
+                                onClick={() =>
+                                    window.open(
+                                        `${networkExplorers[contractData.networks.network]}/address/${contractData.contractInfo.address}`,
+                                        '_blank'
+                                    )
+                                }
+                            >
+                                <IconArrowUpRightCircle />
+                            </IconButton>
+                        </Stack>
+                    </Box>
+                )}
 
                 {/* networks */}
                 <Box sx={{ p: 2 }}>
                     <Accordion expanded={expanded === 'networks'} onChange={handleAccordionChange('networks')}>
-                        <AccordionSummary
-                            expandIcon={<ExpandMoreIcon />}
-                            aria-controls="networks-content"
-                            id="networks-header" 
-                        >
-                            <Typography variant="h4">
-                                Networks
-                            </Typography>
-                            {contractData && contractData.networks && contractData.networks.submit &&
-                            (<Avatar
-                                variant="rounded"
-                                sx={{
-                                    ...theme.typography.smallAvatar,
-                                    borderRadius: '50%',
-                                    background: theme.palette.success.dark,
-                                    color: 'white',
-                                    ml: 2
-                                }}
-                            >
-                                <IconCheck />
-                            </Avatar>)}
+                        <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="networks-content" id="networks-header">
+                            <Typography variant="h4">Networks</Typography>
+                            {contractData && contractData.networks && contractData.networks.submit && (
+                                <Avatar
+                                    variant="rounded"
+                                    sx={{
+                                        ...theme.typography.smallAvatar,
+                                        borderRadius: '50%',
+                                        background: theme.palette.success.dark,
+                                        color: 'white',
+                                        ml: 2
+                                    }}
+                                >
+                                    <IconCheck />
+                                </Avatar>
+                            )}
                         </AccordionSummary>
                         <AccordionDetails>
-                            <InputParameters 
+                            <InputParameters
                                 paramsType="networks"
-                                params={contractParams} 
-                                initialValues={contractValues} 
+                                params={contractParams}
+                                initialValues={contractValues}
                                 nodeParamsValidation={contractValidation}
                                 valueChanged={valueChanged}
                                 onSubmit={onSubmit}
@@ -588,33 +592,28 @@ const ContractDialog = ({
                 {/* credentials */}
                 <Box sx={{ p: 2 }}>
                     <Accordion expanded={expanded === 'credentials'} onChange={handleAccordionChange('credentials')}>
-                        <AccordionSummary
-                            expandIcon={<ExpandMoreIcon />}
-                            aria-controls="credentials-content"
-                            id="credentials-header" 
-                        >
-                            <Typography variant="h4">
-                                Credentials
-                            </Typography>
-                            {contractData && contractData.credentials && contractData.credentials.submit &&
-                            (<Avatar
-                                variant="rounded"
-                                sx={{
-                                    ...theme.typography.smallAvatar,
-                                    borderRadius: '50%',
-                                    background: theme.palette.success.dark,
-                                    color: 'white',
-                                    ml: 2
-                                }}
-                            >
-                                <IconCheck />
-                            </Avatar>)}
+                        <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="credentials-content" id="credentials-header">
+                            <Typography variant="h4">Credentials</Typography>
+                            {contractData && contractData.credentials && contractData.credentials.submit && (
+                                <Avatar
+                                    variant="rounded"
+                                    sx={{
+                                        ...theme.typography.smallAvatar,
+                                        borderRadius: '50%',
+                                        background: theme.palette.success.dark,
+                                        color: 'white',
+                                        ml: 2
+                                    }}
+                                >
+                                    <IconCheck />
+                                </Avatar>
+                            )}
                         </AccordionSummary>
                         <AccordionDetails>
-                            <CredentialInput 
+                            <CredentialInput
                                 paramsType="credentials"
-                                initialParams={contractParams} 
-                                initialValues={contractValues} 
+                                initialParams={contractParams}
+                                initialValues={contractValues}
                                 initialValidation={contractValidation}
                                 valueChanged={valueChanged}
                                 paramsChanged={paramsChanged}
@@ -628,32 +627,27 @@ const ContractDialog = ({
                 {/* contractInfo */}
                 <Box sx={{ p: 2 }}>
                     <Accordion expanded={expanded === 'contractInfo'} onChange={handleAccordionChange('contractInfo')}>
-                        <AccordionSummary
-                            expandIcon={<ExpandMoreIcon />}
-                            aria-controls="contractInfo-content"
-                            id="contractInfo-header" 
-                        >
-                            <Typography variant="h4">
-                                Contract Details
-                            </Typography>
-                            {contractData && contractData.contractInfo && contractData.contractInfo.submit &&
-                            (<Avatar
-                                variant="rounded"
-                                sx={{
-                                    ...theme.typography.smallAvatar,
-                                    borderRadius: '50%',
-                                    background: theme.palette.success.dark,
-                                    color: 'white',
-                                    ml: 2
-                                }}
-                            >
-                                <IconCheck />
-                            </Avatar>)}
+                        <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="contractInfo-content" id="contractInfo-header">
+                            <Typography variant="h4">Contract Details</Typography>
+                            {contractData && contractData.contractInfo && contractData.contractInfo.submit && (
+                                <Avatar
+                                    variant="rounded"
+                                    sx={{
+                                        ...theme.typography.smallAvatar,
+                                        borderRadius: '50%',
+                                        background: theme.palette.success.dark,
+                                        color: 'white',
+                                        ml: 2
+                                    }}
+                                >
+                                    <IconCheck />
+                                </Avatar>
+                            )}
                         </AccordionSummary>
                         <AccordionDetails>
-                            <InputParameters 
+                            <InputParameters
                                 paramsType="contractInfo"
-                                params={contractParams} 
+                                params={contractParams}
                                 initialValues={contractValues}
                                 nodeParamsValidation={contractValidation}
                                 valueChanged={valueChanged}
@@ -661,14 +655,18 @@ const ContractDialog = ({
                                 setVariableSelectorState={() => null}
                                 onEditVariableDialogOpen={onEditVariableDialogOpen}
                             />
-                            {invalidAddress && <Chip sx={{mt: 2, mb: 1}} icon={<IconX />} label="Invalid Contract Address" color="error" />}
-                            {invalidABI && <Chip sx={{mt: 2, mb: 1, ml: invalidAddress ? 2 : 0}} icon={<IconX />} label={invalidABI} color="error" />}
+                            {invalidAddress && (
+                                <Chip sx={{ mt: 2, mb: 1 }} icon={<IconX />} label="Invalid Contract Address" color="error" />
+                            )}
+                            {invalidABI && (
+                                <Chip sx={{ mt: 2, mb: 1, ml: invalidAddress ? 2 : 0 }} icon={<IconX />} label={invalidABI} color="error" />
+                            )}
                         </AccordionDetails>
                     </Accordion>
                     <Divider />
                 </Box>
-                <EditVariableDialog 
-                    key={JSON.stringify(editVariableDialogProps)} 
+                <EditVariableDialog
+                    key={JSON.stringify(editVariableDialogProps)}
                     show={isEditVariableDialogOpen}
                     dialogProps={editVariableDialogProps}
                     onCancel={() => setEditVariableDialog(false)}
@@ -679,20 +677,16 @@ const ContractDialog = ({
                 />
             </DialogContent>
             <DialogActions>
-                <Button onClick={onCancel}>
-                    {dialogProps.cancelButtonName}
-                </Button>
-                {dialogProps.type === 'EDIT' && <Button 
+                <Button onClick={onCancel}>{dialogProps.cancelButtonName}</Button>
+                {dialogProps.type === 'EDIT' && (
+                    <Button variant="contained" color="error" onClick={() => deleteContract()}>
+                        Delete
+                    </Button>
+                )}
+                <Button
                     variant="contained"
-                    color="error"
-                    onClick={() => deleteContract()}
-                >
-                    Delete
-                </Button>}
-                <Button 
-                    variant="contained" 
-                    disabled={!isReadyToAdd} 
-                    onClick={() => dialogProps.type === 'ADD' ? addNewContract() : saveContract()}
+                    disabled={!isReadyToAdd}
+                    onClick={() => (dialogProps.type === 'ADD' ? addNewContract() : saveContract())}
                 >
                     {dialogProps.confirmButtonName}
                 </Button>
@@ -701,14 +695,13 @@ const ContractDialog = ({
     ) : null;
 
     return createPortal(component, portalElement);
-}
+};
 
 ContractDialog.propTypes = {
-    show: PropTypes.bool, 
+    show: PropTypes.bool,
     dialogProps: PropTypes.object,
     onCancel: PropTypes.func,
-    onConfirm: PropTypes.func,
+    onConfirm: PropTypes.func
 };
 
 export default ContractDialog;
-
