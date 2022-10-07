@@ -74,7 +74,6 @@
     "devDependencies": {
         "@babel/core": "^7.14.8",
         "@babel/eslint-parser": "^7.15.8",
-        "sass": "^1.42.1",
-        "run-script-os": "^1.0.7"
+        "sass": "^1.42.1"
     }
 }

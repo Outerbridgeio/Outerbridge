@@ -16,6 +16,7 @@
         "lint-fix": "yarn lint --fix"
     },
     "devDependencies": {
+        "@types/express": "^4.17.13",
         "lerna": "^3.22.1",
         "rimraf": "^3.0.2",
         "eslint": "^8.24.0",
