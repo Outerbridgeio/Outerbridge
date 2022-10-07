@@ -31,7 +31,13 @@ export enum NETWORK {
     CELO = 'celo',
     SOLANA = 'solana',
     SOLANA_TESTNET = 'solana-testnet',
-    SOLANA_DEVNET = 'solana-devnet'
+    SOLANA_DEVNET = 'solana-devnet',
+    HECO = 'heco',
+    HARMONY = 'harmony',
+    MOONRIVER = 'moonriver',
+    MOONBEAM = 'moonbeam',
+    METIS = 'metis',
+    KLATYN_TESTNET = 'klaytn'
 }
 
 export enum NETWORK_LABEL {
@@ -53,15 +59,21 @@ export enum NETWORK_LABEL {
     BSC_TESTNET = 'Binance Smart Chain Testnet',
     AVALANCHE = 'Avalanche Mainnet',
     AVALANCHE_TESTNET = 'Avalanche Testnet',
-    FANTOM = 'Fantom',
+    FANTOM = 'Fantom Mainnet',
     FANTOM_TESTNET = 'Fantom Testnet',
-    CRONOS = 'Cronos',
+    CRONOS = 'Cronos Mainnet',
     CRONOS_TESTNET = 'Cronos Testnet',
-    GNOSIS = 'Gnosis',
-    CELO = 'Celo',
-    SOLANA = 'Solana',
+    GNOSIS = 'Gnosis Mainnet',
+    CELO = 'Celo Mainnet',
+    SOLANA = 'Solana Mainnet',
     SOLANA_TESTNET = 'Solana Testnet',
-    SOLANA_DEVNET = 'Solana Devnet'
+    SOLANA_DEVNET = 'Solana Devnet',
+    HECO = 'Huobi ECO Chain Mainnet',
+    HARMONY = 'Harmony Mainnet',
+    MOONRIVER = 'Moonriver Mainnet',
+    MOONBEAM = 'Moonbeam Mainnet',
+    METIS = 'Metis Mainnet',
+    KLATYN_TESTNET = 'Klaytn Baobab Testnet'
 }
 
 export enum NETWORK_PROVIDER {
@@ -72,7 +84,17 @@ export enum NETWORK_PROVIDER {
     CUSTOMRPC = 'customRPC',
     CUSTOMWSS = 'customWebsocket',
     BINANCE = 'binance',
-    POLYGON = 'polygon'
+    POLYGON = 'polygon',
+    AVAX = 'avalanche',
+    GNOSIS = 'gnosis',
+    HECO = 'heco',
+    FANTOM = 'fantom',
+    SOLANA = 'solana',
+    HARMONY = 'harmony',
+    MOONRIVER = 'moonriver',
+    MOONBEAM = 'moonbeam',
+    METIS = 'metis',
+    KLAYTN = 'klaytn'
 }
 
 export enum CHAIN_ID {
@@ -100,6 +122,11 @@ export enum CHAIN_ID {
     FANTOM_TESTNET = 4002,
     GNOSIS = 100,
     CELO = 42220,
+    HECO = 128,
+    HARMONY = 1666600000,
+    MOONRIVER = 1285,
+    MOONBEAM = 1284,
+    METIS = 1088
 }
 
 export enum DOMAIN_ID {
@@ -286,28 +313,28 @@ export const ethTestNetworkProviders = [
 ] as INodeOptionsValue[];
 
 export const ethNetworkProviders = [
-    ...alchemyNetworkProviders,
-    ...infuraNetworkProviders,
-    ...quickNodeNetworkProviders,
     {
         label: 'Cloudfare',
         name: NETWORK_PROVIDER.CLOUDFARE,
         description: 'Public Cloudfare RPC',
         parentGroup: 'Public Nodes'
     },
+    ...alchemyNetworkProviders,
+    ...infuraNetworkProviders,
+    ...quickNodeNetworkProviders,
     ...customNetworkProviders,
 ] as INodeOptionsValue[];
 
 export const polygonNetworkProviders = [
-    ...alchemyNetworkProviders,
-    ...infuraNetworkProviders,
-    ...quickNodeNetworkProviders,
     {
         label: 'Polygon',
         name: NETWORK_PROVIDER.POLYGON,
         description: 'Public Polygon RPC/Websocket',
         parentGroup: 'Public Nodes'
     },
+    ...alchemyNetworkProviders,
+    ...infuraNetworkProviders,
+    ...quickNodeNetworkProviders,
     ...customNetworkProviders,
 ] as INodeOptionsValue[];
 
@@ -322,6 +349,106 @@ export const binanceNetworkProviders = [
     ...customNetworkProviders,
 ] as INodeOptionsValue[];
 
+export const avalancheNetworkProviders = [
+    {
+        label: 'Avalanche',
+        name: NETWORK_PROVIDER.AVAX,
+        description: 'Public Avalanche RPC/Websocket',
+        parentGroup: 'Public Nodes'
+    },
+    ...infuraNetworkProviders,
+    ...quickNodeNetworkProviders,
+    ...customNetworkProviders,
+] as INodeOptionsValue[];
+
+export const fantomNetworkProviders = [
+    {
+        label: 'Fantom',
+        name: NETWORK_PROVIDER.FANTOM,
+        description: 'Public Fantom RPC/Websocket',
+        parentGroup: 'Public Nodes'
+    },
+    ...quickNodeNetworkProviders,
+    ...customNetworkProviders,
+] as INodeOptionsValue[];
+
+export const gnosisNetworkProviders = [
+    {
+        label: 'Gnosis',
+        name: NETWORK_PROVIDER.GNOSIS,
+        description: 'Public Gnosis RPC/Websocket',
+        parentGroup: 'Public Nodes'
+    },
+    ...quickNodeNetworkProviders,
+    ...customNetworkProviders,
+] as INodeOptionsValue[];
+
+export const hecoNetworkProviders = [
+    {
+        label: 'Huobi ECO Chain',
+        name: NETWORK_PROVIDER.HECO,
+        description: 'Public HECO RPC/Websocket',
+        parentGroup: 'Public Nodes'
+    },
+    ...customNetworkProviders,
+] as INodeOptionsValue[];
+
+export const solanaNetworkProviders = [
+    ...quickNodeNetworkProviders,
+    ...customNetworkProviders,
+] as INodeOptionsValue[];
+
+export const harmonyNetworkProviders = [
+    {
+        label: 'Harmony',
+        name: NETWORK_PROVIDER.HARMONY,
+        description: 'Public Harmony RPC/Websocket',
+        parentGroup: 'Public Nodes'
+    },
+    ...quickNodeNetworkProviders,
+    ...customNetworkProviders,
+] as INodeOptionsValue[];
+
+export const moonriverNetworkProviders = [
+    {
+        label: 'Moonriver',
+        name: NETWORK_PROVIDER.MOONRIVER,
+        description: 'Public Moonriver RPC/Websocket',
+        parentGroup: 'Public Nodes'
+    },
+    ...customNetworkProviders,
+] as INodeOptionsValue[];
+
+export const moonbeamNetworkProviders = [
+    {
+        label: 'Moonbeam',
+        name: NETWORK_PROVIDER.MOONBEAM,
+        description: 'Public Moonbeam RPC/Websocket',
+        parentGroup: 'Public Nodes'
+    },
+    ...customNetworkProviders,
+] as INodeOptionsValue[];
+
+export const metisNetworkProviders = [
+    {
+        label: 'Metis',
+        name: NETWORK_PROVIDER.METIS,
+        description: 'Public Metis RPC/Websocket',
+        parentGroup: 'Public Nodes'
+    },
+    ...customNetworkProviders,
+] as INodeOptionsValue[];
+
+export const klaytnNetworkProviders = [
+    {
+        label: 'Klaytn',
+        name: NETWORK_PROVIDER.KLAYTN,
+        description: 'Public Klaytn RPC/Websocket',
+        parentGroup: 'Public Nodes'
+    },
+    ...customNetworkProviders,
+] as INodeOptionsValue[];
+
 export function getCustomRPCProvider(jsonRPC: string) {
     return new ethers.providers.JsonRpcProvider(jsonRPC);
 }
@@ -331,71 +458,74 @@ export function getCustomWebsocketProvider(websocketRPC: string) {
 }
 
 export async function getBscMainnetProvider() {
-    const prvs = [];
-    for (let i = 0; i < binanceMainnetRPC.length; i++) {
-        const node = binanceMainnetRPC[i];
-        const prv = new ethers.providers.StaticJsonRpcProvider(
-            { url: node, timeout: 1000 },
-            { name: 'binance', chainId: CHAIN_ID.BINANCE_MAINNET },
-        );
-        await prv.ready;
-        prvs.push({
-            provider: prv,
-            stallTimeout: 1000,
-        });
-    }
-    return new ethers.providers.FallbackProvider(prvs);
+    return await getFallbackProvider(binanceMainnetRPC, 'binance', CHAIN_ID.BINANCE_MAINNET);
 }
 
 export async function getBscTestnetProvider() {
-    /*
-    const prvs = [];
-    for (let i = 0; i < binanceTestnetRPC.length; i++) {
-        const node = binanceTestnetRPC[i];
-        const prv = new ethers.providers.StaticJsonRpcProvider(
-            { url: node, timeout: 1000 },
-            { name: 'binance', chainId: CHAIN_ID.BINANCE_TESTNET },
-        );
-        await prv.ready;
-        prvs.push({
-            provider: prv,
-            stallTimeout: 1000,
-        });
-    }
-    return new ethers.providers.FallbackProvider(prvs);
-    */
-    return new ethers.providers.JsonRpcProvider(binanceTestnetRPC[0]);
+    return await getFallbackProvider(binanceTestnetRPC, 'binance', CHAIN_ID.BINANCE_TESTNET);
 }
 
 export async function getPolygonMainnetProvider() {
-    const prvs = [];
-    for (let i = 0; i < polygonMainnetRPC.length; i++) {
-        const node = polygonMainnetRPC[i];
-        const prv = new ethers.providers.StaticJsonRpcProvider(
-            { url: node, timeout: 1000 },
-            {
-                name: 'polygon',
-                chainId: CHAIN_ID.MATIC,
-            },
-        );
-        await prv.ready;
-        prvs.push({
-            provider: prv,
-            stallTimeout: 1000,
-        });
-    }
-    return new ethers.providers.FallbackProvider(prvs);
+    return await getFallbackProvider(polygonMainnetRPC, 'polygon', CHAIN_ID.MATIC);
 }
 
 export async function getPolygonTestnetProvider() {
+    return await getFallbackProvider(polygonMumbaiRPC, 'polygon', CHAIN_ID.MATIC_MUMBAI);
+}
+
+export async function getAvalancheTestnetProvider() {
+    return await getFallbackProvider(avalancheTestnetRPC, 'avalanche', CHAIN_ID.AVALANCHE_TESTNET);
+}
+
+export async function getAvalancheMainnetProvider() {
+    return await getFallbackProvider(avalancheMainnetRPC, 'avalanche', CHAIN_ID.AVALANCHE_MAINNET);
+}
+
+export async function getGnosisMainnetProvider() {
+    return new ethers.providers.JsonRpcProvider(gnosisMainnetRPC[0]);
+}
+
+export async function getHecoMainnetProvider() {
+    return new ethers.providers.JsonRpcProvider(hecoMainnetRPC[0]);
+}
+
+export async function getFantomMainnetProvider() {
+    return new ethers.providers.JsonRpcProvider(fantomMainnetRPC[0]);
+}
+
+export async function getFantomTestnetProvider() {
+    return new ethers.providers.JsonRpcProvider(fantomTestnetRPC[0]);
+}
+
+export async function getHarmonyMainnetProvider() {
+    return await getFallbackProvider(harmoneyMainnetRPC, 'harmony', CHAIN_ID.HARMONY);
+}
+
+export async function getMoonriverMainnetProvider() {
+    return new ethers.providers.JsonRpcProvider(moonriverMainnetRPC[0]);
+}
+
+export async function getMoonbeamMainnetProvider() {
+    return new ethers.providers.JsonRpcProvider(moonbeamMainnetRPC[0]);
+}
+
+export async function getMetisMainnetProvider() {
+    return new ethers.providers.JsonRpcProvider(metisMainnetRPC[0]);
+}
+
+export async function getKlaytnTestnetProvider() {
+    return new ethers.providers.JsonRpcProvider(klaytnTestnetRPC[0]);
+}
+
+export async function getFallbackProvider(rpcs: string[], network: string, chainId: CHAIN_ID) {
     const prvs = [];
-    for (let i = 0; i < polygonMumbaiRPC.length; i++) {
-        const node = polygonMumbaiRPC[i];
+    for (let i = 0; i < rpcs.length; i++) {
+        const node = rpcs[i];
         const prv = new ethers.providers.StaticJsonRpcProvider(
             { url: node, timeout: 1000 },
             {
-                name: 'polygon',
-                chainId: CHAIN_ID.MATIC_MUMBAI,
+                name: network,
+                chainId
             },
         );
         await prv.ready;
@@ -441,6 +571,28 @@ export async function getNetworkProvider(
             if (network === NETWORK.MATIC) return await getPolygonMainnetProvider();
 			else if (network === NETWORK.MATIC_MUMBAI) return await getPolygonTestnetProvider();
             else return null;
+        case NETWORK_PROVIDER.AVAX:
+            if (network === NETWORK.AVALANCHE) return await getAvalancheMainnetProvider();
+            else if (network === NETWORK.AVALANCHE_TESTNET) return await getAvalancheTestnetProvider();
+            else return null;
+        case NETWORK_PROVIDER.FANTOM:
+            if (network === NETWORK.FANTOM) return await getFantomMainnetProvider();
+            else if (network === NETWORK.FANTOM_TESTNET) return await getFantomTestnetProvider();
+            else return null;
+        case NETWORK_PROVIDER.GNOSIS:
+            return await getGnosisMainnetProvider();
+        case NETWORK_PROVIDER.HECO:
+            return await getHecoMainnetProvider();
+        case NETWORK_PROVIDER.HARMONY:
+            return await getHarmonyMainnetProvider();
+        case NETWORK_PROVIDER.MOONRIVER:
+            return await getMoonriverMainnetProvider();
+        case NETWORK_PROVIDER.MOONBEAM:
+            return await getMoonbeamMainnetProvider();
+        case NETWORK_PROVIDER.METIS:
+            return await getMetisMainnetProvider();
+        case NETWORK_PROVIDER.KLAYTN:
+            return await getKlaytnTestnetProvider();
         case NETWORK_PROVIDER.CUSTOMRPC:
             return jsonRPC ? getCustomRPCProvider(jsonRPC) : null;
         case NETWORK_PROVIDER.CUSTOMWSS:
@@ -470,11 +622,35 @@ export function getNetworkProvidersList(network: NETWORK): INodeOptionsValue[] {
         case NETWORK.ARBITRUM_RINKEBY:
         case NETWORK.ARBITRUM_GOERLI:
             return ethTestNetworkProviders;
+        case NETWORK.AVALANCHE:
+        case NETWORK.AVALANCHE_TESTNET:
+                return avalancheNetworkProviders;
+        case NETWORK.FANTOM:
+        case NETWORK.FANTOM_TESTNET:
+                return fantomNetworkProviders;
+        case NETWORK.SOLANA:
+        case NETWORK.SOLANA_DEVNET:
+        case NETWORK.SOLANA_TESTNET:
+                return solanaNetworkProviders;
         case NETWORK.BSC:
         case NETWORK.BSC_TESTNET:
             return binanceNetworkProviders;
+        case NETWORK.GNOSIS:
+            return gnosisNetworkProviders;
+        case NETWORK.HECO:
+            return hecoNetworkProviders;
+        case NETWORK.HARMONY:
+            return harmonyNetworkProviders;
+        case NETWORK.MOONRIVER:
+            return moonriverNetworkProviders;
+        case NETWORK.MOONBEAM:
+            return moonbeamNetworkProviders;
+        case NETWORK.METIS:
+            return metisNetworkProviders;
+        case NETWORK.KLATYN_TESTNET:
+            return klaytnNetworkProviders;
         default:
-            return [];
+            return customNetworkProviders;
     }
 }
 
@@ -633,6 +809,7 @@ export const openseaExplorers = {
 } as INetworkMapping;
 
 export const binanceTestnetRPC = [
+    'https://data-seed-prebsc-1-s3.binance.org:8545',
     'https://data-seed-prebsc-1-s1.binance.org:8545',
     'https://data-seed-prebsc-2-s2.binance.org:8545',
 ] as string[];
@@ -652,8 +829,66 @@ export const polygonMumbaiRPC = [
 ] as string[];
 
 export const polygonMainnetRPC = [
-    'https://rpc-mainnet.matic.network',
     'https://polygon-rpc.com',
+    'https://rpc-mainnet.matic.quiknode.pro'
+] as string[];
+
+export const avalancheMainnetRPC = [
+    'https://api.avax.network/ext/bc/C/rpc',
+    'https://rpc.ankr.com/avalanche',
+] as string[];
+
+export const avalancheTestnetRPC = [
+    'https://api.avax-test.network/ext/bc/C/rpc',
+] as string[];
+
+export const gnosisMainnetRPC = [
+    'https://rpc.gnosischain.com',
+] as string[];
+
+export const hecoMainnetRPC = [
+    'https://http-mainnet.hecochain.com',
+] as string[];
+
+export const fantomMainnetRPC = [
+    'https://rpc.ftm.tools',
+] as string[];
+
+export const fantomTestnetRPC = [
+    'https://rpc.testnet.fantom.network',
+] as string[];
+
+export const solanaMainnetRPC = [
+    'https://api.mainnet-beta.solana.com',
+] as string[];
+
+export const solanaDevnetRPC = [
+    'https://api.devnet.solana.com',
+] as string[];
+
+export const solanaTestnetRPC = [
+    'https://api.testnet.solana.com',
+] as string[];
+
+export const harmoneyMainnetRPC = [
+    'https://api.harmony.one',
+    'https://harmony-mainnet.chainstacklabs.com',
+] as string[];
+
+export const moonriverMainnetRPC = [
+    'https://rpc.api.moonriver.moonbeam.network',
+] as string[];
+
+export const moonbeamMainnetRPC = [
+    'https://rpc.api.moonbeam.network',
+] as string[];
+
+export const metisMainnetRPC = [
+    'https://andromeda.metis.io/?owner=1088',
+] as string[];
+
+export const klaytnTestnetRPC = [
+    'https://api.baobab.klaytn.net:8651	',
 ] as string[];
 
 export const chainIdLookup = {
@@ -681,6 +916,12 @@ export const chainIdLookup = {
     [NETWORK.FANTOM_TESTNET]: CHAIN_ID.FANTOM_TESTNET,
     [NETWORK.GNOSIS]: CHAIN_ID.GNOSIS,
     [NETWORK.CELO]: CHAIN_ID.CELO,
+    [NETWORK.HECO]: CHAIN_ID.HECO,
+    [NETWORK.MOONRIVER]: CHAIN_ID.MOONRIVER,
+    [NETWORK.HECO]: CHAIN_ID.HECO,
+    [NETWORK.HARMONY]: CHAIN_ID.HARMONY,
+    [NETWORK.METIS]: CHAIN_ID.METIS,
+
 } as INetworkMapping;
 
 export const domainIdLookup = {
