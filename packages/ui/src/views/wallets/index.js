@@ -14,15 +14,14 @@ import WalletEmptySVG from 'assets/images/wallet_empty.svg';
 import { gridSpacing } from 'store/constant';
 
 // API
-import walletsApi from "api/wallets";
+import walletsApi from 'api/wallets';
 
 // Hooks
-import useApi from "hooks/useApi";
+import useApi from 'hooks/useApi';
 
 // ==============================|| WALLETS ||============================== //
 
 const Wallets = () => {
-
     const theme = useTheme();
 
     const [isLoading, setLoading] = useState(true);
@@ -64,11 +63,11 @@ const Wallets = () => {
         setDialogProps(dialogProp);
         setShowDialog(true);
     };
-    
+
     const onConfirm = () => {
         setShowDialog(false);
         getAllWalletsApi.request();
-    }
+    };
 
     useEffect(() => {
         getAllWalletsApi.request();
@@ -80,51 +79,51 @@ const Wallets = () => {
         setLoading(getAllWalletsApi.loading);
     }, [getAllWalletsApi.loading]);
 
-
     return (
         <>
-        <MainCard>
-            <Stack flexDirection="row">
-                <h1>Wallets</h1>
-                <Grid sx={{ mb: 1.25 }} container direction="row">
-                    <Box sx={{ flexGrow: 1 }} />
-                    <Grid item>
-                        <Button variant="contained" sx={{ color: 'white', mr: 2 }} onClick={addNew}>
-                            Add New
-                        </Button>
-                        <Button variant="contained" sx={{ color: 'white', backgroundColor: theme.palette.secondary.main }} onClick={importNew}>
-                            Import Wallet
-                        </Button>
+            <MainCard>
+                <Stack flexDirection="row">
+                    <h1>Wallets</h1>
+                    <Grid sx={{ mb: 1.25 }} container direction="row">
+                        <Box sx={{ flexGrow: 1 }} />
+                        <Grid item>
+                            <Button variant="contained" sx={{ color: 'white', mr: 2 }} onClick={addNew}>
+                                Add New
+                            </Button>
+                            <Button
+                                variant="contained"
+                                sx={{ color: 'white', backgroundColor: theme.palette.secondary.main }}
+                                onClick={importNew}
+                            >
+                                Import Wallet
+                            </Button>
+                        </Grid>
                     </Grid>
-                </Grid>
-            </Stack>
-            <Grid container spacing={gridSpacing}>
-                {!isLoading && getAllWalletsApi.data && getAllWalletsApi.data.map((data, index) => (
-                    <Grid key={index} item lg={4} md={6} sm={6} xs={12}>
-                        <ItemCard 
-                            isLoading={isLoading}
-                            onClick={() => edit(data._id)} 
-                            data={data}
-                        />
-                    </Grid>
-                ))}
-            </Grid>
-            {!isLoading && (!getAllWalletsApi.data || getAllWalletsApi.data.length === 0) && (
-                <Stack sx={{ alignItems: 'center', justifyContent: 'center' }} flexDirection="column">
-                    <Box sx={{ p: 2, height: 'auto' }}>
-                        <img style={{ objectFit: 'cover', height: '30vh', width: 'auto' }} src={WalletEmptySVG} alt="WalletEmptySVG" />
-                    </Box>
-                    <div>No Wallets Yet</div>
                 </Stack>
-            )}
-        </MainCard>
-        <WalletDialog
-            show={showDialog}
-            dialogProps={dialogProps}
-            onCancel={() => setShowDialog(false)}
-            onConfirm={onConfirm}
-        >
-        </WalletDialog>
+                <Grid container spacing={gridSpacing}>
+                    {!isLoading &&
+                        getAllWalletsApi.data &&
+                        getAllWalletsApi.data.map((data, index) => (
+                            <Grid key={index} item lg={4} md={6} sm={6} xs={12}>
+                                <ItemCard isLoading={isLoading} onClick={() => edit(data._id)} data={data} />
+                            </Grid>
+                        ))}
+                </Grid>
+                {!isLoading && (!getAllWalletsApi.data || getAllWalletsApi.data.length === 0) && (
+                    <Stack sx={{ alignItems: 'center', justifyContent: 'center' }} flexDirection="column">
+                        <Box sx={{ p: 2, height: 'auto' }}>
+                            <img style={{ objectFit: 'cover', height: '30vh', width: 'auto' }} src={WalletEmptySVG} alt="WalletEmptySVG" />
+                        </Box>
+                        <div>No Wallets Yet</div>
+                    </Stack>
+                )}
+            </MainCard>
+            <WalletDialog
+                show={showDialog}
+                dialogProps={dialogProps}
+                onCancel={() => setShowDialog(false)}
+                onConfirm={onConfirm}
+            ></WalletDialog>
         </>
     );
 };

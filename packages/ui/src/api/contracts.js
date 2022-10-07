@@ -1,6 +1,6 @@
-import client from "./client";
+import client from './client';
 
-const getAllContracts = () => client.get("/contracts");
+const getAllContracts = () => client.get('/contracts');
 
 const getSpecificContract = (id) => client.get(`/contracts/${id}`);
 
@@ -18,5 +18,5 @@ export default {
     createNewContract,
     updateContract,
     getContractABI,
-    deleteContract,
+    deleteContract
 };

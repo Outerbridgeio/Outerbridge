@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { useState, useEffect } from 'react';
 
-import { 
-    Dialog, 
-    DialogContent, 
+import {
+    Dialog,
+    DialogContent,
     DialogTitle,
     Box,
     Divider,
@@ -26,13 +26,7 @@ import { IconSearch } from '@tabler/icons';
 // const
 import { baseURL } from 'store/constant';
 
-const TestWorkflowDialog = ({
-    show,
-    dialogProps,
-    onCancel,
-    onItemClick,
-}) => {
-
+const TestWorkflowDialog = ({ show, dialogProps, onCancel, onItemClick }) => {
     const portalElement = document.getElementById('portal');
     const theme = useTheme();
     const customization = useSelector((state) => state.customization);
@@ -46,12 +40,11 @@ const TestWorkflowDialog = ({
             if (value) {
                 const returnData = dialogProps.nodes.filter((nd) => nd.data.label.toLowerCase().includes(value.toLowerCase()));
                 setNodes(returnData);
-
             } else if (value === '') {
                 setNodes(dialogProps.nodes);
             }
         }, 500);
-    }
+    };
 
     useEffect(() => {
         if (dialogProps.nodes) {
@@ -124,7 +117,11 @@ const TestWorkflowDialog = ({
                                         <ListItem alignItems="center">
                                             <ListItemAvatar>
                                                 <div style={{ width: 50, height: 50, borderRadius: '50%', backgroundColor: 'white' }}>
-                                                    <img style={{ width: '100%', height: '100%', padding: 10, objectFit: 'contain' }} alt={node.data.name} src={`${baseURL}/api/v1/node-icon/${node.data.name}`} />
+                                                    <img
+                                                        style={{ width: '100%', height: '100%', padding: 10, objectFit: 'contain' }}
+                                                        alt={node.data.name}
+                                                        src={`${baseURL}/api/v1/node-icon/${node.data.name}`}
+                                                    />
                                                 </div>
                                             </ListItemAvatar>
                                             <ListItemText sx={{ ml: 1 }} primary={node.data.label} secondary={node.data.description} />
@@ -141,14 +138,13 @@ const TestWorkflowDialog = ({
     ) : null;
 
     return createPortal(component, portalElement);
-}
+};
 
 TestWorkflowDialog.propTypes = {
-    show: PropTypes.bool, 
+    show: PropTypes.bool,
     dialogProps: PropTypes.object,
     onCancel: PropTypes.func,
-    onItemClick: PropTypes.func,
+    onItemClick: PropTypes.func
 };
 
 export default TestWorkflowDialog;
-

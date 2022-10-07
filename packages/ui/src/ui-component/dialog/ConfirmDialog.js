@@ -1,16 +1,8 @@
 import { createPortal } from 'react-dom';
-import { 
-    Button, 
-    Dialog, 
-    DialogActions,
-    DialogContent, 
-    DialogContentText,
-    DialogTitle 
-} from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import useConfirm from 'hooks/useConfirm';
 
 const ConfirmDialog = () => {
-
     const { onConfirm, onCancel, confirmState } = useConfirm();
     const portalElement = document.getElementById('portal');
 
@@ -32,9 +24,7 @@ const ConfirmDialog = () => {
                 </DialogContentText>
             </DialogContent>
             <DialogActions>
-                <Button onClick={onCancel}>
-                    {confirmState.cancelButtonName}
-                </Button>
+                <Button onClick={onCancel}>{confirmState.cancelButtonName}</Button>
                 <Button variant="contained" onClick={onConfirm}>
                     {confirmState.confirmButtonName}
                 </Button>
@@ -43,7 +33,6 @@ const ConfirmDialog = () => {
     ) : null;
 
     return createPortal(component, portalElement);
-}
+};
 
 export default ConfirmDialog;
-

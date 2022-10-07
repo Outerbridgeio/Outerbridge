@@ -3,12 +3,7 @@ import PropTypes from 'prop-types';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
-import {
-    Box,
-    List,
-    Paper,
-    Popper,
-} from '@mui/material';
+import { Box, List, Paper, Popper } from '@mui/material';
 
 // third-party
 import PerfectScrollbar from 'react-perfect-scrollbar';
@@ -32,13 +27,11 @@ const Settings = ({ workflow, isSettingsOpen, anchorEl, onSettingsItemClick, onU
         if (workflow && !workflow.shortId) {
             const settingsMenu = settings.children.filter((menu) => menu.id === 'loadWorkflow');
             setSettingsMenu(settingsMenu);
-
         } else if (workflow && workflow.shortId) {
             const settingsMenu = settings.children;
             setSettingsMenu(settingsMenu);
         }
     }, [workflow]);
-
 
     useEffect(() => {
         setOpen(isSettingsOpen);
@@ -46,12 +39,21 @@ const Settings = ({ workflow, isSettingsOpen, anchorEl, onSettingsItemClick, onU
 
     // settings list items
     const items = settingsMenu.map((menu) => {
-        return <NavItem key={menu.id} item={menu} level={1} navType="SETTINGS" onClick={(id) => onSettingsItemClick(id)} onUploadFile={onUploadFile} />;
+        return (
+            <NavItem
+                key={menu.id}
+                item={menu}
+                level={1}
+                navType="SETTINGS"
+                onClick={(id) => onSettingsItemClick(id)}
+                onUploadFile={onUploadFile}
+            />
+        );
     });
 
     return (
         <>
-           <Popper
+            <Popper
                 placement="bottom-end"
                 open={open}
                 anchorEl={anchorEl}
@@ -68,7 +70,7 @@ const Settings = ({ workflow, isSettingsOpen, anchorEl, onSettingsItemClick, onU
                         }
                     ]
                 }}
-                sx={{zIndex: 1000}}
+                sx={{ zIndex: 1000 }}
             >
                 {({ TransitionProps }) => (
                     <Transitions in={open} {...TransitionProps}>
@@ -76,9 +78,7 @@ const Settings = ({ workflow, isSettingsOpen, anchorEl, onSettingsItemClick, onU
                             <MainCard border={false} elevation={16} content={false} boxShadow shadow={theme.shadows[16]}>
                                 <PerfectScrollbar style={{ height: '100%', maxHeight: 'calc(100vh - 250px)', overflowX: 'hidden' }}>
                                     <Box sx={{ p: 2 }}>
-                                        <List>
-                                           {items}
-                                        </List>
+                                        <List>{items}</List>
                                     </Box>
                                 </PerfectScrollbar>
                             </MainCard>

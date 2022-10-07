@@ -15,11 +15,7 @@ import './OptionParamsResponse.css';
 
 // ==============================|| OPTION PARAMS RESPONSE ||============================== //
 
-const OptionParamsResponse = ({
-    value,
-    options,
-}) => {
-
+const OptionParamsResponse = ({ value, options }) => {
     const theme = useTheme();
 
     const getSelectedValue = (value) => options.find((option) => option.name === value);
@@ -30,7 +26,7 @@ const OptionParamsResponse = ({
             return selectedOption.inputParameters || '';
         }
         return '';
-    }
+    };
 
     const getSelectedOptionExampleParams = (value) => {
         const selectedOption = options.find((option) => option.name === value);
@@ -38,7 +34,7 @@ const OptionParamsResponse = ({
             return selectedOption.exampleParameters || '';
         }
         return '';
-    }
+    };
 
     const getSelectedOptionExampleResponse = (value) => {
         const selectedOption = options.find((option) => option.name === value);
@@ -46,75 +42,71 @@ const OptionParamsResponse = ({
             return selectedOption.exampleResponse || '';
         }
         return '';
-    }
+    };
 
     return (
         <>
             {getSelectedValue(value) && getSelectedOptionInputParams(value) && (
-                <Box 
+                <Box
                     sx={{
                         p: 1,
                         mt: 2,
-                        backgroundColor: theme.palette.secondary.light, 
+                        backgroundColor: theme.palette.secondary.light,
                         borderRadius: `15px`,
                         position: 'relative'
                     }}
                 >
-                    <Typography sx={{p: 1}} variant="h6">
+                    <Typography sx={{ p: 1 }} variant="h6">
                         Parameters
                     </Typography>
-                    <div className='params' dangerouslySetInnerHTML={{ __html: getSelectedOptionInputParams(value) }} />
+                    <div className="params" dangerouslySetInnerHTML={{ __html: getSelectedOptionInputParams(value) }} />
                 </Box>
             )}
-            
+
             {getSelectedValue(value) && getSelectedOptionExampleParams(value) && (
-                <Box 
+                <Box
                     sx={{
                         p: 1,
-                        mt: 2, 
-                        backgroundColor: theme.palette.secondary.light, 
+                        mt: 2,
+                        backgroundColor: theme.palette.secondary.light,
                         borderRadius: `15px`,
                         position: 'relative'
                     }}
                 >
-                    <Typography sx={{p: 1}} variant="h6">
+                    <Typography sx={{ p: 1 }} variant="h6">
                         Example Parameters
                     </Typography>
-                    <ReactJson 
-                        collapsed 
+                    <ReactJson
+                        collapsed
                         src={JSON.parse(getSelectedOptionExampleParams(value))}
-                        enableClipboard={e => copyToClipboard(e)}
+                        enableClipboard={(e) => copyToClipboard(e)}
                     />
                 </Box>
             )}
 
             {getSelectedValue(value) && getSelectedOptionExampleResponse(value) && (
-                <Box 
+                <Box
                     sx={{
                         p: 1,
-                        mt: 2, 
-                        backgroundColor: theme.palette.secondary.light, 
+                        mt: 2,
+                        backgroundColor: theme.palette.secondary.light,
                         borderRadius: `15px`,
                         position: 'relative'
                     }}
                 >
-                    <Typography sx={{p: 1}} variant="h6">
+                    <Typography sx={{ p: 1 }} variant="h6">
                         Example Response
                     </Typography>
-                    <ReactJson 
-                        collapsed 
-                        src={getSelectedOptionExampleResponse(value)}
-                        enableClipboard={e => copyToClipboard(e)}
-                    />
+                    <ReactJson collapsed src={getSelectedOptionExampleResponse(value)} enableClipboard={(e) => copyToClipboard(e)} />
                 </Box>
             )}
         </>
     );
-}
+};
 
 OptionParamsResponse.propTypes = {
     value: PropTypes.string,
-    options: PropTypes.array,
+    options: PropTypes.array
 };
 
 export default OptionParamsResponse;

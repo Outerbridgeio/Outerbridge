@@ -1,6 +1,6 @@
-import client from "./client";
+import client from './client';
 
-const getAllWallets = () => client.get("/wallets");
+const getAllWallets = () => client.get('/wallets');
 
 const getSpecificWallet = (id) => client.get(`/wallets/${id}`);
 
