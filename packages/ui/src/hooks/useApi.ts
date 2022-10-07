@@ -1,11 +1,12 @@
 import { useState } from 'react';
+import { AxiosResponse } from 'axios';
 
-export default (apiFunc) => {
+export const useApi = <T extends (...args: any[]) => AxiosResponse<any, any>>(apiFunc: T) => {
     const [data, setData] = useState(null);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState<unknown>(null);
     const [loading, setLoading] = useState(false);
 
-    const request = async (...args) => {
+    const request = async (...args: unknown[]) => {
         setLoading(true);
         try {
             const result = await apiFunc(...args);

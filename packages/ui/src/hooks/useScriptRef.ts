@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 
 // ==============================|| ELEMENT REFERENCE HOOKS  ||============================== //
 
-const useScriptRef = () => {
+export const useScriptRef = () => {
     const scripted = useRef(true);
 
     useEffect(
@@ -14,5 +14,3 @@ const useScriptRef = () => {
 
     return scripted;
 };
-
-export default useScriptRef;

@@ -2,8 +2,9 @@ import { useContext } from 'react';
 import ConfirmContext from 'store/context/ConfirmContext';
 import { HIDE_CONFIRM, SHOW_CONFIRM } from 'store/actions';
 
-let resolveCallback;
-const useConfirm = () => {
+let resolveCallback: (...args: unknown[]) => unknown;
+
+export const useConfirm = () => {
     const [confirmState, dispatch] = useContext(ConfirmContext);
 
     const closeConfirm = () => {
@@ -21,7 +22,7 @@ const useConfirm = () => {
         closeConfirm();
         resolveCallback(false);
     };
-    const confirm = (confirmPayload) => {
+    const confirm = (confirmPayload: unknown) => {
         dispatch({
             type: SHOW_CONFIRM,
             payload: confirmPayload
@@ -33,5 +34,3 @@ const useConfirm = () => {
 
     return { confirm, onConfirm, onCancel, confirmState };
 };
-
-export default useConfirm;
