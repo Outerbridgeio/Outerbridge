@@ -68,7 +68,7 @@ class ChainLink implements INode {
                 ],
 				default: 'getPriceFeeds'
 			},
-		] as INodeParams[];
+		];
 		this.networks = [
 			{
 				label: 'Network',
@@ -232,7 +232,7 @@ class ChainLink implements INode {
 
 const getInputParametersData = async(network: NETWORK, dataType: string) => {
 
-    const returnData = [] as INodeOptionsValue[];
+    const returnData: INodeOptionsValue[] = [];
 
     try {
         const axiosConfig: AxiosRequestConfig = {
