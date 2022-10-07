@@ -1,36 +1,26 @@
-import { 
-    Entity, 
-    Column, 
-    ObjectIdColumn, 
-    Index, 
-    CreateDateColumn,
-    UpdateDateColumn
-} from "typeorm"
-import { ObjectId } from 'mongodb';
+import { Entity, Column, ObjectIdColumn, Index, CreateDateColumn, UpdateDateColumn } from 'typeorm'
+import { ObjectId } from 'mongodb'
 
-import {
-    ICredential,
-} from '../Interface';
+import { ICredential } from '../Interface'
 
 @Entity()
 export class Credential implements ICredential {
-
     @ObjectIdColumn()
-    _id: ObjectId;
+    _id: ObjectId
 
     @Column()
-	name: string;
+    name: string
 
     @Index()
     @Column()
-	nodeCredentialName: string;
+    nodeCredentialName: string
 
     @Column()
-	credentialData: string;
+    credentialData: string
 
     @CreateDateColumn()
-    createdDate: Date;
+    createdDate: Date
 
     @UpdateDateColumn()
-    updatedDate: Date;
+    updatedDate: Date
 }

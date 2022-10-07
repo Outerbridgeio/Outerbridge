@@ -1,40 +1,31 @@
-import { 
-    Entity, 
-    Column, 
-    ObjectIdColumn, 
-    CreateDateColumn,
-    UpdateDateColumn
-} from "typeorm"
-import { ObjectId } from 'mongodb';
+import { Entity, Column, ObjectIdColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm'
+import { ObjectId } from 'mongodb'
 
-import {
-    IContract,
-} from '../Interface';
+import { IContract } from '../Interface'
 
 @Entity()
 export class Contract implements IContract {
+    @ObjectIdColumn()
+    _id: ObjectId
 
-	@ObjectIdColumn()
-    _id: ObjectId;
+    @Column()
+    name: string
 
-	@Column()
-	name: string;
+    @Column()
+    abi: string
 
-	@Column()
-	abi: string;
+    @Column()
+    address: string
 
-	@Column()
-	address: string;
-
-	@Column()
-	network: string;
+    @Column()
+    network: string
 
     @Column('text', { nullable: true })
-	providerCredential: string;
+    providerCredential: string
 
-	@CreateDateColumn()
-    createdDate: Date;
+    @CreateDateColumn()
+    createdDate: Date
 
     @UpdateDateColumn()
-    updatedDate: Date;
+    updatedDate: Date
 }

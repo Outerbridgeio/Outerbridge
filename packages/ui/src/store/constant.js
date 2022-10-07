@@ -1,8 +1,8 @@
 // constant
-export const gridSpacing = 3;
-export const drawerWidth = 260;
-export const appDrawerWidth = 320;
-export const baseURL = process.NODE_ENV === 'production' ? window.location.origin : window.location.origin.replace(':8080', ':3000');
+export const gridSpacing = 3
+export const drawerWidth = 260
+export const appDrawerWidth = 320
+export const baseURL = process.NODE_ENV === 'production' ? window.location.origin : window.location.origin.replace(':8080', ':3000')
 export const networkExplorers = {
     homestead: 'https://etherscan.io',
     rinkeby: 'https://rinkeby.etherscan.io',
@@ -18,7 +18,7 @@ export const networkExplorers = {
     bsc: 'https://bscscan.com',
     'bsc-testnet': 'https://testnet.bscscan.com',
     localhost: ''
-};
+}
 export const networks = [
     {
         label: 'Ethereum Mainnet',
@@ -98,7 +98,7 @@ export const networks = [
         uri: 'https://api-testnet.arbiscan.io/api',
         color: '#023e8a'
     }
-];
+]
 
 export const network_details = {
     networks: [
@@ -167,7 +167,7 @@ export const network_details = {
             default: 'noAuth'
         }
     ]
-};
+}
 
 export const contract_details = {
     ...network_details,
@@ -193,7 +193,7 @@ export const contract_details = {
             description: 'ABI will be fetched automatically if address is valid'
         }
     ]
-};
+}
 
 export const wallet_details = {
     ...network_details,
@@ -206,7 +206,7 @@ export const wallet_details = {
             default: ''
         }
     ]
-};
+}
 
 export const privateKeyField = [
     {
@@ -216,4 +216,4 @@ export const privateKeyField = [
         description: 'Private key of wallet to be imported',
         default: ''
     }
-];
+]

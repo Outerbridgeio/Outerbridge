@@ -1,30 +1,30 @@
-import "reflect-metadata"
-import { DataSource } from "typeorm"
-import { Workflow } from "./entity/Workflow"
-import { Execution } from "./entity/Execution"
-import { Credential } from "./entity/Credential"
-import { Webhook } from "./entity/Webhook"
-import { Contract } from "./entity/Contract"
-import { Wallet } from "./entity/Wallet"
+import 'reflect-metadata'
+import { DataSource } from 'typeorm'
+import { Workflow } from './entity/Workflow'
+import { Execution } from './entity/Execution'
+import { Credential } from './entity/Credential'
+import { Webhook } from './entity/Webhook'
+import { Contract } from './entity/Contract'
+import { Wallet } from './entity/Wallet'
 
-let appDataSource: DataSource;
+let appDataSource: DataSource
 
 export async function init(): Promise<void> {
     appDataSource = new DataSource({
-        type: "mongodb",
+        type: 'mongodb',
         url: `mongodb://${process.env.MONGO_HOST || 'localhost'}:27017/outerbridge`,
         useNewUrlParser: true,
         synchronize: true,
         logging: false,
         entities: [Workflow, Execution, Credential, Webhook, Contract, Wallet],
         migrations: [],
-        subscribers: [],
-    });
+        subscribers: []
+    })
 }
 
 export function getDataSource(): DataSource {
     if (appDataSource === undefined) {
-		init();
-	}
-	return appDataSource;
+        init()
+    }
+    return appDataSource
 }

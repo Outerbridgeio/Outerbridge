@@ -1,25 +1,25 @@
-import { createPortal } from 'react-dom';
-import PropTypes from 'prop-types';
+import { createPortal } from 'react-dom'
+import PropTypes from 'prop-types'
 
-import { Dialog, DialogContent, DialogTitle } from '@mui/material';
-import ReactJson from 'react-json-view';
+import { Dialog, DialogContent, DialogTitle } from '@mui/material'
+import ReactJson from 'react-json-view'
 
 // utils
-import { copyToClipboard } from 'utils/genericHelper';
+import { copyToClipboard } from 'utils/genericHelper'
 
 const ExpandDataDialog = ({ show, dialogProps, onCancel, onCopyClick, enableClipboard }) => {
-    const portalElement = document.getElementById('portal');
+    const portalElement = document.getElementById('portal')
 
     const component = show ? (
         <Dialog
             open={show}
             fullWidth
-            maxWidth="md"
+            maxWidth='md'
             onClose={onCancel}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
+            aria-labelledby='alert-dialog-title'
+            aria-describedby='alert-dialog-description'
         >
-            <DialogTitle sx={{ fontSize: '1rem' }} id="alert-dialog-title">
+            <DialogTitle sx={{ fontSize: '1rem' }} id='alert-dialog-title'>
                 {dialogProps.title}
             </DialogTitle>
             <DialogContent>
@@ -27,10 +27,10 @@ const ExpandDataDialog = ({ show, dialogProps, onCancel, onCopyClick, enableClip
                 {enableClipboard && <ReactJson src={dialogProps.data} enableClipboard={(e) => onCopyClick(e, dialogProps.node)} />}
             </DialogContent>
         </Dialog>
-    ) : null;
+    ) : null
 
-    return createPortal(component, portalElement);
-};
+    return createPortal(component, portalElement)
+}
 
 ExpandDataDialog.propTypes = {
     show: PropTypes.bool,
@@ -38,6 +38,6 @@ ExpandDataDialog.propTypes = {
     onCancel: PropTypes.func,
     onCopyClick: PropTypes.func,
     enableClipboard: PropTypes.bool
-};
+}
 
-export default ExpandDataDialog;
+export default ExpandDataDialog

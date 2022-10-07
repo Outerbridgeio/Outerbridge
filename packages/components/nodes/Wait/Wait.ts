@@ -1,26 +1,26 @@
-import { ICommonObject, INode, INodeData, INodeExecutionData, INodeOptionsValue, INodeParams, NodeType } from '../../src/Interface';
-import { returnNodeExecutionData } from '../../src/utils';
+import { ICommonObject, INode, INodeData, INodeExecutionData, INodeOptionsValue, INodeParams, NodeType } from '../../src/Interface'
+import { returnNodeExecutionData } from '../../src/utils'
 
 class Wait implements INode {
-    label: string;
-    name: string;
-    type: NodeType;
-    description?: string;
-    version: number;
-    icon?: string;
-    incoming: number;
-    outgoing: number;
-    inputParameters?: INodeParams[];
+    label: string
+    name: string
+    type: NodeType
+    description?: string
+    version: number
+    icon?: string
+    incoming: number
+    outgoing: number
+    inputParameters?: INodeParams[]
 
     constructor() {
-        this.label = 'Wait';
-        this.name = 'wait';
-        this.icon = 'wait.svg';
-        this.type = 'action';
-        this.version = 1.0;
-        this.description = 'Wait before continuing with the execution';
-        this.incoming = 1;
-        this.outgoing = 1;
+        this.label = 'Wait'
+        this.name = 'wait'
+        this.icon = 'wait.svg'
+        this.type = 'action'
+        this.version = 1.0
+        this.description = 'Wait before continuing with the execution'
+        this.incoming = 1
+        this.outgoing = 1
         this.inputParameters = [
             {
                 label: 'Unit',
@@ -54,35 +54,35 @@ class Wait implements INode {
                 default: 10,
                 description: 'Duration to wait before continuing with the execution'
             }
-        ];
+        ]
     }
 
     async run(nodeData: INodeData): Promise<INodeExecutionData[] | null> {
-        const inputParametersData = nodeData.inputParameters;
+        const inputParametersData = nodeData.inputParameters
 
         if (inputParametersData === undefined) {
-            throw new Error('Required data missing');
+            throw new Error('Required data missing')
         }
 
-        const startWaitDate = new Date().toUTCString();
+        const startWaitDate = new Date().toUTCString()
 
-        const unit = inputParametersData.unit as string;
+        const unit = inputParametersData.unit as string
 
-        let duration = (inputParametersData.duration as number) || 1;
+        let duration = (inputParametersData.duration as number) || 1
 
         if (unit === 'minutes') {
-            duration *= 60;
+            duration *= 60
         }
         if (unit === 'hours') {
-            duration *= 60 * 60;
+            duration *= 60 * 60
         }
         if (unit === 'days') {
-            duration *= 60 * 60 * 24;
+            duration *= 60 * 60 * 24
         }
 
-        duration *= 1000;
+        duration *= 1000
 
-        const endWaitDate = new Date(new Date().getTime() + duration).toUTCString();
+        const endWaitDate = new Date(new Date().getTime() + duration).toUTCString()
 
         const returnData: ICommonObject[] = [
             {
@@ -91,14 +91,14 @@ class Wait implements INode {
                 duration,
                 unit
             }
-        ];
+        ]
 
         return new Promise((resolve, _) => {
             setTimeout(() => {
-                resolve(returnNodeExecutionData(returnData));
-            }, duration);
-        });
+                resolve(returnNodeExecutionData(returnData))
+            }, duration)
+        })
     }
 }
 
-module.exports = { nodeClass: Wait };
+module.exports = { nodeClass: Wait }

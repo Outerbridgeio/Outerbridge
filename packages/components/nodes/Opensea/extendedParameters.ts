@@ -1,4 +1,4 @@
-import { INodeParams } from "../../src";
+import { INodeParams } from '../../src'
 
 export const retrieveAssets = [
     {
@@ -80,12 +80,12 @@ export const retrieveAssets = [
         options: [
             {
                 label: 'Descending',
-                name: 'desc',
+                name: 'desc'
             },
             {
                 label: 'Ascending',
-                name: 'asc',
-            },
+                name: 'asc'
+            }
         ],
         default: '',
         optional: true,
@@ -121,7 +121,8 @@ export const retrieveAssets = [
         type: 'string',
         default: '',
         optional: true,
-        description: 'Limit responses to members of a collection. Case sensitive and must match the collection slug exactly. Will return all assets from all contracts in a collection.',
+        description:
+            'Limit responses to members of a collection. Case sensitive and must match the collection slug exactly. Will return all assets from all contracts in a collection.',
         show: {
             'actions.operation': ['retrieveAssets']
         }
@@ -136,8 +137,8 @@ export const retrieveAssets = [
         show: {
             'actions.operation': ['retrieveAssets']
         }
-    },
-] as INodeParams[];
+    }
+] as INodeParams[]
 
 export const retrieveEvents = [
     {
@@ -157,7 +158,8 @@ export const retrieveEvents = [
         type: 'string',
         default: '',
         optional: true,
-        description: 'Events from a collection. For instance: if a collection url is: https://opensea.io/collection/my-collection-1, collection slug is my-collection-1.',
+        description:
+            'Events from a collection. For instance: if a collection url is: https://opensea.io/collection/my-collection-1, collection slug is my-collection-1.',
         show: {
             'actions.operation': ['retrieveEvents']
         }
@@ -236,8 +238,8 @@ export const retrieveEvents = [
         show: {
             'actions.operation': ['retrieveEvents']
         }
-    },
-] as INodeParams[];
+    }
+] as INodeParams[]
 
 export const retrieveCollections = [
     {
@@ -272,8 +274,8 @@ export const retrieveCollections = [
         show: {
             'actions.operation': ['retrieveCollections']
         }
-    },
-] as INodeParams[];
+    }
+] as INodeParams[]
 
 export const retrieveBundles = [
     {
@@ -352,8 +354,8 @@ export const retrieveBundles = [
         show: {
             'actions.operation': ['retrieveBundles']
         }
-    },
-] as INodeParams[];
+    }
+] as INodeParams[]
 
 export const retrieveAnAsset = [
     {
@@ -375,8 +377,8 @@ export const retrieveAnAsset = [
         show: {
             'actions.operation': ['retrieveAnAsset']
         }
-    },
-] as INodeParams[];
+    }
+] as INodeParams[]
 
 export const retrieveAContract = [
     {
@@ -388,8 +390,8 @@ export const retrieveAContract = [
         show: {
             'actions.operation': ['retrieveAContract']
         }
-    },
-] as INodeParams[];
+    }
+] as INodeParams[]
 
 export const retrieveACollection = [
     {
@@ -397,12 +399,13 @@ export const retrieveACollection = [
         name: 'collection_slug',
         type: 'string',
         default: '',
-        description: 'For instance: if a collection url is: https://opensea.io/collection/my-collection-1, collection slug is my-collection-1.',
+        description:
+            'For instance: if a collection url is: https://opensea.io/collection/my-collection-1, collection slug is my-collection-1.',
         show: {
             'actions.operation': ['retrieveACollection', 'retrieveCollectionStats']
         }
-    },
-] as INodeParams[];
+    }
+] as INodeParams[]
 
 export const eventsTriggerParams = [
     {
@@ -420,7 +423,7 @@ export const eventsTriggerParams = [
             }
         ],
         default: 'fromANFT',
-        description: 'Listen event from a NFT or collection',
+        description: 'Listen event from a NFT or collection'
     },
     {
         label: 'Asset Contract Address',
@@ -448,7 +451,8 @@ export const eventsTriggerParams = [
         type: 'string',
         default: '',
         optional: true,
-        description: 'Events from a collection. For instance: if a collection url is: https://opensea.io/collection/my-collection-1, collection slug is my-collection-1.',
+        description:
+            'Events from a collection. For instance: if a collection url is: https://opensea.io/collection/my-collection-1, collection slug is my-collection-1.',
         show: {
             'inputParameters.listenFrom': ['fromACollection']
         }
@@ -459,7 +463,7 @@ export const eventsTriggerParams = [
         type: 'string',
         default: '',
         optional: true,
-        description: `A user account's wallet address to filter for events on an account`,
+        description: `A user account's wallet address to filter for events on an account`
     },
     {
         label: 'Only Opensea',
@@ -467,6 +471,6 @@ export const eventsTriggerParams = [
         type: 'boolean',
         default: false,
         optional: true,
-        description: 'Restrict to events on OpenSea auctions',
-    },
-] as INodeParams[];
+        description: 'Restrict to events on OpenSea auctions'
+    }
+] as INodeParams[]

@@ -1,93 +1,92 @@
-import { INodeOptionsValue, INodeParams } from "../../src";
+import { INodeOptionsValue, INodeParams } from '../../src'
 
 export const nftOperation = [
     {
-        label:'Get Wallet NFTs',
+        label: 'Get Wallet NFTs',
         name: 'getWalletNFTs',
         description: 'Get NFTs owned by a given address.'
     },
     {
-        label:'Get Wallet NFT Transfers',
+        label: 'Get Wallet NFT Transfers',
         name: 'getWalletNFTTransfers',
         description: 'Get the transfers of the tokens matching the given parameters.'
     },
     {
-        label:'Get Wallet NFT Collections',
+        label: 'Get Wallet NFT Collections',
         name: 'getWalletNFTCollections',
         description: 'Get the nft collections owned by an user'
     },
     {
-        label:'Get NFTs For Contract',
+        label: 'Get NFTs For Contract',
         name: 'getNFTsForContract',
         description: 'Get NFTs owned by the given address for a specific NFT contract address.'
     },
     {
-        label:'Get NFT Trades',
+        label: 'Get NFT Trades',
         name: 'getNFTTrades',
         description: 'Get the nft trades for a given contract and marketplace.'
     },
     {
-        label:'Get NFT Lowest Price',
+        label: 'Get NFT Lowest Price',
         name: 'getNFTLowestPrice',
         description: 'Get the lowest executed price for an NFT token contract for the last x days (only trades paid in ETH).'
     },
     {
-        label:'Get NFT Transfers By Block',
+        label: 'Get NFT Transfers By Block',
         name: 'getNFTTransfersByBlock',
         description: 'Get NFT transfers by block number or block hash.'
     },
     {
-        label:'Get NFT Transfers From To Block',
+        label: 'Get NFT Transfers From To Block',
         name: 'getNFTTransfersFromToBlock',
         description: 'Gets the transfers of the tokens from a block number to a block number.'
     },
     {
-        label:'Get Contract NFTs',
+        label: 'Get Contract NFTs',
         name: 'getContractNFTs',
         description: 'Get all NFTs, including metadata (where available), for all NFTs for the given contract address.'
     },
     {
-        label:'Get NFT Contract Transfers',
+        label: 'Get NFT Contract Transfers',
         name: 'getNFTContractTransfers',
         description: 'Get the transfers of the tokens matching the given parameters.'
     },
     {
-        label:'Get NFT Owners',
+        label: 'Get NFT Owners',
         name: 'getNFTOwners',
         description: 'Get all owners of NFTs within a given contract.'
     },
     {
-        label:'Get NFT Metadata',
+        label: 'Get NFT Metadata',
         name: 'getNFTMetadata',
         description: 'Get the contract level metadata (name, symbol, base token uri) for the given contract.'
     },
     {
-        label:'ReSync Metadata',
+        label: 'ReSync Metadata',
         name: 'reSyncMetadata',
         description: 'ReSync the metadata for an NFT.'
     },
     {
-        label:'Sync NFT Contract',
+        label: 'Sync NFT Contract',
         name: 'syncNFTContract',
         description: 'Initiates a metadata refresh for an entire NFT collection.'
     },
     {
-        label:'Get NFT Token Id Metadata',
+        label: 'Get NFT Token Id Metadata',
         name: 'getNFTTokenIdMetadata',
         description: 'Get NFT data, including metadata (where available), for the given NFT token id of the given contract address.'
     },
     {
-        label:'Get NFT Token Id Owners',
+        label: 'Get NFT Token Id Owners',
         name: 'getNFTTokenIdOwners',
         description: 'Get all owners of a specific NFT given the contract address and token ID.'
     },
     {
-        label:'Get NFT Token Id Transfers',
+        label: 'Get NFT Token Id Transfers',
         name: 'getNFTTokenIdTransfers',
         description: 'Get the transfers of an NFT given a contract address and token ID.'
-    },
-    
-] as INodeOptionsValue[];
+    }
+] as INodeOptionsValue[]
 
 export const getWalletNFTs = [
     {
@@ -96,9 +95,7 @@ export const getWalletNFTs = [
         type: 'string',
         description: 'The owner of a given token',
         show: {
-            'inputParameters.operation': [
-                'getWalletNFTs'
-            ]
+            'inputParameters.operation': ['getWalletNFTs']
         }
     },
     {
@@ -119,9 +116,7 @@ export const getWalletNFTs = [
         ],
         default: 'decimal',
         show: {
-            'inputParameters.operation': [
-                'getWalletNFTs'
-            ]
+            'inputParameters.operation': ['getWalletNFTs']
         }
     },
     {
@@ -132,12 +127,10 @@ export const getWalletNFTs = [
         optional: true,
         description: 'The addresses to get balances for',
         show: {
-            'inputParameters.operation': [
-                'getWalletNFTs'
-            ]
+            'inputParameters.operation': ['getWalletNFTs']
         }
-    },
-] as INodeParams[];
+    }
+] as INodeParams[]
 
 export const getNFTTransfersByBlock = [
     {
@@ -146,9 +139,7 @@ export const getNFTTransfersByBlock = [
         type: 'string',
         description: 'The block hash or block number',
         show: {
-            'inputParameters.operation': [
-                'getNFTTransfersByBlock'
-            ]
+            'inputParameters.operation': ['getNFTTransfersByBlock']
         }
     },
     {
@@ -158,12 +149,10 @@ export const getNFTTransfersByBlock = [
         optional: true,
         description: 'The subdomain of the moralis server to use (Only use when selecting local devchain as chain)',
         show: {
-            'inputParameters.operation': [
-                'getNFTTransfersByBlock'
-            ]
+            'inputParameters.operation': ['getNFTTransfersByBlock']
         }
-    },
-] as INodeParams[];
+    }
+] as INodeParams[]
 
 export const getWalletNFTTransfers = [
     {
@@ -172,9 +161,7 @@ export const getWalletNFTTransfers = [
         type: 'string',
         description: 'The sender or recepient of the transfer',
         show: {
-            'inputParameters.operation': [
-                'getWalletNFTTransfers'
-            ]
+            'inputParameters.operation': ['getWalletNFTTransfers']
         }
     },
     {
@@ -195,9 +182,7 @@ export const getWalletNFTTransfers = [
         ],
         default: 'decimal',
         show: {
-            'inputParameters.operation': [
-                'getWalletNFTTransfers'
-            ]
+            'inputParameters.operation': ['getWalletNFTTransfers']
         }
     },
     {
@@ -222,9 +207,7 @@ export const getWalletNFTTransfers = [
         ],
         default: 'both',
         show: {
-            'inputParameters.operation': [
-                'getWalletNFTTransfers'
-            ]
+            'inputParameters.operation': ['getWalletNFTTransfers']
         }
     },
     {
@@ -234,9 +217,7 @@ export const getWalletNFTTransfers = [
         description: 'The minimum block number from where to get the transfers',
         optional: true,
         show: {
-            'inputParameters.operation': [
-                'getWalletNFTTransfers'
-            ]
+            'inputParameters.operation': ['getWalletNFTTransfers']
         }
     },
     {
@@ -246,12 +227,10 @@ export const getWalletNFTTransfers = [
         description: 'To get the reserves at this block number',
         optional: true,
         show: {
-            'inputParameters.operation': [
-                'getWalletNFTTransfers'
-            ]
+            'inputParameters.operation': ['getWalletNFTTransfers']
         }
-    },
-] as INodeParams[];
+    }
+] as INodeParams[]
 
 export const getWalletNFTCollections = [
     {
@@ -260,12 +239,10 @@ export const getWalletNFTCollections = [
         type: 'string',
         description: 'The owner wallet address of the NFT collections',
         show: {
-            'inputParameters.operation': [
-                'getWalletNFTCollections'
-            ]
+            'inputParameters.operation': ['getWalletNFTCollections']
         }
-    },
-] as INodeParams[];
+    }
+] as INodeParams[]
 
 export const getNFTsForContract = [
     {
@@ -274,9 +251,7 @@ export const getNFTsForContract = [
         type: 'string',
         description: 'The owner of a given token',
         show: {
-            'inputParameters.operation': [
-                'getNFTsForContract'
-            ]
+            'inputParameters.operation': ['getNFTsForContract']
         }
     },
     {
@@ -285,9 +260,7 @@ export const getNFTsForContract = [
         type: 'string',
         description: 'Address of the contract',
         show: {
-            'inputParameters.operation': [
-                'getNFTsForContract'
-            ]
+            'inputParameters.operation': ['getNFTsForContract']
         }
     },
     {
@@ -308,12 +281,10 @@ export const getNFTsForContract = [
         ],
         default: 'decimal',
         show: {
-            'inputParameters.operation': [
-                'getNFTsForContract', 'getNFTTransfersFromToBlock'
-            ]
+            'inputParameters.operation': ['getNFTsForContract', 'getNFTTransfersFromToBlock']
         }
-    },
-] as INodeParams[];
+    }
+] as INodeParams[]
 
 export const getNFTTrades = [
     {
@@ -322,9 +293,7 @@ export const getNFTTrades = [
         type: 'string',
         description: 'Address of the contract',
         show: {
-            'inputParameters.operation': [
-                'getNFTTrades', 'getNFTLowestPrice'
-            ]
+            'inputParameters.operation': ['getNFTTrades', 'getNFTLowestPrice']
         }
     },
     {
@@ -337,13 +306,11 @@ export const getNFTTrades = [
             {
                 label: 'Opensea',
                 name: 'opensea'
-            },
+            }
         ],
         default: 'opensea',
         show: {
-            'inputParameters.operation': [
-                'getNFTTrades', 'getNFTLowestPrice'
-            ]
+            'inputParameters.operation': ['getNFTTrades', 'getNFTLowestPrice']
         }
     },
     {
@@ -353,9 +320,7 @@ export const getNFTTrades = [
         optional: true,
         description: 'Web3 provider url to user when using local dev chain',
         show: {
-            'inputParameters.operation': [
-                'getNFTTrades', 'getNFTLowestPrice'
-            ]
+            'inputParameters.operation': ['getNFTTrades', 'getNFTLowestPrice']
         }
     },
     {
@@ -365,9 +330,7 @@ export const getNFTTrades = [
         description: 'The date from where to get the transfers ',
         optional: true,
         show: {
-            'inputParameters.operation': [
-                'getNFTTrades', 'getNFTTransfersFromToBlock'
-            ]
+            'inputParameters.operation': ['getNFTTrades', 'getNFTTransfersFromToBlock']
         }
     },
     {
@@ -377,9 +340,7 @@ export const getNFTTrades = [
         description: 'Get the transfers to this date',
         optional: true,
         show: {
-            'inputParameters.operation': [
-                'getNFTTrades', 'getNFTTransfersFromToBlock'
-            ]
+            'inputParameters.operation': ['getNFTTrades', 'getNFTTransfersFromToBlock']
         }
     },
     {
@@ -389,9 +350,7 @@ export const getNFTTrades = [
         description: 'The minimum block number from where to get the transfers.',
         optional: true,
         show: {
-            'inputParameters.operation': [
-                'getNFTTrades', 'getNFTTransfersFromToBlock'
-            ]
+            'inputParameters.operation': ['getNFTTrades', 'getNFTTransfersFromToBlock']
         }
     },
     {
@@ -401,12 +360,10 @@ export const getNFTTrades = [
         description: 'The maximum block number from where to get the transfers.',
         optional: true,
         show: {
-            'inputParameters.operation': [
-                'getNFTTrades', 'getNFTTransfersFromToBlock'
-            ]
+            'inputParameters.operation': ['getNFTTrades', 'getNFTTransfersFromToBlock']
         }
-    },
-] as INodeParams[];
+    }
+] as INodeParams[]
 
 export const getNFTLowestPrice = [
     {
@@ -416,12 +373,10 @@ export const getNFTLowestPrice = [
         description: 'The number of days to look back to find the lowest price. If not provided 7 days will be the default',
         optional: true,
         show: {
-            'inputParameters.operation': [
-                'getNFTLowestPrice'
-            ]
+            'inputParameters.operation': ['getNFTLowestPrice']
         }
-    },
-] as INodeParams[];
+    }
+] as INodeParams[]
 
 export const getContractNFTs = [
     {
@@ -430,9 +385,7 @@ export const getContractNFTs = [
         type: 'string',
         description: 'Address of the contract',
         show: {
-            'inputParameters.operation': [
-                'getContractNFTs', 'getNFTContractTransfers', 'getNFTOwners', 'getNFTMetadata'
-            ]
+            'inputParameters.operation': ['getContractNFTs', 'getNFTContractTransfers', 'getNFTOwners', 'getNFTMetadata']
         }
     },
     {
@@ -442,9 +395,7 @@ export const getContractNFTs = [
         optional: true,
         description: 'The number of subranges to split the results into',
         show: {
-            'inputParameters.operation': [
-                'getContractNFTs',
-            ]
+            'inputParameters.operation': ['getContractNFTs']
         }
     },
     {
@@ -454,9 +405,7 @@ export const getContractNFTs = [
         optional: true,
         description: 'The desired subrange to query',
         show: {
-            'inputParameters.operation': [
-                'getContractNFTs',
-            ]
+            'inputParameters.operation': ['getContractNFTs']
         }
     },
     {
@@ -477,12 +426,10 @@ export const getContractNFTs = [
         ],
         default: 'decimal',
         show: {
-            'inputParameters.operation': [
-                'getContractNFTs', 'getNFTContractTransfers', 'getNFTOwners'
-            ]
+            'inputParameters.operation': ['getContractNFTs', 'getNFTContractTransfers', 'getNFTOwners']
         }
-    },
-] as INodeParams[];
+    }
+] as INodeParams[]
 
 export const reSyncMetadata = [
     {
@@ -491,9 +438,7 @@ export const reSyncMetadata = [
         type: 'string',
         description: 'Address of the contract',
         show: {
-            'inputParameters.operation': [
-                'reSyncMetadata', 'getNFTTokenIdMetadata', 'getNFTTokenIdOwners', 'getNFTTokenIdTransfers'
-            ]
+            'inputParameters.operation': ['reSyncMetadata', 'getNFTTokenIdMetadata', 'getNFTTokenIdOwners', 'getNFTTokenIdTransfers']
         }
     },
     {
@@ -502,9 +447,7 @@ export const reSyncMetadata = [
         type: 'string',
         description: 'The id of the token',
         show: {
-            'inputParameters.operation': [
-                'reSyncMetadata', 'getNFTTokenIdMetadata', 'getNFTTokenIdOwners', 'getNFTTokenIdTransfers'
-            ]
+            'inputParameters.operation': ['reSyncMetadata', 'getNFTTokenIdMetadata', 'getNFTTokenIdOwners', 'getNFTTokenIdTransfers']
         }
     },
     {
@@ -525,9 +468,7 @@ export const reSyncMetadata = [
         ],
         default: 'uri',
         show: {
-            'inputParameters.operation': [
-                'reSyncMetadata'
-            ]
+            'inputParameters.operation': ['reSyncMetadata']
         }
     },
     {
@@ -548,12 +489,10 @@ export const reSyncMetadata = [
         ],
         default: 'async',
         show: {
-            'inputParameters.operation': [
-                'reSyncMetadata'
-            ]
+            'inputParameters.operation': ['reSyncMetadata']
         }
-    },
-] as INodeParams[];
+    }
+] as INodeParams[]
 
 export const getNFTTokenIdMetadata = [
     {
@@ -574,12 +513,10 @@ export const getNFTTokenIdMetadata = [
         ],
         default: 'decimal',
         show: {
-            'inputParameters.operation': [
-                'getNFTTokenIdMetadata', 'getNFTTokenIdOwners', 'getNFTTokenIdTransfers'
-            ]
+            'inputParameters.operation': ['getNFTTokenIdMetadata', 'getNFTTokenIdOwners', 'getNFTTokenIdTransfers']
         }
-    },
-] as INodeParams[];
+    }
+] as INodeParams[]
 
 export const getNFTTokenIdTransfers = [
     {
@@ -587,11 +524,10 @@ export const getNFTTokenIdTransfers = [
         name: 'order',
         type: 'string',
         optional: true,
-        description: 'The field(s) to order on and if it should be ordered in ascending or descending order. Specified by: fieldName1.order,fieldName2.order. Example 1: "block_number", "block_number.ASC", "block_number.DESC", Example 2: "block_number and contract_type", "block_number.ASC,contract_type.DESC"',
+        description:
+            'The field(s) to order on and if it should be ordered in ascending or descending order. Specified by: fieldName1.order,fieldName2.order. Example 1: "block_number", "block_number.ASC", "block_number.DESC", Example 2: "block_number and contract_type", "block_number.ASC,contract_type.DESC"',
         show: {
-            'inputParameters.operation': [
-                'getNFTTokenIdTransfers'
-            ]
+            'inputParameters.operation': ['getNFTTokenIdTransfers']
         }
-    },
-] as INodeParams[];
+    }
+] as INodeParams[]

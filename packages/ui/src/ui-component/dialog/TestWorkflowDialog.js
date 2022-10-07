@@ -1,7 +1,7 @@
-import { createPortal } from 'react-dom';
-import PropTypes from 'prop-types';
-import { useSelector } from 'react-redux';
-import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom'
+import PropTypes from 'prop-types'
+import { useSelector } from 'react-redux'
+import { useState, useEffect } from 'react'
 
 import {
     Dialog,
@@ -17,51 +17,51 @@ import {
     ListItemText,
     OutlinedInput,
     Stack
-} from '@mui/material';
-import { useTheme } from '@mui/material/styles';
+} from '@mui/material'
+import { useTheme } from '@mui/material/styles'
 
 // icons
-import { IconSearch } from '@tabler/icons';
+import { IconSearch } from '@tabler/icons'
 
 // const
-import { baseURL } from 'store/constant';
+import { baseURL } from 'store/constant'
 
 const TestWorkflowDialog = ({ show, dialogProps, onCancel, onItemClick }) => {
-    const portalElement = document.getElementById('portal');
-    const theme = useTheme();
-    const customization = useSelector((state) => state.customization);
+    const portalElement = document.getElementById('portal')
+    const theme = useTheme()
+    const customization = useSelector((state) => state.customization)
 
-    const [searchValue, setSearchValue] = useState('');
-    const [nodes, setNodes] = useState([]);
+    const [searchValue, setSearchValue] = useState('')
+    const [nodes, setNodes] = useState([])
 
     const filterSearch = (value) => {
-        setSearchValue(value);
+        setSearchValue(value)
         setTimeout(() => {
             if (value) {
-                const returnData = dialogProps.nodes.filter((nd) => nd.data.label.toLowerCase().includes(value.toLowerCase()));
-                setNodes(returnData);
+                const returnData = dialogProps.nodes.filter((nd) => nd.data.label.toLowerCase().includes(value.toLowerCase()))
+                setNodes(returnData)
             } else if (value === '') {
-                setNodes(dialogProps.nodes);
+                setNodes(dialogProps.nodes)
             }
-        }, 500);
-    };
+        }, 500)
+    }
 
     useEffect(() => {
         if (dialogProps.nodes) {
-            setNodes(dialogProps.nodes);
+            setNodes(dialogProps.nodes)
         }
-    }, [dialogProps]);
+    }, [dialogProps])
 
     const component = show ? (
         <Dialog
             open={show}
             fullWidth
-            maxWidth="md"
+            maxWidth='md'
             onClose={onCancel}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
+            aria-labelledby='alert-dialog-title'
+            aria-describedby='alert-dialog-description'
         >
-            <DialogTitle sx={{ fontSize: '1rem' }} id="alert-dialog-title">
+            <DialogTitle sx={{ fontSize: '1rem' }} id='alert-dialog-title'>
                 {dialogProps.title}
             </DialogTitle>
             <DialogContent>
@@ -71,16 +71,16 @@ const TestWorkflowDialog = ({ show, dialogProps, onCancel, onItemClick }) => {
                 <Box sx={{ p: 2 }}>
                     <OutlinedInput
                         sx={{ width: '100%', pr: 1, pl: 2, my: 2 }}
-                        id="input-search-node"
+                        id='input-search-node'
                         value={searchValue}
                         onChange={(e) => filterSearch(e.target.value)}
-                        placeholder="Search nodes"
+                        placeholder='Search nodes'
                         startAdornment={
-                            <InputAdornment position="start">
-                                <IconSearch stroke={1.5} size="1rem" color={theme.palette.grey[500]} />
+                            <InputAdornment position='start'>
+                                <IconSearch stroke={1.5} size='1rem' color={theme.palette.grey[500]} />
                             </InputAdornment>
                         }
-                        aria-describedby="search-helper-text"
+                        aria-describedby='search-helper-text'
                         inputProps={{
                             'aria-label': 'weight'
                         }}
@@ -114,7 +114,7 @@ const TestWorkflowDialog = ({ show, dialogProps, onCancel, onItemClick }) => {
                                         sx={{ p: 0, borderRadius: `${customization.borderRadius}px` }}
                                         onClick={() => onItemClick(node.id)}
                                     >
-                                        <ListItem alignItems="center">
+                                        <ListItem alignItems='center'>
                                             <ListItemAvatar>
                                                 <div style={{ width: 50, height: 50, borderRadius: '50%', backgroundColor: 'white' }}>
                                                     <img
@@ -135,16 +135,16 @@ const TestWorkflowDialog = ({ show, dialogProps, onCancel, onItemClick }) => {
                 </div>
             </DialogContent>
         </Dialog>
-    ) : null;
+    ) : null
 
-    return createPortal(component, portalElement);
-};
+    return createPortal(component, portalElement)
+}
 
 TestWorkflowDialog.propTypes = {
     show: PropTypes.bool,
     dialogProps: PropTypes.object,
     onCancel: PropTypes.func,
     onItemClick: PropTypes.func
-};
+}
 
-export default TestWorkflowDialog;
+export default TestWorkflowDialog

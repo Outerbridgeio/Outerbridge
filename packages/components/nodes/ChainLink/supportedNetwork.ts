@@ -1,9 +1,9 @@
-import { INodeOptionsValue } from "../../src";
-import { NETWORK, NETWORK_LABEL } from "../../src/ChainNetwork";
+import { INodeOptionsValue } from '../../src'
+import { NETWORK, NETWORK_LABEL } from '../../src/ChainNetwork'
 
 export type IChainLinkNetworkMapping = {
-    [key in NETWORK]: string;
-};
+    [key in NETWORK]: string
+}
 
 export const chainLinkNetworkMapping = {
     [NETWORK.MAINNET]: 'Ethereum Mainnet',
@@ -28,8 +28,8 @@ export const chainLinkNetworkMapping = {
     [NETWORK.MOONRIVER]: 'Moonriver Mainnet',
     [NETWORK.MOONBEAM]: 'Moonbeam Mainnet',
     [NETWORK.METIS]: 'Metis Mainnet',
-    [NETWORK.KLATYN_TESTNET]: 'Klaytn Baobab testnet',
-} as IChainLinkNetworkMapping;
+    [NETWORK.KLATYN_TESTNET]: 'Klaytn Baobab testnet'
+} as IChainLinkNetworkMapping
 
 export const chainLinkNetworks: INodeOptionsValue[] = [
     {
@@ -215,5 +215,5 @@ export const chainLinkNetworks: INodeOptionsValue[] = [
         hide: {
             'actions.operation': ['getProofReserve', 'getNFTFloorPricing']
         }
-    },
-];
+    }
+]

@@ -1,35 +1,34 @@
+import express, { Express, Request, Response } from 'express'
+import path from 'path'
+import cors from 'cors'
+import localtunnel from 'localtunnel'
+import { ObjectId } from 'mongodb'
+import { Server, Socket } from 'socket.io'
+import http from 'http'
+import { ethers } from 'ethers'
 
-import express, { Express, Request, Response } from 'express';
-import path from 'path';
-import cors from 'cors';
-import localtunnel from 'localtunnel';
-import { ObjectId } from 'mongodb';
-import { Server, Socket } from "socket.io";
-import http from "http";
-import { ethers } from 'ethers';
-
-import { 
-    IComponentCredentialsPool, 
-    IComponentNodesPool, 
-    IContractRequestBody, 
-    ICredentialBody, 
-    ICredentialDataDecrpyted, 
-    ICredentialResponse, 
-    IOAuth2Response, 
-    IReactFlowEdge, 
-    IReactFlowNode, 
-    IReactFlowObject, 
-    ITestNodeBody, 
-    ITestWorkflowBody, 
-    ITriggerNode, 
-    IWalletRequestBody, 
-    IWalletResponse, 
-    IWebhookNode, 
-    IWorkflowExecutedData, 
-    IWorkflowResponse, 
+import {
+    IComponentCredentialsPool,
+    IComponentNodesPool,
+    IContractRequestBody,
+    ICredentialBody,
+    ICredentialDataDecrpyted,
+    ICredentialResponse,
+    IOAuth2Response,
+    IReactFlowEdge,
+    IReactFlowNode,
+    IReactFlowObject,
+    ITestNodeBody,
+    ITestWorkflowBody,
+    ITriggerNode,
+    IWalletRequestBody,
+    IWalletResponse,
+    IWebhookNode,
+    IWorkflowExecutedData,
+    IWorkflowResponse,
     WebhookMethod
-} from "./Interface";
-import { 
+} from './Interface'
+import {
     INodeData,
     INodeOptionsValue,
     IDbCollection,
@@ -37,17 +36,17 @@ import {
     nativeCurrency,
     NETWORK,
     INodeExecutionData,
-    INode,
-} from "outerbridge-components";
-import { CredentialsPool } from './CredentialsPool';
-import { NodesPool } from "./NodesPool";
-import { 
-    decryptCredentialData, 
-    getEncryptionKey, 
-    processWebhook, 
-    decryptCredentials, 
-    resolveVariables, 
-    transformToCredentialEntity, 
+    INode
+} from 'outerbridge-components'
+import { CredentialsPool } from './CredentialsPool'
+import { NodesPool } from './NodesPool'
+import {
+    decryptCredentialData,
+    getEncryptionKey,
+    processWebhook,
+    decryptCredentials,
+    resolveVariables,
+    transformToCredentialEntity,
     constructGraphsAndGetStartingNodes,
     encryptCredentialData,
     getOAuth2HTMLPath,
@@ -55,498 +54,464 @@ import {
     constructGraphs,
     testWorkflow,
     getNodeModulesPackagePath,
-    getRandomSubdomain,
-} from './utils';
-import { DeployedWorkflowPool } from './DeployedWorkflowPool';
-import { ActiveTestTriggerPool } from './ActiveTestTriggerPool';
-import { ActiveTestWebhookPool } from './ActiveTestWebhookPool';
-import axios, { AxiosRequestConfig, Method } from 'axios';
+    getRandomSubdomain
+} from './utils'
+import { DeployedWorkflowPool } from './DeployedWorkflowPool'
+import { ActiveTestTriggerPool } from './ActiveTestTriggerPool'
+import { ActiveTestWebhookPool } from './ActiveTestWebhookPool'
+import axios, { AxiosRequestConfig, Method } from 'axios'
 
-import { Workflow } from "./entity/Workflow"
-import { Execution } from "./entity/Execution"
-import { Credential } from "./entity/Credential"
-import { Webhook } from "./entity/Webhook"
-import { Contract } from "./entity/Contract"
-import { Wallet } from "./entity/Wallet"
-import { getDataSource } from './DataSource';
+import { Workflow } from './entity/Workflow'
+import { Execution } from './entity/Execution'
+import { Credential } from './entity/Credential'
+import { Webhook } from './entity/Webhook'
+import { Contract } from './entity/Contract'
+import { Wallet } from './entity/Wallet'
+import { getDataSource } from './DataSource'
 
 export class App {
-
-    app: express.Application;
-    componentNodes: IComponentNodesPool = {};
-    componentCredentials: IComponentCredentialsPool = {};
-    deployedWorkflowsPool: DeployedWorkflowPool;
-    activeTestTriggerPool: ActiveTestTriggerPool;
-    activeTestWebhookPool: ActiveTestWebhookPool;
-    AppDataSource = getDataSource();
+    app: express.Application
+    componentNodes: IComponentNodesPool = {}
+    componentCredentials: IComponentCredentialsPool = {}
+    deployedWorkflowsPool: DeployedWorkflowPool
+    activeTestTriggerPool: ActiveTestTriggerPool
+    activeTestWebhookPool: ActiveTestWebhookPool
+    AppDataSource = getDataSource()
 
     constructor() {
-		this.app = express();
+        this.app = express()
     }
 
     async initDatabase() {
         // Initialize database
-        this.AppDataSource
-        .initialize()
-        .then( async() => {
-            console.log("📦[server]: Data Source has been initialized!");
+        this.AppDataSource.initialize()
+            .then(async () => {
+                console.log('📦[server]: Data Source has been initialized!')
 
-            // Initialize localtunnel
-            if (process.env.ENABLE_TUNNEL === 'true') {
-                const subdomain = getRandomSubdomain();
+                // Initialize localtunnel
+                if (process.env.ENABLE_TUNNEL === 'true') {
+                    const subdomain = getRandomSubdomain()
 
-                const tunnelSettings: localtunnel.TunnelConfig = {
-                    subdomain
-                };
+                    const tunnelSettings: localtunnel.TunnelConfig = {
+                        subdomain
+                    }
 
-                const port = parseInt(process.env.PORT || '', 10) || 3000;
+                    const port = parseInt(process.env.PORT || '', 10) || 3000
 
-                const createTunnel = (timeout: number): Promise<localtunnel.Tunnel | string> => {
-                    return new Promise(function(resolve, reject) {
-                        localtunnel(port, tunnelSettings).then(resolve, reject);
-                        setTimeout(resolve, timeout, 'TUNNEL_TIMED_OUT');
-                    });
+                    const createTunnel = (timeout: number): Promise<localtunnel.Tunnel | string> => {
+                        return new Promise(function (resolve, reject) {
+                            localtunnel(port, tunnelSettings).then(resolve, reject)
+                            setTimeout(resolve, timeout, 'TUNNEL_TIMED_OUT')
+                        })
+                    }
+
+                    const newTunnel = await createTunnel(10000)
+
+                    if (typeof newTunnel !== 'string') {
+                        process.env.TUNNEL_BASE_URL = `${newTunnel.url}/`
+                        console.log('🌐[server]: TUNNEL_BASE_URL = ', process.env.TUNNEL_BASE_URL)
+                    }
                 }
 
-                const newTunnel = await createTunnel(10000);
+                // Initialize node instances
+                const nodesPool = new NodesPool()
+                await nodesPool.initialize()
+                this.componentNodes = nodesPool.componentNodes
 
-                if (typeof newTunnel !== 'string') {
-                    process.env.TUNNEL_BASE_URL = `${newTunnel.url}/`;
-                    console.log('🌐[server]: TUNNEL_BASE_URL = ', process.env.TUNNEL_BASE_URL);
-                }
-            }
+                // Initialize credential instances
+                const credsPool = new CredentialsPool()
+                await credsPool.initialize()
+                this.componentCredentials = credsPool.componentCredentials
 
-            // Initialize node instances
-            const nodesPool = new NodesPool();
-            await nodesPool.initialize();
-            this.componentNodes = nodesPool.componentNodes;
+                // Initialize deployed worklows instances
+                this.deployedWorkflowsPool = new DeployedWorkflowPool()
+                await this.deployedWorkflowsPool.initialize(this.AppDataSource, this.componentNodes)
 
-            
-            // Initialize credential instances
-            const credsPool = new CredentialsPool();
-            await credsPool.initialize();
-            this.componentCredentials = credsPool.componentCredentials;
+                // Initialize activeTestTriggerPool instance
+                this.activeTestTriggerPool = new ActiveTestTriggerPool()
 
-            
-            // Initialize deployed worklows instances
-            this.deployedWorkflowsPool = new DeployedWorkflowPool();
-            await this.deployedWorkflowsPool.initialize(this.AppDataSource, this.componentNodes);
-
-
-            // Initialize activeTestTriggerPool instance
-            this.activeTestTriggerPool = new ActiveTestTriggerPool();
-
-
-            // Initialize activeTestWebhookPool instance
-            this.activeTestWebhookPool = new ActiveTestWebhookPool();
-            
-        })
-        .catch((err) => {
-            console.error("❌[server]: Error during Data Source initialization:", err);
-        });
+                // Initialize activeTestWebhookPool instance
+                this.activeTestWebhookPool = new ActiveTestWebhookPool()
+            })
+            .catch((err) => {
+                console.error('❌[server]: Error during Data Source initialization:', err)
+            })
     }
 
     async config(io: Server) {
-    
-        // Limit is needed to allow sending/receiving base64 encoded string 
-        this.app.use(express.json({limit: '50mb'}));
-        this.app.use(express.urlencoded({limit: '50mb'}));
+        // Limit is needed to allow sending/receiving base64 encoded string
+        this.app.use(express.json({ limit: '50mb' }))
+        this.app.use(express.urlencoded({ limit: '50mb' }))
 
         // Allow access from ui when yarn run dev
         if (process.env.NODE_ENV !== 'production') {
-            this.app.use(cors({credentials: true, origin: 'http://localhost:8080'}));
+            this.app.use(cors({ credentials: true, origin: 'http://localhost:8080' }))
         }
-        
+
         // ----------------------------------------
         // Workflows
         // ----------------------------------------
 
         // Get all workflows
-        this.app.get("/api/v1/workflows", async (req: Request, res: Response) => {
-            const workflows: IWorkflowResponse[] = await this.AppDataSource.getMongoRepository(Workflow).aggregate(
-                [
+        this.app.get('/api/v1/workflows', async (req: Request, res: Response) => {
+            const workflows: IWorkflowResponse[] = await this.AppDataSource.getMongoRepository(Workflow)
+                .aggregate([
                     {
-                        $lookup: { 
-                            from: "execution", 
-                            localField: "shortId", 
-                            foreignField: "workflowShortId",
-                            as: "execution"
+                        $lookup: {
+                            from: 'execution',
+                            localField: 'shortId',
+                            foreignField: 'workflowShortId',
+                            as: 'execution'
                         }
                     },
                     {
                         $addFields: {
                             executionCount: {
-                                $size: "$execution"
+                                $size: '$execution'
                             }
                         }
                     }
-                ]
-            ).toArray();
-            return res.json(workflows);
-        });
+                ])
+                .toArray()
+            return res.json(workflows)
+        })
 
         // Get specific workflow via shortId
-        this.app.get("/api/v1/workflows/:shortId", async (req: Request, res: Response) => {
+        this.app.get('/api/v1/workflows/:shortId', async (req: Request, res: Response) => {
             const workflows: IWorkflowResponse[] = await this.AppDataSource.getMongoRepository(Workflow)
-            .aggregate(
-                [
+                .aggregate([
                     {
                         $match: {
-                            shortId: req.params.shortId,
+                            shortId: req.params.shortId
                         }
                     },
                     {
-                        $lookup: { 
-                            from: "execution", 
-                            localField: "shortId", 
-                            foreignField: "workflowShortId",
-                            as: "execution"
+                        $lookup: {
+                            from: 'execution',
+                            localField: 'shortId',
+                            foreignField: 'workflowShortId',
+                            as: 'execution'
                         }
                     },
                     {
                         $addFields: {
                             executionCount: {
-                                $size: "$execution"
+                                $size: '$execution'
                             }
                         }
                     }
-                ]
-            ).toArray();
-            if (workflows.length) return res.json(workflows[0]);
-            return res.status(404).send(`Workflow ${req.params.shortId} not found`);
-        });
+                ])
+                .toArray()
+            if (workflows.length) return res.json(workflows[0])
+            return res.status(404).send(`Workflow ${req.params.shortId} not found`)
+        })
 
         // Create new workflow
-        this.app.post("/api/v1/workflows", async (req: Request, res: Response) => {
-            const body = req.body;
-            const newWorkflow = new Workflow();
-            Object.assign(newWorkflow, body);
+        this.app.post('/api/v1/workflows', async (req: Request, res: Response) => {
+            const body = req.body
+            const newWorkflow = new Workflow()
+            Object.assign(newWorkflow, body)
 
-            const workflow = await this.AppDataSource.getMongoRepository(Workflow).create(newWorkflow);
-            const results = await this.AppDataSource.getMongoRepository(Workflow).save(workflow);
+            const workflow = await this.AppDataSource.getMongoRepository(Workflow).create(newWorkflow)
+            const results = await this.AppDataSource.getMongoRepository(Workflow).save(workflow)
             const returnWorkflows: IWorkflowResponse[] = await this.AppDataSource.getMongoRepository(Workflow)
-            .aggregate(
-                [
+                .aggregate([
                     {
                         $match: {
-                            shortId: results.shortId,
+                            shortId: results.shortId
                         }
                     },
                     {
-                        $lookup: { 
-                            from: "execution", 
-                            localField: "shortId", 
-                            foreignField: "workflowShortId",
-                            as: "execution"
+                        $lookup: {
+                            from: 'execution',
+                            localField: 'shortId',
+                            foreignField: 'workflowShortId',
+                            as: 'execution'
                         }
                     },
                     {
                         $addFields: {
                             executionCount: {
-                                $size: "$execution"
+                                $size: '$execution'
                             }
                         }
                     }
-                ]
-            ).toArray();
-            if (returnWorkflows.length) return res.json(returnWorkflows[0]);
-            return res.status(404).send(`Workflow ${results.shortId} not found`);
-        });
+                ])
+                .toArray()
+            if (returnWorkflows.length) return res.json(returnWorkflows[0])
+            return res.status(404).send(`Workflow ${results.shortId} not found`)
+        })
 
         // Update workflow
-        this.app.put("/api/v1/workflows/:shortId", async (req: Request, res: Response) => {
+        this.app.put('/api/v1/workflows/:shortId', async (req: Request, res: Response) => {
             const workflow = await this.AppDataSource.getMongoRepository(Workflow).findOneBy({
-                shortId: req.params.shortId,
-            });
+                shortId: req.params.shortId
+            })
 
             if (!workflow) {
-                res.status(404).send(`Workflow ${req.params.shortId} not found`);
-                return;
+                res.status(404).send(`Workflow ${req.params.shortId} not found`)
+                return
             }
 
-            // If workflow is deployed, remove from deployedWorkflowsPool, then add it again for new changes to be picked up 
+            // If workflow is deployed, remove from deployedWorkflowsPool, then add it again for new changes to be picked up
             if (workflow.deployed && workflow.flowData) {
                 try {
-                    const flowDataString = workflow.flowData;
-                    const flowData: IReactFlowObject = JSON.parse(flowDataString);
-                    const reactFlowNodes = flowData.nodes as IReactFlowNode[];
-                    const reactFlowEdges = flowData.edges as IReactFlowEdge[];
-                    const workflowShortId = workflow.shortId;
+                    const flowDataString = workflow.flowData
+                    const flowData: IReactFlowObject = JSON.parse(flowDataString)
+                    const reactFlowNodes = flowData.nodes as IReactFlowNode[]
+                    const reactFlowEdges = flowData.edges as IReactFlowEdge[]
+                    const workflowShortId = workflow.shortId
 
-                    const response = constructGraphsAndGetStartingNodes(res, reactFlowNodes, reactFlowEdges);
-                    if (response === undefined) return;
+                    const response = constructGraphsAndGetStartingNodes(res, reactFlowNodes, reactFlowEdges)
+                    if (response === undefined) return
 
-                    const { graph, startingNodeIds } = response;
+                    const { graph, startingNodeIds } = response
 
-                    await this.deployedWorkflowsPool.remove(
-                        startingNodeIds, 
-                        reactFlowNodes, 
-                        this.componentNodes, 
-                        workflowShortId
-                    );
-                } catch(e) {
-                    return res.status(500).send(e);
+                    await this.deployedWorkflowsPool.remove(startingNodeIds, reactFlowNodes, this.componentNodes, workflowShortId)
+                } catch (e) {
+                    return res.status(500).send(e)
                 }
             }
 
-            const body = req.body;
-            const updateWorkflow = new Workflow();
-            Object.assign(updateWorkflow, body);
+            const body = req.body
+            const updateWorkflow = new Workflow()
+            Object.assign(updateWorkflow, body)
 
-            this.AppDataSource.getMongoRepository(Workflow).merge(workflow, updateWorkflow);
-            const results = await this.AppDataSource.getMongoRepository(Workflow).save(workflow);
+            this.AppDataSource.getMongoRepository(Workflow).merge(workflow, updateWorkflow)
+            const results = await this.AppDataSource.getMongoRepository(Workflow).save(workflow)
             const returnWorkflows: IWorkflowResponse[] = await this.AppDataSource.getMongoRepository(Workflow)
-            .aggregate(
-                [
+                .aggregate([
                     {
                         $match: {
-                            shortId: results.shortId,
+                            shortId: results.shortId
                         }
                     },
                     {
-                        $lookup: { 
-                            from: "execution", 
-                            localField: "shortId", 
-                            foreignField: "workflowShortId",
-                            as: "execution"
+                        $lookup: {
+                            from: 'execution',
+                            localField: 'shortId',
+                            foreignField: 'workflowShortId',
+                            as: 'execution'
                         }
                     },
                     {
                         $addFields: {
                             executionCount: {
-                                $size: "$execution"
+                                $size: '$execution'
                             }
                         }
                     }
-                ]
-            ).toArray();
+                ])
+                .toArray()
             if (returnWorkflows.length) {
-                const returnWorkflow = returnWorkflows[0];
+                const returnWorkflow = returnWorkflows[0]
                 if (returnWorkflow.deployed && returnWorkflow.flowData) {
                     try {
-                        const flowData: IReactFlowObject = JSON.parse(returnWorkflow.flowData);
-                        const reactFlowNodes = flowData.nodes as IReactFlowNode[];
-                        const reactFlowEdges = flowData.edges as IReactFlowEdge[];
-                        const workflowShortId = returnWorkflow.shortId;
+                        const flowData: IReactFlowObject = JSON.parse(returnWorkflow.flowData)
+                        const reactFlowNodes = flowData.nodes as IReactFlowNode[]
+                        const reactFlowEdges = flowData.edges as IReactFlowEdge[]
+                        const workflowShortId = returnWorkflow.shortId
 
-                        const response = constructGraphsAndGetStartingNodes(res, reactFlowNodes, reactFlowEdges);
-                        if (response === undefined) return;
+                        const response = constructGraphsAndGetStartingNodes(res, reactFlowNodes, reactFlowEdges)
+                        if (response === undefined) return
 
-                        const { graph, startingNodeIds } = response;
+                        const { graph, startingNodeIds } = response
                         await this.deployedWorkflowsPool.add(
-                            startingNodeIds, 
-                            graph, 
-                            reactFlowNodes, 
-                            this.componentNodes, 
+                            startingNodeIds,
+                            graph,
+                            reactFlowNodes,
+                            this.componentNodes,
                             workflowShortId,
                             this.activeTestTriggerPool,
                             this.activeTestWebhookPool
-                        );
-                    } catch(e) {
-                        return res.status(500).send(e);
+                        )
+                    } catch (e) {
+                        return res.status(500).send(e)
                     }
                 }
-                return res.json(returnWorkflow);
+                return res.json(returnWorkflow)
             }
-            return res.status(404).send(`Workflow ${results.shortId} not found`);
-        });
+            return res.status(404).send(`Workflow ${results.shortId} not found`)
+        })
 
         // Delete workflow via shortId
-        this.app.delete("/api/v1/workflows/:shortId", async (req: Request, res: Response) => {
+        this.app.delete('/api/v1/workflows/:shortId', async (req: Request, res: Response) => {
             const workflow = await this.AppDataSource.getMongoRepository(Workflow).findOneBy({
-                shortId: req.params.shortId,
-            });
+                shortId: req.params.shortId
+            })
 
             if (!workflow) {
-                res.status(404).send(`Workflow ${req.params.shortId} not found`);
-                return;
+                res.status(404).send(`Workflow ${req.params.shortId} not found`)
+                return
             }
 
             // If workflow is deployed, remove from deployedWorkflowsPool
             if (workflow.deployed && workflow.flowData) {
                 try {
-                    const flowDataString = workflow.flowData;
-                    const flowData: IReactFlowObject = JSON.parse(flowDataString);
-                    const reactFlowNodes = flowData.nodes as IReactFlowNode[];
-                    const reactFlowEdges = flowData.edges as IReactFlowEdge[];
-                    const workflowShortId = workflow.shortId;
+                    const flowDataString = workflow.flowData
+                    const flowData: IReactFlowObject = JSON.parse(flowDataString)
+                    const reactFlowNodes = flowData.nodes as IReactFlowNode[]
+                    const reactFlowEdges = flowData.edges as IReactFlowEdge[]
+                    const workflowShortId = workflow.shortId
 
-                    const response = constructGraphsAndGetStartingNodes(res, reactFlowNodes, reactFlowEdges);
-                    if (response === undefined) return;
+                    const response = constructGraphsAndGetStartingNodes(res, reactFlowNodes, reactFlowEdges)
+                    if (response === undefined) return
 
-                    const { graph, startingNodeIds } = response;
+                    const { graph, startingNodeIds } = response
 
-                    await this.deployedWorkflowsPool.remove(
-                        startingNodeIds, 
-                        reactFlowNodes, 
-                        this.componentNodes, 
-                        workflowShortId
-                    );
-                } catch(e) {
-                    return res.status(500).send(e);
+                    await this.deployedWorkflowsPool.remove(startingNodeIds, reactFlowNodes, this.componentNodes, workflowShortId)
+                } catch (e) {
+                    return res.status(500).send(e)
                 }
             }
-            const results = await this.AppDataSource.getMongoRepository(Workflow).delete({ shortId: req.params.shortId });
-            await this.AppDataSource.getMongoRepository(Webhook).delete({ workflowShortId: req.params.shortId });
-            await this.AppDataSource.getMongoRepository(Execution).delete({ workflowShortId: req.params.shortId });
-            return res.json(results);
-        });
+            const results = await this.AppDataSource.getMongoRepository(Workflow).delete({ shortId: req.params.shortId })
+            await this.AppDataSource.getMongoRepository(Webhook).delete({ workflowShortId: req.params.shortId })
+            await this.AppDataSource.getMongoRepository(Execution).delete({ workflowShortId: req.params.shortId })
+            return res.json(results)
+        })
 
         // Deploy/Halt workflow via shortId
-        this.app.post("/api/v1/workflows/deploy/:shortId", async (req: Request, res: Response) => {
-
+        this.app.post('/api/v1/workflows/deploy/:shortId', async (req: Request, res: Response) => {
             const workflow = await this.AppDataSource.getMongoRepository(Workflow).findOneBy({
-                shortId: req.params.shortId,
-            });
+                shortId: req.params.shortId
+            })
 
             if (!workflow) {
-                res.status(404).send(`Workflow ${req.params.shortId} not found`);
-                return;
+                res.status(404).send(`Workflow ${req.params.shortId} not found`)
+                return
             }
 
-            try {    
-                const flowDataString = workflow.flowData;
-                const flowData: IReactFlowObject = JSON.parse(flowDataString);
-                const reactFlowNodes = flowData.nodes as IReactFlowNode[];
-                const reactFlowEdges = flowData.edges as IReactFlowEdge[];
-                const workflowShortId = req.params.shortId;
-                const haltDeploy = req.body?.halt;
+            try {
+                const flowDataString = workflow.flowData
+                const flowData: IReactFlowObject = JSON.parse(flowDataString)
+                const reactFlowNodes = flowData.nodes as IReactFlowNode[]
+                const reactFlowEdges = flowData.edges as IReactFlowEdge[]
+                const workflowShortId = req.params.shortId
+                const haltDeploy = req.body?.halt
 
-                const response = constructGraphsAndGetStartingNodes(res, reactFlowNodes, reactFlowEdges);
-                if (response === undefined) return;
-                const { graph, startingNodeIds } = response;
+                const response = constructGraphsAndGetStartingNodes(res, reactFlowNodes, reactFlowEdges)
+                if (response === undefined) return
+                const { graph, startingNodeIds } = response
 
                 if (!haltDeploy) {
                     await this.deployedWorkflowsPool.add(
-                        startingNodeIds, 
-                        graph, 
-                        reactFlowNodes, 
-                        this.componentNodes, 
+                        startingNodeIds,
+                        graph,
+                        reactFlowNodes,
+                        this.componentNodes,
                         workflowShortId,
                         this.activeTestTriggerPool,
                         this.activeTestWebhookPool
-                    );
+                    )
                 } else {
-                    await this.deployedWorkflowsPool.remove(
-                        startingNodeIds, 
-                        reactFlowNodes, 
-                        this.componentNodes, 
-                        workflowShortId
-                    );
+                    await this.deployedWorkflowsPool.remove(startingNodeIds, reactFlowNodes, this.componentNodes, workflowShortId)
                 }
 
-                const body = { deployed: haltDeploy ? false : true };
-                const updateWorkflow = new Workflow();
-                Object.assign(updateWorkflow, body);
-            
-                this.AppDataSource.getMongoRepository(Workflow).merge(workflow, updateWorkflow);
-                const results = await this.AppDataSource.getMongoRepository(Workflow).save(workflow);
+                const body = { deployed: haltDeploy ? false : true }
+                const updateWorkflow = new Workflow()
+                Object.assign(updateWorkflow, body)
+
+                this.AppDataSource.getMongoRepository(Workflow).merge(workflow, updateWorkflow)
+                const results = await this.AppDataSource.getMongoRepository(Workflow).save(workflow)
                 const returnWorkflows: IWorkflowResponse[] = await this.AppDataSource.getMongoRepository(Workflow)
-                .aggregate(
-                    [
+                    .aggregate([
                         {
                             $match: {
-                                shortId: results.shortId,
+                                shortId: results.shortId
                             }
                         },
                         {
-                            $lookup: { 
-                                from: "execution", 
-                                localField: "shortId", 
-                                foreignField: "workflowShortId",
-                                as: "execution"
+                            $lookup: {
+                                from: 'execution',
+                                localField: 'shortId',
+                                foreignField: 'workflowShortId',
+                                as: 'execution'
                             }
                         },
                         {
                             $addFields: {
                                 executionCount: {
-                                    $size: "$execution"
+                                    $size: '$execution'
                                 }
                             }
                         }
-                    ]
-                ).toArray();
-                if (returnWorkflows.length) return res.json(returnWorkflows[0]);
-                return res.status(404).send(`Workflow ${results.shortId} not found`);
+                    ])
+                    .toArray()
+                if (returnWorkflows.length) return res.json(returnWorkflows[0])
+                return res.status(404).send(`Workflow ${results.shortId} not found`)
             } catch (e) {
-                res.status(500).send(`Workflow ${req.params.shortId} deploy error: ${e}`);
-                return;
+                res.status(500).send(`Workflow ${req.params.shortId} deploy error: ${e}`)
+                return
             }
-        });
+        })
 
         // Test Workflow from a starting point to end
-        this.app.post("/api/v1/workflows/test/:startingNodeId", async (req: Request, res: Response) => {
-            const body = req.body as ITestWorkflowBody;
-            const nodes = body.nodes || [];
-            const edges = body.edges || [];
-            const clientId = body.clientId || '';
+        this.app.post('/api/v1/workflows/test/:startingNodeId', async (req: Request, res: Response) => {
+            const body = req.body as ITestWorkflowBody
+            const nodes = body.nodes || []
+            const edges = body.edges || []
+            const clientId = body.clientId || ''
 
-            const { graph, nodeDependencies } = constructGraphs(nodes, edges);
-            const startingNodeId = req.params.startingNodeId;
+            const { graph, nodeDependencies } = constructGraphs(nodes, edges)
+            const startingNodeId = req.params.startingNodeId
 
-            const startNode = nodes.find((nd: IReactFlowNode) => nd.id === startingNodeId);
+            const startNode = nodes.find((nd: IReactFlowNode) => nd.id === startingNodeId)
 
             if (startNode && startNode.data) {
-
-                let nodeData = startNode.data;
-                await decryptCredentials(nodeData);
-                nodeData = resolveVariables(nodeData, nodes);
+                let nodeData = startNode.data
+                await decryptCredentials(nodeData)
+                nodeData = resolveVariables(nodeData, nodes)
 
                 if (!Object.prototype.hasOwnProperty.call(this.componentNodes, nodeData.name)) {
-                    res.status(404).send(`Unable to test workflow from node: ${nodeData.name}`);
-                    return;
+                    res.status(404).send(`Unable to test workflow from node: ${nodeData.name}`)
+                    return
                 }
 
                 if (nodeData.type === 'trigger') {
-                    const triggerNodeInstance = this.componentNodes[nodeData.name] as ITriggerNode;
-                    const emitEventKey = startingNodeId;
-                    nodeData.emitEventKey = emitEventKey;
+                    const triggerNodeInstance = this.componentNodes[nodeData.name] as ITriggerNode
+                    const emitEventKey = startingNodeId
+                    nodeData.emitEventKey = emitEventKey
 
-                    triggerNodeInstance.once(emitEventKey, async(result: INodeExecutionData[]) => {
-                        await triggerNodeInstance.removeTrigger!.call(triggerNodeInstance, nodeData);
-                        await this.activeTestTriggerPool.remove(nodeData.name, this.componentNodes);
+                    triggerNodeInstance.once(emitEventKey, async (result: INodeExecutionData[]) => {
+                        await triggerNodeInstance.removeTrigger!.call(triggerNodeInstance, nodeData)
+                        await this.activeTestTriggerPool.remove(nodeData.name, this.componentNodes)
 
                         const newWorkflowExecutedData = {
                             nodeId: startingNodeId,
                             nodeLabel: nodeData.label,
                             data: result,
                             status: 'FINISHED'
-                        } as IWorkflowExecutedData;
+                        } as IWorkflowExecutedData
 
-                        io.to(clientId).emit('testWorkflowNodeResponse', newWorkflowExecutedData);
+                        io.to(clientId).emit('testWorkflowNodeResponse', newWorkflowExecutedData)
 
-                        testWorkflow(
-                            startingNodeId,
-                            nodes,
-                            edges,
-                            graph,
-                            this.componentNodes,
-                            clientId,
-                            io
-                        );
-                    });
+                        testWorkflow(startingNodeId, nodes, edges, graph, this.componentNodes, clientId, io)
+                    })
 
-                    await triggerNodeInstance.runTrigger!.call(triggerNodeInstance, nodeData);
-                    this.activeTestTriggerPool.add(nodeData.name, nodeData);
-                }
-                else if (nodeData.type === 'webhook') {
-                    const webhookNodeInstance = this.componentNodes[nodeData.name] as IWebhookNode;
+                    await triggerNodeInstance.runTrigger!.call(triggerNodeInstance, nodeData)
+                    this.activeTestTriggerPool.add(nodeData.name, nodeData)
+                } else if (nodeData.type === 'webhook') {
+                    const webhookNodeInstance = this.componentNodes[nodeData.name] as IWebhookNode
                     const newBody = {
                         webhookEndpoint: nodeData.webhookEndpoint,
-                        httpMethod: nodeData.inputParameters?.httpMethod as WebhookMethod || 'POST',
-                    } as any;
+                        httpMethod: (nodeData.inputParameters?.httpMethod as WebhookMethod) || 'POST'
+                    } as any
 
                     if (webhookNodeInstance.webhookMethods?.createWebhook) {
                         if (!process.env.TUNNEL_BASE_URL) {
-                            res.status(500).send(`Please enable tunnel by setting ENABLE_TUNNEL to true in env file`);
-                            return;
+                            res.status(500).send(`Please enable tunnel by setting ENABLE_TUNNEL to true in env file`)
+                            return
                         }
-                        
-                        const webhookFullUrl = `${process.env.TUNNEL_BASE_URL}api/v1/webhook/${nodeData.webhookEndpoint}`;
-                        const webhookId = await webhookNodeInstance.webhookMethods?.createWebhook.call(webhookNodeInstance, nodeData, webhookFullUrl);
-            
+
+                        const webhookFullUrl = `${process.env.TUNNEL_BASE_URL}api/v1/webhook/${nodeData.webhookEndpoint}`
+                        const webhookId = await webhookNodeInstance.webhookMethods?.createWebhook.call(
+                            webhookNodeInstance,
+                            nodeData,
+                            webhookFullUrl
+                        )
+
                         if (webhookId !== undefined) {
-                            newBody.webhookId = webhookId;
+                            newBody.webhookId = webhookId
                         }
                     }
 
@@ -560,25 +525,23 @@ export class App {
                         clientId,
                         true,
                         newBody?.webhookId
-                    );
-                }
-                else if (nodeData.type === 'action') {
-                    
-                    const actionNodeInstance = this.componentNodes[nodeData.name] as INode;
-                    let result = await actionNodeInstance.run!.call(actionNodeInstance, nodeData);
+                    )
+                } else if (nodeData.type === 'action') {
+                    const actionNodeInstance = this.componentNodes[nodeData.name] as INode
+                    let result = await actionNodeInstance.run!.call(actionNodeInstance, nodeData)
                     checkOAuth2TokenRefreshed(result, nodeData)
-                    
+
                     const newWorkflowExecutedData = {
                         nodeId: startingNodeId,
                         nodeLabel: nodeData.label,
                         data: result,
                         status: 'FINISHED'
-                    } as IWorkflowExecutedData;
+                    } as IWorkflowExecutedData
 
-                    io.to(clientId).emit('testWorkflowNodeResponse', newWorkflowExecutedData);
+                    io.to(clientId).emit('testWorkflowNodeResponse', newWorkflowExecutedData)
 
-                    const reactFlowNodes = nodes;
-                    const nodeIndex = reactFlowNodes.findIndex((nd) => nd.id === startingNodeId);
+                    const reactFlowNodes = nodes
+                    const nodeIndex = reactFlowNodes.findIndex((nd) => nd.id === startingNodeId)
 
                     // Update reactFlowNodes for resolveVariables
                     if (reactFlowNodes[nodeIndex].data.outputResponses) {
@@ -591,184 +554,179 @@ export class App {
                             submit: true,
                             needRetest: null,
                             output: result
-                        };
+                        }
                     }
 
-                    testWorkflow(
-                        startingNodeId,
-                        reactFlowNodes,
-                        edges,
-                        graph,
-                        this.componentNodes,
-                        clientId,
-                        io
-                    );
+                    testWorkflow(startingNodeId, reactFlowNodes, edges, graph, this.componentNodes, clientId, io)
                 }
             }
-        });
+        })
 
-        
         // ----------------------------------------
         // Execution
         // ----------------------------------------
 
         // Get all executions
-        this.app.get("/api/v1/executions", async (req: Request, res: Response) => {
-            const executions = await this.AppDataSource.getMongoRepository(Execution).find();
-            return res.json(executions);
-        });
+        this.app.get('/api/v1/executions', async (req: Request, res: Response) => {
+            const executions = await this.AppDataSource.getMongoRepository(Execution).find()
+            return res.json(executions)
+        })
 
         // Get specific execution via shortId
-        this.app.get("/api/v1/executions/:shortId", async (req: Request, res: Response) => {
+        this.app.get('/api/v1/executions/:shortId', async (req: Request, res: Response) => {
             const results = await this.AppDataSource.getMongoRepository(Execution).findOneBy({
-                shortId: req.params.shortId,
-            });
-            return res.json(results);
-        });
+                shortId: req.params.shortId
+            })
+            return res.json(results)
+        })
 
         // Create new execution
-        this.app.post("/api/v1/executions", async (req: Request, res: Response) => {
-            const body = req.body;
-            const newExecution = new Execution();
-            Object.assign(newExecution, body);
+        this.app.post('/api/v1/executions', async (req: Request, res: Response) => {
+            const body = req.body
+            const newExecution = new Execution()
+            Object.assign(newExecution, body)
 
-            const execution = await this.AppDataSource.getMongoRepository(Execution).create(newExecution);
-            const results = await this.AppDataSource.getMongoRepository(Execution).save(execution);
-            return res.json(results);
-        });
+            const execution = await this.AppDataSource.getMongoRepository(Execution).create(newExecution)
+            const results = await this.AppDataSource.getMongoRepository(Execution).save(execution)
+            return res.json(results)
+        })
 
         // Update execution
-        this.app.put("/api/v1/executions/:shortId", async (req: Request, res: Response) => {
+        this.app.put('/api/v1/executions/:shortId', async (req: Request, res: Response) => {
             const execution = await this.AppDataSource.getMongoRepository(Execution).findOneBy({
-                shortId: req.params.shortId,
-            });
+                shortId: req.params.shortId
+            })
 
             if (!execution) {
-                res.status(404).send(`Execution ${req.params.shortId} not found`);
-                return;
+                res.status(404).send(`Execution ${req.params.shortId} not found`)
+                return
             }
 
-            const body = req.body;
-            const updateExecution = new Execution();
-            Object.assign(updateExecution, body);
+            const body = req.body
+            const updateExecution = new Execution()
+            Object.assign(updateExecution, body)
 
-            this.AppDataSource.getMongoRepository(Execution).merge(execution, updateExecution);
-            const results = await this.AppDataSource.getMongoRepository(Execution).save(execution);
-            return res.json(results);
-        });
+            this.AppDataSource.getMongoRepository(Execution).merge(execution, updateExecution)
+            const results = await this.AppDataSource.getMongoRepository(Execution).save(execution)
+            return res.json(results)
+        })
 
         // Delete execution via shortId
-        this.app.delete("/api/v1/executions/:shortId", async (req: Request, res: Response) => {
-            const results = await this.AppDataSource.getMongoRepository(Execution).delete({ shortId: req.params.shortId });
-            return res.json(results);
-        });
+        this.app.delete('/api/v1/executions/:shortId', async (req: Request, res: Response) => {
+            const results = await this.AppDataSource.getMongoRepository(Execution).delete({ shortId: req.params.shortId })
+            return res.json(results)
+        })
 
-        
         // ----------------------------------------
         // Nodes
         // ----------------------------------------
 
         // Get all component nodes
-        this.app.get("/api/v1/nodes", (req: Request, res: Response) => {
-            const returnData = [];
+        this.app.get('/api/v1/nodes', (req: Request, res: Response) => {
+            const returnData = []
             for (const nodeName in this.componentNodes) {
                 // Remove certain node properties to avoid error of Converting circular structure to JSON
-                const clonedNode = JSON.parse(JSON.stringify(this.componentNodes[nodeName], (key, val) => {
-                    if (key !== "cronJobs" && key !== "providers") return val;
-                }));
-                returnData.push(clonedNode);
+                const clonedNode = JSON.parse(
+                    JSON.stringify(this.componentNodes[nodeName], (key, val) => {
+                        if (key !== 'cronJobs' && key !== 'providers') return val
+                    })
+                )
+                returnData.push(clonedNode)
             }
-            return res.json(returnData);
-        });
+            return res.json(returnData)
+        })
 
         // Get specific component node via name
-        this.app.get("/api/v1/nodes/:name", (req: Request, res: Response) => {
+        this.app.get('/api/v1/nodes/:name', (req: Request, res: Response) => {
             if (Object.prototype.hasOwnProperty.call(this.componentNodes, req.params.name)) {
                 // Remove certain node properties to avoid error of Converting circular structure to JSON
-                const clonedNode = JSON.parse(JSON.stringify(this.componentNodes[req.params.name], (key, val) => {
-                    if (key !== "cronJobs" && key !== "providers") return val;
-                }));
-                return res.json(clonedNode);
+                const clonedNode = JSON.parse(
+                    JSON.stringify(this.componentNodes[req.params.name], (key, val) => {
+                        if (key !== 'cronJobs' && key !== 'providers') return val
+                    })
+                )
+                return res.json(clonedNode)
             } else {
-                throw new Error(`Node ${req.params.name} not found`);
+                throw new Error(`Node ${req.params.name} not found`)
             }
-        });
+        })
 
         // Returns specific component node icon via name
-        this.app.get("/api/v1/node-icon/:name", (req: Request, res: Response) => {
+        this.app.get('/api/v1/node-icon/:name', (req: Request, res: Response) => {
             if (Object.prototype.hasOwnProperty.call(this.componentNodes, req.params.name)) {
-                const nodeInstance = this.componentNodes[req.params.name];
+                const nodeInstance = this.componentNodes[req.params.name]
                 if (nodeInstance.icon === undefined) {
-                    throw new Error(`Node ${req.params.name} icon not found`);
-                }
-            
-                if (nodeInstance.icon.endsWith('.svg') || nodeInstance.icon.endsWith('.png') || nodeInstance.icon.endsWith('.jpg')) {
-                    const filepath = nodeInstance.icon;
-                    res.sendFile(filepath);
-                } else {
-                    throw new Error(`Node ${req.params.name} icon is missing icon`);
+                    throw new Error(`Node ${req.params.name} icon not found`)
                 }
 
+                if (nodeInstance.icon.endsWith('.svg') || nodeInstance.icon.endsWith('.png') || nodeInstance.icon.endsWith('.jpg')) {
+                    const filepath = nodeInstance.icon
+                    res.sendFile(filepath)
+                } else {
+                    throw new Error(`Node ${req.params.name} icon is missing icon`)
+                }
             } else {
-                throw new Error(`Node ${req.params.name} not found`);
+                throw new Error(`Node ${req.params.name} not found`)
             }
-        });
+        })
 
         // Test a node
-        this.app.post("/api/v1/node-test/:name", async (req: Request, res: Response) => {
-            const body: ITestNodeBody = req.body;
-            const { nodes, edges, nodeId, clientId } = body;
+        this.app.post('/api/v1/node-test/:name', async (req: Request, res: Response) => {
+            const body: ITestNodeBody = req.body
+            const { nodes, edges, nodeId, clientId } = body
 
-            const node = nodes.find((nd: IReactFlowNode) => nd.id === nodeId);
+            const node = nodes.find((nd: IReactFlowNode) => nd.id === nodeId)
 
-            if (!node) return res.status(404).send(`Test node ${nodeId} not found`);
+            if (!node) return res.status(404).send(`Test node ${nodeId} not found`)
 
             if (Object.prototype.hasOwnProperty.call(this.componentNodes, req.params.name)) {
                 try {
-                    const nodeInstance = this.componentNodes[req.params.name];
-                    const nodeType = nodeInstance.type;
-                    const nodeData = node.data;
+                    const nodeInstance = this.componentNodes[req.params.name]
+                    const nodeType = nodeInstance.type
+                    const nodeData = node.data
 
-                    await decryptCredentials(nodeData);
+                    await decryptCredentials(nodeData)
 
                     if (nodeType === 'action') {
-                        const reactFlowNodeData: INodeData = resolveVariables(nodeData, nodes);
-                        let result = await nodeInstance.run!.call(nodeInstance, reactFlowNodeData);
-                    
-                        checkOAuth2TokenRefreshed(result, reactFlowNodeData)
-                    
-                        return res.json(result);
+                        const reactFlowNodeData: INodeData = resolveVariables(nodeData, nodes)
+                        let result = await nodeInstance.run!.call(nodeInstance, reactFlowNodeData)
 
+                        checkOAuth2TokenRefreshed(result, reactFlowNodeData)
+
+                        return res.json(result)
                     } else if (nodeType === 'trigger') {
-                        const triggerNodeInstance = nodeInstance as ITriggerNode;
-                        const emitEventKey = nodeId;
-                        nodeData.emitEventKey = emitEventKey;
-                        triggerNodeInstance.once(emitEventKey, async(result: INodeExecutionData[]) => {
-                            await triggerNodeInstance.removeTrigger!.call(triggerNodeInstance, nodeData);
-                            await this.activeTestTriggerPool.remove(nodeData.name, this.componentNodes);
-                            return res.json(result);
-                        });
-                        await triggerNodeInstance.runTrigger!.call(triggerNodeInstance, nodeData);
-                        this.activeTestTriggerPool.add(req.params.name, nodeData);
-                        
+                        const triggerNodeInstance = nodeInstance as ITriggerNode
+                        const emitEventKey = nodeId
+                        nodeData.emitEventKey = emitEventKey
+                        triggerNodeInstance.once(emitEventKey, async (result: INodeExecutionData[]) => {
+                            await triggerNodeInstance.removeTrigger!.call(triggerNodeInstance, nodeData)
+                            await this.activeTestTriggerPool.remove(nodeData.name, this.componentNodes)
+                            return res.json(result)
+                        })
+                        await triggerNodeInstance.runTrigger!.call(triggerNodeInstance, nodeData)
+                        this.activeTestTriggerPool.add(req.params.name, nodeData)
                     } else if (nodeType === 'webhook') {
-                        const webhookNodeInstance = nodeInstance as IWebhookNode;
+                        const webhookNodeInstance = nodeInstance as IWebhookNode
                         const newBody = {
                             webhookEndpoint: nodeData.webhookEndpoint,
-                            httpMethod: nodeData.inputParameters?.httpMethod as WebhookMethod || 'POST',
-                        } as any;
+                            httpMethod: (nodeData.inputParameters?.httpMethod as WebhookMethod) || 'POST'
+                        } as any
 
                         if (webhookNodeInstance.webhookMethods?.createWebhook) {
                             if (!process.env.TUNNEL_BASE_URL) {
-                                res.status(500).send(`Please enable tunnel by setting ENABLE_TUNNEL to true in env file`);
-                                return;
+                                res.status(500).send(`Please enable tunnel by setting ENABLE_TUNNEL to true in env file`)
+                                return
                             }
-                            
-                            const webhookFullUrl = `${process.env.TUNNEL_BASE_URL}api/v1/webhook/${nodeData.webhookEndpoint}`;
-                            const webhookId = await webhookNodeInstance.webhookMethods?.createWebhook.call(webhookNodeInstance, nodeData, webhookFullUrl);
-                
+
+                            const webhookFullUrl = `${process.env.TUNNEL_BASE_URL}api/v1/webhook/${nodeData.webhookEndpoint}`
+                            const webhookId = await webhookNodeInstance.webhookMethods?.createWebhook.call(
+                                webhookNodeInstance,
+                                nodeData,
+                                webhookFullUrl
+                            )
+
                             if (webhookId !== undefined) {
-                                newBody.webhookId = webhookId;
+                                newBody.webhookId = webhookId
                             }
                         }
 
@@ -782,154 +740,148 @@ export class App {
                             clientId as string,
                             false,
                             newBody?.webhookId
-                        );
+                        )
 
-                        return res.json(newBody);
+                        return res.json(newBody)
                     }
                 } catch (error) {
-                    res.status(500).send(`Node test error: ${error}`);
-                    console.error(error);
-                    return;
+                    res.status(500).send(`Node test error: ${error}`)
+                    console.error(error)
+                    return
                 }
-
             } else {
-                res.status(404).send(`Node ${req.params.name} not found`);
-                return;
+                res.status(404).send(`Node ${req.params.name} not found`)
+                return
             }
-        });
+        })
 
         // load async options
-        this.app.post("/api/v1/node-load-method/:name", async (req: Request, res: Response) => {
-            const nodeData: INodeData = req.body;
+        this.app.post('/api/v1/node-load-method/:name', async (req: Request, res: Response) => {
+            const nodeData: INodeData = req.body
 
             if (Object.prototype.hasOwnProperty.call(this.componentNodes, req.params.name)) {
                 try {
-                    const nodeInstance = this.componentNodes[req.params.name];
-                    const methodName = nodeData.loadMethod || '';
-                    const loadFromDbCollections = nodeData.loadFromDbCollections || [];
-                    const dbCollection = {} as IDbCollection;
+                    const nodeInstance = this.componentNodes[req.params.name]
+                    const methodName = nodeData.loadMethod || ''
+                    const loadFromDbCollections = nodeData.loadFromDbCollections || []
+                    const dbCollection = {} as IDbCollection
 
-                    for (let i = 0; i < loadFromDbCollections.length; i+=1) {
-                        let collection: any;
+                    for (let i = 0; i < loadFromDbCollections.length; i += 1) {
+                        let collection: any
 
-                        if (loadFromDbCollections[i] === 'Contract') collection = Contract;
-                        else if (loadFromDbCollections[i] === 'Workflow') collection = Workflow;
-                        else if (loadFromDbCollections[i] === 'Webhook') collection = Webhook;
-                        else if (loadFromDbCollections[i] === 'Execution') collection = Execution;
-                        else if (loadFromDbCollections[i] === 'Credential') collection = Credential;
-                        else if (loadFromDbCollections[i] === 'Wallet') collection = Wallet;
-                        
-                        const res = await this.AppDataSource.getMongoRepository(collection).find();
-                        dbCollection[loadFromDbCollections[i]] = res;
+                        if (loadFromDbCollections[i] === 'Contract') collection = Contract
+                        else if (loadFromDbCollections[i] === 'Workflow') collection = Workflow
+                        else if (loadFromDbCollections[i] === 'Webhook') collection = Webhook
+                        else if (loadFromDbCollections[i] === 'Execution') collection = Execution
+                        else if (loadFromDbCollections[i] === 'Credential') collection = Credential
+                        else if (loadFromDbCollections[i] === 'Wallet') collection = Wallet
+
+                        const res = await this.AppDataSource.getMongoRepository(collection).find()
+                        dbCollection[loadFromDbCollections[i]] = res
                     }
 
-                    await decryptCredentials(nodeData);
+                    await decryptCredentials(nodeData)
 
                     const returnOptions: INodeOptionsValue[] = await nodeInstance.loadMethods![methodName]!.call(
                         nodeInstance,
                         nodeData,
                         loadFromDbCollections.length ? dbCollection : undefined
-                    );
+                    )
 
-                    return res.json(returnOptions);
-                    
+                    return res.json(returnOptions)
                 } catch (error) {
-                    return res.json([]);
+                    return res.json([])
                 }
-
             } else {
-                res.status(404).send(`Node ${req.params.name} not found`);
-                return;
+                res.status(404).send(`Node ${req.params.name} not found`)
+                return
             }
-        });
+        })
 
-        
         // ----------------------------------------
         // Credential
         // ----------------------------------------
 
         // Create new credential
-        this.app.post("/api/v1/credentials", async (req: Request, res: Response) => {
-            const body: ICredentialBody = req.body;
+        this.app.post('/api/v1/credentials', async (req: Request, res: Response) => {
+            const body: ICredentialBody = req.body
 
-            const newCredential = await transformToCredentialEntity(body);
-            const credential = await this.AppDataSource.getMongoRepository(Credential).create(newCredential);
-            const results = await this.AppDataSource.getMongoRepository(Credential).save(credential);
-            return res.json(results);
-        });
+            const newCredential = await transformToCredentialEntity(body)
+            const credential = await this.AppDataSource.getMongoRepository(Credential).create(newCredential)
+            const results = await this.AppDataSource.getMongoRepository(Credential).save(credential)
+            return res.json(results)
+        })
 
         // Get node credential via specific nodeCredentialName
-        this.app.get("/api/v1/node-credentials/:nodeCredentialName", (req: Request, res: Response) => {
-            const credentials = [];
+        this.app.get('/api/v1/node-credentials/:nodeCredentialName', (req: Request, res: Response) => {
+            const credentials = []
 
             for (const credName in this.componentCredentials) {
-                credentials.push(this.componentCredentials[credName]);
+                credentials.push(this.componentCredentials[credName])
             }
 
-            const cred = credentials.find((crd) => crd.name === req.params.nodeCredentialName);
+            const cred = credentials.find((crd) => crd.name === req.params.nodeCredentialName)
             if (cred === undefined) {
-                throw new Error(`Credential ${req.params.nodeCredentialName} not found`);
+                throw new Error(`Credential ${req.params.nodeCredentialName} not found`)
             }
-            return res.json(cred);
-        });
+            return res.json(cred)
+        })
 
         // Get list of registered credentials via nodeCredentialName
-        this.app.get("/api/v1/credentials", async (req: Request, res: Response) => {
+        this.app.get('/api/v1/credentials', async (req: Request, res: Response) => {
             const credentials = await this.AppDataSource.getMongoRepository(Credential).find({
                 // @ts-ignore
                 where: {
-                    nodeCredentialName: { $eq: req.query.nodeCredentialName },
+                    nodeCredentialName: { $eq: req.query.nodeCredentialName }
                 }
-            });
-            return res.json(credentials);
-        });
+            })
+            return res.json(credentials)
+        })
 
         // Get registered credential via objectId
-        this.app.get("/api/v1/credentials/:id", async (req: Request, res: Response) => {
+        this.app.get('/api/v1/credentials/:id', async (req: Request, res: Response) => {
+            const isEncrypted = req.query.isEncrypted
 
-            const isEncrypted = req.query.isEncrypted;
+            const encryptKey = await getEncryptionKey()
 
-            const encryptKey = await getEncryptionKey();
-        
             const credential = await this.AppDataSource.getMongoRepository(Credential).findOneBy({
-                _id: new ObjectId(req.params.id),
-            });
+                _id: new ObjectId(req.params.id)
+            })
 
             if (!credential) {
-                res.status(404).send(`Credential ${req.params.id} not found`);
-                return;
+                res.status(404).send(`Credential ${req.params.id} not found`)
+                return
             }
 
             if (isEncrypted) {
-                return res.json(credential);
-
+                return res.json(credential)
             } else {
                 // Decrpyt credentialData
-                const decryptedCredentialData = decryptCredentialData(credential.credentialData, encryptKey);
+                const decryptedCredentialData = decryptCredentialData(credential.credentialData, encryptKey)
                 const credentialResponse: ICredentialResponse = {
                     ...credential,
                     credentialData: decryptedCredentialData
                 }
-                return res.json(credentialResponse);
+                return res.json(credentialResponse)
             }
-        });
+        })
 
         // Update credential
-        this.app.put("/api/v1/credentials/:id", async (req: Request, res: Response) => {
+        this.app.put('/api/v1/credentials/:id', async (req: Request, res: Response) => {
             const credential = await this.AppDataSource.getMongoRepository(Credential).findOneBy({
-                _id: new ObjectId(req.params.id),
-            });
+                _id: new ObjectId(req.params.id)
+            })
 
             if (!credential) {
-                res.status(404).send(`Credential ${req.params.id} not found`);
-                return;
+                res.status(404).send(`Credential ${req.params.id} not found`)
+                return
             }
 
-            const encryptKey = await getEncryptionKey();
-            const decryptedCredentialData = decryptCredentialData(credential.credentialData, encryptKey);
+            const encryptKey = await getEncryptionKey()
+            const decryptedCredentialData = decryptCredentialData(credential.credentialData, encryptKey)
 
-            const body: ICredentialBody = req.body;
-            const { credentialData, name, nodeCredentialName } = body;
+            const body: ICredentialBody = req.body
+            const { credentialData, name, nodeCredentialName } = body
             const newBody: ICredentialBody = {
                 name: name,
                 nodeCredentialName: nodeCredentialName,
@@ -938,455 +890,442 @@ export class App {
                     ...credentialData
                 }
             }
-            const updateCredential = await transformToCredentialEntity(newBody);
-            
-            this.AppDataSource.getMongoRepository(Credential).merge(credential, updateCredential);
-            const results = await this.AppDataSource.getMongoRepository(Credential).save(credential);
-            return res.json(results);
-        });
+            const updateCredential = await transformToCredentialEntity(newBody)
+
+            this.AppDataSource.getMongoRepository(Credential).merge(credential, updateCredential)
+            const results = await this.AppDataSource.getMongoRepository(Credential).save(credential)
+            return res.json(results)
+        })
 
         // Delete credential via id
-        this.app.delete("/api/v1/credentials/:id", async (req: Request, res: Response) => {
-            const results = await this.AppDataSource.getMongoRepository(Credential).deleteOne({ _id: new ObjectId(req.params.id) });
-            return res.json(results);
-        });
+        this.app.delete('/api/v1/credentials/:id', async (req: Request, res: Response) => {
+            const results = await this.AppDataSource.getMongoRepository(Credential).deleteOne({ _id: new ObjectId(req.params.id) })
+            return res.json(results)
+        })
 
-        
         // ----------------------------------------
         // Contract
         // ----------------------------------------
 
         // Get all contracts
-        this.app.get("/api/v1/contracts", async (req: Request, res: Response) => {
-            const contracts = await this.AppDataSource.getMongoRepository(Contract).find();
-            return res.json(contracts);
-        });
+        this.app.get('/api/v1/contracts', async (req: Request, res: Response) => {
+            const contracts = await this.AppDataSource.getMongoRepository(Contract).find()
+            return res.json(contracts)
+        })
 
         // Get specific contract via id
-        this.app.get("/api/v1/contracts/:id", async (req: Request, res: Response) => {
+        this.app.get('/api/v1/contracts/:id', async (req: Request, res: Response) => {
             const results = await this.AppDataSource.getMongoRepository(Contract).findOneBy({
-                _id: new ObjectId(req.params.id),
-            });    
-            return res.json(results);
-        });
+                _id: new ObjectId(req.params.id)
+            })
+            return res.json(results)
+        })
 
         // Create new contract
-        this.app.post("/api/v1/contracts", async (req: Request, res: Response) => {
+        this.app.post('/api/v1/contracts', async (req: Request, res: Response) => {
             try {
-                const body = req.body;
-                const newContract = new Contract();
-                Object.assign(newContract, body);
+                const body = req.body
+                const newContract = new Contract()
+                Object.assign(newContract, body)
 
-                const contract = await this.AppDataSource.getMongoRepository(Contract).create(newContract);
-                const results = await this.AppDataSource.getMongoRepository(Contract).save(contract);
-                return res.json(results);
-
-            } catch(e) {
-                return res.status(500).send(e);
+                const contract = await this.AppDataSource.getMongoRepository(Contract).create(newContract)
+                const results = await this.AppDataSource.getMongoRepository(Contract).save(contract)
+                return res.json(results)
+            } catch (e) {
+                return res.status(500).send(e)
             }
-        });
+        })
 
         // Update contract
-        this.app.put("/api/v1/contracts/:id", async (req: Request, res: Response) => {
+        this.app.put('/api/v1/contracts/:id', async (req: Request, res: Response) => {
             const contract = await this.AppDataSource.getMongoRepository(Contract).findOneBy({
-                _id: new ObjectId(req.params.id),
-            });
+                _id: new ObjectId(req.params.id)
+            })
 
             if (!contract) {
-                res.status(404).send(`Contract with id: ${req.params.id} not found`);
-                return;
+                res.status(404).send(`Contract with id: ${req.params.id} not found`)
+                return
             }
 
-            const body = req.body;
-            const updateContract = new Contract();
-            Object.assign(updateContract, body);
+            const body = req.body
+            const updateContract = new Contract()
+            Object.assign(updateContract, body)
 
-            this.AppDataSource.getMongoRepository(Contract).merge(contract, updateContract);
+            this.AppDataSource.getMongoRepository(Contract).merge(contract, updateContract)
             try {
-                const results = await this.AppDataSource.getMongoRepository(Contract).save(contract);
-                return res.json(results);
-            } catch(e) {
-                return res.status(500).send(e);
+                const results = await this.AppDataSource.getMongoRepository(Contract).save(contract)
+                return res.json(results)
+            } catch (e) {
+                return res.status(500).send(e)
             }
-        });
+        })
 
         // Delete contract via id
-        this.app.delete("/api/v1/contracts/:id", async (req: Request, res: Response) => {
+        this.app.delete('/api/v1/contracts/:id', async (req: Request, res: Response) => {
             const deletQuery = {
                 _id: new ObjectId(req.params.id)
-            } as any;
-            const results = await this.AppDataSource.getMongoRepository(Contract).delete(deletQuery);
-            return res.json(results);
-        });
+            } as any
+            const results = await this.AppDataSource.getMongoRepository(Contract).delete(deletQuery)
+            return res.json(results)
+        })
 
         // Get contract ABI
-        this.app.post("/api/v1/contracts/getabi", async (req: Request, res: Response) => {
-            
-            const body: IContractRequestBody = req.body;
+        this.app.post('/api/v1/contracts/getabi', async (req: Request, res: Response) => {
+            const body: IContractRequestBody = req.body
 
             if (body.networks === undefined || body.credentials === undefined || body.contractInfo === undefined) {
-                res.status(500).send(`Missing contract details`);
-                return;
+                res.status(500).send(`Missing contract details`)
+                return
             }
 
             if (body.credentials && body.credentials.registeredCredential) {
                 // @ts-ignore
-                const credentialId: string = body.credentials.registeredCredential?._id;
+                const credentialId: string = body.credentials.registeredCredential?._id
 
                 const credential = await this.AppDataSource.getMongoRepository(Credential).findOneBy({
-                    _id: new ObjectId(credentialId),
-                });
-                if (!credential) return res.status(404).send(`Credential with id: ${credentialId} not found`);;
-                
-                const encryptKey = await getEncryptionKey();
-                const decryptedCredentialData = decryptCredentialData(credential.credentialData, encryptKey);
+                    _id: new ObjectId(credentialId)
+                })
+                if (!credential) return res.status(404).send(`Credential with id: ${credentialId} not found`)
 
-                body.credentials = decryptedCredentialData;
+                const encryptKey = await getEncryptionKey()
+                const decryptedCredentialData = decryptCredentialData(credential.credentialData, encryptKey)
+
+                body.credentials = decryptedCredentialData
             }
 
-            let url = '';
+            let url = ''
             // Get ABI
             if (body.credentials.apiKey) {
-                url = `${body.networks.uri}?module=contract&action=getabi&address=${body.contractInfo.address}&apikey=${body.credentials.apiKey}`;
+                url = `${body.networks.uri}?module=contract&action=getabi&address=${body.contractInfo.address}&apikey=${body.credentials.apiKey}`
             } else {
-                url = `${body.networks.uri}?module=contract&action=getabi&address=${body.contractInfo.address}`;
+                url = `${body.networks.uri}?module=contract&action=getabi&address=${body.contractInfo.address}`
             }
 
             const options: AxiosRequestConfig = {
-                method: "GET",
+                method: 'GET',
                 url
-            };
+            }
 
             try {
-                const response = await axios.request(options);
-                return res.json(response.data);
+                const response = await axios.request(options)
+                return res.json(response.data)
             } catch (e) {
-                console.error(e);
+                console.error(e)
                 const errorObject = {
-                    status: "0",
-                    message: "NOTOK",
-                    result: "Unable to fetch ABI, please use correct API Key for higher rate limit"
+                    status: '0',
+                    message: 'NOTOK',
+                    result: 'Unable to fetch ABI, please use correct API Key for higher rate limit'
                 }
-                return res.json(errorObject);
+                return res.json(errorObject)
             }
-        });
-
+        })
 
         // ----------------------------------------
         // Wallets
         // ----------------------------------------
 
         // Get all wallets
-        this.app.get("/api/v1/wallets", async (req: Request, res: Response) => {
-            const wallets = await this.AppDataSource.getMongoRepository(Wallet).find();
-            return res.json(wallets);
-        });
+        this.app.get('/api/v1/wallets', async (req: Request, res: Response) => {
+            const wallets = await this.AppDataSource.getMongoRepository(Wallet).find()
+            return res.json(wallets)
+        })
 
         // Get specific wallet via id
-        this.app.get("/api/v1/wallets/:id", async (req: Request, res: Response) => {
+        this.app.get('/api/v1/wallets/:id', async (req: Request, res: Response) => {
             try {
                 const wallet = await this.AppDataSource.getMongoRepository(Wallet).findOneBy({
-                    _id: new ObjectId(req.params.id),
-                });
+                    _id: new ObjectId(req.params.id)
+                })
 
                 if (!wallet) {
-                    res.status(404).send(`Wallet ${req.params.id} not found`);
-                    return;
+                    res.status(404).send(`Wallet ${req.params.id} not found`)
+                    return
                 }
 
                 const walletResponse: IWalletResponse = {
                     ...wallet,
-                    balance: '',
+                    balance: ''
                 }
-                
+
                 // Decrpyt providerCredential
-                const encryptKey = await getEncryptionKey();
-                const providerCredential = JSON.parse(wallet.providerCredential);
-                let decryptedCredentialData: ICredentialDataDecrpyted = {};
+                const encryptKey = await getEncryptionKey()
+                const providerCredential = JSON.parse(wallet.providerCredential)
+                let decryptedCredentialData: ICredentialDataDecrpyted = {}
 
                 if (providerCredential.registeredCredential) {
                     // @ts-ignore
-                    const credentialId: string = providerCredential.registeredCredential?._id;
+                    const credentialId: string = providerCredential.registeredCredential?._id
 
                     const credential = await this.AppDataSource.getMongoRepository(Credential).findOneBy({
-                        _id: new ObjectId(credentialId),
-                    });
-                    if (!credential) return res.status(404).send(`Credential with id: ${credentialId} not found`);;
-                    
+                        _id: new ObjectId(credentialId)
+                    })
+                    if (!credential) return res.status(404).send(`Credential with id: ${credentialId} not found`)
+
                     // Decrpyt credentialData
-                    decryptedCredentialData = decryptCredentialData(credential.credentialData, encryptKey);
+                    decryptedCredentialData = decryptCredentialData(credential.credentialData, encryptKey)
                 }
 
-                const credentialMethod = providerCredential.credentialMethod;
-                let url = '';
-                const network = wallet.network as NETWORK;
+                const credentialMethod = providerCredential.credentialMethod
+                let url = ''
+                const network = wallet.network as NETWORK
 
                 // Get Balance
                 if (
-                    decryptedCredentialData.apiKey && (
-                    credentialMethod === 'etherscanApi' || 
-                    credentialMethod === 'polygonscanApi' || 
-                    credentialMethod === 'bscscanApi' || 
-                    credentialMethod === 'optimisticEtherscanApi' ||
-                    credentialMethod === 'arbiscanApi')
+                    decryptedCredentialData.apiKey &&
+                    (credentialMethod === 'etherscanApi' ||
+                        credentialMethod === 'polygonscanApi' ||
+                        credentialMethod === 'bscscanApi' ||
+                        credentialMethod === 'optimisticEtherscanApi' ||
+                        credentialMethod === 'arbiscanApi')
                 ) {
-                    url = `${etherscanAPIs[network]}?module=account&action=balance&address=${wallet.address}&tag=latest&apikey=${decryptedCredentialData.apiKey as string}`;
-                
+                    url = `${etherscanAPIs[network]}?module=account&action=balance&address=${wallet.address}&tag=latest&apikey=${
+                        decryptedCredentialData.apiKey as string
+                    }`
                 } else {
-                    url = `${etherscanAPIs[network]}?module=account&action=balance&address=${wallet.address}&tag=latest`;
+                    url = `${etherscanAPIs[network]}?module=account&action=balance&address=${wallet.address}&tag=latest`
                 }
 
                 const options: AxiosRequestConfig = {
-                    method: "GET",
+                    method: 'GET',
                     url
-                };
+                }
 
                 try {
-                    const response = await axios.request(options);
+                    const response = await axios.request(options)
                     if (response.data && response.data.result) {
-                        walletResponse.balance = `${ethers.utils.formatEther(ethers.BigNumber.from(response.data.result))} ${nativeCurrency[wallet.network as NETWORK]}`;
+                        walletResponse.balance = `${ethers.utils.formatEther(ethers.BigNumber.from(response.data.result))} ${
+                            nativeCurrency[wallet.network as NETWORK]
+                        }`
                     }
                 } catch (e) {
-                    walletResponse.balance = 'Unable to fetch balance, please use correct API Key for higher rate limit';
+                    walletResponse.balance = 'Unable to fetch balance, please use correct API Key for higher rate limit'
                 }
-                return res.json(walletResponse);
-
+                return res.json(walletResponse)
             } catch (e) {
-                console.error(e);
-                return res.status(500).send(e);
+                console.error(e)
+                return res.status(500).send(e)
             }
-        });
+        })
 
         // Create new wallet
-        this.app.post("/api/v1/wallets", async (req: Request, res: Response) => {
+        this.app.post('/api/v1/wallets', async (req: Request, res: Response) => {
             try {
-                const body: IWalletRequestBody = req.body;
-                const { name, network, providerCredential, privateKey } = body;
+                const body: IWalletRequestBody = req.body
+                const { name, network, providerCredential, privateKey } = body
 
-                const encryptKey = await getEncryptionKey();
+                const encryptKey = await getEncryptionKey()
 
                 const newBody: any = {
                     name,
                     network,
                     providerCredential
-                };
+                }
 
-                let randomWallet: ethers.Wallet;
+                let randomWallet: ethers.Wallet
 
-                if (privateKey)
-                    randomWallet = new ethers.Wallet(privateKey);
-                else
-                    randomWallet = ethers.Wallet.createRandom();
-                
-                newBody.address = randomWallet.address;
+                if (privateKey) randomWallet = new ethers.Wallet(privateKey)
+                else randomWallet = ethers.Wallet.createRandom()
+
+                newBody.address = randomWallet.address
 
                 const walletCredential = {
-                    privateKey: randomWallet.privateKey,
-                } as any;
+                    privateKey: randomWallet.privateKey
+                } as any
 
                 // Imported wallet doesn't have mnemonic and path
                 if (!privateKey) {
-                    walletCredential.mnemonic = randomWallet.mnemonic.phrase;
+                    walletCredential.mnemonic = randomWallet.mnemonic.phrase
                     walletCredential.path = randomWallet.mnemonic.path
                 }
-                newBody.walletCredential = encryptCredentialData(walletCredential, encryptKey) as string;
+                newBody.walletCredential = encryptCredentialData(walletCredential, encryptKey) as string
 
-                const newWallet = new Wallet();
-                Object.assign(newWallet, newBody);
+                const newWallet = new Wallet()
+                Object.assign(newWallet, newBody)
 
-                const wallet = await this.AppDataSource.getMongoRepository(Wallet).create(newWallet);
-                const results = await this.AppDataSource.getMongoRepository(Wallet).save(wallet);
-                return res.json(results);
-
-            } catch(e) {
-                return res.status(500).send(e);
+                const wallet = await this.AppDataSource.getMongoRepository(Wallet).create(newWallet)
+                const results = await this.AppDataSource.getMongoRepository(Wallet).save(wallet)
+                return res.json(results)
+            } catch (e) {
+                return res.status(500).send(e)
             }
-        });
-
+        })
 
         // Update wallet
-        this.app.put("/api/v1/wallets/:id", async (req: Request, res: Response) => {
+        this.app.put('/api/v1/wallets/:id', async (req: Request, res: Response) => {
             const wallet = await this.AppDataSource.getMongoRepository(Wallet).findOneBy({
-                _id: new ObjectId(req.params.id),
-            });
+                _id: new ObjectId(req.params.id)
+            })
 
             if (!wallet) {
-                res.status(404).send(`Wallet with id: ${req.params.id} not found`);
-                return;
+                res.status(404).send(`Wallet with id: ${req.params.id} not found`)
+                return
             }
 
-            const body = req.body;
-            const updateWallet = new Wallet();
-            Object.assign(updateWallet, body);
+            const body = req.body
+            const updateWallet = new Wallet()
+            Object.assign(updateWallet, body)
 
-            this.AppDataSource.getMongoRepository(Wallet).merge(wallet, updateWallet);
+            this.AppDataSource.getMongoRepository(Wallet).merge(wallet, updateWallet)
             try {
-                const results = await this.AppDataSource.getMongoRepository(Wallet).save(wallet);
-                return res.json(results);
-            } catch(e) {
-                return res.status(500).send(e);
+                const results = await this.AppDataSource.getMongoRepository(Wallet).save(wallet)
+                return res.json(results)
+            } catch (e) {
+                return res.status(500).send(e)
             }
-        });
+        })
 
         // Delete wallet via id
-        this.app.delete("/api/v1/wallets/:id", async (req: Request, res: Response) => {
+        this.app.delete('/api/v1/wallets/:id', async (req: Request, res: Response) => {
             const deletQuery = {
                 _id: new ObjectId(req.params.id)
-            } as any;
-            const results = await this.AppDataSource.getMongoRepository(Wallet).delete(deletQuery);
-            return res.json(results);
-        });
+            } as any
+            const results = await this.AppDataSource.getMongoRepository(Wallet).delete(deletQuery)
+            return res.json(results)
+        })
 
         // Get wallet credentials
-        this.app.get("/api/v1/wallets/credential/:id", async (req: Request, res: Response) => {
+        this.app.get('/api/v1/wallets/credential/:id', async (req: Request, res: Response) => {
             try {
                 const wallet = await this.AppDataSource.getMongoRepository(Wallet).findOneBy({
-                    _id: new ObjectId(req.params.id),
-                });
+                    _id: new ObjectId(req.params.id)
+                })
 
                 if (!wallet) {
-                    res.status(404).send(`Wallet ${req.params.id} not found`);
-                    return;
+                    res.status(404).send(`Wallet ${req.params.id} not found`)
+                    return
                 }
 
                 // Decrpyt credentialData
-                const encryptKey = await getEncryptionKey();
+                const encryptKey = await getEncryptionKey()
 
-                const decryptedCredentialData = decryptCredentialData(wallet.walletCredential, encryptKey);
+                const decryptedCredentialData = decryptCredentialData(wallet.walletCredential, encryptKey)
 
-                return res.json(decryptedCredentialData);
-
+                return res.json(decryptedCredentialData)
             } catch (e) {
-                console.error(e);
-                return res.status(500).send(e);
+                console.error(e)
+                return res.status(500).send(e)
             }
-        });
-
+        })
 
         // ----------------------------------------
         // Active Test Pools
         // ----------------------------------------
 
         // Remove active test triggers
-        this.app.post("/api/v1/remove-test-triggers", async (req: Request, res: Response) => {
-            if (this.activeTestTriggerPool) await this.activeTestTriggerPool.removeAll(this.componentNodes);
-            res.status(200).send('success');
-            return;
-        });
+        this.app.post('/api/v1/remove-test-triggers', async (req: Request, res: Response) => {
+            if (this.activeTestTriggerPool) await this.activeTestTriggerPool.removeAll(this.componentNodes)
+            res.status(200).send('success')
+            return
+        })
 
         // Remove active test webhooks
-        this.app.post("/api/v1/remove-test-webhooks", async (req: Request, res: Response) => {
-            if (this.activeTestWebhookPool) await this.activeTestWebhookPool.removeAll(this.componentNodes);
-            res.status(200).send('success');
-            return;
-        });
+        this.app.post('/api/v1/remove-test-webhooks', async (req: Request, res: Response) => {
+            if (this.activeTestWebhookPool) await this.activeTestWebhookPool.removeAll(this.componentNodes)
+            res.status(200).send('success')
+            return
+        })
 
-                
         // ----------------------------------------
         // Webhook
         // ----------------------------------------
 
         // GET webhook requests
         this.app.get(`/api/v1/webhook/*`, express.raw(), async (req: Request, res: Response) => {
-            const splitUrl = req.path.split('/api/v1/webhook/');
-            const webhookEndpoint = splitUrl[splitUrl.length-1];
+            const splitUrl = req.path.split('/api/v1/webhook/')
+            const webhookEndpoint = splitUrl[splitUrl.length - 1]
             await processWebhook(
-                res, 
-                req, 
-                this.AppDataSource, 
-                webhookEndpoint, 
+                res,
+                req,
+                this.AppDataSource,
+                webhookEndpoint,
                 'GET',
                 this.componentNodes,
                 io,
                 this.deployedWorkflowsPool,
                 this.activeTestWebhookPool
-            );
-        });
+            )
+        })
 
         // POST webhook requests
         this.app.post(`/api/v1/webhook/*`, express.raw(), async (req: Request, res: Response) => {
-            const splitUrl = req.path.split('/api/v1/webhook/');
-            const webhookEndpoint = splitUrl[splitUrl.length-1];
+            const splitUrl = req.path.split('/api/v1/webhook/')
+            const webhookEndpoint = splitUrl[splitUrl.length - 1]
             await processWebhook(
-                res, 
-                req, 
-                this.AppDataSource, 
-                webhookEndpoint, 
+                res,
+                req,
+                this.AppDataSource,
+                webhookEndpoint,
                 'POST',
                 this.componentNodes,
                 io,
                 this.deployedWorkflowsPool,
-                this.activeTestWebhookPool,
-            );
-        });
-
+                this.activeTestWebhookPool
+            )
+        })
 
         // ----------------------------------------
         // OAuth2
         // ----------------------------------------
-        this.app.get("/api/v1/oauth2", async(req: Request, res: Response) => {
-        
-            if (!req.query.credentialId) return res.status(404).send('Credential not found');
+        this.app.get('/api/v1/oauth2', async (req: Request, res: Response) => {
+            if (!req.query.credentialId) return res.status(404).send('Credential not found')
 
-            const credentialId = req.query.credentialId;
+            const credentialId = req.query.credentialId
 
             const credential = await this.AppDataSource.getMongoRepository(Credential).findOneBy({
-                _id: new ObjectId(credentialId as string),
-            });
+                _id: new ObjectId(credentialId as string)
+            })
 
-            if (!credential) return res.status(404).send(`Credential with Id ${credentialId} not found`);
+            if (!credential) return res.status(404).send(`Credential with Id ${credentialId} not found`)
 
             // Decrpyt credentialData
-            const encryptKey = await getEncryptionKey();
+            const encryptKey = await getEncryptionKey()
 
-            const decryptedCredentialData = decryptCredentialData(credential.credentialData, encryptKey);
+            const decryptedCredentialData = decryptCredentialData(credential.credentialData, encryptKey)
 
-            const baseURL = req.get('host');
-            const authUrl = decryptedCredentialData.authUrl as string;
-            const authorizationURLParameters = decryptedCredentialData.authorizationURLParameters as string;
-            const clientID = decryptedCredentialData.clientID as string;
-            const scope = decryptedCredentialData.scope as string;
-            let scopeArray: any;
+            const baseURL = req.get('host')
+            const authUrl = decryptedCredentialData.authUrl as string
+            const authorizationURLParameters = decryptedCredentialData.authorizationURLParameters as string
+            const clientID = decryptedCredentialData.clientID as string
+            const scope = decryptedCredentialData.scope as string
+            let scopeArray: any
             try {
-                scopeArray = scope.replace(/\s/g, '');
-                scopeArray = JSON.parse(scopeArray);
+                scopeArray = scope.replace(/\s/g, '')
+                scopeArray = JSON.parse(scopeArray)
             } catch (e) {
-                return res.status(500).send(e);
+                return res.status(500).send(e)
             }
-            const serializedScope = scopeArray.join(' ');
-            const redirectUrl = `${req.protocol}://${baseURL}/api/v1/oauth2/callback`;
+            const serializedScope = scopeArray.join(' ')
+            const redirectUrl = `${req.protocol}://${baseURL}/api/v1/oauth2/callback`
 
-            const returnURL = `${authUrl}?${authorizationURLParameters}&client_id=${clientID}&scope=${serializedScope}&redirect_uri=${redirectUrl}&state=${credentialId}`;
+            const returnURL = `${authUrl}?${authorizationURLParameters}&client_id=${clientID}&scope=${serializedScope}&redirect_uri=${redirectUrl}&state=${credentialId}`
 
-            res.send(returnURL);
-        });
+            res.send(returnURL)
+        })
 
-        this.app.get("/api/v1/oauth2/callback", async(req: Request, res: Response) => {
+        this.app.get('/api/v1/oauth2/callback', async (req: Request, res: Response) => {
+            const code = req.query.code
+            if (!code) return res.status(500).send('Unable to retrieve authorization code from oAuth2 callback')
 
-            const code = req.query.code;
-            if (!code) return res.status(500).send('Unable to retrieve authorization code from oAuth2 callback');
-
-            const credentialId = req.query.state;
-            if (!credentialId) return res.status(500).send('Unable to retrieve credentialId from oAuth2 callback');
+            const credentialId = req.query.state
+            if (!credentialId) return res.status(500).send('Unable to retrieve credentialId from oAuth2 callback')
 
             const credential = await this.AppDataSource.getMongoRepository(Credential).findOneBy({
-                _id: new ObjectId(credentialId as string),
-            });
+                _id: new ObjectId(credentialId as string)
+            })
 
-            if (!credential) return res.status(404).send(`Credential with Id ${credentialId} not found`);
+            if (!credential) return res.status(404).send(`Credential with Id ${credentialId} not found`)
 
-        
             // Decrpyt credentialData
-            const encryptKey = await getEncryptionKey();
-            const decryptedCredentialData = decryptCredentialData(credential.credentialData, encryptKey);
+            const encryptKey = await getEncryptionKey()
+            const decryptedCredentialData = decryptCredentialData(credential.credentialData, encryptKey)
 
             // Get access_token and refresh_token
-            const accessTokenUrl = decryptedCredentialData.accessTokenUrl as string;
-            const client_id = decryptedCredentialData.clientID as string;
-            const client_secret = decryptedCredentialData.clientSecret as string;
-            const baseURL = req.get('host');
-            const redirect_uri = `${req.protocol}://${baseURL}/api/v1/oauth2/callback`;
-            
+            const accessTokenUrl = decryptedCredentialData.accessTokenUrl as string
+            const client_id = decryptedCredentialData.clientID as string
+            const client_secret = decryptedCredentialData.clientSecret as string
+            const baseURL = req.get('host')
+            const redirect_uri = `${req.protocol}://${baseURL}/api/v1/oauth2/callback`
+
             const axiosConfig: AxiosRequestConfig = {
                 method: 'POST' as Method,
                 url: accessTokenUrl,
@@ -1398,14 +1337,14 @@ export class App {
                     redirect_uri
                 },
                 headers: {
-                    'Content-Type': 'application/json; charset=utf-8',
-                },
-            };
+                    'Content-Type': 'application/json; charset=utf-8'
+                }
+            }
 
-            const response = await axios(axiosConfig);
-            const responseData: IOAuth2Response = response.data;
+            const response = await axios(axiosConfig)
+            const responseData: IOAuth2Response = response.data
 
-            const { access_token, token_type, expires_in, refresh_token } = responseData;
+            const { access_token, token_type, expires_in, refresh_token } = responseData
 
             const body: ICredentialBody = {
                 name: credential.name,
@@ -1415,94 +1354,88 @@ export class App {
                     access_token,
                     token_type,
                     expires_in,
-                    refresh_token,
+                    refresh_token
                 }
             }
 
-            const updateCredential = await transformToCredentialEntity(body);
+            const updateCredential = await transformToCredentialEntity(body)
 
-            this.AppDataSource.getMongoRepository(Credential).merge(credential, updateCredential);
-            await this.AppDataSource.getMongoRepository(Credential).save(credential);
+            this.AppDataSource.getMongoRepository(Credential).merge(credential, updateCredential)
+            await this.AppDataSource.getMongoRepository(Credential).save(credential)
 
-            return res.sendFile(getOAuth2HTMLPath());
-        });
+            return res.sendFile(getOAuth2HTMLPath())
+        })
 
-        this.app.get("/api/v1/oauth2-redirecturl", async(req: Request, res: Response) => {
-            const baseURL = req.get('host');
-            res.send(`${req.protocol}://${baseURL}/api/v1/oauth2/callback`);
-        });
-
+        this.app.get('/api/v1/oauth2-redirecturl', async (req: Request, res: Response) => {
+            const baseURL = req.get('host')
+            res.send(`${req.protocol}://${baseURL}/api/v1/oauth2/callback`)
+        })
 
         // ----------------------------------------
         // Serve UI static
         // ----------------------------------------
 
-        const packagePath = getNodeModulesPackagePath("outerbridge-ui");
-        const uiBuildPath = path.join(packagePath, "build");
-        const uiHtmlPath = path.join(packagePath, "build", "index.html");
+        const packagePath = getNodeModulesPackagePath('outerbridge-ui')
+        const uiBuildPath = path.join(packagePath, 'build')
+        const uiHtmlPath = path.join(packagePath, 'build', 'index.html')
 
-        this.app.use('/', express.static(uiBuildPath));
+        this.app.use('/', express.static(uiBuildPath))
 
         // All other requests not handled will return React app
         this.app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
-            res.sendFile(uiHtmlPath);
-        });
+            res.sendFile(uiHtmlPath)
+        })
     }
 
     async stopApp() {
         try {
-            const removePromises: any[] = [];
-            
+            const removePromises: any[] = []
+
             // Remove deployed workflows pools
-            if (this.deployedWorkflowsPool)
-                removePromises.push(this.deployedWorkflowsPool.removeAll(this.componentNodes));
-            
+            if (this.deployedWorkflowsPool) removePromises.push(this.deployedWorkflowsPool.removeAll(this.componentNodes))
+
             // Remove test trigger pools
-            if (this.activeTestTriggerPool)
-                removePromises.push(this.activeTestTriggerPool.removeAll(this.componentNodes));
+            if (this.activeTestTriggerPool) removePromises.push(this.activeTestTriggerPool.removeAll(this.componentNodes))
 
             // Remove test webhook pools
-            if (this.activeTestWebhookPool)
-                removePromises.push(this.activeTestWebhookPool.removeAll(this.componentNodes));
-            
-            await Promise.all(removePromises);
+            if (this.activeTestWebhookPool) removePromises.push(this.activeTestWebhookPool.removeAll(this.componentNodes))
 
+            await Promise.all(removePromises)
         } catch (e) {
-            console.error(`❌[server]: Outerbridge Server shut down error: ${e}`);
+            console.error(`❌[server]: Outerbridge Server shut down error: ${e}`)
         }
     }
 }
 
-let serverApp: App | undefined;
+let serverApp: App | undefined
 
 export async function start(): Promise<void> {
-	serverApp = new App();
+    serverApp = new App()
 
-    const port = parseInt(process.env.PORT || '', 10) || 3000;
-    const server = http.createServer(serverApp.app);
-    const io = new Server(server, { 
+    const port = parseInt(process.env.PORT || '', 10) || 3000
+    const server = http.createServer(serverApp.app)
+    const io = new Server(server, {
         cors: {
             origin: 'http://localhost:8080'
         }
-    });
+    })
 
-    io.on("connection", (socket: Socket) => {
-        console.log('👥[server]: client connected: ', socket.id);
-    
+    io.on('connection', (socket: Socket) => {
+        console.log('👥[server]: client connected: ', socket.id)
+
         socket.on('disconnect', (reason) => {
-            console.log('👤[server]: client disconnected = ', reason);
-        });
-    });
+            console.log('👤[server]: client disconnected = ', reason)
+        })
+    })
 
-    await serverApp.initDatabase();
-	await serverApp.config(io);
+    await serverApp.initDatabase()
+    await serverApp.config(io)
 
     server.listen(port, () => {
-        console.log(`⚡️[server]: Outerbridge Server is listening at ${port}`);
-    });
+        console.log(`⚡️[server]: Outerbridge Server is listening at ${port}`)
+    })
 }
 
-
 export function getInstance(): App | undefined {
-	return serverApp;
+    return serverApp
 }

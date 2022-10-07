@@ -1,38 +1,38 @@
-import { createPortal } from 'react-dom';
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
-import useConfirm from 'hooks/useConfirm';
+import { createPortal } from 'react-dom'
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material'
+import useConfirm from 'hooks/useConfirm'
 
 const ConfirmDialog = () => {
-    const { onConfirm, onCancel, confirmState } = useConfirm();
-    const portalElement = document.getElementById('portal');
+    const { onConfirm, onCancel, confirmState } = useConfirm()
+    const portalElement = document.getElementById('portal')
 
     const component = confirmState.show ? (
         <Dialog
             fullWidth
-            maxWidth="xs"
+            maxWidth='xs'
             open={confirmState.show}
             onClose={onCancel}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
+            aria-labelledby='alert-dialog-title'
+            aria-describedby='alert-dialog-description'
         >
-            <DialogTitle sx={{ fontSize: '1rem' }} id="alert-dialog-title">
+            <DialogTitle sx={{ fontSize: '1rem' }} id='alert-dialog-title'>
                 {confirmState.title}
             </DialogTitle>
             <DialogContent>
-                <DialogContentText sx={{ color: 'black' }} id="alert-dialog-description">
+                <DialogContentText sx={{ color: 'black' }} id='alert-dialog-description'>
                     {confirmState.description}
                 </DialogContentText>
             </DialogContent>
             <DialogActions>
                 <Button onClick={onCancel}>{confirmState.cancelButtonName}</Button>
-                <Button variant="contained" onClick={onConfirm}>
+                <Button variant='contained' onClick={onConfirm}>
                     {confirmState.confirmButtonName}
                 </Button>
             </DialogActions>
         </Dialog>
-    ) : null;
+    ) : null
 
-    return createPortal(component, portalElement);
-};
+    return createPortal(component, portalElement)
+}
 
-export default ConfirmDialog;
+export default ConfirmDialog
