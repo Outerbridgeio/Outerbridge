@@ -2,6 +2,7 @@
     "root": true,
     "extends": [
         "eslint:recommended",
+        "plugin:@typescript-eslint/recommended",
         "plugin:react/recommended",
         "plugin:react/jsx-runtime",
         "plugin:react-hooks/recommended",
@@ -10,9 +11,11 @@
     ],
     "parser": "@typescript-eslint/parser",
     "rules": {
+        "@typescript-eslint/explicit-module-boundary-types": "off",
+        "no-unused-vars": "off",
+        "@typescript-eslint/no-unused-vars": "error",
         "no-undef": "off",
         "no-console": "warn",
-        "no-unused-vars": "warn",
         "prettier/prettier": [
             "error",
             {
