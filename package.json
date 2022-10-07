@@ -4,7 +4,7 @@
     "private": true,
     "homepage": "https://outerbridge.io",
     "scripts": {
-        "bootstrap": "rimraf **/package-lock.json && rimraf **/yarn.lock && lerna bootstrap --hoist",
+        "bootstrap": "rimraf **/package-lock.json && rimraf **/yarn.lock && lerna bootstrap --hoist && npx -y husky install ",
         "build": "lerna exec yarn run build",
         "start": "run-script-os",
         "start:windows": "cd packages/server/bin && run start",
@@ -29,6 +29,7 @@
         "eslint-plugin-prettier": "^3.4.0",
         "eslint-plugin-react": "^7.26.1",
         "eslint-plugin-react-hooks": "4.6.0",
+        "husky": "^8.0.1",
         "prettier": "^2.7.1",
         "run-script-os": "^1.0.7",
         "typescript": "^4.6.3"
