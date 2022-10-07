@@ -27,7 +27,7 @@
         "eslint-plugin-jsx-a11y": "6.6.1",
         "eslint-plugin-prettier": "^3.4.0",
         "eslint-plugin-react": "^7.26.1",
-        "eslint-plugin-react-hooks": "4.0.8",
+        "eslint-plugin-react-hooks": "4.6.0",
         "prettier": "^2.7.1",
         "run-script-os": "^1.0.7",
         "typescript": "^4.6.3"
