@@ -36,7 +36,7 @@ class Telegram implements INode {
                 placeholder: 'eg: 1234567890:ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHI',
                 default: ''
             }
-        ] as INodeParams[];
+        ];
         this.inputParameters = [
             {
                 label: 'Channel ID',
