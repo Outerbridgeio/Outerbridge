@@ -199,7 +199,9 @@ class ChainLink implements INode {
 				networksData.websocketRPC as string,
 			)
 
-			if (!provider) throw new Error('Invalid Network Provider');
+			if (!provider) {
+				throw new Error('Invalid Network Provider');
+			}
 
             const operation = actionsData.operation as string;
           
