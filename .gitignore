@@ -1,4 +1,32 @@
-node_modules
+# editor
+.idea/
+.vscode/
+
+## repo
 .github
-package-lock.json
-yarn.lock
+
+# dependencies
+**/node_modules
+**/package-lock.json
+**/yarn.lock
+
+## lock
+**/*.log
+
+## build
+**/dist
+**/build
+
+## temp
+**/tmp
+**/temp
+
+## test
+**/coverage
+
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
