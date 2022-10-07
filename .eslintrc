@@ -43,11 +43,6 @@
                 "ignoreRestSiblings": false
             }
         ],
-        "prettier/prettier": [
-            "error",
-            {
-                "endOfLine": "auto"
-            }
-        ]
+        "prettier/prettier": ["error"]
     }
 }
