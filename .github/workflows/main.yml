@@ -17,7 +17,7 @@ jobs:
     strategy:
       matrix:
         platform: [ubuntu-latest]
-        node-version: [14.x, 16.x, 18.x]
+        node-version: [14.x, 16.x]
     runs-on: ${{ matrix.platform }}
 
     steps:
