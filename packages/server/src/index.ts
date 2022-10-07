@@ -60,7 +60,6 @@ import { DeployedWorkflowPool } from './DeployedWorkflowPool';
 import { ActiveTestTriggerPool } from './ActiveTestTriggerPool';
 import { ActiveTestWebhookPool } from './ActiveTestWebhookPool';
 import axios, { AxiosRequestConfig, Method } from 'axios';
-
 import { Workflow } from './entity/Workflow';
 import { Execution } from './entity/Execution';
 import { Credential } from './entity/Credential';
@@ -69,7 +68,7 @@ import { Contract } from './entity/Contract';
 import { Wallet } from './entity/Wallet';
 import { getDataSource } from './DataSource';
 
-export { IContractRequestBody } from './Interface';
+export { IContractRequestBody, ITestNodeBody, ITestWorkflowBody } from './Interface';
 
 export class App {
     app: express.Application;
