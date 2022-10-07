@@ -52,8 +52,7 @@
         "dev": "react-scripts start",
         "build": "react-scripts build",
         "test": "react-scripts test",
-        "eject": "react-scripts eject",
-        "lint:fix": "eslint src --fix"
+        "eject": "react-scripts eject"
     },
     "babel": {
         "presets": [
@@ -75,17 +74,7 @@
     "devDependencies": {
         "@babel/core": "^7.14.8",
         "@babel/eslint-parser": "^7.15.8",
-        "eslint": "^7.27.0",
-        "eslint-config-prettier": "^8.3.0",
-        "eslint-config-react-app": "6.0.0",
-        "eslint-import-resolver-typescript": "2.4.0",
-        "eslint-plugin-flowtype": "^5.7.2",
-        "eslint-plugin-import": "^2.23.3",
-        "eslint-plugin-jsx-a11y": "6.3.1",
-        "eslint-plugin-prettier": "^3.4.0",
-        "eslint-plugin-react": "^7.26.1",
-        "eslint-plugin-react-hooks": "4.0.8",
-        "prettier": "^2.2.1",
-        "sass": "^1.42.1"
+        "sass": "^1.42.1",
+        "run-script-os": "^1.0.7"
     }
 }
