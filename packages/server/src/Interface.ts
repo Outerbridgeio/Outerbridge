@@ -140,7 +140,7 @@ export interface ICredentialResponse {
     createdDate: Date
 }
 
-export interface ICredentialDataDecrpyted extends ICommonObject {}
+export type ICredentialDataDecrpyted = ICommonObject
 
 export interface IComponentCredentialsPool {
     [key: string]: INodeCredential
@@ -275,4 +275,4 @@ export interface INodeQueue {
     depth: number
 }
 
-export interface ITestWorkflowBody extends ITestNodeBody {}
+export type ITestWorkflowBody = ITestNodeBody
