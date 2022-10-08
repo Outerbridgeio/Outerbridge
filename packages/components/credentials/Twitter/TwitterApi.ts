@@ -15,7 +15,7 @@ class TwitterApi implements INodeCredential {
         type: "string",
         default: "",
         description:
-          '<a target="_blank" href="https://developer.twitter.com/en/docs/twitter-api/getting-started/getting-access-to-the-twitter-api">Register Twitter Dev account and get your token.</a>"',
+          'Register Twitter Dev account and get your token from: https://developer.twitter.com/en/docs/twitter-api/getting-started/getting-access-to-the-twitter-api',
       },
     ];
   }

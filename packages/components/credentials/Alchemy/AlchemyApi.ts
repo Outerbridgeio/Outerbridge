@@ -18,7 +18,7 @@ class AlchemyApi implements INodeCredential {
 				name: 'apiKey',
 				type: 'string',
 				default: '',
-				description: 'Navigate to the <a target="_blank" href="https://dashboard.alchemyapi.io">Dashboard page</a> to copy your "API Key".'
+				description: 'Navigate to https://dashboard.alchemyapi.io" to copy your "API Key".'
 			},
 			{
 				label: 'Webhook Auth Token',
@@ -26,7 +26,7 @@ class AlchemyApi implements INodeCredential {
 				type: 'string',
 				default: '',
 				optional: true,
-				description: 'Navigate to the top right corner of <a target="_blank" href="https://dashboard.alchemyapi.io/notify">Notify page</a> to copy your "Auth Token".'
+				description: 'Navigate to the top right corner of https://dashboard.alchemyapi.io/notify to copy your "Auth Token".'
 			},
 		];
 	}
