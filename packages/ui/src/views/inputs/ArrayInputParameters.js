@@ -3,8 +3,7 @@ import PropTypes from 'prop-types';
 import { forwardRef } from 'react';
 
 // material-ui
-import { Box, Switch, Fab, FormControl, OutlinedInput, Popper, TextField, Typography, Stack, IconButton, Button } from '@mui/material';
-import { Info } from '@mui/icons-material';
+import { Box, Switch, Fab, FormControl, OutlinedInput, Popper, TextField, Typography, Stack, Button } from '@mui/material';
 import Autocomplete, { autocompleteClasses } from '@mui/material/Autocomplete';
 import { useTheme, styled } from '@mui/material/styles';
 import { TooltipWithParser } from '../../ui-component/TooltipWithParser';

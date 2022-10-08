@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 
 // material-ui
 import { Box, Button, FormControl, Stack, OutlinedInput, Popper, TextField, Typography, IconButton, Switch } from '@mui/material';
-import { Info } from '@mui/icons-material';
 import Autocomplete, { autocompleteClasses } from '@mui/material/Autocomplete';
 import { useTheme, styled } from '@mui/material/styles';
 
