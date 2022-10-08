@@ -5,7 +5,7 @@ import { motion, useCycle } from 'framer-motion'
 
 // ==============================|| ANIMATION BUTTON ||============================== //
 
-const AnimateButton = forwardRef(({ children, type, direction, offset, scale }, ref) => {
+const AnimateButton = forwardRef(function AnimateButton({ children, type, direction, offset, scale }, ref) {
     let offset1
     let offset2
     switch (direction) {

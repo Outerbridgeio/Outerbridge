@@ -50,31 +50,33 @@ const StyledPopper = styled(Popper)({
     }
 })
 
-const DateCustomInput = forwardRef(({ value, onClick }, ref) => (
-    <button
-        style={{
-            backgroundColor: '#fafafa',
-            paddingTop: 8,
-            paddingBottom: 8,
-            paddingRight: 12,
-            paddingLeft: 12,
-            borderRadius: 12,
-            width: '100%',
-            height: 50,
-            border: `1px solid #BDBDBD`,
-            cursor: 'pointer',
-            fontWeight: 'bold',
-            textAlign: 'start',
-            color: '#212121',
-            opacity: 0.9
-        }}
-        type='button'
-        onClick={onClick}
-        ref={ref}
-    >
-        {value}
-    </button>
-))
+const DateCustomInput = forwardRef(function DateCustomInput({ value, onClick }, ref) {
+    return (
+        <button
+            style={{
+                backgroundColor: '#fafafa',
+                paddingTop: 8,
+                paddingBottom: 8,
+                paddingRight: 12,
+                paddingLeft: 12,
+                borderRadius: 12,
+                width: '100%',
+                height: 50,
+                border: `1px solid #BDBDBD`,
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                textAlign: 'start',
+                color: '#212121',
+                opacity: 0.9
+            }}
+            type='button'
+            onClick={onClick}
+            ref={ref}
+        >
+            {value}
+        </button>
+    )
+})
 
 DateCustomInput.propTypes = {
     value: PropTypes.string,
@@ -274,7 +276,10 @@ const InputParameters = ({
                                                 {input.type === 'folder' && (
                                                     <input
                                                         type='file'
+                                                        // https://github.com/jsx-eslint/eslint-plugin-react/issues/3454
+                                                        // eslint-disable-next-line react/no-unknown-property
                                                         directory=''
+                                                        // eslint-disable-next-line react/no-unknown-property
                                                         webkitdirectory=''
                                                         hidden
                                                         onChange={(e) => handleFolderUpload(e, setFieldValue, values, inputName)}
