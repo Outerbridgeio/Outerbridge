@@ -184,7 +184,6 @@ class InfuraTrigger extends EventEmitter implements INode {
             }
         }
 
-        const context = this
         const emitEventKey = nodeData.emitEventKey as string
 
         const result = subscribeOperations.find((obj) => {
@@ -203,14 +202,14 @@ class InfuraTrigger extends EventEmitter implements INode {
         })
 
         let subscriptionID = ''
-        ws.on('message', function message(data) {
+        ws.on('message', (data) => {
             const messageData = JSON.parse(data as any)
 
             if (messageData.method) {
-                context.emit(emitEventKey, returnNodeExecutionData(messageData))
+                this.emit(emitEventKey, returnNodeExecutionData(messageData))
             } else {
                 subscriptionID = messageData.result
-                context.providers[emitEventKey] = { provider: ws, filter: subscriptionID }
+                this.providers[emitEventKey] = { provider: ws, filter: subscriptionID }
             }
         })
     }
