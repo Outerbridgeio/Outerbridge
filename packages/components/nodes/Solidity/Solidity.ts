@@ -26,8 +26,14 @@ import {
     PolygonNetworks
 } from '../../src/ChainNetwork'
 
-const solc = require('solc')
+// @ts-expect-error no type definition
+import solc from 'solc'
 
+function findImports(_path: string) {
+    const filepath = getNodeModulesPackagePath(_path)
+    const contents = fs.readFileSync(filepath).toString()
+    return { contents }
+}
 class Solidity implements INode {
     label: string
     name: string
@@ -215,18 +221,12 @@ contract MyToken is ERC20 {
                 }
             } as any
 
-            function findImports(_path: any) {
-                const filepath = getNodeModulesPackagePath(_path)
-                const contents = fs.readFileSync(filepath).toString()
-                return { contents }
-            }
-
             input.sources[solidityContractName + '.sol'] = { content: code }
             const output = JSON.parse(solc.compile(JSON.stringify(input), { import: findImports }))
 
             const contractOutput = output.contracts[solidityContractName + '.sol']
 
-            let contractName = Object.keys(contractOutput)[0]
+            const contractName = Object.keys(contractOutput)[0]
 
             const bytecode = contractOutput[contractName].evm.bytecode.object
             const abi = contractOutput[contractName].abi
@@ -241,7 +241,7 @@ contract MyToken is ERC20 {
 
             let deployedContract: ethers.Contract
 
-            if (contractParameters.length > 0) deployedContract = await factory.deploy.apply(factory, contractParameters)
+            if (contractParameters.length > 0) deployedContract = await factory.deploy(...contractParameters)
             else deployedContract = await factory.deploy()
 
             // The contract is NOT deployed yet; we must wait until it is mined
