@@ -6,13 +6,13 @@
     "scripts": {
         "setup": "npm i -D lerna rimraf && npx -y husky install || npx husky install",
         "bootstrap": "rimraf **/package-lock.json && rimraf **/yarn.lock && lerna bootstrap --hoist",
-        "build": "lerna exec yarn run build",
+        "build": "lerna exec yarn build",
         "start": "run-script-os",
         "start:windows": "cd packages/server/bin && run start",
         "start:default": "cd packages/server/bin && ./run start",
         "dev": "lerna exec yarn run dev --parallel",
         "clean": "lerna exec -- rimraf ./dist",
-        "test": "lerna yarn run test",
+        "test": "lerna yarn test",
         "lint": "eslint .",
         "lint-fix": "yarn lint --fix"
     },

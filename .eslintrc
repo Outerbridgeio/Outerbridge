@@ -19,7 +19,7 @@
         "@typescript-eslint/explicit-module-boundary-types": "off",
         "no-unused-vars": "warn",
         "no-undef": "off",
-        "no-console": "warn",
+        "no-console": "off",
         "prettier/prettier": ["error"]
     }
 }
