@@ -35,10 +35,8 @@ export enum ShortIdConstants {
     EXECUTION_ID_PREFIX = 'E'
 }
 
-let RANDOM_LENGTH = 8
-let USE_LOWERCASE = 'false'
+const RANDOM_LENGTH = 8
 const DICTIONARY_1 = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ'
-const DICTIONARY_2 = '23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz'
 const DICTIONARY_3 = 'abcdefghijklmnopqrstuvwxyz0123456789'
 
 /**
@@ -54,7 +52,7 @@ export const shortId = (prefix: 'W' | 'E', date: string | Date): string => {
     const isValidPrefix = prefix === 'W' || prefix === 'E'
     const utcCreatedAt = new Date(date)
     if (!isValidPrefix) throw new Error('Invalid short id prefix, only possible values "W" or "E".')
-    const DICTIONARY = USE_LOWERCASE === 'true' ? DICTIONARY_2 : DICTIONARY_1
+    const DICTIONARY = DICTIONARY_1
     let randomPart = ''
     for (let i = 0; i < RANDOM_LENGTH; i++) {
         randomPart += getRandomCharFromDictionary(DICTIONARY)
@@ -290,7 +288,7 @@ export const getVariableValue = (paramValue: string, reactFlowNodes: IReactFlowN
     const variableStack = []
     const variableDict = {} as IVariableDict
     let startIdx = 0
-    let endIdx = returnVal.length - 1
+    const endIdx = returnVal.length - 1
 
     while (startIdx < endIdx) {
         const substr = returnVal.substring(startIdx, startIdx + 2)
@@ -321,7 +319,7 @@ export const getVariableValue = (paramValue: string, reactFlowNodes: IReactFlowN
         startIdx += 1
     }
 
-    var variablePaths = Object.keys(variableDict)
+    const variablePaths = Object.keys(variableDict)
     variablePaths.sort() // Sort by length of variable path because longer path could possibly contains nested variable
     variablePaths.forEach((path) => {
         const variableValue = variableDict[path]
@@ -380,7 +378,7 @@ export const decryptCredentials = async (nodeData: INodeData, appDataSource?: Da
     if (!appDataSource) appDataSource = getDataSource()
 
     if (nodeData.credentials && nodeData.credentials.registeredCredential) {
-        // @ts-ignore
+        // @ts-expect-error investigate this later
         const credentialId: string = nodeData.credentials.registeredCredential?._id
 
         const credential = await appDataSource.getMongoRepository(Credential).findOneBy({
@@ -594,7 +592,7 @@ const updateCredentialAfterOAuth2TokenRefreshed = async (
 
             // Update credential
             if (nodeData.credentials && nodeData.credentials.registeredCredential) {
-                // @ts-ignore
+                // @ts-expect-error investigate this later
                 const credentialId = nodeData.credentials.registeredCredential._id as string
                 const credential = await appDataSource.getMongoRepository(Credential).findOneBy({
                     _id: new ObjectId(credentialId)
@@ -679,14 +677,14 @@ export const testWorkflow = async (
 
             try {
                 const nodeInstanceFilePath = componentNodes[reactFlowNode.data.name].filePath
-                const nodeModule = require(nodeInstanceFilePath)
+                const nodeModule = await import(nodeInstanceFilePath)
                 const newNodeInstance = new nodeModule.nodeClass()
 
                 await decryptCredentials(reactFlowNode.data)
 
                 const reactFlowNodeData: INodeData = resolveVariables(reactFlowNode.data, reactFlowNodes)
 
-                let result = await newNodeInstance.run!.call(newNodeInstance, reactFlowNodeData)
+                const result = await newNodeInstance.run!.call(newNodeInstance, reactFlowNodeData)
 
                 checkOAuth2TokenRefreshed(result, reactFlowNodeData)
 
@@ -751,15 +749,15 @@ export const testWorkflow = async (
             if (!ignoreNodeIds.includes(neighNodeId)) {
                 // If nodeId has been seen, cycle detected
                 if (Object.prototype.hasOwnProperty.call(exploredNode, neighNodeId)) {
-                    let { remainingLoop, lastSeenDepth } = exploredNode[neighNodeId]
+                    const { remainingLoop, lastSeenDepth } = exploredNode[neighNodeId]
 
                     if (lastSeenDepth === nextDepth) continue
 
                     if (remainingLoop === 0) {
                         break
                     }
-                    remainingLoop -= 1
-                    exploredNode[neighNodeId] = { remainingLoop, lastSeenDepth: nextDepth }
+                    const remainingLoopMinusOne = remainingLoop - 1
+                    exploredNode[neighNodeId] = { remainingLoop: remainingLoopMinusOne, lastSeenDepth: nextDepth }
                     nodeQueue.push({ nodeId: neighNodeId, depth: nextDepth })
                 } else {
                     exploredNode[neighNodeId] = { remainingLoop: maxLoop, lastSeenDepth: nextDepth }
