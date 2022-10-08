@@ -36,7 +36,7 @@ import { IconTrash, IconCopy } from '@tabler/icons';
 //css
 import './InputParameters.css';
 
-import { TooltipWithParser } from '../../ui-component/InputParametersTooltip';
+import { TooltipWithParser } from '../../ui-component/TooltipWithParser';
 
 const StyledPopper = styled(Popper)({
     boxShadow: '0px 8px 10px -5px rgb(0 0 0 / 20%), 0px 16px 24px 2px rgb(0 0 0 / 14%), 0px 6px 30px 5px rgb(0 0 0 / 12%)',

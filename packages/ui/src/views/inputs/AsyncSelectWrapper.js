@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { TooltipWithParser } from '../../ui-component/InputParametersTooltip';
+import { TooltipWithParser } from '../../ui-component/TooltipWithParser';
 
 // material-ui
 import { Typography, Stack } from '@mui/material';

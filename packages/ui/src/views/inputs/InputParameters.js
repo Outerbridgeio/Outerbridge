@@ -21,7 +21,7 @@ import 'prismjs/themes/prism.css';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
-import { TooltipWithParser } from '../../ui-component/InputParametersTooltip';
+import { TooltipWithParser } from '../../ui-component/TooltipWithParser';
 
 // project imports
 import useScriptRef from 'hooks/useScriptRef';

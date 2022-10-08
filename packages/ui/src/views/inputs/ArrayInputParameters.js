@@ -7,7 +7,7 @@ import { Box, Switch, Fab, FormControl, OutlinedInput, Popper, TextField, Typogr
 import { Info } from '@mui/icons-material';
 import Autocomplete, { autocompleteClasses } from '@mui/material/Autocomplete';
 import { useTheme, styled } from '@mui/material/styles';
-import { TooltipWithParser } from '../../ui-component/InputParametersTooltip';
+import { TooltipWithParser } from '../../ui-component/TooltipWithParser';
 
 // icons
 import { IconX, IconUpload } from '@tabler/icons';
