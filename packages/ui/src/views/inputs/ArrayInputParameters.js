@@ -3,23 +3,11 @@ import PropTypes from 'prop-types';
 import { forwardRef } from 'react';
 
 // material-ui
-import {
-    Box,
-    Switch,
-    Fab,
-    FormControl,
-    Tooltip,
-    OutlinedInput,
-    Popper,
-    TextField,
-    Typography,
-    Stack,
-    IconButton,
-    Button
-} from '@mui/material';
+import { Box, Switch, Fab, FormControl, OutlinedInput, Popper, TextField, Typography, Stack, IconButton, Button } from '@mui/material';
 import { Info } from '@mui/icons-material';
 import Autocomplete, { autocompleteClasses } from '@mui/material/Autocomplete';
 import { useTheme, styled } from '@mui/material/styles';
+import { TooltipWithParser } from '../../ui-component/InputParametersTooltip';
 
 // icons
 import { IconX, IconUpload } from '@tabler/icons';
@@ -242,13 +230,7 @@ const ArrayInputParameters = ({
                                     >
                                         <Stack direction="row">
                                             <Typography variant="overline">{input.label}</Typography>
-                                            {input.description && (
-                                                <Tooltip title={input.description} placement="right">
-                                                    <IconButton>
-                                                        <Info style={{ height: 18, width: 18 }} />
-                                                    </IconButton>
-                                                </Tooltip>
-                                            )}
+                                            {input.description && <TooltipWithParser title={input.description} />}
                                         </Stack>
 
                                         {input.type === 'file' && (
@@ -312,13 +294,7 @@ const ArrayInputParameters = ({
                                     >
                                         <Stack sx={{ position: 'relative' }} direction="row">
                                             <Typography variant="overline">{input.label}</Typography>
-                                            {input.description && (
-                                                <Tooltip title={input.description} placement="right">
-                                                    <IconButton>
-                                                        <Info style={{ height: 18, width: 18 }} />
-                                                    </IconButton>
-                                                </Tooltip>
-                                            )}
+                                            {input.description && <TooltipWithParser title={input.description} />}
                                             <Button
                                                 sx={{
                                                     position: 'absolute',
@@ -381,13 +357,7 @@ const ArrayInputParameters = ({
                                     >
                                         <Stack direction="row">
                                             <Typography variant="overline">{input.label}</Typography>
-                                            {input.description && (
-                                                <Tooltip title={input.description} placement="right">
-                                                    <IconButton>
-                                                        <Info style={{ height: 18, width: 18 }} />
-                                                    </IconButton>
-                                                </Tooltip>
-                                            )}
+                                            {input.description && <TooltipWithParser title={input.description} />}
                                         </Stack>
                                         <DatePicker
                                             customInput={<DateCustomInput />}
@@ -418,13 +388,7 @@ const ArrayInputParameters = ({
                                     >
                                         <Stack sx={{ position: 'relative' }} direction="row">
                                             <Typography variant="overline">{input.label}</Typography>
-                                            {input.description && (
-                                                <Tooltip title={input.description} placement="right">
-                                                    <IconButton>
-                                                        <Info style={{ height: 18, width: 18 }} />
-                                                    </IconButton>
-                                                </Tooltip>
-                                            )}
+                                            {input.description && <TooltipWithParser title={input.description} />}
                                             {(input.type === 'string' || input.type === 'number') && (
                                                 <Button
                                                     sx={{
@@ -475,13 +439,7 @@ const ArrayInputParameters = ({
                                     >
                                         <Stack direction="row">
                                             <Typography variant="overline">{input.label}</Typography>
-                                            {input.description && (
-                                                <Tooltip title={input.description} placement="right">
-                                                    <IconButton>
-                                                        <Info style={{ height: 18, width: 18 }} />
-                                                    </IconButton>
-                                                </Tooltip>
-                                            )}
+                                            {input.description && <TooltipWithParser title={input.description} />}
                                         </Stack>
                                         <Switch
                                             checked={!!values[inputName]}
@@ -502,13 +460,7 @@ const ArrayInputParameters = ({
                                     <FormControl key={`${inputName}_${paramIndex}`} fullWidth sx={{ mb: 1, mt: 1 }}>
                                         <Stack direction="row">
                                             <Typography variant="overline">{input.label}</Typography>
-                                            {input.description && (
-                                                <Tooltip title={input.description} placement="right">
-                                                    <IconButton>
-                                                        <Info style={{ height: 18, width: 18 }} />
-                                                    </IconButton>
-                                                </Tooltip>
-                                            )}
+                                            {input.description && <TooltipWithParser title={input.description} />}
                                         </Stack>
                                         <Autocomplete
                                             id={inputName}

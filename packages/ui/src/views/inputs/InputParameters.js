@@ -2,8 +2,7 @@ import PropTypes from 'prop-types';
 import { forwardRef } from 'react';
 
 // material-ui
-import { Box, Button, Stack, FormControl, OutlinedInput, Popper, TextField, Typography, Switch, IconButton } from '@mui/material';
-import { Info } from '@mui/icons-material';
+import { Box, Button, Stack, FormControl, OutlinedInput, Popper, TextField, Typography, Switch } from '@mui/material';
 import Autocomplete, { autocompleteClasses } from '@mui/material/Autocomplete';
 import { styled, useTheme } from '@mui/material/styles';
 
@@ -22,7 +21,7 @@ import 'prismjs/themes/prism.css';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
-import { InputParameterTooltip } from '../../ui-component/InputParametersTooltip';
+import { TooltipWithParser } from '../../ui-component/InputParametersTooltip';
 
 // project imports
 import useScriptRef from 'hooks/useScriptRef';
@@ -225,7 +224,7 @@ const InputParameters = ({
                                         <FormControl key={inputName} fullWidth sx={{ mb: 1, mt: 1 }} error={Boolean(errors[inputName])}>
                                             <Stack direction="row">
                                                 <Typography variant="overline">{input.label}</Typography>
-                                                {input.description && <InputParameterTooltip title={input.description} />}
+                                                {input.description && <TooltipWithParser title={input.description} />}
                                             </Stack>
 
                                             {input.type === 'file' && (
@@ -293,7 +292,7 @@ const InputParameters = ({
                                         <FormControl key={inputName} fullWidth sx={{ mb: 1, mt: 1 }} error={Boolean(errors[inputName])}>
                                             <Stack sx={{ position: 'relative' }} direction="row">
                                                 <Typography variant="overline">{input.label}</Typography>
-                                                {input.description && <InputParameterTooltip title={input.description} />}
+                                                {input.description && <TooltipWithParser title={input.description} />}
                                                 <Button
                                                     sx={{
                                                         position: 'absolute',
@@ -364,7 +363,7 @@ const InputParameters = ({
                                         <FormControl key={inputName} fullWidth sx={{ mb: 1, mt: 1 }} error={Boolean(errors[inputName])}>
                                             <Stack direction="row">
                                                 <Typography variant="overline">{input.label}</Typography>
-                                                {input.description && <InputParameterTooltip title={input.description} />}
+                                                {input.description && <TooltipWithParser title={input.description} />}
                                             </Stack>
                                             <DatePicker
                                                 customInput={<DateCustomInput />}
@@ -400,7 +399,7 @@ const InputParameters = ({
                                         <FormControl key={inputName} fullWidth sx={{ mb: 1, mt: 1 }} error={Boolean(errors[inputName])}>
                                             <Stack sx={{ position: 'relative' }} direction="row">
                                                 <Typography variant="overline">{input.label}</Typography>
-                                                {input.description && <InputParameterTooltip title={input.description} />}
+                                                {input.description && <TooltipWithParser title={input.description} />}
                                                 {(input.type === 'string' || input.type === 'number') && (
                                                     <Button
                                                         sx={{
@@ -451,7 +450,7 @@ const InputParameters = ({
                                         <FormControl key={inputName} fullWidth sx={{ mb: 1, mt: 1 }} error={Boolean(errors[inputName])}>
                                             <Stack direction="row">
                                                 <Typography variant="overline">{input.label}</Typography>
-                                                {input.description && <InputParameterTooltip title={input.description} />}
+                                                {input.description && <TooltipWithParser title={input.description} />}
                                             </Stack>
                                             <Switch
                                                 checked={!!values[inputName]}
@@ -507,7 +506,7 @@ const InputParameters = ({
                                         <FormControl key={inputName} fullWidth sx={{ mb: 1, mt: 1 }}>
                                             <Stack direction="row">
                                                 <Typography variant="overline">{input.label}</Typography>
-                                                {input.description && <InputParameterTooltip title={input.description} />}
+                                                {input.description && <TooltipWithParser title={input.description} />}
                                             </Stack>
                                             <Autocomplete
                                                 id={inputName}
@@ -565,7 +564,7 @@ const InputParameters = ({
                                         <Stack sx={{ mt: 1 }} key={inputName}>
                                             <Stack direction="row">
                                                 <Typography variant="overline">{input.label}</Typography>
-                                                {input.description && <InputParameterTooltip title={input.description} />}
+                                                {input.description && <TooltipWithParser title={input.description} />}
                                             </Stack>
                                             <ArrayInputParameters
                                                 initialValues={arrayItemsValues}
