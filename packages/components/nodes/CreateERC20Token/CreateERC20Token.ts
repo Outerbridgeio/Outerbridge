@@ -26,7 +26,14 @@ import {
     PolygonNetworks
 } from '../../src/ChainNetwork'
 
-const solc = require('solc')
+// @ts-expect-error no type definition
+import solc from 'solc'
+
+function findImports(_path: string) {
+    const filepath = getNodeModulesPackagePath(_path)
+    const contents = fs.readFileSync(filepath).toString()
+    return { contents }
+}
 
 class CreateERC20Token implements INode {
     label: string
@@ -239,12 +246,6 @@ class CreateERC20Token implements INode {
                 }
             } as any
 
-            function findImports(_path: any) {
-                const filepath = getNodeModulesPackagePath(_path)
-                const contents = fs.readFileSync(filepath).toString()
-                return { contents }
-            }
-
             const contractCode = `// SPDX-License-Identifier: MIT
             pragma solidity ^${solidityVersion};
             import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -260,7 +261,7 @@ class CreateERC20Token implements INode {
 
             const contractOutput = output.contracts[tokenName + '.sol']
 
-            let contractName = Object.keys(contractOutput)[0]
+            const contractName = Object.keys(contractOutput)[0]
 
             const bytecode = contractOutput[contractName].evm.bytecode.object
             const abi = contractOutput[contractName].abi

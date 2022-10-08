@@ -27,7 +27,14 @@ import {
     PolygonNetworks
 } from '../../src/ChainNetwork'
 
-const solc = require('solc')
+// @ts-expect-error no type definition
+import solc from 'solc'
+
+function findImports(_path: string) {
+    const filepath = getNodeModulesPackagePath(_path)
+    const contents = fs.readFileSync(filepath).toString()
+    return { contents }
+}
 
 class CreateNFT implements INode {
     label: string
@@ -280,12 +287,6 @@ class CreateNFT implements INode {
                 }
             } as any
 
-            function findImports(_path: any) {
-                const filepath = getNodeModulesPackagePath(_path)
-                const contents = fs.readFileSync(filepath).toString()
-                return { contents }
-            }
-
             let metadata = ''
             if (nftMetadataJsonUrl) {
                 metadata = `${nftMetadataJsonUrl}/{id}.json`
@@ -373,7 +374,7 @@ class CreateNFT implements INode {
 
             const contractOutput = output.contracts[nftContractName + '.sol']
 
-            let contractName = Object.keys(contractOutput)[0]
+            const contractName = Object.keys(contractOutput)[0]
 
             const bytecode = contractOutput[contractName].evm.bytecode.object
             const abi = contractOutput[contractName].abi
