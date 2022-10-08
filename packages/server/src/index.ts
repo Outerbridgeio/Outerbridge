@@ -528,7 +528,7 @@ export class App {
                     )
                 } else if (nodeData.type === 'action') {
                     const actionNodeInstance = this.componentNodes[nodeData.name] as INode
-                    let result = await actionNodeInstance.run!.call(actionNodeInstance, nodeData)
+                    const result = await actionNodeInstance.run!.call(actionNodeInstance, nodeData)
                     checkOAuth2TokenRefreshed(result, nodeData)
 
                     const newWorkflowExecutedData = {
@@ -689,7 +689,7 @@ export class App {
 
                     if (nodeType === 'action') {
                         const reactFlowNodeData: INodeData = resolveVariables(nodeData, nodes)
-                        let result = await nodeInstance.run!.call(nodeInstance, reactFlowNodeData)
+                        const result = await nodeInstance.run!.call(nodeInstance, reactFlowNodeData)
 
                         checkOAuth2TokenRefreshed(result, reactFlowNodeData)
 
@@ -830,7 +830,7 @@ export class App {
         // Get list of registered credentials via nodeCredentialName
         this.app.get('/api/v1/credentials', async (req: Request, res: Response) => {
             const credentials = await this.AppDataSource.getMongoRepository(Credential).find({
-                // @ts-ignore
+                // @ts-expect-error investigate this later
                 where: {
                     nodeCredentialName: { $eq: req.query.nodeCredentialName }
                 }
