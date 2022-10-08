@@ -24,7 +24,7 @@ const Header = ({ handleLeftDrawerToggle }) => {
                     display: 'flex',
                     [theme.breakpoints.down('md')]: {
                         width: 'auto'
-                    },
+                    }
                 }}
             >
                 <Box component="span" sx={{ display: { xs: 'none', md: 'block' }, flexGrow: 1 }}>

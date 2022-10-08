@@ -1,4 +1,4 @@
-import { getBezierPath, getEdgeCenter,  EdgeText } from 'react-flow-renderer';
+import { getBezierPath, getEdgeCenter, EdgeText } from 'react-flow-renderer';
 import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 import { REMOVE_EDGE } from 'store/actions';
@@ -7,33 +7,21 @@ import './index.css';
 
 const foreignObjectSize = 40;
 
-const ButtonEdge = ({ 
-    id,
-    sourceX,
-    sourceY,
-    targetX,
-    targetY,
-    sourcePosition,
-    targetPosition,
-    style = {},
-    data,
-    markerEnd
-}) => {
-
+const ButtonEdge = ({ id, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, style = {}, data, markerEnd }) => {
     const edgePath = getBezierPath({
         sourceX,
         sourceY,
         sourcePosition,
         targetX,
         targetY,
-        targetPosition,
+        targetPosition
     });
 
     const [edgeCenterX, edgeCenterY] = getEdgeCenter({
         sourceX,
         sourceY,
         targetX,
-        targetY,
+        targetY
     });
 
     const dispatch = useDispatch();
@@ -45,23 +33,18 @@ const ButtonEdge = ({
 
     return (
         <>
-            <path
-                id={id}
-                style={style}
-                className="react-flow__edge-path"
-                d={edgePath}
-                markerEnd={markerEnd}
-            />
-            {data && data.label && 
-            <EdgeText
-                x={sourceX + 10}
-                y={sourceY + 10}
-                label={data.label}
-                labelStyle={{ fill: 'black' }}
-                labelBgStyle={{ fill: 'transparent' }}
-                labelBgPadding={[2, 4]}
-                labelBgBorderRadius={2}
-            />}
+            <path id={id} style={style} className="react-flow__edge-path" d={edgePath} markerEnd={markerEnd} />
+            {data && data.label && (
+                <EdgeText
+                    x={sourceX + 10}
+                    y={sourceY + 10}
+                    label={data.label}
+                    labelStyle={{ fill: 'black' }}
+                    labelBgStyle={{ fill: 'transparent' }}
+                    labelBgPadding={[2, 4]}
+                    labelBgBorderRadius={2}
+                />
+            )}
             <foreignObject
                 width={foreignObjectSize}
                 height={foreignObjectSize}
@@ -78,7 +61,7 @@ const ButtonEdge = ({
             </foreignObject>
         </>
     );
-}
+};
 
 ButtonEdge.propTypes = {
     id: PropTypes.string,
@@ -90,7 +73,7 @@ ButtonEdge.propTypes = {
     targetPosition: PropTypes.any,
     style: PropTypes.object,
     data: PropTypes.object,
-    markerEnd: PropTypes.any,
+    markerEnd: PropTypes.any
 };
 
 export default ButtonEdge;

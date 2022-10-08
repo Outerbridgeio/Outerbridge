@@ -4,11 +4,10 @@ import logo from 'assets/images/outerbridge_brand.png';
 
 const Logo = () => {
     return (
-        <div style={{alignItems: 'center', display: 'flex', flexDirection: 'row'}}>
-            <img style={{objectFit: 'contain', height: 'auto', width: 150}} src={logo} alt="Outerbridge" />
+        <div style={{ alignItems: 'center', display: 'flex', flexDirection: 'row' }}>
+            <img style={{ objectFit: 'contain', height: 'auto', width: 150 }} src={logo} alt="Outerbridge" />
         </div>
     );
 };
 
 export default Logo;
-

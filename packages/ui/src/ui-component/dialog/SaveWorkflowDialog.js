@@ -2,22 +2,9 @@ import { createPortal } from 'react-dom';
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
-import { 
-    Button, 
-    Dialog, 
-    DialogActions,
-    DialogContent, 
-    OutlinedInput,
-    DialogTitle 
-} from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, OutlinedInput, DialogTitle } from '@mui/material';
 
-const SaveWorkflowDialog = ({
-    show,
-    dialogProps,
-    onCancel,
-    onConfirm,
-}) => {
-
+const SaveWorkflowDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
     const portalElement = document.getElementById('portal');
 
     const [workflowName, setWorkflowName] = useState('');
@@ -26,7 +13,6 @@ const SaveWorkflowDialog = ({
     useEffect(() => {
         if (workflowName) setIsReadyToSave(true);
         else setIsReadyToSave(false);
-
     }, [workflowName]);
 
     const component = show ? (
@@ -45,7 +31,7 @@ const SaveWorkflowDialog = ({
                 <OutlinedInput
                     sx={{ mt: 1 }}
                     id="workflow-name"
-                    type='text'
+                    type="text"
                     fullWidth
                     placeholder="My New Workflow"
                     value={workflowName}
@@ -53,9 +39,7 @@ const SaveWorkflowDialog = ({
                 />
             </DialogContent>
             <DialogActions>
-                <Button onClick={onCancel}>
-                    {dialogProps.cancelButtonName}
-                </Button>
+                <Button onClick={onCancel}>{dialogProps.cancelButtonName}</Button>
                 <Button disabled={!isReadyToSave} variant="contained" onClick={() => onConfirm(workflowName)}>
                     {dialogProps.confirmButtonName}
                 </Button>
@@ -64,14 +48,13 @@ const SaveWorkflowDialog = ({
     ) : null;
 
     return createPortal(component, portalElement);
-}
+};
 
 SaveWorkflowDialog.propTypes = {
-    show: PropTypes.bool, 
+    show: PropTypes.bool,
     dialogProps: PropTypes.object,
     onCancel: PropTypes.func,
-    onConfirm: PropTypes.func,
+    onConfirm: PropTypes.func
 };
 
 export default SaveWorkflowDialog;
-

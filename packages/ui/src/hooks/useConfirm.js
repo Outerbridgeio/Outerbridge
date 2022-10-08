@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import ConfirmContext from 'store/context/ConfirmContext';
-import { HIDE_CONFIRM, SHOW_CONFIRM } from "store/actions";
+import { HIDE_CONFIRM, SHOW_CONFIRM } from 'store/actions';
 
 let resolveCallback;
 const useConfirm = () => {
@@ -30,8 +30,8 @@ const useConfirm = () => {
             resolveCallback = res;
         });
     };
-    
+
     return { confirm, onConfirm, onCancel, confirmState };
-}
+};
 
 export default useConfirm;

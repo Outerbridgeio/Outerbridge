@@ -4,7 +4,7 @@ import * as actionTypes from '../actions';
 export const initialState = {
     removeEdgeId: '',
     isDirty: false,
-    workflow: null,
+    workflow: null
 };
 
 // ==============================|| CANVAS REDUCER ||============================== //

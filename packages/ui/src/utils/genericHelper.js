@@ -3,19 +3,18 @@ import moment from 'moment';
 
 export const numberOrExpressionRegex = /^(\d+\.?\d*|{{.*}})$/; //return true if string consists only numbers OR expression {{}}
 
-export const constructNodeDirectedGraph = (nodes, edges, reverse=false) => {
-
+export const constructNodeDirectedGraph = (nodes, edges, reverse = false) => {
     const graph = {};
     const nodeDependencies = {};
 
     // Initialize node dependencies and graph
-    for (let i = 0; i < nodes.length; i+=1 ) {
+    for (let i = 0; i < nodes.length; i += 1) {
         const nodeId = nodes[i].id;
         nodeDependencies[nodeId] = 0;
         graph[nodeId] = [];
     }
 
-    for (let i = 0; i < edges.length; i+=1 ) {
+    for (let i = 0; i < edges.length; i += 1) {
         const source = edges[i].source;
         const target = edges[i].target;
 
@@ -37,7 +36,7 @@ export const constructNodeDirectedGraph = (nodes, edges, reverse=false) => {
     }
 
     return { graph, nodeDependencies };
-}
+};
 
 // Find starting node with 0 dependencies
 export const findStartingNodeIds = (nodes, nodeDependencies) => {
@@ -52,7 +51,7 @@ export const findStartingNodeIds = (nodes, nodeDependencies) => {
     });
 
     return startingNodeIds;
-}
+};
 
 // Backtrack function to find all paths from start to target node
 export const getAllPathsFromStartToTarget = (startNodeId, targetNodeId, graph) => {
@@ -68,7 +67,7 @@ export const getAllPathsFromStartToTarget = (startNodeId, targetNodeId, graph) =
         const neighbourNodeIds = graph[currentNodeId];
         visitedNodeIds.add(currentNodeId);
 
-        for (let i = 0; i < neighbourNodeIds.length; i+=1 ) {
+        for (let i = 0; i < neighbourNodeIds.length; i += 1) {
             const neighNodeId = neighbourNodeIds[i];
             if (!visitedNodeIds.has(neighNodeId)) {
                 tempPath.push(neighNodeId);
@@ -77,15 +76,14 @@ export const getAllPathsFromStartToTarget = (startNodeId, targetNodeId, graph) =
             }
         }
         visitedNodeIds.delete(currentNodeId);
-    }
+    };
 
     DFS(startNodeId, targetNodeId, [startNodeId]);
     return paths;
-}
+};
 
 // Breadth First Search to get all connected parent nodes from target
 export const getAllConnectedNodesFromTarget = (targetNodeId, edges, graph) => {
-
     const nodeQueue = [];
     const exploredNodes = [];
 
@@ -93,20 +91,19 @@ export const getAllConnectedNodesFromTarget = (targetNodeId, edges, graph) => {
     exploredNodes.push(targetNodeId);
 
     while (nodeQueue.length) {
-
         const nodeId = nodeQueue.shift() || '';
         const parentNodeIds = [];
 
-        const inputEdges = edges.filter((edg) => (edg.target === nodeId && edg.targetHandle.includes('-input-')));
+        const inputEdges = edges.filter((edg) => edg.target === nodeId && edg.targetHandle.includes('-input-'));
         if (inputEdges && inputEdges.length) {
-            for (let j = 0; j < inputEdges.length; j+=1 ) {
+            for (let j = 0; j < inputEdges.length; j += 1) {
                 parentNodeIds.push(inputEdges[j].source);
             }
         }
 
         const neighbourNodeIds = graph[nodeId];
 
-        for (let i = 0; i < neighbourNodeIds.length; i+=1 ) {
+        for (let i = 0; i < neighbourNodeIds.length; i += 1) {
             const neighNodeId = neighbourNodeIds[i];
             if (parentNodeIds.includes(neighNodeId)) {
                 if (!exploredNodes.includes(neighNodeId)) {
@@ -115,9 +112,9 @@ export const getAllConnectedNodesFromTarget = (targetNodeId, edges, graph) => {
                 }
             }
         }
-    };
+    }
     return exploredNodes;
-}
+};
 
 export const getAvailableNodeIdsForVariable = (nodes, edges, targetNodeId) => {
     const { graph } = constructNodeDirectedGraph(nodes, edges, true);
@@ -125,23 +122,22 @@ export const getAvailableNodeIdsForVariable = (nodes, edges, targetNodeId) => {
     const setPath = new Set(exploreNodes);
     setPath.delete(targetNodeId);
     return [...setPath];
-}
+};
 
 export const generateWebhookEndpoint = () => {
     const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
-    const webhookEndpoint = Array.from({ length: 15 }).map(() => {
-        return characters.charAt(
-            Math.floor(Math.random() * characters.length),
-        );
-    }).join('');
+    const webhookEndpoint = Array.from({ length: 15 })
+        .map(() => {
+            return characters.charAt(Math.floor(Math.random() * characters.length));
+        })
+        .join('');
     return webhookEndpoint;
-}
+};
 
 export const getUniqueNodeId = (nodeData, nodes) => {
-
     // Get amount of same nodes
     let totalSameNodes = 0;
-    for (let i = 0; i < nodes.length; i+=1 ) {
+    for (let i = 0; i < nodes.length; i += 1) {
         const node = nodes[i];
         if (node.data.name === nodeData.name) {
             totalSameNodes += 1;
@@ -150,7 +146,7 @@ export const getUniqueNodeId = (nodeData, nodes) => {
 
     // Get unique id
     let nodeId = `${nodeData.name}_${totalSameNodes}`;
-    for (let i = 0; i < nodes.length; i+=1 ) {
+    for (let i = 0; i < nodes.length; i += 1) {
         const node = nodes[i];
         if (node.id === nodeId) {
             totalSameNodes += 1;
@@ -161,10 +157,9 @@ export const getUniqueNodeId = (nodeData, nodes) => {
 };
 
 const getUniqueNodeLabel = (nodeData, nodes) => {
-
     // Get amount of same nodes
     let totalSameNodes = 0;
-    for (let i = 0; i < nodes.length; i+=1 ) {
+    for (let i = 0; i < nodes.length; i += 1) {
         const node = nodes[i];
         if (node.data.name === nodeData.name) {
             totalSameNodes += 1;
@@ -173,7 +168,7 @@ const getUniqueNodeLabel = (nodeData, nodes) => {
 
     // Get unique label
     let nodeLabel = `${nodeData.label}_${totalSameNodes}`;
-    for (let i = 0; i < nodes.length; i+=1 ) {
+    for (let i = 0; i < nodes.length; i += 1) {
         const node = nodes[i];
         if (node.data.label === nodeLabel) {
             totalSameNodes += 1;
@@ -184,7 +179,7 @@ const getUniqueNodeLabel = (nodeData, nodes) => {
 };
 
 export const checkIfNodeLabelUnique = (nodeLabel, nodes) => {
-    for (let i = 0; i < nodes.length; i+=1 ) {
+    for (let i = 0; i < nodes.length; i += 1) {
         const node = nodes[i];
         if (node.data.label === nodeLabel) {
             return false;
@@ -194,27 +189,26 @@ export const checkIfNodeLabelUnique = (nodeLabel, nodes) => {
 };
 
 export const initializeNodeData = (nodeParams) => {
-
     const initialValues = {};
 
-    for (let i = 0; i < nodeParams.length; i+= 1) {
+    for (let i = 0; i < nodeParams.length; i += 1) {
         const input = nodeParams[i];
 
         // Load from nodeParams default values
-        initialValues[input.name] = input.default || ''; 
+        initialValues[input.name] = input.default || '';
 
         // Special case for array, always initialize the item if default is not set
         if (input.type === 'array' && !input.default) {
             const newObj = {};
-            for (let j = 0; j < input.array.length; j+= 1) {
+            for (let j = 0; j < input.array.length; j += 1) {
                 newObj[input.array[j].name] = input.array[j].default || '';
             }
             initialValues[input.name] = [newObj];
         }
     }
-    
+
     initialValues.submit = null;
-    
+
     return initialValues;
 };
 
@@ -223,7 +217,7 @@ export const addAnchors = (nodeData, nodes, newNodeId) => {
     const outgoing = nodeData.outgoing || 0;
 
     const inputAnchors = [];
-    for (let i = 0; i < incoming; i+=1 ) {
+    for (let i = 0; i < incoming; i += 1) {
         const newInput = {
             id: `${newNodeId}-input-${i}`
         };
@@ -231,17 +225,17 @@ export const addAnchors = (nodeData, nodes, newNodeId) => {
     }
 
     const outputAnchors = [];
-    for (let i = 0; i < outgoing; i+=1 ) {
+    for (let i = 0; i < outgoing; i += 1) {
         const newOutput = {
             id: `${newNodeId}-output-${i}`
         };
         outputAnchors.push(newOutput);
     }
-    
+
     nodeData.inputAnchors = inputAnchors;
     nodeData.outputAnchors = outputAnchors;
     nodeData.label = getUniqueNodeLabel(nodeData, nodes);
-    
+
     if (nodeData.actions) nodeData.actions = initializeNodeData(nodeData.actions);
     if (nodeData.credentials) nodeData.credentials = initializeNodeData(nodeData.credentials);
     if (nodeData.networks) nodeData.networks = initializeNodeData(nodeData.networks);
@@ -251,16 +245,16 @@ export const addAnchors = (nodeData, nodes, newNodeId) => {
 };
 
 export const getEdgeLabelName = (source) => {
-    const sourceSplit = source.split("-");
+    const sourceSplit = source.split('-');
     if (sourceSplit.length && sourceSplit[0].includes('ifElse')) {
-        const outputAnchorsIndex = sourceSplit[sourceSplit.length-1];
+        const outputAnchorsIndex = sourceSplit[sourceSplit.length - 1];
         return outputAnchorsIndex === '0' ? 'true' : 'false';
     }
     return '';
 };
 
 export const checkMultipleTriggers = (nodes) => {
-    for (let i = 0; i < nodes.length; i+=1 ) {
+    for (let i = 0; i < nodes.length; i += 1) {
         const node = nodes[i];
         if (node.data.type === 'webhook' || node.data.type === 'trigger') {
             return true;
@@ -277,35 +271,35 @@ export const convertDateStringToDateObject = (dateString) => {
 
     // Sat Sep 24 2022 07:30:14
     return new Date(date.year(), date.month(), date.date(), date.hours(), date.minutes());
-}
+};
 
 export const getFileName = (fileBase64) => {
     const splitDataURI = fileBase64.split(',');
-    const filename = splitDataURI[splitDataURI.length-1].split(':')[1];
+    const filename = splitDataURI[splitDataURI.length - 1].split(':')[1];
     return filename;
-}
+};
 
 export const getFolderName = (base64ArrayStr) => {
     try {
         const base64Array = JSON.parse(base64ArrayStr);
         const filenames = [];
-        for (let i = 0; i < base64Array.length; i+=1 ) {
+        for (let i = 0; i < base64Array.length; i += 1) {
             const fileBase64 = base64Array[i];
             const splitDataURI = fileBase64.split(',');
-            const filename = splitDataURI[splitDataURI.length-1].split(':')[1];
+            const filename = splitDataURI[splitDataURI.length - 1].split(':')[1];
             filenames.push(filename);
         }
         return filenames.length ? filenames.join(',') : '';
-    } catch(e) {
+    } catch (e) {
         return '';
     }
-}
+};
 
 export const generateExportFlowData = (flowData) => {
     const nodes = flowData.nodes;
     const edges = flowData.edges;
-    
-    for (let i = 0; i < nodes.length; i+=1 ) {
+
+    for (let i = 0; i < nodes.length; i += 1) {
         nodes[i].selected = false;
         const node = nodes[i];
         const newNodeData = {
@@ -314,22 +308,22 @@ export const generateExportFlowData = (flowData) => {
             type: node.data.type,
             inputAnchors: node.data.inputAnchors,
             outputAnchors: node.data.outputAnchors,
-            selected: false,
-        }
+            selected: false
+        };
         if (node.data.inputParameters) {
-            newNodeData.inputParameters = {...node.data.inputParameters, submit: null};
+            newNodeData.inputParameters = { ...node.data.inputParameters, submit: null };
             if (node.data.inputParameters.wallet) delete newNodeData.inputParameters.wallet;
         }
         if (node.data.actions) {
-            newNodeData.actions = {...node.data.actions, submit: null};
+            newNodeData.actions = { ...node.data.actions, submit: null };
             if (node.data.actions.wallet) delete newNodeData.actions.wallet;
         }
         if (node.data.networks) {
-            newNodeData.networks = {...node.data.networks, submit: null};
+            newNodeData.networks = { ...node.data.networks, submit: null };
             if (node.data.networks.wallet) delete newNodeData.networks.wallet;
         }
         if (node.data.credentials && node.data.credentials.credentialMethod) {
-            newNodeData.credentials = {credentialMethod: node.data.credentials.credentialMethod, submit: null};
+            newNodeData.credentials = { credentialMethod: node.data.credentials.credentialMethod, submit: null };
             if (node.data.credentials.wallet) delete newNodeData.credentials.wallet;
         }
 
@@ -340,22 +334,22 @@ export const generateExportFlowData = (flowData) => {
         edges
     };
     return exportJson;
-}
+};
 
 const isHideRegisteredCredential = (params, paramsType, nodeFlowData) => {
-
     if (!nodeFlowData[paramsType] || !nodeFlowData[paramsType]['credentialMethod']) return undefined;
     let clonedParams = params;
 
-    for (let i = 0; i < clonedParams.length; i+= 1) {
+    for (let i = 0; i < clonedParams.length; i += 1) {
         const input = clonedParams[i];
         if (input.type === 'options') {
             const selectedCredentialMethodOption = input.options.find((opt) => opt.name === nodeFlowData[paramsType]['credentialMethod']);
             if (
-                selectedCredentialMethodOption && 
-                selectedCredentialMethodOption !== undefined && 
+                selectedCredentialMethodOption &&
+                selectedCredentialMethodOption !== undefined &&
                 selectedCredentialMethodOption.hideRegisteredCredential
-            ) return true;
+            )
+                return true;
         }
     }
     return false;
@@ -363,34 +357,29 @@ const isHideRegisteredCredential = (params, paramsType, nodeFlowData) => {
 
 export const handleCredentialParams = (nodeParams, paramsType, reorganizedParams, nodeFlowData) => {
     if (
-        paramsType === 'credentials' && 
+        paramsType === 'credentials' &&
         nodeParams.find((nPrm) => nPrm.name === 'registeredCredential') === undefined &&
         nodeParams.find((nPrm) => nPrm.name === 'credentialMethod') !== undefined &&
         !isHideRegisteredCredential(lodash.cloneDeep(reorganizedParams), paramsType, nodeFlowData)
     ) {
         // Add hard-coded registeredCredential params
         nodeParams.push({
-            name: 'registeredCredential',
+            name: 'registeredCredential'
         });
-
     } else if (
-        paramsType === 'credentials' && 
+        paramsType === 'credentials' &&
         nodeParams.find((nPrm) => nPrm.name === 'registeredCredential') !== undefined &&
         nodeParams.find((nPrm) => nPrm.name === 'credentialMethod') !== undefined &&
         isHideRegisteredCredential(lodash.cloneDeep(reorganizedParams), paramsType, nodeFlowData)
     ) {
         // Delete registeredCredential params
         nodeParams = nodeParams.filter((prm) => prm.name !== 'registeredCredential');
-
-    } else if (
-        paramsType === 'credentials' && 
-        nodeParams.find((nPrm) => nPrm.name === 'credentialMethod') === undefined
-    ) {
+    } else if (paramsType === 'credentials' && nodeParams.find((nPrm) => nPrm.name === 'credentialMethod') === undefined) {
         // Delete registeredCredential params
         nodeParams = nodeParams.filter((prm) => prm.name !== 'registeredCredential');
     }
     return nodeParams;
-}
+};
 
 export const copyToClipboard = (e) => {
     const src = e.src;
@@ -399,4 +388,4 @@ export const copyToClipboard = (e) => {
     } else {
         navigator.clipboard.writeText(src);
     }
-}
+};

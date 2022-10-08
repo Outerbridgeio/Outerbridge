@@ -4,23 +4,23 @@
         "browser": true,
         "es2021": true
     },
-    "extends": ["prettier", "plugin:react/jsx-runtime", "plugin:jsx-a11y/recommended", "plugin:react-hooks/recommended"],
-    "settings": {
-        "import/resolver": {
-            "node": {
-                "moduleDirectory": ["node_modules", "src/"]
-            }
-        }
-    },
+    "extends": [
+        "plugin:react/jsx-runtime",
+        "plugin:jsx-a11y/recommended",
+        "plugin:react-hooks/recommended",
+        "react-app",
+        "plugin:prettier/recommended"
+    ],
     "parser": "@babel/eslint-parser",
     "parserOptions": {
+        "requireConfigFile": false,
         "ecmaFeatures": {
             "experimentalObjectRestSpread": true,
             "impliedStrict": true
         },
         "ecmaVersion": 12
     },
-    "plugins": ["prettier", "react", "react-hooks"],
+    "plugins": ["react", "react-hooks"],
     "rules": {
         "react/jsx-filename-extension": 0,
         "no-param-reassign": 0,
@@ -35,6 +35,7 @@
         "prefer-destructuring": 0,
         "no-underscore-dangle": 0,
         "no-shadow": 0,
+        "import/no-anonymous-default-export": 0,
         "no-unused-vars": [
             1,
             {
@@ -42,14 +43,8 @@
             }
         ],
         "prettier/prettier": [
-            2,
+            "error",
             {
-                "bracketSpacing": true,
-                "printWidth": 140,
-                "singleQuote": true,
-                "trailingComma": "none",
-                "tabWidth": 4,
-                "useTabs": false,
                 "endOfLine": "auto"
             }
         ]

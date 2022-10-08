@@ -27,18 +27,18 @@ export const enqueueSnackbar = (notification) => {
         type: ENQUEUE_SNACKBAR,
         notification: {
             ...notification,
-            key: key || new Date().getTime() + Math.random(),
-        },
+            key: key || new Date().getTime() + Math.random()
+        }
     };
 };
 
-export const closeSnackbar = key => ({
+export const closeSnackbar = (key) => ({
     type: CLOSE_SNACKBAR,
     dismissAll: !key, // dismiss all if no key has been defined
-    key,
+    key
 });
 
-export const removeSnackbar = key => ({
+export const removeSnackbar = (key) => ({
     type: REMOVE_SNACKBAR,
-    key,
+    key
 });

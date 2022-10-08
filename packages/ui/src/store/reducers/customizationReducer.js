@@ -8,7 +8,7 @@ export const initialState = {
     isOpen: [], // for active default menu
     fontFamily: config.fontFamily,
     borderRadius: config.borderRadius,
-    opened: true,
+    opened: true
 };
 
 // ==============================|| CUSTOMIZATION REDUCER ||============================== //

@@ -17,7 +17,7 @@ const useNotifier = () => {
     };
 
     const removeDisplayed = (id) => {
-        displayed = [...displayed.filter(key => id !== key)];
+        displayed = [...displayed.filter((key) => id !== key)];
     };
 
     React.useEffect(() => {
@@ -44,7 +44,7 @@ const useNotifier = () => {
                     // remove this snackbar from redux store
                     dispatch(removeSnackbar(myKey));
                     removeDisplayed(myKey);
-                },
+                }
             });
 
             // keep track of snackbars that we've displayed
