@@ -5,7 +5,7 @@ import { IComponentCredentialsPool } from './Interface'
 import path from 'path'
 import { Dirent } from 'fs'
 import { getNodeModulesPackagePath } from './utils'
-const { readdir } = require('fs').promises
+import { promises } from 'fs'
 
 export class CredentialsPool {
     componentCredentials: IComponentCredentialsPool = {}
@@ -17,9 +17,9 @@ export class CredentialsPool {
         const packagePath = getNodeModulesPackagePath('outerbridge-components')
         const credPath = path.join(packagePath, 'dist', 'credentials')
         const credFiles = await this.getFiles(credPath)
-        credFiles.forEach((file) => {
+        return credFiles.map(async (file) => {
             if (file.endsWith('.js')) {
-                const credModule = require(file)
+                const credModule = await import(file)
                 const newCredInstance: INodeCredential = new credModule.credClass()
                 this.componentCredentials[newCredInstance.name] = newCredInstance
             }
@@ -32,7 +32,7 @@ export class CredentialsPool {
      * @returns {string[]}
      */
     async getFiles(dir: string): Promise<string[]> {
-        const dirents = await readdir(dir, { withFileTypes: true })
+        const dirents = await promises.readdir(dir, { withFileTypes: true })
         const files = await Promise.all(
             dirents.map((dirent: Dirent) => {
                 const res = path.resolve(dir, dirent.name)

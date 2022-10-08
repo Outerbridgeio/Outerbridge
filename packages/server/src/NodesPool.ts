@@ -3,7 +3,7 @@ import { IComponentNodesPool } from './Interface'
 import path from 'path'
 import { Dirent } from 'fs'
 import { getNodeModulesPackagePath } from './utils'
-const { readdir } = require('fs').promises
+import { promises } from 'fs'
 
 export class NodesPool {
     componentNodes: IComponentNodesPool = {}
@@ -15,9 +15,9 @@ export class NodesPool {
         const packagePath = getNodeModulesPackagePath('outerbridge-components')
         const nodesPath = path.join(packagePath, 'dist', 'nodes')
         const nodeFiles = await this.getFiles(nodesPath)
-        nodeFiles.forEach((file) => {
+        return nodeFiles.map(async (file) => {
             if (file.endsWith('.js')) {
-                const nodeModule = require(file)
+                const nodeModule = await import(file)
                 try {
                     const newNodeInstance = new nodeModule.nodeClass()
                     newNodeInstance.filePath = file
@@ -32,7 +32,7 @@ export class NodesPool {
                     ) {
                         const filePath = file.replace(/\\/g, '/').split('/')
                         filePath.pop()
-                        const nodeIconAbsolutePath = `${filePath.join('/')}\/${newNodeInstance.icon}`
+                        const nodeIconAbsolutePath = `${filePath.join('/')}/${newNodeInstance.icon}`
                         this.componentNodes[newNodeInstance.name].icon = nodeIconAbsolutePath
                     }
                 } catch (e) {
@@ -48,7 +48,7 @@ export class NodesPool {
      * @returns {string[]}
      */
     async getFiles(dir: string): Promise<string[]> {
-        const dirents = await readdir(dir, { withFileTypes: true })
+        const dirents = await promises.readdir(dir, { withFileTypes: true })
         const files = await Promise.all(
             dirents.map((dirent: Dirent) => {
                 const res = path.resolve(dir, dirent.name)
