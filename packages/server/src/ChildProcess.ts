@@ -63,14 +63,14 @@ export class ChildProcess {
 
                 try {
                     const nodeInstanceFilePath = componentNodes[reactFlowNode.data.name].filePath
-                    const nodeModule = require(nodeInstanceFilePath)
+                    const nodeModule = await import(nodeInstanceFilePath)
                     const newNodeInstance = new nodeModule.nodeClass()
 
                     await decryptCredentials(reactFlowNode.data, childAppDataSource)
 
                     const reactFlowNodeData: INodeData = resolveVariables(reactFlowNode.data, workflowExecutedData)
 
-                    let result = await newNodeInstance.run!.call(newNodeInstance, reactFlowNodeData)
+                    const result = await newNodeInstance.run!.call(newNodeInstance, reactFlowNodeData)
 
                     checkOAuth2TokenRefreshed(result, reactFlowNodeData, childAppDataSource)
 
@@ -120,15 +120,15 @@ export class ChildProcess {
                 if (!ignoreNodeIds.includes(neighNodeId)) {
                     // If nodeId has been seen, cycle detected
                     if (Object.prototype.hasOwnProperty.call(exploredNode, neighNodeId)) {
-                        let { remainingLoop, lastSeenDepth } = exploredNode[neighNodeId]
+                        const { remainingLoop, lastSeenDepth } = exploredNode[neighNodeId]
 
                         if (lastSeenDepth === nextDepth) continue
 
                         if (remainingLoop === 0) {
                             break
                         }
-                        remainingLoop -= 1
-                        exploredNode[neighNodeId] = { remainingLoop, lastSeenDepth: nextDepth }
+                        const remainingLoopMinusOne = remainingLoop - 1
+                        exploredNode[neighNodeId] = { remainingLoop: remainingLoopMinusOne, lastSeenDepth: nextDepth }
                         nodeQueue.push({ nodeId: neighNodeId, depth: nextDepth })
                     } else {
                         exploredNode[neighNodeId] = { remainingLoop: maxLoop, lastSeenDepth: nextDepth }
@@ -170,7 +170,7 @@ function getVariableValue(paramValue: string, workflowExecutedData: IWorkflowExe
     const variableStack = []
     const variableDict = {} as IVariableDict
     let startIdx = 0
-    let endIdx = returnVal.length - 1
+    const endIdx = returnVal.length - 1
 
     while (startIdx < endIdx) {
         const substr = returnVal.substring(startIdx, startIdx + 2)
