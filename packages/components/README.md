@@ -9,7 +9,7 @@ Apps integration for Outerbridge. Contain Nodes and Credentials.
 Install:
 
 ```bash
-npm install outerbridge-components
+npm i outerbridge-components
 ```
 
 ## License
