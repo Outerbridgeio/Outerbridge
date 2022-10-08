@@ -10,7 +10,7 @@
         "start": "run-script-os",
         "start:windows": "cd packages/server/bin && run start",
         "start:default": "cd packages/server/bin && ./run start",
-        "dev": "lerna exec yarn run dev --parallel",
+        "dev": "lerna exec yarn dev --parallel",
         "clean": "lerna exec -- rimraf ./dist",
         "test": "lerna yarn test",
         "lint": "eslint .",
