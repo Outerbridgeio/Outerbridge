@@ -1,4 +1,3 @@
-import { ethers, utils } from 'ethers'
 import { INode, INodeData, INodeOptionsValue, INodeParams, IProviders, NodeType } from '../../src/Interface'
 import { handleErrorMessage, returnNodeExecutionData } from '../../src/utils'
 import EventEmitter from 'events'
@@ -93,7 +92,7 @@ class QuickNodeTrigger extends EventEmitter implements INode {
 
             const network = networksData.network as NETWORK
 
-            let totalOperations = subscribeOperations
+            const totalOperations = subscribeOperations
             const filteredOperations = totalOperations.filter(
                 (op: IETHOperation) =>
                     Object.prototype.hasOwnProperty.call(op.providerNetworks, 'quicknode') &&
@@ -124,7 +123,7 @@ class QuickNodeTrigger extends EventEmitter implements INode {
 
             const network = networksData.network as NETWORK
 
-            let totalOperations = unsubscribeOperations
+            const totalOperations = unsubscribeOperations
             const filteredOperations = totalOperations.filter(
                 (op: IETHOperation) =>
                     Object.prototype.hasOwnProperty.call(op.providerNetworks, 'quicknode') &&
@@ -176,7 +175,6 @@ class QuickNodeTrigger extends EventEmitter implements INode {
             }
         }
 
-        const context = this
         const emitEventKey = nodeData.emitEventKey as string
 
         const result = subscribeOperations.find((obj) => {
@@ -195,14 +193,14 @@ class QuickNodeTrigger extends EventEmitter implements INode {
         })
 
         let subscriptionID = ''
-        ws.on('message', function message(data) {
+        ws.on('message', (data) => {
             const messageData = JSON.parse(data as any)
 
             if (messageData.method) {
-                context.emit(emitEventKey, returnNodeExecutionData(messageData))
+                this.emit(emitEventKey, returnNodeExecutionData(messageData))
             } else {
                 subscriptionID = messageData.result
-                context.providers[emitEventKey] = { provider: ws, filter: subscriptionID }
+                this.providers[emitEventKey] = { provider: ws, filter: subscriptionID }
             }
         })
     }
