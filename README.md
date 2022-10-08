@@ -65,9 +65,9 @@ npm i -g yarn
 
 1. Clone the repository
 
-  ```bash
-	git clone https://github.com/Outerbridgeio/Outerbridge.git
-  ```
+    ```bash
+        git clone https://github.com/Outerbridgeio/Outerbridge.git
+    ```
 
 2. Go into repository folder
 
@@ -75,37 +75,43 @@ npm i -g yarn
     cd Outerbridge
     ```
 
-3. Install all dependencies of all modules and link them together:
+3. Install `lerna`, `husky` and `rimraf` :
+
+    ```bash
+    yarn setup
+    ```
+
+4. Install all dependencies of all modules and link them together:
 
     ```bash
     yarn bootstrap
     ```
 
-4. Build all the code:
+5. Build all the code:
 
     ```bash
     yarn build
     ```
 
-5. Start the app:
+6. Start the app:
 
     ```bash
     yarn start
     ```
 
-    You can now access the app on http://localhost:3000
+    You can now access the app on [http://localhost:3000](http://localhost:3000)
 
-6. For development build:
+7. For development build:
 
     ```bash
     yarn dev
     ```
 
-    Any code changes will reload the app automatically on http://localhost:8080
+    Any code changes will reload the app automatically on [http://localhost:8080](http://localhost:8080)
 
 ## Documentation
 
-Official Outerbridge docs can be found under: https://docs.outerbridge.io
+Official Outerbridge docs can be found under: [https://docs.outerbridge.io](https://docs.outerbridge.io)
 
 ## Support
 

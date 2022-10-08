@@ -27,7 +27,9 @@ jobs:
               with:
                   node-version: ${{ matrix.node-version }}
 
-            - run: npm install -g yarn
+            - run: npm i -g yarn
+
+            - run: yarn setup
 
             - run: yarn bootstrap
 

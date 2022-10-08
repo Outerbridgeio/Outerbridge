@@ -4,7 +4,8 @@
     "private": true,
     "homepage": "https://outerbridge.io",
     "scripts": {
-        "bootstrap": "npm i -D lerna rimraf && rimraf **/package-lock.json && rimraf **/yarn.lock && lerna bootstrap --hoist && npx -y husky install || npx husky install",
+        "setup": "npm i -D lerna rimraf && npx -y husky install || npx husky install",
+        "bootstrap": "rimraf **/package-lock.json && rimraf **/yarn.lock && lerna bootstrap --hoist",
         "build": "lerna exec yarn run build",
         "start": "run-script-os",
         "start:windows": "cd packages/server/bin && run start",
