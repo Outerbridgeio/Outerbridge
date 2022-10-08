@@ -289,8 +289,8 @@ class BinancePublic implements INode {
         }
 
         let url = ''
-        let queryParameters: ICommonObject = {}
-        let queryBody: ICommonObject = {}
+        const queryParameters: ICommonObject = {}
+        const queryBody: ICommonObject = {}
         let method: Method = 'GET'
 
         try {

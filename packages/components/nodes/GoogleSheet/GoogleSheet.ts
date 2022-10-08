@@ -365,7 +365,7 @@ class GoogleSheet implements INode {
 
         let url = ''
         const queryParameters: ICommonObject = {}
-        let queryBody: any = {}
+        const queryBody: any = {}
         let method: Method = 'POST'
         const headers: AxiosRequestHeaders = {
             'Content-Type': 'application/json',

@@ -304,7 +304,7 @@ class Infura implements INode {
 
             let responseData: any // tslint:disable-line: no-any
             const returnData: ICommonObject[] = []
-            let apiUrl = 'https://ipfs.infura.io:5001/api'
+            const apiUrl = 'https://ipfs.infura.io:5001/api'
 
             let url = ''
             const queryParameters: ICommonObject = {}

@@ -170,7 +170,7 @@ class BNBBalanceTrigger extends EventEmitter implements INode {
         let lastBalance: BigNumber = await provider.getBalance(address)
 
         const executeTrigger = async () => {
-            let newBalance: BigNumber = await provider.getBalance(address)
+            const newBalance: BigNumber = await provider.getBalance(address)
 
             if (!newBalance.eq(lastBalance)) {
                 if (triggerCondition === 'increase' && newBalance.gt(lastBalance)) {

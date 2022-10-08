@@ -213,8 +213,8 @@ class HTTP implements INode {
         const returnData: ICommonObject = {}
 
         try {
-            let queryParameters: ICommonObject = {}
-            let queryHeaders: AxiosRequestHeaders = {}
+            const queryParameters: ICommonObject = {}
+            const queryHeaders: AxiosRequestHeaders = {}
             let data: any = {}
 
             for (const params of queryParams) {

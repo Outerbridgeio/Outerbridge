@@ -78,7 +78,7 @@ class EmailTrigger extends EventEmitter implements INode {
                                 this.emit(emitEventKey, returnNodeExecutionData({ message: 'No new unread emails' }))
                             }
 
-                            var f = imap.fetch(results, { bodies: '', markSeen: true })
+                            const f = imap.fetch(results, { bodies: '', markSeen: true })
 
                             f.on('message', (msg: Imap.ImapMessage, seqno: number) => {
                                 msg.on('body', (stream) => {

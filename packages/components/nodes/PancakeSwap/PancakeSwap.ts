@@ -311,7 +311,7 @@ class PancakeSwap implements INode {
 
                 const response = await axios(axiosConfig)
                 const responseData = response.data
-                let tokens: IToken[] = responseData.tokens
+                const tokens: IToken[] = responseData.tokens
                 const nativeToken: IToken = nativeTokens[network]
 
                 // Add native token

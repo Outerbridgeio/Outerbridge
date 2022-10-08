@@ -99,7 +99,7 @@ class InfuraTrigger extends EventEmitter implements INode {
 
             const network = networksData.network as NETWORK
 
-            let totalOperations = subscribeOperations
+            const totalOperations = subscribeOperations
             const filteredOperations = totalOperations.filter(
                 (op: IETHOperation) =>
                     Object.prototype.hasOwnProperty.call(op.providerNetworks, 'infura') && op.providerNetworks['infura'].includes(network)
@@ -129,7 +129,7 @@ class InfuraTrigger extends EventEmitter implements INode {
 
             const network = networksData.network as NETWORK
 
-            let totalOperations = unsubscribeOperations
+            const totalOperations = unsubscribeOperations
             const filteredOperations = totalOperations.filter(
                 (op: IETHOperation) =>
                     Object.prototype.hasOwnProperty.call(op.providerNetworks, 'infura') && op.providerNetworks['infura'].includes(network)

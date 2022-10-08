@@ -393,10 +393,10 @@ class Alchemy implements INode {
 
         //NFT API
         else if (api === 'nftAPI') {
-            let uri = `${alchemyHTTPAPIs[network]}${apiKey}/${operation}/`
+            const uri = `${alchemyHTTPAPIs[network]}${apiKey}/${operation}/`
 
             let responseData: any // tslint:disable-line: no-any
-            let queryParameters: ICommonObject = {}
+            const queryParameters: ICommonObject = {}
             const returnData: ICommonObject[] = []
 
             if (operation === 'getNFTs') {

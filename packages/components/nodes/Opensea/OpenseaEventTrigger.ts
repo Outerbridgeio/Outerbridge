@@ -179,7 +179,7 @@ class OpenSeaEventTrigger extends EventEmitter implements INode {
 
         let url = ''
         const queryParameters: ICommonObject = {}
-        let method: Method = 'GET'
+        const method: Method = 'GET'
         const headers: AxiosRequestHeaders = {
             'Content-Type': 'application/json'
         }

@@ -108,12 +108,12 @@ class GraphQL implements INode {
         const url = inputParametersData.url as string
         const headers = (inputParametersData.headers as ICommonObject[]) || []
         const body = inputParametersData.body as string
-        let variables = inputParametersData.variables as string
+        const variables = inputParametersData.variables as string
 
         const returnData: ICommonObject = {}
 
         try {
-            let queryHeaders: AxiosRequestHeaders = {}
+            const queryHeaders: AxiosRequestHeaders = {}
             let data: any = {}
 
             for (const header of headers) {
