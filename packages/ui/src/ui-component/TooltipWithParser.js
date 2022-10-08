@@ -1,7 +1,6 @@
 import { Info } from '@mui/icons-material';
 import { IconButton, Tooltip } from '@mui/material';
 import parser from 'html-react-parser';
-import PropTypes from 'prop-types';
 
 export const TooltipWithParser = ({ title }) => {
     return (
@@ -11,8 +10,4 @@ export const TooltipWithParser = ({ title }) => {
             </IconButton>
         </Tooltip>
     );
-};
-
-TooltipWithParser.propTypes = {
-    title: PropTypes.node
 };
