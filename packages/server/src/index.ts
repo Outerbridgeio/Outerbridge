@@ -1,4 +1,4 @@
-import express, { Express, Request, Response } from 'express'
+import express, { Request, Response } from 'express'
 import path from 'path'
 import cors from 'cors'
 import localtunnel from 'localtunnel'
@@ -979,7 +979,7 @@ export class App {
             }
 
             if (body.credentials && body.credentials.registeredCredential) {
-                // @ts-ignore
+                // @ts-expect-error investigate this later
                 const credentialId: string = body.credentials.registeredCredential?._id
 
                 const credential = await this.AppDataSource.getMongoRepository(Credential).findOneBy({
@@ -1053,7 +1053,6 @@ export class App {
                 let decryptedCredentialData: ICredentialDataDecrpyted = {}
 
                 if (providerCredential.registeredCredential) {
-                    // @ts-ignore
                     const credentialId: string = providerCredential.registeredCredential?._id
 
                     const credential = await this.AppDataSource.getMongoRepository(Credential).findOneBy({

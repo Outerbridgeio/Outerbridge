@@ -53,7 +53,6 @@ export default class Start extends Command {
             } catch (error) {
                 console.error('There was an error starting Outerbridge...', error)
                 processExitCode = EXIT_CODE.FAILED
-                // @ts-ignore
                 process.emit('SIGINT')
             }
         })()
