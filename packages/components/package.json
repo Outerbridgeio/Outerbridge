@@ -6,7 +6,7 @@
     "types": "dist/src/index.d.ts",
     "scripts": {
         "build": "tsc && gulp",
-        "dev": "npx tsc --watch"
+        "dev": "tsc --watch"
     },
     "keywords": [],
     "homepage": "https://outerbridge.io",
