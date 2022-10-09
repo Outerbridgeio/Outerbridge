@@ -357,8 +357,6 @@ class GoogleSheet implements INode {
         // Get credentials
         const token_type = credentials!.token_type as string
         const access_token = credentials!.access_token as string
-        const expires_in = credentials!.expires_in as string
-        const refresh_token = credentials!.refresh_token as string
 
         const returnData: ICommonObject[] = []
         let responseData: any

@@ -348,8 +348,8 @@ export class DeployedWorkflowPool {
             const reactFlowNodes = flowData.nodes
             const reactFlowEdges = flowData.edges
 
-            const { graph, nodeDependencies } = constructGraphs(reactFlowNodes, reactFlowEdges)
-            const { faultyNodeLabels, startingNodeIds } = getStartingNode(nodeDependencies, reactFlowNodes)
+            const { nodeDependencies } = constructGraphs(reactFlowNodes, reactFlowEdges)
+            const { startingNodeIds } = getStartingNode(nodeDependencies, reactFlowNodes)
 
             await this.remove(startingNodeIds, reactFlowNodes, componentNodes, workflow.shortId)
         }

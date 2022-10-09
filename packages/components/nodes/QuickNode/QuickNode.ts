@@ -360,7 +360,6 @@ class QuickNode implements INode {
 
         // GET credentials
         const httpProvider = credentials.httpProvider as string
-        const wssProvider = credentials.wssProvider as string
 
         // GET operation
         const operation = inputParametersData.operation as string

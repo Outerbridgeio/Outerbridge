@@ -66,7 +66,7 @@ class EmailTrigger extends EventEmitter implements INode {
         }
 
         imap.once('ready', () => {
-            openInbox((err: any, box: Imap.Box) => {
+            openInbox((err: any) => {
                 if (err) throw handleErrorMessage(err)
 
                 imap.on('mail', () => {
@@ -80,7 +80,7 @@ class EmailTrigger extends EventEmitter implements INode {
 
                             const f = imap.fetch(results, { bodies: '', markSeen: true })
 
-                            f.on('message', (msg: Imap.ImapMessage, seqno: number) => {
+                            f.on('message', (msg: Imap.ImapMessage) => {
                                 msg.on('body', (stream) => {
                                     simpleParser(stream, (err, mail) => {
                                         if (err) throw handleErrorMessage(err)

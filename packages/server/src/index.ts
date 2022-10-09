@@ -265,7 +265,7 @@ export class App {
                     const response = constructGraphsAndGetStartingNodes(res, reactFlowNodes, reactFlowEdges)
                     if (response === undefined) return
 
-                    const { graph, startingNodeIds } = response
+                    const { startingNodeIds } = response
 
                     await this.deployedWorkflowsPool.remove(startingNodeIds, reactFlowNodes, this.componentNodes, workflowShortId)
                 } catch (e) {
@@ -357,7 +357,7 @@ export class App {
                     const response = constructGraphsAndGetStartingNodes(res, reactFlowNodes, reactFlowEdges)
                     if (response === undefined) return
 
-                    const { graph, startingNodeIds } = response
+                    const { startingNodeIds } = response
 
                     await this.deployedWorkflowsPool.remove(startingNodeIds, reactFlowNodes, this.componentNodes, workflowShortId)
                 } catch (e) {
@@ -452,7 +452,7 @@ export class App {
             const edges = body.edges || []
             const clientId = body.clientId || ''
 
-            const { graph, nodeDependencies } = constructGraphs(nodes, edges)
+            const { graph } = constructGraphs(nodes, edges)
             const startingNodeId = req.params.startingNodeId
 
             const startNode = nodes.find((nd: IReactFlowNode) => nd.id === startingNodeId)

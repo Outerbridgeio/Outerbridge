@@ -449,7 +449,7 @@ export const processWebhook = async (
         // Find if webhook is in activeTestWebhookPool
         const testWebhookKey = `${webhookEndpoint}_${httpMethod}`
         if (Object.prototype.hasOwnProperty.call(activeTestWebhooksPool.activeTestWebhooks, testWebhookKey)) {
-            const { nodes, edges, nodeData, clientId, isTestWorkflow, webhookId, webhookNodeId } =
+            const { nodes, edges, nodeData, clientId, isTestWorkflow, webhookNodeId } =
                 activeTestWebhooksPool.activeTestWebhooks[testWebhookKey]
             const webhookNodeInstance = componentNodes[nodeData.name] as IWebhookNode
 
@@ -484,7 +484,7 @@ export const processWebhook = async (
                 // Delete webhook from 3rd party apps and from pool
                 activeTestWebhooksPool.remove(testWebhookKey, componentNodes)
 
-                const { graph, nodeDependencies } = constructGraphs(nodes, edges)
+                const { graph } = constructGraphs(nodes, edges)
 
                 testWorkflow(webhookNodeId, nodes, edges, graph, componentNodes, clientId, io)
 

@@ -385,11 +385,11 @@ class PancakeSwap implements INode {
             if (operation === 'swapTokens') {
                 // Get fromTokenAddress
                 const fromToken = inputParametersData.fromToken as string
-                const [fromTokenContractAddress, fromTokenSymbol, fromTokenName, fromTokenDecimals] = fromToken.split(';')
+                const [fromTokenContractAddress, fromTokenSymbol] = fromToken.split(';')
 
                 // Get toTokenAddress
                 const toToken = inputParametersData.toToken as string
-                const [toTokenContractAddress, toTokenSymbol, toTokenName, toTokenDecimals] = toToken.split(';')
+                const [toTokenContractAddress, toTokenSymbol] = toToken.split(';')
 
                 // Get wallet instance
                 const walletString = inputParametersData.wallet as string
