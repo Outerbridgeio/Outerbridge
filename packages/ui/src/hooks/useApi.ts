@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { AxiosResponse } from 'axios';
 
-export const useApi = <T extends (...args: any[]) => AxiosResponse<any, any>>(apiFunc: T) => {
+export const useApi = (apiFunc: (...args: any[]) => AxiosResponse<any, any>) => {
     const [data, setData] = useState(null);
     const [error, setError] = useState<unknown>(null);
     const [loading, setLoading] = useState(false);

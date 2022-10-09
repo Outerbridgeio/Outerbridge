@@ -17,7 +17,7 @@ import 'assets/scss/style.scss';
 // ==============================|| REACT DOM RENDER  ||============================== //
 
 ReactDOM.render(
-    <Provider store={store}>
+    <Provider store={store.store}>
         <BrowserRouter>
             <SnackbarProvider>
                 <ConfirmContextProvider>

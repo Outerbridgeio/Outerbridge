@@ -52,10 +52,7 @@ Outerbridge uses MongoDB as database. Download and install one [here](https://ww
 
 1. Fork the official [Outerbridge Github Repository](https://github.com/Outerbridgeio/Outerbridge).
 
-2. Clone your forked repository. For MacOS and Linux, you may need to gain full access to the folder
-	```
-	chmod -R 777 Outerbridge
-	```
+2. Clone your forked repository.
 
 3. Create a new branch, see [guide](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-and-deleting-branches-within-your-repository). Naming conventions:
     - For feature branch: `feature/<Your New Feature>`

@@ -5,7 +5,7 @@
   "homepage": "https://outerbridge.io",
   "scripts": {
     "bootstrap": "lerna bootstrap --hoist",
-    "build": "lerna exec yarn run build",
+    "build": "yarn clean && lerna exec yarn run build",
     "start": "run-script-os",
     "start:windows": "cd packages/server/bin && run start",
     "start:default": "cd packages/server/bin && ./run start",
@@ -16,6 +16,7 @@
   "devDependencies": {
     "lerna": "^3.22.1",
     "rimraf": "^3.0.2",
-    "run-script-os": "^1.0.7"
+    "run-script-os": "^1.0.7",
+    "cross-env":"^7.0.3"
   }
 }
