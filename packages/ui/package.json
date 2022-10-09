@@ -50,7 +50,7 @@
     "scripts": {
         "start": "react-scripts start",
         "dev": "react-scripts start",
-        "build": "react-scripts build",
+        "build": "cross-env CI=false react-scripts build",
         "test": "react-scripts test",
         "eject": "react-scripts eject",
         "lint:fix": "eslint src --fix"
@@ -85,6 +85,7 @@
         "eslint-plugin-prettier": "^3.4.0",
         "eslint-plugin-react": "^7.26.1",
         "eslint-plugin-react-hooks": "4.0.8",
+        "html-react-parser": "^3.0.4",
         "prettier": "^2.2.1",
         "sass": "^1.42.1"
     }
