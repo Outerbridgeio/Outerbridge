@@ -1381,7 +1381,7 @@ export class App {
         this.app.use('/', express.static(uiBuildPath))
 
         // All other requests not handled will return React app
-        this.app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
+        this.app.use((req, res) => {
             res.sendFile(uiHtmlPath)
         })
     }
