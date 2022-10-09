@@ -27,7 +27,7 @@ class NodeJS implements INode {
                 label: 'Code',
                 name: 'code',
                 type: 'code',
-                default: `console.log($nodeData);\nconst example = 'Hello World!';\nreturn example;`,
+                default: `console.info($nodeData);\nconst example = 'Hello World!';\nreturn example;`,
                 description: 'Custom code to run'
             },
             {

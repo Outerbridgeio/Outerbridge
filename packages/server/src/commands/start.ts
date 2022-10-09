@@ -18,11 +18,11 @@ export default class Start extends Command {
     static args = []
 
     static async stopProcess() {
-        console.log('Shutting down Outerbridge...')
+        console.info('Shutting down Outerbridge...')
         try {
             // Shut down the app after timeout if it ever stuck removing pools
             setTimeout(() => {
-                console.log('Outerbridge was forced to shut down after 30 secs')
+                console.info('Outerbridge was forced to shut down after 30 secs')
                 process.exit(processExitCode)
             }, 30000)
 

@@ -86,7 +86,7 @@ export class App {
         // Initialize database
         this.AppDataSource.initialize()
             .then(async () => {
-                console.log('📦[server]: Data Source has been initialized!')
+                console.info('📦[server]: Data Source has been initialized!')
 
                 // Initialize localtunnel
                 if (process.env.ENABLE_TUNNEL === 'true') {
@@ -109,7 +109,7 @@ export class App {
 
                     if (typeof newTunnel !== 'string') {
                         process.env.TUNNEL_BASE_URL = `${newTunnel.url}/`
-                        console.log('🌐[server]: TUNNEL_BASE_URL = ', process.env.TUNNEL_BASE_URL)
+                        console.info('🌐[server]: TUNNEL_BASE_URL = ', process.env.TUNNEL_BASE_URL)
                     }
                 }
 
@@ -1420,10 +1420,10 @@ export async function start(): Promise<void> {
     })
 
     io.on('connection', (socket: Socket) => {
-        console.log('👥[server]: client connected: ', socket.id)
+        console.info('👥[server]: client connected: ', socket.id)
 
         socket.on('disconnect', (reason) => {
-            console.log('👤[server]: client disconnected = ', reason)
+            console.info('👤[server]: client disconnected = ', reason)
         })
     })
 
@@ -1431,7 +1431,7 @@ export async function start(): Promise<void> {
     await serverApp.config(io)
 
     server.listen(port, () => {
-        console.log(`⚡️[server]: Outerbridge Server is listening at ${port}`)
+        console.info(`⚡️[server]: Outerbridge Server is listening at ${port}`)
     })
 }
 
