@@ -1,30 +1,30 @@
-import { ICommonObject, INode, INodeData, INodeDisplay, INodeExecutionData, INodeParams, NodeType } from '../../src/Interface';
-import { handleErrorMessage, returnNodeExecutionData, serializeQueryParams } from '../../src/utils';
-import axios, { AxiosRequestConfig, Method } from 'axios';
+import { ICommonObject, INode, INodeData, INodeDisplay, INodeExecutionData, INodeParams, NodeType } from '../../src/Interface'
+import { handleErrorMessage, returnNodeExecutionData, serializeQueryParams } from '../../src/utils'
+import axios, { AxiosRequestConfig, Method } from 'axios'
 
 class Typeform implements INode {
-    label: string;
-    name: string;
-    type: NodeType;
-    description: string;
-    version: number;
-    icon: string;
-    incoming: number;
-    outgoing: number;
+    label: string
+    name: string
+    type: NodeType
+    description: string
+    version: number
+    icon: string
+    incoming: number
+    outgoing: number
 
-    actions: INodeParams[];
-    credentials?: INodeParams[];
-    inputParameters?: INodeParams[];
+    actions: INodeParams[]
+    credentials?: INodeParams[]
+    inputParameters?: INodeParams[]
 
     constructor() {
-        this.label = 'Typeform';
-        this.name = 'typeform';
-        this.icon = 'typeform-icon.svg';
-        this.type = 'action';
-        this.version = 1.0;
-        this.description = 'Perform Typeform operations';
-        this.incoming = 1;
-        this.outgoing = 1;
+        this.label = 'Typeform'
+        this.name = 'typeform'
+        this.icon = 'typeform-icon.svg'
+        this.type = 'action'
+        this.version = 1.0
+        this.description = 'Perform Typeform operations'
+        this.incoming = 1
+        this.outgoing = 1
 
         this.actions = [
             {
@@ -50,7 +50,7 @@ class Typeform implements INode {
                 ],
                 default: 'getAllForms'
             }
-        ] as INodeParams[];
+        ] as INodeParams[]
 
         this.credentials = [
             // credentialMethod is mandatory field
@@ -66,7 +66,7 @@ class Typeform implements INode {
                 ],
                 default: 'typeformApi'
             }
-        ] as INodeParams[];
+        ] as INodeParams[]
         this.inputParameters = [
             {
                 label: 'Form Id',
@@ -86,94 +86,91 @@ class Typeform implements INode {
                     'actions.api': ['createTypeform']
                 }
             }
-        ] as INodeParams[];
+        ] as INodeParams[]
     }
 
     async run(nodeData: INodeData): Promise<INodeExecutionData[] | null> {
         // function to start running the node
-        const actionData = nodeData.actions;
-        const inputParametersData = nodeData.inputParameters;
-        const credentials = nodeData.credentials;
+        const actionData = nodeData.actions
+        const inputParametersData = nodeData.inputParameters
+        const credentials = nodeData.credentials
 
         if (actionData === undefined || inputParametersData === undefined || credentials === undefined) {
-            throw new Error('Required data missing');
+            throw new Error('Required data missing')
         }
         // GET api
-        const api = actionData.api as string;
+        const api = actionData.api as string
         // GET credentials
-        const apiKey = credentials.apiKey as string;
+        const apiKey = credentials.apiKey as string
         // GET formId
-        const formId = inputParametersData.formId as string;
+        const formId = inputParametersData.formId as string
         let requestBody = inputParametersData.requestBody as string
         requestBody = requestBody ? requestBody.replace(/\s/g, '') : requestBody
-        const returnData: ICommonObject[] = [];
-        let responseData: any;
+        const returnData: ICommonObject[] = []
+        let responseData: any
         if (api === 'getAllForms') {
             try {
-                const queryParameters = {
-                };
-               
-                let url = `https://api.typeform.com/forms`;
+                const queryParameters = {}
+
+                let url = `https://api.typeform.com/forms`
 
                 const axiosConfig: AxiosRequestConfig = {
                     method: 'GET' as Method,
                     url,
                     params: queryParameters,
                     paramsSerializer: (params) => serializeQueryParams(params),
-                    headers: { 'Content-Type': 'application/json', 'authorization' : `bearer ${apiKey}` }
-                };
-                const response = await axios(axiosConfig);
-                responseData = response.data;
+                    headers: { 'Content-Type': 'application/json', authorization: `bearer ${apiKey}` }
+                }
+                const response = await axios(axiosConfig)
+                responseData = response.data
             } catch (error) {
-                throw handleErrorMessage(error);
+                throw handleErrorMessage(error)
             }
-            if (Array.isArray(responseData)) returnData.push(...responseData);
-            else returnData.push(responseData);
-            return returnNodeExecutionData(returnData);
-        }else if (api === 'getTypeformResponses') {
+            if (Array.isArray(responseData)) returnData.push(...responseData)
+            else returnData.push(responseData)
+            return returnNodeExecutionData(returnData)
+        } else if (api === 'getTypeformResponses') {
             try {
-                const queryParameters = {
-                };
-               
-                let url = `https://api.typeform.com/forms/${formId}/responses`;
+                const queryParameters = {}
+
+                let url = `https://api.typeform.com/forms/${formId}/responses`
 
                 const axiosConfig: AxiosRequestConfig = {
                     method: 'GET' as Method,
                     url,
                     params: queryParameters,
                     paramsSerializer: (params) => serializeQueryParams(params),
-                    headers: { 'Content-Type': 'application/json', 'authorization' : `bearer ${apiKey}` }
-                };
-                const response = await axios(axiosConfig);
-                responseData = response.data;
+                    headers: { 'Content-Type': 'application/json', authorization: `bearer ${apiKey}` }
+                }
+                const response = await axios(axiosConfig)
+                responseData = response.data
             } catch (error) {
-                throw handleErrorMessage(error);
+                throw handleErrorMessage(error)
             }
-            if (Array.isArray(responseData)) returnData.push(...responseData);
-            else returnData.push(responseData);
-            return returnNodeExecutionData(returnData);
-        }else if (api === 'createTypeform') {
+            if (Array.isArray(responseData)) returnData.push(...responseData)
+            else returnData.push(responseData)
+            return returnNodeExecutionData(returnData)
+        } else if (api === 'createTypeform') {
             try {
-
                 const body = JSON.parse(requestBody)
-                let url = `https://api.typeform.com/forms`;
+                let url = `https://api.typeform.com/forms`
 
                 const axiosConfig: AxiosRequestConfig = {
                     method: 'POST' as Method,
                     url,
-                    data: Object.assign({},body),
-                    headers: { 'Content-Type': 'application/json; charset=utf-8', 'authorization' : `bearer ${apiKey}` }
-                };
-                const response = await axios(axiosConfig);
-                responseData = response.data;
+                    data: Object.assign({}, body),
+                    headers: { 'Content-Type': 'application/json; charset=utf-8', authorization: `bearer ${apiKey}` }
+                }
+                const response = await axios(axiosConfig)
+                responseData = response.data
             } catch (error) {
-                throw handleErrorMessage(error);
+                throw handleErrorMessage(error)
             }
-            if (Array.isArray(responseData)) returnData.push(...responseData);
-            else returnData.push(responseData);
-            return returnNodeExecutionData(returnData);
+            if (Array.isArray(responseData)) returnData.push(...responseData)
+            else returnData.push(responseData)
+            return returnNodeExecutionData(returnData)
         }
-        return returnNodeExecutionData(returnData);
+        return returnNodeExecutionData(returnData)
     }
 }
-module.exports = { nodeClass: Typeform };
+module.exports = { nodeClass: Typeform }
