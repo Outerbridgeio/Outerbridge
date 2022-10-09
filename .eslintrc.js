@@ -24,7 +24,7 @@ module.exports = {
         {
             files: ['packages/ui/**'],
             rules: {
-                'no-console': 'warn'
+                'no-console': ['warn', { allow: ['warn', 'error', 'info'] }]
             }
         }
     ]
