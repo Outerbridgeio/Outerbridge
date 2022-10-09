@@ -101,10 +101,6 @@ export interface IWebhookNode extends INodeComponent {
     filePath: string
 }
 
-export interface IWebhookNode extends INodeComponent {
-    filePath: string
-}
-
 export interface IComponentNodesPool {
     [key: string]: INode | ITriggerNode
 }
