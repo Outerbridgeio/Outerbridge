@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import ReactFlow, { ReactFlowProvider, addEdge, MiniMap, Controls, Background, useNodesState, useEdgesState } from 'react-flow-renderer'
 import { useDispatch, useSelector } from 'react-redux'
-import { usePrompt, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
+import { usePrompt } from '../../utils/usePrompt'
 import {
     REMOVE_DIRTY,
     SET_DIRTY,
