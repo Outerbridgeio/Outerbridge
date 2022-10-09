@@ -147,6 +147,7 @@ import {
           type: 'string',
           optional: false,
           description: 'Notion Version to be used in the Headers of the request',
+          default: '2022-06-28'
         },
         {
           label: 'Page ID',
@@ -208,8 +209,20 @@ import {
           show: {
             'actions.pageOperation': ['createPage', 'updatePage'],
           },
-          placeholder:
-            '"Name": { "title": [ { "text" : { "content": "New page content" } } ] },',
+          placeholder: `{
+            "parent": {
+                "database_id": "{{databaseID}}"
+            },
+            "properties": {
+                "Name": {
+                    "title": [
+                        {
+                            "text": { "content": "New Media Article" }
+                        }
+                    ]
+                }
+            }
+        }`,
           optional: false,
         },
         {
@@ -225,7 +238,22 @@ import {
               'queryDatabase',
             ],
           },
-          placeholder: '{parent: "parent_Id", properties: "properties"}',
+          placeholder: `{
+            "parent": {
+                "type": "page_id",
+                "page_id": "{{pageID}}"
+            },
+            "title": [
+                {
+                    "type": "text",
+                    "text": { "content": "Grocery List", } }
+            ],
+            "properties": {
+                "Name": {
+                    "title": {}
+                }
+            }
+        }`,
           optional: false,
         },
         {
@@ -237,7 +265,14 @@ import {
           show: {
             'actions.blockOperation': ['updateBlock', 'appendBlockChildren'],
           },
-          placeholder: '{"block_id": blockId, "page_size": 50,}',
+          placeholder: `{
+            "paragraph": {
+                "rich_text": [{
+                    "type": "text", 
+                    "text": { "content": "hello to you"}
+                }]
+            }
+        }`,
           optional: false,
         },
       ] as INodeParams[];
@@ -307,7 +342,7 @@ import {
         requestDatabaseBody = JSON.parse(databaseBody.replace(/\s/g, ' '));
       }
       if (blockBody) {
-        requestBlockBody = JSON.parse(pageBody.replace(/\s/g, ' '));
+        requestBlockBody = JSON.parse(blockBody.replace(/\s/g, ' '));
       }
   
       //Search Endpoint
