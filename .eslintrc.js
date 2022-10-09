@@ -18,14 +18,7 @@ module.exports = {
         '@typescript-eslint/explicit-module-boundary-types': 'off',
         'no-unused-vars': 'warn',
         'no-undef': 'off',
+        'no-console': [process.env.CI ? 'error' : 'warn', { allow: ['warn', 'error', 'info'] }],
         'prettier/prettier': 'error'
-    },
-    overrides: [
-        {
-            files: ['packages/ui/**'],
-            rules: {
-                'no-console': ['warn', { allow: ['warn', 'error', 'info'] }]
-            }
-        }
-    ]
+    }
 }
