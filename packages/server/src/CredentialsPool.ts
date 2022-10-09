@@ -17,13 +17,15 @@ export class CredentialsPool {
         const packagePath = getNodeModulesPackagePath('outerbridge-components')
         const credPath = path.join(packagePath, 'dist', 'credentials')
         const credFiles = await this.getFiles(credPath)
-        return credFiles.map(async (file) => {
-            if (file.endsWith('.js')) {
-                const credModule = await import(file)
-                const newCredInstance: INodeCredential = new credModule.credClass()
-                this.componentCredentials[newCredInstance.name] = newCredInstance
-            }
-        })
+        return Promise.all(
+            credFiles.map(async (file) => {
+                if (file.endsWith('.js')) {
+                    const credModule = await import(file)
+                    const newCredInstance: INodeCredential = new credModule.credClass()
+                    this.componentCredentials[newCredInstance.name] = newCredInstance
+                }
+            })
+        )
     }
 
     /**

@@ -15,31 +15,33 @@ export class NodesPool {
         const packagePath = getNodeModulesPackagePath('outerbridge-components')
         const nodesPath = path.join(packagePath, 'dist', 'nodes')
         const nodeFiles = await this.getFiles(nodesPath)
-        return nodeFiles.map(async (file) => {
-            if (file.endsWith('.js')) {
-                const nodeModule = await import(file)
-                try {
-                    const newNodeInstance = new nodeModule.nodeClass()
-                    newNodeInstance.filePath = file
-                    this.componentNodes[newNodeInstance.name] = newNodeInstance
+        return Promise.all(
+            nodeFiles.map(async (file) => {
+                if (file.endsWith('.js')) {
+                    const nodeModule = await import(file)
+                    try {
+                        const newNodeInstance = new nodeModule.nodeClass()
+                        newNodeInstance.filePath = file
+                        this.componentNodes[newNodeInstance.name] = newNodeInstance
 
-                    // Replace file icon with absolute path
-                    if (
-                        newNodeInstance.icon &&
-                        (newNodeInstance.icon.endsWith('.svg') ||
-                            newNodeInstance.icon.endsWith('.png') ||
-                            newNodeInstance.icon.endsWith('.jpg'))
-                    ) {
-                        const filePath = file.replace(/\\/g, '/').split('/')
-                        filePath.pop()
-                        const nodeIconAbsolutePath = `${filePath.join('/')}/${newNodeInstance.icon}`
-                        this.componentNodes[newNodeInstance.name].icon = nodeIconAbsolutePath
+                        // Replace file icon with absolute path
+                        if (
+                            newNodeInstance.icon &&
+                            (newNodeInstance.icon.endsWith('.svg') ||
+                                newNodeInstance.icon.endsWith('.png') ||
+                                newNodeInstance.icon.endsWith('.jpg'))
+                        ) {
+                            const filePath = file.replace(/\\/g, '/').split('/')
+                            filePath.pop()
+                            const nodeIconAbsolutePath = `${filePath.join('/')}/${newNodeInstance.icon}`
+                            this.componentNodes[newNodeInstance.name].icon = nodeIconAbsolutePath
+                        }
+                    } catch (e) {
+                        // console.error(e);
                     }
-                } catch (e) {
-                    // console.error(e);
                 }
-            }
-        })
+            })
+        )
     }
 
     /**
