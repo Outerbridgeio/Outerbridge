@@ -5,7 +5,7 @@
     "main": "dist/src/index",
     "types": "dist/src/index.d.ts",
     "scripts": {
-        "build": "npx tsc && gulp",
+        "build": "tsc && gulp",
         "dev": "npx tsc --watch"
     },
     "keywords": [],

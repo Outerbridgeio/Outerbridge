@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
+import { TooltipWithParser } from '../../ui-component/TooltipWithParser'
 
 // material-ui
-import { Typography, Stack, IconButton, Tooltip } from '@mui/material'
-import { Info } from '@mui/icons-material'
+import { Typography, Stack } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 
 // project imports
@@ -181,13 +181,7 @@ const AsyncSelectWrapper = ({
         <>
             <Stack direction='row'>
                 <Typography variant='overline'>{title}</Typography>
-                {description && (
-                    <Tooltip title={description} placement='right'>
-                        <IconButton>
-                            <Info style={{ height: 18, width: 18 }} />
-                        </IconButton>
-                    </Tooltip>
-                )}
+                {description && <TooltipWithParser title={description} />}
             </Stack>
             <div style={{ position: 'relative' }}>
                 <AsyncSelect

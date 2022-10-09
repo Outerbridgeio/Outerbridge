@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 
 // material-ui
-import { Box, Button, FormControl, Stack, OutlinedInput, Popper, TextField, Typography, IconButton, Switch, Tooltip } from '@mui/material'
-import { Info } from '@mui/icons-material'
+import { Box, Button, FormControl, Stack, OutlinedInput, Popper, TextField, Typography, IconButton, Switch } from '@mui/material'
 import Autocomplete, { autocompleteClasses } from '@mui/material/Autocomplete'
 import { useTheme, styled } from '@mui/material/styles'
 
@@ -35,6 +34,8 @@ import { IconTrash, IconCopy } from '@tabler/icons'
 
 //css
 import './InputParameters.css'
+
+import { TooltipWithParser } from '../../ui-component/TooltipWithParser'
 
 const StyledPopper = styled(Popper)({
     boxShadow: '0px 8px 10px -5px rgb(0 0 0 / 20%), 0px 16px 24px 2px rgb(0 0 0 / 14%), 0px 6px 30px 5px rgb(0 0 0 / 12%)',
@@ -333,13 +334,7 @@ const CredentialInput = ({
                                         <FormControl key={inputName} fullWidth sx={{ mb: 1, mt: 1 }}>
                                             <Stack direction='row'>
                                                 <Typography variant='overline'>{input.label}</Typography>
-                                                {input.description && (
-                                                    <Tooltip title={input.description} placement='right'>
-                                                        <IconButton>
-                                                            <Info style={{ height: 18, width: 18 }} />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                )}
+                                                {input.description && <TooltipWithParser title={input.description} />}
                                             </Stack>
                                             <Autocomplete
                                                 id={inputName}
@@ -394,11 +389,7 @@ const CredentialInput = ({
                                 <FormControl fullWidth sx={{ mb: 1, mt: 1 }}>
                                     <Stack direction='row'>
                                         <Typography variant='overline'>Registered Credential</Typography>
-                                        <Tooltip title='Select previously registered credential OR add new credential' placement='right'>
-                                            <IconButton>
-                                                <Info style={{ height: 18, width: 18 }} />
-                                            </IconButton>
-                                        </Tooltip>
+                                        <TooltipWithParser title='Select previously registered credential OR add new credential' />
                                     </Stack>
                                     <Autocomplete
                                         id='registered-credential'
@@ -510,13 +501,7 @@ const CredentialInput = ({
                                             <FormControl key={inputName} fullWidth sx={{ mb: 1, mt: 1 }} error={Boolean(errors[inputName])}>
                                                 <Stack direction='row'>
                                                     <Typography variant='overline'>{input.label}</Typography>
-                                                    {input.description && (
-                                                        <Tooltip title={input.description} placement='right'>
-                                                            <IconButton>
-                                                                <Info style={{ height: 18, width: 18 }} />
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                    )}
+                                                    {input.description && <TooltipWithParser title={input.description} />}
                                                 </Stack>
                                                 <PerfectScrollbar
                                                     style={{
@@ -569,13 +554,7 @@ const CredentialInput = ({
                                             <FormControl key={inputName} fullWidth sx={{ mb: 1, mt: 1 }} error={Boolean(errors[inputName])}>
                                                 <Stack direction='row'>
                                                     <Typography variant='overline'>{input.label}</Typography>
-                                                    {input.description && (
-                                                        <Tooltip title={input.description} placement='right'>
-                                                            <IconButton>
-                                                                <Info style={{ height: 18, width: 18 }} />
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                    )}
+                                                    {input.description && <TooltipWithParser title={input.description} />}
                                                 </Stack>
                                                 <OutlinedInput
                                                     id={inputName}
@@ -605,13 +584,7 @@ const CredentialInput = ({
                                             <FormControl key={inputName} fullWidth sx={{ mb: 1, mt: 1 }} error={Boolean(errors[inputName])}>
                                                 <Stack direction='row'>
                                                     <Typography variant='overline'>{input.label}</Typography>
-                                                    {input.description && (
-                                                        <Tooltip title={input.description} placement='right'>
-                                                            <IconButton>
-                                                                <Info style={{ height: 18, width: 18 }} />
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                    )}
+                                                    {input.description && <TooltipWithParser title={input.description} />}
                                                 </Stack>
                                                 <Switch
                                                     checked={!!values[inputName]}
@@ -637,13 +610,7 @@ const CredentialInput = ({
                                             <FormControl key={inputName} fullWidth sx={{ mb: 1, mt: 1 }}>
                                                 <Stack direction='row'>
                                                     <Typography variant='overline'>{input.label}</Typography>
-                                                    {input.description && (
-                                                        <Tooltip title={input.description} placement='right'>
-                                                            <IconButton>
-                                                                <Info style={{ height: 18, width: 18 }} />
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                    )}
+                                                    {input.description && <TooltipWithParser title={input.description} />}
                                                 </Stack>
                                                 <Autocomplete
                                                     id={inputName}
