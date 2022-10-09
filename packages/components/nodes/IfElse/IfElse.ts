@@ -1,13 +1,4 @@
-import {
-    CommonType,
-    ICommonObject,
-    INode,
-    INodeData,
-    INodeExecutionData,
-    INodeOptionsValue,
-    INodeParams,
-    NodeType
-} from '../../src/Interface'
+import { CommonType, ICommonObject, INode, INodeData, INodeExecutionData, INodeParams, NodeType } from '../../src/Interface'
 import { returnNodeExecutionData } from '../../src/utils'
 
 interface ICondition {

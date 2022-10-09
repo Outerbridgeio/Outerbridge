@@ -11,18 +11,7 @@ import {
     NodeType
 } from '../../src/Interface'
 import { handleErrorMessage, returnNodeExecutionData } from '../../src/utils'
-import {
-    networkExplorers,
-    binanceNetworkProviders,
-    getBscMainnetProvider,
-    getBscTestnetProvider,
-    getCustomRPCProvider,
-    getCustomWebsocketProvider,
-    CHAIN_ID,
-    NETWORK,
-    getNetworkProvider,
-    NETWORK_PROVIDER
-} from '../../src/ChainNetwork'
+import { networkExplorers, binanceNetworkProviders, CHAIN_ID, NETWORK, getNetworkProvider, NETWORK_PROVIDER } from '../../src/ChainNetwork'
 import axios, { AxiosRequestConfig, Method } from 'axios'
 import { UniswapPair, UniswapPairSettings, UniswapVersion } from 'simple-uniswap-sdk'
 import { IToken, nativeTokens } from './extendedTokens'

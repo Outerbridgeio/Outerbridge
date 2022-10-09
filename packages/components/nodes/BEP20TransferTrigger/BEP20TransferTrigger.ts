@@ -1,4 +1,4 @@
-import { BigNumber, ethers, utils } from 'ethers'
+import { ethers, utils } from 'ethers'
 import { ICommonObject, INode, INodeData, INodeParams, IProviders, NodeType } from '../../src/Interface'
 import { returnNodeExecutionData } from '../../src/utils'
 import EventEmitter from 'events'
@@ -10,7 +10,6 @@ import {
     NETWORK,
     getNetworkProvider,
     tokenAbi,
-    eventTransferAbi,
     networkProviderCredentials
 } from '../../src/ChainNetwork'
 

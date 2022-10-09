@@ -1,4 +1,4 @@
-import { ICommonObject, INode, INodeData, INodeExecutionData, INodeOptionsValue, INodeParams, NodeType } from '../../src/Interface'
+import { ICommonObject, INode, INodeData, INodeExecutionData, INodeParams, NodeType } from '../../src/Interface'
 import { handleErrorMessage, returnNodeExecutionData, serializeQueryParams } from '../../src/utils'
 import axios, { AxiosRequestConfig, AxiosRequestHeaders, Method, ResponseType } from 'axios'
 

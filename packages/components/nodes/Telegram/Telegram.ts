@@ -1,6 +1,6 @@
 import { ICommonObject, INode, INodeData, INodeExecutionData, INodeParams, NodeType } from '../../src/Interface'
-import { handleErrorMessage, returnNodeExecutionData, serializeQueryParams } from '../../src/utils'
-import axios, { AxiosRequestConfig, Method } from 'axios'
+import { handleErrorMessage, returnNodeExecutionData } from '../../src/utils'
+import axios from 'axios'
 
 class Telegram implements INode {
     label: string

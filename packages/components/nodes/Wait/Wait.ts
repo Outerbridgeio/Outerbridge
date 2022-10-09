@@ -1,4 +1,4 @@
-import { ICommonObject, INode, INodeData, INodeExecutionData, INodeOptionsValue, INodeParams, NodeType } from '../../src/Interface'
+import { ICommonObject, INode, INodeData, INodeExecutionData, INodeParams, NodeType } from '../../src/Interface'
 import { returnNodeExecutionData } from '../../src/utils'
 
 class Wait implements INode {
