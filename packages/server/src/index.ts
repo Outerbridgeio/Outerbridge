@@ -141,7 +141,7 @@ export class App {
     async config(io: Server) {
         // Limit is needed to allow sending/receiving base64 encoded string
         this.app.use(express.json({ limit: '50mb' }))
-        this.app.use(express.urlencoded({ limit: '50mb' }))
+        this.app.use(express.urlencoded({ limit: '50mb', extended: true }))
 
         // Allow access from ui when yarn run dev
         if (process.env.NODE_ENV !== 'production') {
