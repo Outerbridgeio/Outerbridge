@@ -124,19 +124,19 @@ export interface IActiveTestWebhookPool {
 export interface ICredentialBody {
     name: string
     nodeCredentialName: string
-    credentialData: ICredentialDataDecrpyted
+    credentialData: ICredentialDataDecrypted
 }
 
 export interface ICredentialResponse {
     _id: ObjectId
     name: string
-    credentialData: ICredentialDataDecrpyted
+    credentialData: ICredentialDataDecrypted
     nodeCredentialName: string
     updatedDate: Date
     createdDate: Date
 }
 
-export type ICredentialDataDecrpyted = ICommonObject
+export type ICredentialDataDecrypted = ICommonObject
 
 export interface IComponentCredentialsPool {
     [key: string]: INodeCredential

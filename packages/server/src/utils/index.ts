@@ -6,7 +6,7 @@ import { Request, Response } from 'express'
 import { DataSource } from 'typeorm'
 import {
     ICredentialBody,
-    ICredentialDataDecrpyted,
+    ICredentialDataDecrypted,
     INodeDependencies,
     INodeDirectedGraph,
     IReactFlowEdge,
@@ -144,11 +144,11 @@ export const getEncryptionKey = async (): Promise<string> => {
 
 /**
  * Encrypt credential data
- * @param {ICredentialDataDecrpyted} data
+ * @param {ICredentialDataDecrypted} data
  * @param {string} encryptionKey
  * @returns {string}
  */
-export const encryptCredentialData = (data: ICredentialDataDecrpyted, encryptionKey: string): string => {
+export const encryptCredentialData = (data: ICredentialDataDecrypted, encryptionKey: string): string => {
     return AES.encrypt(JSON.stringify(data), encryptionKey).toString()
 }
 
@@ -156,9 +156,9 @@ export const encryptCredentialData = (data: ICredentialDataDecrpyted, encryption
  * Decrypt credential data
  * @param {string} data
  * @param {string} encryptionKey
- * @returns {ICredentialDataDecrpyted}
+ * @returns {ICredentialDataDecrypted}
  */
-export const decryptCredentialData = (data: string, encryptionKey: string): ICredentialDataDecrpyted => {
+export const decryptCredentialData = (data: string, encryptionKey: string): ICredentialDataDecrypted => {
     const decryptedData = AES.decrypt(data, encryptionKey)
     try {
         return JSON.parse(decryptedData.toString(enc.Utf8))

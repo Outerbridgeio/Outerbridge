@@ -12,7 +12,7 @@ import {
     IComponentNodesPool,
     IContractRequestBody,
     ICredentialBody,
-    ICredentialDataDecrpyted,
+    ICredentialDataDecrypted,
     ICredentialResponse,
     IOAuth2Response,
     IReactFlowEdge,
@@ -1050,7 +1050,7 @@ export class App {
                 // Decrpyt providerCredential
                 const encryptKey = await getEncryptionKey()
                 const providerCredential = JSON.parse(wallet.providerCredential)
-                let decryptedCredentialData: ICredentialDataDecrpyted = {}
+                let decryptedCredentialData: ICredentialDataDecrypted = {}
 
                 if (providerCredential.registeredCredential) {
                     const credentialId: string = providerCredential.registeredCredential?._id
