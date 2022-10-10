@@ -25,14 +25,14 @@ Watch [Outerbridge Quickstart Demo](https://www.youtube.com/watch?v=x-AfrkKvZ4M)
 1. Install MongoDB from [here](https://www.mongodb.com/try/download/community?tck=docs_server).
 2. `npm install -g outerbridge`
 3. `npx outerbridge start`
-4. Open http://localhost:3000
+4. Open [http://localhost:3000](http://localhost:3000)
 
 ## Docker
 
 1. Go to `docker` folder at the root of the project
 2. `docker-compose up -d`
 3. This will automatically spins up mongodb and outerbridge containers
-4. Open http://localhost:3000
+4. Open [http://localhost:3000](http://localhost:3000)
 5. You can bring the containers down by `docker-compose stop`
 
 ## Developers
