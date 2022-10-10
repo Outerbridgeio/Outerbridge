@@ -11,7 +11,7 @@
         "dev": "lerna exec yarn dev --parallel",
         "clean": "lerna exec -- rimraf ./dist",
         "test": "lerna yarn test",
-        "lint": "eslint \"**/*.{js,jsx,ts,tsx,json,css}\"",
+        "lint": "eslint \"**/*.{js,jsx,ts,tsx}\"",
         "lint-fix": "yarn lint --fix",
         "lint-ci": "cross-env CI=true yarn lint"
     },
