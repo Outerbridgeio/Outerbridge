@@ -1,85 +1,85 @@
-import { useState, useRef, useEffect } from 'react';
-import PropTypes from 'prop-types';
+import { useState, useRef, useEffect } from 'react'
+import PropTypes from 'prop-types'
 
 // material-ui
-import { useTheme } from '@mui/material/styles';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { Box, Fab, List, Accordion, AccordionSummary, AccordionDetails, Paper, Popper, Stack, Typography, IconButton } from '@mui/material';
+import { useTheme } from '@mui/material/styles'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import { Box, Fab, List, Accordion, AccordionSummary, AccordionDetails, Paper, Popper, Stack, Typography, IconButton } from '@mui/material'
 
 // third-party
-import PerfectScrollbar from 'react-perfect-scrollbar';
-import ReactJson from 'react-json-view';
+import PerfectScrollbar from 'react-perfect-scrollbar'
+import ReactJson from 'react-json-view'
 
 // project imports
-import MainCard from 'ui-component/cards/MainCard';
-import Transitions from 'ui-component/extended/Transitions';
-import ExpandDataDialog from 'ui-component/dialog/ExpandDataDialog';
+import MainCard from 'ui-component/cards/MainCard'
+import Transitions from 'ui-component/extended/Transitions'
+import ExpandDataDialog from 'ui-component/dialog/ExpandDataDialog'
 
 // icons
-import { IconX, IconArrowsMaximize } from '@tabler/icons';
+import { IconX, IconArrowsMaximize } from '@tabler/icons'
 
 // ==============================|| VARIABLE SELECTOR ||============================== //
 
-const isPositiveNumeric = (value) => /^\d+$/.test(value);
+const isPositiveNumeric = (value) => /^\d+$/.test(value)
 
 const VariableSelector = ({ nodes, isVariableSelectorOpen, anchorEl, onVariableSelected, handleClose }) => {
-    const theme = useTheme();
-    const [expanded, setExpanded] = useState(false);
-    const [open, setOpen] = useState(false);
-    const [showExpandDialog, setShowExpandDialog] = useState(false);
-    const [expandDialogProps, setExpandDialogProps] = useState({});
+    const theme = useTheme()
+    const [expanded, setExpanded] = useState(false)
+    const [open, setOpen] = useState(false)
+    const [showExpandDialog, setShowExpandDialog] = useState(false)
+    const [expandDialogProps, setExpandDialogProps] = useState({})
 
-    const varPrevOpen = useRef(open);
+    const varPrevOpen = useRef(open)
 
     const handleAccordionChange = (nodeLabel) => (event, isExpanded) => {
-        setExpanded(isExpanded ? nodeLabel : false);
-    };
+        setExpanded(isExpanded ? nodeLabel : false)
+    }
 
     const onClipboardCopy = (e, node) => {
-        const namespaces = e.namespace;
-        let returnVariablePath = `${node.id}`;
+        const namespaces = e.namespace
+        let returnVariablePath = `${node.id}`
         for (let i = 0; i < namespaces.length; i += 1) {
-            const namespace = namespaces[i];
+            const namespace = namespaces[i]
             if (namespace !== 'root') {
                 if (isPositiveNumeric(namespace)) {
                     if (returnVariablePath.endsWith('.')) {
-                        returnVariablePath = returnVariablePath.substring(0, returnVariablePath.length - 1);
+                        returnVariablePath = returnVariablePath.substring(0, returnVariablePath.length - 1)
                     }
-                    returnVariablePath += `[${namespace}]`;
+                    returnVariablePath += `[${namespace}]`
                 } else {
-                    returnVariablePath += namespace;
+                    returnVariablePath += namespace
                 }
                 if (i !== namespaces.length - 1) {
-                    returnVariablePath += '.';
+                    returnVariablePath += '.'
                 }
             }
         }
-        onVariableSelected(returnVariablePath);
-    };
+        onVariableSelected(returnVariablePath)
+    }
 
     const onExpandDialogClicked = (data, node) => {
         const dialogProp = {
             title: `Variable Data: ${node.data.label}`,
             data,
             node
-        };
-        setExpandDialogProps(dialogProp);
-        setShowExpandDialog(true);
-    };
+        }
+        setExpandDialogProps(dialogProp)
+        setShowExpandDialog(true)
+    }
 
     // Handle Accordian
     useEffect(() => {
-        varPrevOpen.current = open;
-    }, [open]);
+        varPrevOpen.current = open
+    }, [open])
 
     useEffect(() => {
-        setOpen(isVariableSelectorOpen);
-    }, [isVariableSelectorOpen]);
+        setOpen(isVariableSelectorOpen)
+    }, [isVariableSelectorOpen])
 
     return (
         <>
             <Popper
-                placement="right-start"
+                placement='right-start'
                 open={open}
                 role={undefined}
                 transition
@@ -111,7 +111,7 @@ const VariableSelector = ({ nodes, isVariableSelectorOpen, anchorEl, onVariableS
                                     right: -10,
                                     top: -10
                                 }}
-                                size="small"
+                                size='small'
                                 onClick={handleClose}
                             >
                                 <IconX />
@@ -119,7 +119,7 @@ const VariableSelector = ({ nodes, isVariableSelectorOpen, anchorEl, onVariableS
                             <MainCard border={false} elevation={16} content={false} boxShadow shadow={theme.shadows[16]}>
                                 <Box sx={{ p: 2 }}>
                                     <Stack>
-                                        <Typography variant="h4">Variable Selector</Typography>
+                                        <Typography variant='h4'>Variable Selector</Typography>
                                     </Stack>
                                 </Box>
                                 <PerfectScrollbar style={{ height: '100%', maxHeight: 'calc(100vh - 250px)', overflowX: 'hidden' }}>
@@ -158,7 +158,7 @@ const VariableSelector = ({ nodes, isVariableSelectorOpen, anchorEl, onVariableS
                                                                 aria-controls={`${node.data.label}-content`}
                                                                 id={`${node.data.label}-header`}
                                                             >
-                                                                <Typography variant="h5">{node.data.label}</Typography>
+                                                                <Typography variant='h5'>{node.data.label}</Typography>
                                                             </AccordionSummary>
                                                             <AccordionDetails>
                                                                 <div style={{ position: 'relative' }}>
@@ -172,7 +172,7 @@ const VariableSelector = ({ nodes, isVariableSelectorOpen, anchorEl, onVariableS
                                                                         enableClipboard={(e) => onClipboardCopy(e, node)}
                                                                     />
                                                                     <IconButton
-                                                                        size="small"
+                                                                        size='small'
                                                                         sx={{
                                                                             height: 25,
                                                                             width: 25,
@@ -180,8 +180,8 @@ const VariableSelector = ({ nodes, isVariableSelectorOpen, anchorEl, onVariableS
                                                                             top: -5,
                                                                             right: 5
                                                                         }}
-                                                                        title="Expand Variable"
-                                                                        color="primary"
+                                                                        title='Expand Variable'
+                                                                        color='primary'
                                                                         onClick={() =>
                                                                             onExpandDialogClicked(
                                                                                 node.data.outputResponses &&
@@ -214,13 +214,13 @@ const VariableSelector = ({ nodes, isVariableSelectorOpen, anchorEl, onVariableS
                 dialogProps={expandDialogProps}
                 onCancel={() => setShowExpandDialog(false)}
                 onCopyClick={(e, node) => {
-                    onClipboardCopy(e, node);
-                    setShowExpandDialog(false);
+                    onClipboardCopy(e, node)
+                    setShowExpandDialog(false)
                 }}
             ></ExpandDataDialog>
         </>
-    );
-};
+    )
+}
 
 VariableSelector.propTypes = {
     nodes: PropTypes.array,
@@ -228,6 +228,6 @@ VariableSelector.propTypes = {
     anchorEl: PropTypes.any,
     onVariableSelected: PropTypes.func,
     handleClose: PropTypes.func
-};
+}
 
-export default VariableSelector;
+export default VariableSelector

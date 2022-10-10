@@ -1,18 +1,18 @@
-import PropTypes from 'prop-types';
-import { Handle, Position } from 'react-flow-renderer';
+import PropTypes from 'prop-types'
+import { Handle, Position } from 'react-flow-renderer'
 
 // material-ui
-import { styled, useTheme } from '@mui/material/styles';
-import { Avatar, Box, Typography } from '@mui/material';
+import { styled, useTheme } from '@mui/material/styles'
+import { Avatar, Box, Typography } from '@mui/material'
 
 // project imports
-import MainCard from 'ui-component/cards/MainCard';
+import MainCard from 'ui-component/cards/MainCard'
 
 // icons
-import { IconCheck, IconExclamationMark } from '@tabler/icons';
+import { IconCheck, IconExclamationMark } from '@tabler/icons'
 
 // const
-import { baseURL } from 'store/constant';
+import { baseURL } from 'store/constant'
 
 const CardWrapper = styled(MainCard)(({ theme }) => ({
     backgroundColor: '#ffffff',
@@ -25,14 +25,14 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
     '&:hover': {
         borderColor: theme.palette.primary.main
     }
-}));
+}))
 
-const handlerPosition = [[['50%']], [['30%'], ['70%']]];
+const handlerPosition = [[['50%']], [['30%'], ['70%']]]
 
 // ===========================|| CANVAS NODE ||=========================== //
 
 const CanvasNode = ({ data }) => {
-    const theme = useTheme();
+    const theme = useTheme()
 
     return (
         <>
@@ -45,7 +45,7 @@ const CanvasNode = ({ data }) => {
             >
                 {data && data.outputResponses && data.outputResponses.submit && (
                     <Avatar
-                        variant="rounded"
+                        variant='rounded'
                         sx={{
                             ...theme.typography.smallAvatar,
                             borderRadius: '50%',
@@ -63,7 +63,7 @@ const CanvasNode = ({ data }) => {
 
                 {data && data.outputResponses && data.outputResponses.needRetest && (
                     <Avatar
-                        variant="rounded"
+                        variant='rounded'
                         sx={{
                             ...theme.typography.smallAvatar,
                             borderRadius: '50%',
@@ -82,7 +82,7 @@ const CanvasNode = ({ data }) => {
                 <Box>
                     {data.inputAnchors.map((inputAnchor, index) => (
                         <Handle
-                            type="target"
+                            type='target'
                             position={Position.Top}
                             key={inputAnchor.id}
                             id={inputAnchor.id}
@@ -108,7 +108,7 @@ const CanvasNode = ({ data }) => {
                                 <img
                                     style={{ width: '100%', height: '100%' }}
                                     src={`${baseURL}/api/v1/node-icon/${data.name}`}
-                                    alt="Notification"
+                                    alt='Notification'
                                 />
                             </div>
                         </Box>
@@ -125,7 +125,7 @@ const CanvasNode = ({ data }) => {
                     </div>
                     {data.outputAnchors.map((outputAnchor, index) => (
                         <Handle
-                            type="source"
+                            type='source'
                             position={Position.Bottom}
                             key={outputAnchor.id}
                             id={outputAnchor.id}
@@ -141,11 +141,11 @@ const CanvasNode = ({ data }) => {
                 </Box>
             </CardWrapper>
         </>
-    );
-};
+    )
+}
 
 CanvasNode.propTypes = {
     data: PropTypes.object
-};
+}
 
-export default CanvasNode;
+export default CanvasNode

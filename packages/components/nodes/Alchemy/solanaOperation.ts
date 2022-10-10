@@ -1,10 +1,7 @@
-import { NETWORK, NETWORK_PROVIDER } from '../../src/ChainNetwork';
-import { IETHOperation } from '../../src/ETHOperations';
+import { NETWORK, NETWORK_PROVIDER } from '../../src/ChainNetwork'
+import { IETHOperation } from '../../src/ETHOperations'
 
-export const solanaOperationsNetworks = [
-    NETWORK.SOLANA,
-    NETWORK.SOLANA_DEVNET
-];
+export const solanaOperationsNetworks = [NETWORK.SOLANA, NETWORK.SOLANA_DEVNET]
 
 export const solanaAPIOperations = [
     {
@@ -17,10 +14,10 @@ export const solanaAPIOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getTransaction",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getTransaction',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -44,52 +41,37 @@ export const solanaAPIOperations = [
   }
 ]`,
         exampleResponse: {
-            "jsonrpc": "2.0",
-            "result": {
-                "blockTime": 1655319302,
-                "meta": {
-                    "err": null,
-                    "fee": 5000,
-                    "innerInstructions": [
+            jsonrpc: '2.0',
+            result: {
+                blockTime: 1655319302,
+                meta: {
+                    err: null,
+                    fee: 5000,
+                    innerInstructions: [
                         {
-                            "index": 1,
-                            "instructions": [
+                            index: 1,
+                            instructions: [
                                 {
-                                    "accounts": [
-                                        26,
-                                        13,
-                                        19,
-                                        15,
-                                        16,
-                                        0
-                                    ],
-                                    "data": "63S77LdPnZrhcJ2wGjQ7xuV",
-                                    "programIdIndex": 21
+                                    accounts: [26, 13, 19, 15, 16, 0],
+                                    data: '63S77LdPnZrhcJ2wGjQ7xuV',
+                                    programIdIndex: 21
                                 },
                                 {
-                                    "accounts": [
-                                        14,
-                                        16,
-                                        0
-                                    ],
-                                    "data": "3QCBRJNuTemd",
-                                    "programIdIndex": 26
+                                    accounts: [14, 16, 0],
+                                    data: '3QCBRJNuTemd',
+                                    programIdIndex: 26
                                 },
                                 {
-                                    "accounts": [
-                                        2,
-                                        12,
-                                        19
-                                    ],
-                                    "data": "3KiXXdFFB5Km",
-                                    "programIdIndex": 26
+                                    accounts: [2, 12, 19],
+                                    data: '3KiXXdFFB5Km',
+                                    programIdIndex: 26
                                 }
                             ]
-                        },
-                    ]   
+                        }
+                    ]
                 }
             },
-            "id": 1
+            id: 1
         }
     },
     {
@@ -102,10 +84,10 @@ export const solanaAPIOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getTransaction",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getTransaction',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -133,8 +115,8 @@ export const solanaAPIOperations = [
   }
 ]`,
         exampleResponse: {
-            "jsonrpc": "2.0",
-            "result": "5WUPdF1zGiCbMX4dAGRrVJBvZuRjQatzsDJf8rcmLH8q67m8AoupcFsVNSo1CsPhLat4B3C2yZAtGp34yVgmcKNk"
+            jsonrpc: '2.0',
+            result: '5WUPdF1zGiCbMX4dAGRrVJBvZuRjQatzsDJf8rcmLH8q67m8AoupcFsVNSo1CsPhLat4B3C2yZAtGp34yVgmcKNk'
         }
     },
     {
@@ -147,10 +129,10 @@ export const solanaAPIOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getSignatureStatuses",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getSignatureStatuses',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -169,19 +151,19 @@ export const solanaAPIOperations = [
   }
 ]`,
         exampleResponse: {
-            "jsonrpc": "2.0",
-            "result": {
-                "context": {
-                    "slot": 137569378
+            jsonrpc: '2.0',
+            result: {
+                context: {
+                    slot: 137569378
                 },
-                "value": [
+                value: [
                     {
-                        "confirmationStatus": "finalized",
-                        "confirmations": null,
-                        "err": null,
-                        "slot": 137529522,
-                        "status": {
-                            "Ok": null
+                        confirmationStatus: 'finalized',
+                        confirmations: null,
+                        err: null,
+                        slot: 137529522,
+                        status: {
+                            Ok: null
                         }
                     }
                 ]
@@ -192,16 +174,17 @@ export const solanaAPIOperations = [
         name: 'getSignaturesForAddress',
         value: 'getSignaturesForAddress',
         parentGroup: 'Reading & Writing Transactions',
-        description: 'Returns signatures for confirmed transactions that include the given address in their accountKeys list. Returns signatures backwards in time from the provided signature or most recent confirmed block.',
+        description:
+            'Returns signatures for confirmed transactions that include the given address in their accountKeys list. Returns signatures backwards in time from the provided signature or most recent confirmed block.',
         providerNetworks: {
             [NETWORK_PROVIDER.ALCHEMY]: solanaOperationsNetworks
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getSignaturesForAddress",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getSignaturesForAddress',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -227,18 +210,18 @@ export const solanaAPIOperations = [
   }
 ]`,
         exampleResponse: {
-            "jsonrpc": "2.0",
-            "result": [
+            jsonrpc: '2.0',
+            result: [
                 {
-                    "blockTime": 1654173549,
-                    "confirmationStatus": "finalized",
-                    "err": null,
-                    "memo": null,
-                    "signature": "67iWWgeXYSXxKmxMjAahr9ATXvv1SJoHedXYZxicFQtF4eFxCWJxUwEYczNbrua8pQAshmkf73gfAX5itutWTA7m",
-                    "slot": 136105283
+                    blockTime: 1654173549,
+                    confirmationStatus: 'finalized',
+                    err: null,
+                    memo: null,
+                    signature: '67iWWgeXYSXxKmxMjAahr9ATXvv1SJoHedXYZxicFQtF4eFxCWJxUwEYczNbrua8pQAshmkf73gfAX5itutWTA7m',
+                    slot: 136105283
                 }
             ],
-            "id": 1
+            id: 1
         }
     },
     {
@@ -251,10 +234,10 @@ export const solanaAPIOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"simulateTransaction",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'simulateTransaction',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -299,28 +282,19 @@ export const solanaAPIOperations = [
   }
 ]`,
         exampleResponse: {
-            "jsonrpc": "2.0",
-            "result": {
-                "context": {
-                    "slot": 137569919
+            jsonrpc: '2.0',
+            result: {
+                context: {
+                    slot: 137569919
                 },
-                "value": {
-                    "accounts": [
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null
-                    ],
-                    "err": "BlockhashNotFound",
-                    "logs": [],
-                    "unitsConsumed": 0
+                value: {
+                    accounts: [null, null, null, null, null, null, null, null],
+                    err: 'BlockhashNotFound',
+                    logs: [],
+                    unitsConsumed: 0
                 }
             },
-            "id": 1
+            id: 1
         }
     },
     {
@@ -333,11 +307,11 @@ export const solanaAPIOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getBlockProduction",
-            "params":[],
-            "id":1
-        },
+            jsonrpc: '2.0',
+            method: 'getBlockProduction',
+            params: [],
+            id: 1
+        }
     },
     {
         name: 'getBlock',
@@ -349,10 +323,10 @@ export const solanaAPIOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getBlock",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getBlock',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -380,59 +354,57 @@ export const solanaAPIOperations = [
   }
 ]`,
         exampleResponse: {
-            "jsonrpc": "2.0",
-            "result": {
-              "blockHeight": 428,
-              "blockTime": null,
-              "blockhash": "3Eq21vXNB5s86c62bVuUfTeaMif1N2kUqRPBmGRJhyTA",
-              "parentSlot": 429,
-              "previousBlockhash": "mfcyqEXB3DnHXki6KjjmZck6YjmZLvpAByy2fj4nh6B",
-              "transactions": [
-                {
-                  "meta": {
-                    "err": null,
-                    "fee": 5000,
-                    "innerInstructions": [],
-                    "logMessages": [],
-                    "postBalances": [499998932500, 26858640, 1, 1, 1],
-                    "postTokenBalances": [],
-                    "preBalances": [499998937500, 26858640, 1, 1, 1],
-                    "preTokenBalances": [],
-                    "status": {
-                      "Ok": null
-                    }
-                  },
-                  "transaction": {
-                    "message": {
-                      "accountKeys": [
-                        "3UVYmECPPMZSCqWKfENfuoTv51fTDTWicX9xmBD2euKe",
-                        "AjozzgE83A3x1sHNUR64hfH7zaEBWeMaFuAN9kQgujrc",
-                        "SysvarS1otHashes111111111111111111111111111",
-                        "SysvarC1ock11111111111111111111111111111111",
-                        "Vote111111111111111111111111111111111111111"
-                      ],
-                      "header": {
-                        "numReadonlySignedAccounts": 0,
-                        "numReadonlyUnsignedAccounts": 3,
-                        "numRequiredSignatures": 1
-                      },
-                      "instructions": [
-                        {
-                          "accounts": [1, 2, 3, 0],
-                          "data": "37u9WtQpcm6ULa3WRQHmj49EPs4if7o9f1jSRVZpm2dvihR9C8jY4NqEwXUbLwx15HBSNcP1",
-                          "programIdIndex": 4
+            jsonrpc: '2.0',
+            result: {
+                blockHeight: 428,
+                blockTime: null,
+                blockhash: '3Eq21vXNB5s86c62bVuUfTeaMif1N2kUqRPBmGRJhyTA',
+                parentSlot: 429,
+                previousBlockhash: 'mfcyqEXB3DnHXki6KjjmZck6YjmZLvpAByy2fj4nh6B',
+                transactions: [
+                    {
+                        meta: {
+                            err: null,
+                            fee: 5000,
+                            innerInstructions: [],
+                            logMessages: [],
+                            postBalances: [499998932500, 26858640, 1, 1, 1],
+                            postTokenBalances: [],
+                            preBalances: [499998937500, 26858640, 1, 1, 1],
+                            preTokenBalances: [],
+                            status: {
+                                Ok: null
+                            }
+                        },
+                        transaction: {
+                            message: {
+                                accountKeys: [
+                                    '3UVYmECPPMZSCqWKfENfuoTv51fTDTWicX9xmBD2euKe',
+                                    'AjozzgE83A3x1sHNUR64hfH7zaEBWeMaFuAN9kQgujrc',
+                                    'SysvarS1otHashes111111111111111111111111111',
+                                    'SysvarC1ock11111111111111111111111111111111',
+                                    'Vote111111111111111111111111111111111111111'
+                                ],
+                                header: {
+                                    numReadonlySignedAccounts: 0,
+                                    numReadonlyUnsignedAccounts: 3,
+                                    numRequiredSignatures: 1
+                                },
+                                instructions: [
+                                    {
+                                        accounts: [1, 2, 3, 0],
+                                        data: '37u9WtQpcm6ULa3WRQHmj49EPs4if7o9f1jSRVZpm2dvihR9C8jY4NqEwXUbLwx15HBSNcP1',
+                                        programIdIndex: 4
+                                    }
+                                ],
+                                recentBlockhash: 'mfcyqEXB3DnHXki6KjjmZck6YjmZLvpAByy2fj4nh6B'
+                            },
+                            signatures: ['2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUidNgNX5r9sTyN1J9UxtbCXy2rqYcuyuv']
                         }
-                      ],
-                      "recentBlockhash": "mfcyqEXB3DnHXki6KjjmZck6YjmZLvpAByy2fj4nh6B"
-                    },
-                    "signatures": [
-                      "2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUidNgNX5r9sTyN1J9UxtbCXy2rqYcuyuv"
-                    ]
-                  }
-                }
-              ]
+                    }
+                ]
             },
-            "id": 1
+            id: 1
         }
     },
     {
@@ -445,10 +417,10 @@ export const solanaAPIOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getBlocks",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getBlocks',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -463,16 +435,9 @@ export const solanaAPIOperations = [
 		</ul>`,
         exampleParameters: `[5, 10]`,
         exampleResponse: {
-            "jsonrpc": "2.0",
-            "result": [
-                5,
-                6,
-                7,
-                8,
-                9,
-                10
-            ],
-            "id": 1
+            jsonrpc: '2.0',
+            result: [5, 6, 7, 8, 9, 10],
+            id: 1
         }
     },
     {
@@ -485,10 +450,10 @@ export const solanaAPIOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getBlocksWithLimit",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getBlocksWithLimit',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -503,13 +468,9 @@ export const solanaAPIOperations = [
 		</ul>`,
         exampleParameters: `[5, 3]`,
         exampleResponse: {
-            "jsonrpc": "2.0",
-            "result": [
-                5,
-                6,
-                7
-            ],
-            "id": 1
+            jsonrpc: '2.0',
+            result: [5, 6, 7],
+            id: 1
         }
     },
     {
@@ -522,11 +483,11 @@ export const solanaAPIOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getBlockHeight",
-            "params":[],
-            "id":1
-        },
+            jsonrpc: '2.0',
+            method: 'getBlockHeight',
+            params: [],
+            id: 1
+        }
     },
     {
         name: 'isBlockhashValid',
@@ -538,10 +499,10 @@ export const solanaAPIOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"isBlockhashValid",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'isBlockhashValid',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -564,14 +525,14 @@ export const solanaAPIOperations = [
   }
 ]`,
         exampleResponse: {
-            "jsonrpc": "2.0",
-            "result": {
-                "context": {
-                    "slot": 136103237
+            jsonrpc: '2.0',
+            result: {
+                context: {
+                    slot: 136103237
                 },
-                "value": false
+                value: false
             },
-            "id": 1
+            id: 1
         }
     },
     {
@@ -584,10 +545,10 @@ export const solanaAPIOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getTokenAccountsByOwner",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getTokenAccountsByOwner',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -620,43 +581,43 @@ export const solanaAPIOperations = [
   }
 ]`,
         exampleResponse: {
-            "jsonrpc": "2.0",
-            "result": {
-                "context": {
-                    "slot": 137568828
+            jsonrpc: '2.0',
+            result: {
+                context: {
+                    slot: 137568828
                 },
-                "value": [
+                value: [
                     {
-                        "account": {
-                            "data": {
-                                "parsed": {
-                                    "info": {
-                                        "isNative": false,
-                                        "mint": "2FPyTwcZLUg1MDrwsyoP4D6s1tM7hAkHYRjkNb5w6Pxk",
-                                        "owner": "J27ma1MPBRvmPJxLqBqQGNECMXDm9L6abFa4duKiPosa",
-                                        "state": "initialized",
-                                        "tokenAmount": {
-                                            "amount": "821",
-                                            "decimals": 6,
-                                            "uiAmount": 8.21E-4,
-                                            "uiAmountString": "0.000821"
+                        account: {
+                            data: {
+                                parsed: {
+                                    info: {
+                                        isNative: false,
+                                        mint: '2FPyTwcZLUg1MDrwsyoP4D6s1tM7hAkHYRjkNb5w6Pxk',
+                                        owner: 'J27ma1MPBRvmPJxLqBqQGNECMXDm9L6abFa4duKiPosa',
+                                        state: 'initialized',
+                                        tokenAmount: {
+                                            amount: '821',
+                                            decimals: 6,
+                                            uiAmount: 8.21e-4,
+                                            uiAmountString: '0.000821'
                                         }
                                     },
-                                    "type": "account"
+                                    type: 'account'
                                 },
-                                "program": "spl-token",
-                                "space": 165
+                                program: 'spl-token',
+                                space: 165
                             },
-                            "executable": false,
-                            "lamports": 2039280,
-                            "owner": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-                            "rentEpoch": 318
+                            executable: false,
+                            lamports: 2039280,
+                            owner: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
+                            rentEpoch: 318
                         },
-                        "pubkey": "Exo9AH6fNchE43GaJB85FT7ToYiuKnKzYDyW5mFeTXRR"
+                        pubkey: 'Exo9AH6fNchE43GaJB85FT7ToYiuKnKzYDyW5mFeTXRR'
                     }
                 ]
             },
-            "id": 1
+            id: 1
         }
     },
     {
@@ -669,10 +630,10 @@ export const solanaAPIOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getTokenAccountBalance",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getTokenAccountBalance',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -691,19 +652,19 @@ export const solanaAPIOperations = [
             "3Lz6rCrXdLybFiuJGJnEjv6Z2XtCh5n4proPGP2aBkA1"
         ]`,
         exampleResponse: {
-            "jsonrpc": "2.0",
-            "result": {
-                "context": {
-                    "slot": 137567036
+            jsonrpc: '2.0',
+            result: {
+                context: {
+                    slot: 137567036
                 },
-                "value": {
-                    "amount": "301922375078",
-                    "decimals": 6,
-                    "uiAmount": 301922.375078,
-                    "uiAmountString": "301922.375078"
+                value: {
+                    amount: '301922375078',
+                    decimals: 6,
+                    uiAmount: 301922.375078,
+                    uiAmountString: '301922.375078'
                 }
             },
-            "id": 1
+            id: 1
         }
     },
     {
@@ -716,10 +677,10 @@ export const solanaAPIOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getTokenSupply",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getTokenSupply',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -738,19 +699,19 @@ export const solanaAPIOperations = [
             "HfYFjMKNZygfMC8LsQ8LtpPsPxEJoXJx4M6tqi75Hajo"
         ]`,
         exampleResponse: {
-            "jsonrpc": "2.0",
-            "result": {
-                "context": {
-                    "slot": 137571639
+            jsonrpc: '2.0',
+            result: {
+                context: {
+                    slot: 137571639
                 },
-                "value": {
-                    "amount": "999999999997060679",
-                    "decimals": 9,
-                    "uiAmount": 9.999999999970608E8,
-                    "uiAmountString": "999999999.997060679"
+                value: {
+                    amount: '999999999997060679',
+                    decimals: 9,
+                    uiAmount: 9.999999999970608e8,
+                    uiAmountString: '999999999.997060679'
                 }
             },
-            "id": 1
+            id: 1
         }
     },
     {
@@ -763,11 +724,11 @@ export const solanaAPIOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getEpochSchedule",
-            "params":[],
-            "id":1
-        },
+            jsonrpc: '2.0',
+            method: 'getEpochSchedule',
+            params: [],
+            id: 1
+        }
     },
     {
         name: 'getEpochInfo',
@@ -779,11 +740,11 @@ export const solanaAPIOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getEpochInfo",
-            "params":[],
-            "id":1
-        },
+            jsonrpc: '2.0',
+            method: 'getEpochInfo',
+            params: [],
+            id: 1
+        }
     },
     {
         name: 'getFeeForMessage',
@@ -795,10 +756,10 @@ export const solanaAPIOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getFeeForMessage",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getFeeForMessage',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -815,14 +776,14 @@ export const solanaAPIOperations = [
 		</ul>`,
         exampleParameters: `["AQABAgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBAQAA"]`,
         exampleResponse: {
-            "jsonrpc": "2.0",
-            "result": {
-                "context": {
-                    "slot": 135143215
+            jsonrpc: '2.0',
+            result: {
+                context: {
+                    slot: 135143215
                 },
-                "value": null
+                value: null
             },
-            "id": 1
+            id: 1
         }
     },
     {
@@ -835,11 +796,11 @@ export const solanaAPIOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getHighestSnapshotSlot",
-            "params":[],
-            "id":1
-        },
+            jsonrpc: '2.0',
+            method: 'getHighestSnapshotSlot',
+            params: [],
+            id: 1
+        }
     },
     {
         name: 'getGenesisHash',
@@ -851,11 +812,11 @@ export const solanaAPIOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getGenesisHash",
-            "params":[],
-            "id":1
-        },
+            jsonrpc: '2.0',
+            method: 'getGenesisHash',
+            params: [],
+            id: 1
+        }
     },
     {
         name: 'getRecentPerformanceSamples',
@@ -867,11 +828,11 @@ export const solanaAPIOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getRecentPerformanceSamples",
-            "params":[],
-            "id":1
-        },
+            jsonrpc: '2.0',
+            method: 'getRecentPerformanceSamples',
+            params: [],
+            id: 1
+        }
     },
     {
         name: 'getFirstAvailableBlock',
@@ -883,11 +844,11 @@ export const solanaAPIOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getFirstAvailableBlock",
-            "params":[],
-            "id":1
-        },
+            jsonrpc: '2.0',
+            method: 'getFirstAvailableBlock',
+            params: [],
+            id: 1
+        }
     },
     {
         name: 'getMinimumBalanceForRentExemption',
@@ -899,10 +860,10 @@ export const solanaAPIOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getMinimumBalanceForRentExemption",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getMinimumBalanceForRentExemption',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -921,9 +882,9 @@ export const solanaAPIOperations = [
             50
         ]`,
         exampleResponse: {
-            "jsonrpc": "2.0",
-            "result": 1238880,
-            "id": 1
+            jsonrpc: '2.0',
+            result: 1238880,
+            id: 1
         }
     },
     {
@@ -936,11 +897,11 @@ export const solanaAPIOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getClusterNodes",
-            "params":[],
-            "id":1
-        },
+            jsonrpc: '2.0',
+            method: 'getClusterNodes',
+            params: [],
+            id: 1
+        }
     },
     {
         name: 'getHealth',
@@ -952,11 +913,11 @@ export const solanaAPIOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getHealth",
-            "params":[],
-            "id":1
-        },
+            jsonrpc: '2.0',
+            method: 'getHealth',
+            params: [],
+            id: 1
+        }
     },
     {
         name: 'getVersion',
@@ -968,11 +929,11 @@ export const solanaAPIOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getVersion",
-            "params":[],
-            "id":1
-        },
+            jsonrpc: '2.0',
+            method: 'getVersion',
+            params: [],
+            id: 1
+        }
     },
     {
         name: 'getIdentity',
@@ -984,11 +945,11 @@ export const solanaAPIOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getIdentity",
-            "params":[],
-            "id":1
-        },
+            jsonrpc: '2.0',
+            method: 'getIdentity',
+            params: [],
+            id: 1
+        }
     },
     {
         name: 'getInflationGovernor',
@@ -1000,11 +961,11 @@ export const solanaAPIOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getInflationGovernor",
-            "params":[],
-            "id":1
-        },
+            jsonrpc: '2.0',
+            method: 'getInflationGovernor',
+            params: [],
+            id: 1
+        }
     },
     {
         name: 'getInflationReward',
@@ -1016,10 +977,10 @@ export const solanaAPIOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getInflationReward",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getInflationReward',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -1043,9 +1004,9 @@ export const solanaAPIOperations = [
   }
 ]`,
         exampleResponse: {
-            "jsonrpc": "2.0",
-            "result": 1238880,
-            "id": 1
+            jsonrpc: '2.0',
+            result: 1238880,
+            id: 1
         }
     },
     {
@@ -1058,11 +1019,11 @@ export const solanaAPIOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getInflationRate",
-            "params":[],
-            "id":1
-        },
+            jsonrpc: '2.0',
+            method: 'getInflationRate',
+            params: [],
+            id: 1
+        }
     },
     {
         name: 'getSupply',
@@ -1074,11 +1035,11 @@ export const solanaAPIOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getSupply",
-            "params":[],
-            "id":1
-        },
+            jsonrpc: '2.0',
+            method: 'getSupply',
+            params: [],
+            id: 1
+        }
     },
     {
         name: 'getBalance',
@@ -1090,10 +1051,10 @@ export const solanaAPIOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getBalance",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getBalance',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -1113,9 +1074,9 @@ export const solanaAPIOperations = [
             "83astBRguLMdt2h5U1Tpdq5tjFoJ6noeGwaY3mDLVcri"
         ]`,
         exampleResponse: {
-            "jsonrpc": "2.0",
-            "result": { "context": { "slot": 1 }, "value": 0 },
-            "id": 1
+            jsonrpc: '2.0',
+            result: { context: { slot: 1 }, value: 0 },
+            id: 1
         }
     },
     {
@@ -1128,11 +1089,11 @@ export const solanaAPIOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getLargestAccounts",
-            "params":[],
-            "id":1
-        },
+            jsonrpc: '2.0',
+            method: 'getLargestAccounts',
+            params: [],
+            id: 1
+        }
     },
     {
         name: 'getAccountInfo',
@@ -1144,10 +1105,10 @@ export const solanaAPIOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getAccountInfo",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getAccountInfo',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -1165,23 +1126,20 @@ export const solanaAPIOperations = [
   }
 ]`,
         exampleResponse: {
-            "jsonrpc": "2.0",
-            "result": {
-                "context": {
-                    "slot": 134461197
+            jsonrpc: '2.0',
+            result: {
+                context: {
+                    slot: 134461197
                 },
-                "value": {
-                    "data": [
-                        "",
-                        "base58"
-                    ],
-                    "executable": false,
-                    "lamports": 410431055,
-                    "owner": "11111111111111111111111111111111",
-                    "rentEpoch": 311
+                value: {
+                    data: ['', 'base58'],
+                    executable: false,
+                    lamports: 410431055,
+                    owner: '11111111111111111111111111111111',
+                    rentEpoch: 311
                 }
             },
-            "id": 1
+            id: 1
         }
     },
     {
@@ -1194,11 +1152,11 @@ export const solanaAPIOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getVoteAccounts",
-            "params":[],
-            "id":1
-        },
+            jsonrpc: '2.0',
+            method: 'getVoteAccounts',
+            params: [],
+            id: 1
+        }
     },
     {
         name: 'getMultipleAccounts',
@@ -1210,10 +1168,10 @@ export const solanaAPIOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getMultipleAccounts",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getMultipleAccounts',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -1238,35 +1196,29 @@ export const solanaAPIOperations = [
   }
 ]`,
         exampleResponse: {
-            "jsonrpc": "2.0",
-            "result": {
-                "context": {
-                    "slot": 136100846
+            jsonrpc: '2.0',
+            result: {
+                context: {
+                    slot: 136100846
                 },
-                "value": [
+                value: [
                     {
-                        "data": [
-                            "",
-                            "base64"
-                        ],
-                        "executable": false,
-                        "lamports": 410426055,
-                        "owner": "11111111111111111111111111111111",
-                        "rentEpoch": 314
+                        data: ['', 'base64'],
+                        executable: false,
+                        lamports: 410426055,
+                        owner: '11111111111111111111111111111111',
+                        rentEpoch: 314
                     },
                     {
-                        "data": [
-                            "",
-                            "base64"
-                        ],
-                        "executable": false,
-                        "lamports": 2000000,
-                        "owner": "11111111111111111111111111111111",
-                        "rentEpoch": 314
+                        data: ['', 'base64'],
+                        executable: false,
+                        lamports: 2000000,
+                        owner: '11111111111111111111111111111111',
+                        rentEpoch: 314
                     }
                 ]
             },
-            "id": 1
+            id: 1
         }
     },
     {
@@ -1279,10 +1231,10 @@ export const solanaAPIOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getProgramAccounts",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getProgramAccounts',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -1320,20 +1272,20 @@ export const solanaAPIOperations = [
   }
 ]`,
         exampleResponse: {
-            "jsonrpc": "2.0",
-            "result": [
-              {
-                "account": {
-                  "data": "2R9jLfiAQ9bgdcw6h8s44439",
-                  "executable": false,
-                  "lamports": 15298080,
-                  "owner": "4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T",
-                  "rentEpoch": 28
-                },
-                "pubkey": "CxELquR1gPP8wHe33gZ4QxqGB3sZ9RSwsJ2KshVewkFY"
-              }
+            jsonrpc: '2.0',
+            result: [
+                {
+                    account: {
+                        data: '2R9jLfiAQ9bgdcw6h8s44439',
+                        executable: false,
+                        lamports: 15298080,
+                        owner: '4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T',
+                        rentEpoch: 28
+                    },
+                    pubkey: 'CxELquR1gPP8wHe33gZ4QxqGB3sZ9RSwsJ2KshVewkFY'
+                }
             ],
-            "id": 1
+            id: 1
         }
     },
     {
@@ -1346,11 +1298,11 @@ export const solanaAPIOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"minimumLedgerSlot",
-            "params":[],
-            "id":1
-        },
+            jsonrpc: '2.0',
+            method: 'minimumLedgerSlot',
+            params: [],
+            id: 1
+        }
     },
     {
         name: 'getMaxShredInsertSlot',
@@ -1362,11 +1314,11 @@ export const solanaAPIOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getMaxShredInsertSlot",
-            "params":[],
-            "id":1
-        },
+            jsonrpc: '2.0',
+            method: 'getMaxShredInsertSlot',
+            params: [],
+            id: 1
+        }
     },
     {
         name: 'getSlotLeader',
@@ -1378,11 +1330,11 @@ export const solanaAPIOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getSlotLeader",
-            "params":[],
-            "id":1
-        },
+            jsonrpc: '2.0',
+            method: 'getSlotLeader',
+            params: [],
+            id: 1
+        }
     },
     {
         name: 'getSlotLeaders',
@@ -1394,10 +1346,10 @@ export const solanaAPIOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getSlotLeader",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getSlotLeader',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -1411,7 +1363,7 @@ export const solanaAPIOperations = [
         exampleParameters: `[
             5,
             10
-        ]`,
+        ]`
     },
     {
         name: 'getSlot',
@@ -1423,11 +1375,11 @@ export const solanaAPIOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getSlot",
-            "params":[],
-            "id":1
-        },
+            jsonrpc: '2.0',
+            method: 'getSlot',
+            params: [],
+            id: 1
+        }
     },
     {
         name: 'getMaxRetransmitSlot',
@@ -1439,10 +1391,10 @@ export const solanaAPIOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getMaxRetransmitSlot",
-            "params":[],
-            "id":1
-        },
-    },
-] as IETHOperation[];
+            jsonrpc: '2.0',
+            method: 'getMaxRetransmitSlot',
+            params: [],
+            id: 1
+        }
+    }
+] as IETHOperation[]

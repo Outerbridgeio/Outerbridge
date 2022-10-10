@@ -1,8 +1,8 @@
 // constant
-export const gridSpacing = 3 as const;
-export const drawerWidth = 260 as const;
-export const appDrawerWidth = 320 as const;
-export const baseURL = process.env.NODE_ENV === 'production' ? window.location.origin : window.location.origin.replace(':8080', ':3000');
+export const gridSpacing = 3 as const
+export const drawerWidth = 260 as const
+export const appDrawerWidth = 320 as const
+export const baseURL = process.env.NODE_ENV === 'production' ? window.location.origin : window.location.origin.replace(':8080', ':3000')
 
 export const networkExplorers = {
     homestead: 'https://etherscan.io',
@@ -19,7 +19,7 @@ export const networkExplorers = {
     bsc: 'https://bscscan.com',
     'bsc-testnet': 'https://testnet.bscscan.com',
     localhost: ''
-} as const;
+} as const
 
 export const networks = [
     {
@@ -100,7 +100,7 @@ export const networks = [
         uri: 'https://api-testnet.arbiscan.io/api',
         color: '#023e8a'
     }
-];
+]
 
 export const network_details = {
     networks: [
@@ -169,7 +169,7 @@ export const network_details = {
             default: 'noAuth'
         }
     ]
-}as const;
+} as const
 
 export const contract_details = {
     ...network_details,
@@ -195,7 +195,7 @@ export const contract_details = {
             description: 'ABI will be fetched automatically if address is valid'
         }
     ]
-}as const;
+} as const
 
 export const wallet_details = {
     ...network_details,
@@ -208,7 +208,7 @@ export const wallet_details = {
             default: ''
         }
     ]
-}as const;
+} as const
 
 export const privateKeyField = [
     {
@@ -218,4 +218,4 @@ export const privateKeyField = [
         description: 'Private key of wallet to be imported',
         default: ''
     }
-]as const;
+] as const

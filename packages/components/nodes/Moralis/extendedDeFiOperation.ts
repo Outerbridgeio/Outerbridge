@@ -1,17 +1,18 @@
-import { INodeOptionsValue, INodeParams } from "../../src";
+import { INodeOptionsValue, INodeParams } from '../../src'
 
 export const defiOperation = [
     {
-        label:'Get Pair Reserves',
+        label: 'Get Pair Reserves',
         name: 'getPairReserves',
         description: 'Get the liquidity reserves for a given pair address. Only Uniswap V2 based exchanges supported at the moment.'
     },
     {
-        label:'Get Pair Address',
+        label: 'Get Pair Address',
         name: 'getPairAddress',
-        description: 'Fetch the pair data of the provided token0+token1 combination. The token0 and token1 options are interchangable (ie. there is no different outcome in "token0=WETH and token1=USDT" or "token0=USDT and token1=WETH")'
-    },
-] as INodeOptionsValue[];
+        description:
+            'Fetch the pair data of the provided token0+token1 combination. The token0 and token1 options are interchangable (ie. there is no different outcome in "token0=WETH and token1=USDT" or "token0=USDT and token1=WETH")'
+    }
+] as INodeOptionsValue[]
 
 export const getPairReserves = [
     {
@@ -20,9 +21,7 @@ export const getPairReserves = [
         type: 'string',
         description: 'Liquidity pair address',
         show: {
-            'inputParameters.operation': [
-                'getPairReserves',
-            ]
+            'inputParameters.operation': ['getPairReserves']
         }
     },
     {
@@ -31,9 +30,7 @@ export const getPairReserves = [
         type: 'string',
         description: 'To get the reserves at this block number',
         show: {
-            'inputParameters.operation': [
-                'getPairReserves',
-            ]
+            'inputParameters.operation': ['getPairReserves']
         }
     },
     {
@@ -42,12 +39,10 @@ export const getPairReserves = [
         type: 'date',
         description: 'Get the reserves to this date',
         show: {
-            'inputParameters.operation': [
-                'getPairReserves',
-            ]
+            'inputParameters.operation': ['getPairReserves']
         }
-    },
-] as INodeParams[];
+    }
+] as INodeParams[]
 
 export const getPairAddress = [
     {
@@ -56,9 +51,7 @@ export const getPairAddress = [
         type: 'string',
         description: 'Token0 address',
         show: {
-            'inputParameters.operation': [
-                'getPairAddress',
-            ]
+            'inputParameters.operation': ['getPairAddress']
         }
     },
     {
@@ -67,9 +60,7 @@ export const getPairAddress = [
         type: 'string',
         description: 'Token1 address',
         show: {
-            'inputParameters.operation': [
-                'getPairAddress',
-            ]
+            'inputParameters.operation': ['getPairAddress']
         }
     },
     {
@@ -101,13 +92,11 @@ export const getPairAddress = [
             {
                 label: 'QuickSwap',
                 name: 'quickswap'
-            },
+            }
         ],
         default: 'uniswapv2',
         show: {
-            'inputParameters.operation': [
-                'getPairAddress'
-            ]
+            'inputParameters.operation': ['getPairAddress']
         }
     },
     {
@@ -116,9 +105,7 @@ export const getPairAddress = [
         type: 'string',
         description: 'To get the reserves at this block number',
         show: {
-            'inputParameters.operation': [
-                'getPairAddress',
-            ]
+            'inputParameters.operation': ['getPairAddress']
         }
     },
     {
@@ -127,9 +114,7 @@ export const getPairAddress = [
         type: 'date',
         description: 'Get the reserves to this date',
         show: {
-            'inputParameters.operation': [
-                'getPairAddress',
-            ]
+            'inputParameters.operation': ['getPairAddress']
         }
-    },
-] as INodeParams[];
+    }
+] as INodeParams[]

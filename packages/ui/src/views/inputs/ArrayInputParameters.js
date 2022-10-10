@@ -1,34 +1,34 @@
-import { useSelector } from 'react-redux';
-import PropTypes from 'prop-types';
-import { forwardRef } from 'react';
+import { useSelector } from 'react-redux'
+import PropTypes from 'prop-types'
+import { forwardRef } from 'react'
 
 // material-ui
-import { Box, Switch, Fab, FormControl, OutlinedInput, Popper, TextField, Typography, Stack, Button } from '@mui/material';
-import Autocomplete, { autocompleteClasses } from '@mui/material/Autocomplete';
-import { useTheme, styled } from '@mui/material/styles';
-import { TooltipWithParser } from '../../ui-component/TooltipWithParser';
+import { Box, Switch, Fab, FormControl, OutlinedInput, Popper, TextField, Typography, Stack, Button } from '@mui/material'
+import Autocomplete, { autocompleteClasses } from '@mui/material/Autocomplete'
+import { useTheme, styled } from '@mui/material/styles'
+import { TooltipWithParser } from '../../ui-component/TooltipWithParser'
 
 // icons
-import { IconX, IconUpload } from '@tabler/icons';
+import { IconX, IconUpload } from '@tabler/icons'
 
 // third party
-import lodash from 'lodash';
-import Editor from 'react-simple-code-editor';
-import PerfectScrollbar from 'react-perfect-scrollbar';
-import { highlight, languages } from 'prismjs/components/prism-core';
-import 'prismjs/components/prism-clike';
-import 'prismjs/components/prism-javascript';
-import 'prismjs/components/prism-json';
-import 'prismjs/components/prism-markup';
-import 'prismjs/themes/prism.css';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
+import lodash from 'lodash'
+import Editor from 'react-simple-code-editor'
+import PerfectScrollbar from 'react-perfect-scrollbar'
+import { highlight, languages } from 'prismjs/components/prism-core'
+import 'prismjs/components/prism-clike'
+import 'prismjs/components/prism-javascript'
+import 'prismjs/components/prism-json'
+import 'prismjs/components/prism-markup'
+import 'prismjs/themes/prism.css'
+import DatePicker from 'react-datepicker'
+import 'react-datepicker/dist/react-datepicker.css'
 
 // utils
-import { convertDateStringToDateObject, getFileName, getFolderName } from 'utils/genericHelper';
+import { convertDateStringToDateObject, getFileName, getFolderName } from 'utils/genericHelper'
 
 //css
-import './InputParameters.css';
+import './InputParameters.css'
 
 const StyledPopper = styled(Popper)({
     boxShadow: '0px 8px 10px -5px rgb(0 0 0 / 20%), 0px 16px 24px 2px rgb(0 0 0 / 14%), 0px 6px 30px 5px rgb(0 0 0 / 12%)',
@@ -40,38 +40,40 @@ const StyledPopper = styled(Popper)({
             margin: 10
         }
     }
-});
+})
 
-const DateCustomInput = forwardRef(({ value, onClick }, ref) => (
-    <button
-        style={{
-            backgroundColor: '#fafafa',
-            paddingTop: 8,
-            paddingBottom: 8,
-            paddingRight: 12,
-            paddingLeft: 12,
-            borderRadius: 12,
-            width: '100%',
-            height: 50,
-            border: `1px solid #BDBDBD`,
-            cursor: 'pointer',
-            fontWeight: 'bold',
-            textAlign: 'start',
-            color: '#212121',
-            opacity: 0.9
-        }}
-        type="button"
-        onClick={onClick}
-        ref={ref}
-    >
-        {value}
-    </button>
-));
+const DateCustomInput = forwardRef(function DateCustomInput({ value, onClick }, ref) {
+    return (
+        <button
+            style={{
+                backgroundColor: '#fafafa',
+                paddingTop: 8,
+                paddingBottom: 8,
+                paddingRight: 12,
+                paddingLeft: 12,
+                borderRadius: 12,
+                width: '100%',
+                height: 50,
+                border: `1px solid #BDBDBD`,
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                textAlign: 'start',
+                color: '#212121',
+                opacity: 0.9
+            }}
+            type='button'
+            onClick={onClick}
+            ref={ref}
+        >
+            {value}
+        </button>
+    )
+})
 
 DateCustomInput.propTypes = {
     value: PropTypes.string,
     onClick: PropTypes.func
-};
+}
 
 // ==============================|| ARRAY INPUT PARAMETERS ||============================== //
 
@@ -87,104 +89,104 @@ const ArrayInputParameters = ({
     onArrayItemMouseUp,
     onEditVariableDialogOpen
 }) => {
-    const theme = useTheme();
-    const customization = useSelector((state) => state.customization);
+    const theme = useTheme()
+    const customization = useSelector((state) => state.customization)
 
     const processUpdateValues = (inputValue, inputName, values, index) => {
         const updateArrayValues = {
             ...values,
             [inputName]: inputValue
-        };
-        const updateInitialValues = initialValues;
-        updateInitialValues[index] = updateArrayValues;
-        return updateInitialValues;
-    };
+        }
+        const updateInitialValues = initialValues
+        updateInitialValues[index] = updateArrayValues
+        return updateInitialValues
+    }
 
     const onInputChange = (inputValue, inputName, values, index) => {
-        const updateInitialValues = processUpdateValues(inputValue, inputName, values, index);
-        onArrayInputChange(updateInitialValues);
-    };
+        const updateInitialValues = processUpdateValues(inputValue, inputName, values, index)
+        onArrayInputChange(updateInitialValues)
+    }
 
     const onInputBlur = (inputValue, inputName, values, index) => {
-        const updateInitialValues = processUpdateValues(inputValue, inputName, values, index);
-        onArrayInputBlur(updateInitialValues);
-    };
+        const updateInitialValues = processUpdateValues(inputValue, inputName, values, index)
+        onArrayInputBlur(updateInitialValues)
+    }
 
     const onRemoveClick = (index) => {
-        const updateInitialValues = initialValues;
-        updateInitialValues.splice(index, 1);
-        onArrayItemRemove(updateInitialValues);
-        onArrayItemMouseUp(false);
-    };
+        const updateInitialValues = initialValues
+        updateInitialValues.splice(index, 1)
+        onArrayItemRemove(updateInitialValues)
+        onArrayItemMouseUp(false)
+    }
 
     const onMouseUp = (e, inputName, valueIndex) => {
-        const cursorPosition = e.target.selectionEnd;
-        const textBeforeCursorPosition = e.target.value.substring(0, cursorPosition);
-        const textAfterCursorPosition = e.target.value.substring(cursorPosition, e.target.value.length);
-        const path = `${paramsType}.${arrayGroupName}[${valueIndex}].${inputName}`;
+        const cursorPosition = e.target.selectionEnd
+        const textBeforeCursorPosition = e.target.value.substring(0, cursorPosition)
+        const textAfterCursorPosition = e.target.value.substring(cursorPosition, e.target.value.length)
+        const path = `${paramsType}.${arrayGroupName}[${valueIndex}].${inputName}`
         const body = {
             textBeforeCursorPosition,
             textAfterCursorPosition,
             path,
             paramsType
-        };
-        onArrayItemMouseUp(true, body);
-    };
+        }
+        onArrayItemMouseUp(true, body)
+    }
 
     const handleFolderUpload = (e, values, inputName, index) => {
-        if (!e.target.files) return;
-        const files = e.target.files;
-        const reader = new FileReader();
+        if (!e.target.files) return
+        const files = e.target.files
+        const reader = new FileReader()
 
         function readFile(fileIndex, base64Array) {
             if (fileIndex >= files.length) {
-                onInputChange(JSON.stringify(base64Array), inputName, values, index);
-                return;
+                onInputChange(JSON.stringify(base64Array), inputName, values, index)
+                return
             }
-            const file = files[fileIndex];
+            const file = files[fileIndex]
             reader.onload = (evt) => {
                 if (!evt?.target?.result) {
-                    return;
+                    return
                 }
-                const { result } = evt.target;
-                const value = result + `,filepath:${file.webkitRelativePath}`;
-                base64Array.push(value);
-                readFile(fileIndex + 1, lodash.cloneDeep(base64Array));
-            };
-            reader.readAsDataURL(file);
+                const { result } = evt.target
+                const value = result + `,filepath:${file.webkitRelativePath}`
+                base64Array.push(value)
+                readFile(fileIndex + 1, lodash.cloneDeep(base64Array))
+            }
+            reader.readAsDataURL(file)
         }
-        readFile(0, []);
-    };
+        readFile(0, [])
+    }
 
     const handleFileUpload = (e, onInputChange, values, inputName, index) => {
         if (!e.target.files) {
-            return;
+            return
         }
 
-        const file = e.target.files[0];
-        const { name } = file;
+        const file = e.target.files[0]
+        const { name } = file
 
-        const reader = new FileReader();
+        const reader = new FileReader()
         reader.onload = (evt) => {
             if (!evt?.target?.result) {
-                return;
+                return
             }
-            const { result } = evt.target;
-            const value = result + `,filename:${name}`;
-            onInputChange(value, inputName, values, index);
-        };
-        reader.readAsDataURL(file);
-    };
+            const { result } = evt.target
+            const value = result + `,filename:${name}`
+            onInputChange(value, inputName, values, index)
+        }
+        reader.readAsDataURL(file)
+    }
 
-    const findMatchingOptions = (options, value) => options.find((option) => option.name === value);
+    const findMatchingOptions = (options, value) => options.find((option) => option.name === value)
 
-    const getDefaultOptionValue = () => '';
+    const getDefaultOptionValue = () => ''
 
     return (
         <>
             {arrayParams.map((_, index) => {
-                const params = arrayParams[index] || [];
-                const values = initialValues[index] || {};
+                const params = arrayParams[index] || []
+                const values = initialValues[index] || {}
 
                 return (
                     <Box
@@ -209,7 +211,7 @@ const ArrayInputParameters = ({
                                     right: -10,
                                     top: -10
                                 }}
-                                size="small"
+                                size='small'
                                 onClick={() => onRemoveClick(index)}
                             >
                                 <IconX />
@@ -218,7 +220,7 @@ const ArrayInputParameters = ({
 
                         {params.map((input, paramIndex) => {
                             if (input.type === 'file' || input.type === 'folder') {
-                                const inputName = input.name;
+                                const inputName = input.name
 
                                 return (
                                     <FormControl
@@ -227,8 +229,8 @@ const ArrayInputParameters = ({
                                         sx={{ mb: 1, mt: 1 }}
                                         error={errors && errors.length > 0 && errors[index] ? Boolean(errors[index][inputName]) : false}
                                     >
-                                        <Stack direction="row">
-                                            <Typography variant="overline">{input.label}</Typography>
+                                        <Stack direction='row'>
+                                            <Typography variant='overline'>{input.label}</Typography>
                                             {input.description && <TooltipWithParser title={input.description} />}
                                         </Stack>
 
@@ -257,32 +259,35 @@ const ArrayInputParameters = ({
                                         )}
 
                                         <Button
-                                            variant="outlined"
-                                            component="label"
+                                            variant='outlined'
+                                            component='label'
                                             fullWidth
                                             startIcon={<IconUpload />}
                                             sx={{ marginRight: '1rem' }}
                                         >
                                             {input.type === 'folder' ? 'Upload Folder' : 'Upload File'}
                                             {input.type === 'file' && (
-                                                <input type="file" hidden onChange={(e) => handleFileUpload(e, values, inputName, index)} />
+                                                <input type='file' hidden onChange={(e) => handleFileUpload(e, values, inputName, index)} />
                                             )}
                                             {input.type === 'folder' && (
                                                 <input
-                                                    type="file"
-                                                    directory=""
-                                                    webkitdirectory=""
+                                                    type='file'
+                                                    // https://github.com/jsx-eslint/eslint-plugin-react/issues/3454
+                                                    // eslint-disable-next-line react/no-unknown-property
+                                                    directory=''
+                                                    // eslint-disable-next-line react/no-unknown-property
+                                                    webkitdirectory=''
                                                     hidden
                                                     onChange={(e) => handleFolderUpload(e, values, inputName, index)}
                                                 />
                                             )}
                                         </Button>
                                     </FormControl>
-                                );
+                                )
                             }
 
                             if (input.type === 'json' || input.type === 'code') {
-                                const inputName = input.name;
+                                const inputName = input.name
 
                                 return (
                                     <FormControl
@@ -291,8 +296,8 @@ const ArrayInputParameters = ({
                                         sx={{ mb: 1, mt: 1 }}
                                         error={errors && errors.length > 0 && errors[index] ? Boolean(errors[index][inputName]) : false}
                                     >
-                                        <Stack sx={{ position: 'relative' }} direction="row">
-                                            <Typography variant="overline">{input.label}</Typography>
+                                        <Stack sx={{ position: 'relative' }} direction='row'>
+                                            <Typography variant='overline'>{input.label}</Typography>
                                             {input.description && <TooltipWithParser title={input.description} />}
                                             <Button
                                                 sx={{
@@ -303,7 +308,7 @@ const ArrayInputParameters = ({
                                                     height: 25,
                                                     width: 'max-content'
                                                 }}
-                                                variant="outlined"
+                                                variant='outlined'
                                                 onClick={() => onEditVariableDialogOpen(input, values, index)}
                                             >
                                                 Edit Variables
@@ -325,8 +330,8 @@ const ArrayInputParameters = ({
                                                 placeholder={input.placeholder}
                                                 value={values[inputName] || ''}
                                                 onBlur={(e) => {
-                                                    onInputBlur(e.target.value, inputName, values, index);
-                                                    onMouseUp(e, inputName, index);
+                                                    onInputBlur(e.target.value, inputName, values, index)
+                                                    onMouseUp(e, inputName, index)
                                                 }}
                                                 onValueChange={(code) => onInputChange(code, inputName, values, index)}
                                                 onMouseUp={(e) => onMouseUp(e, inputName, index)}
@@ -337,15 +342,15 @@ const ArrayInputParameters = ({
                                                     minHeight: '200px',
                                                     width: '100%'
                                                 }}
-                                                textareaClassName="editor__textarea"
+                                                textareaClassName='editor__textarea'
                                             />
                                         </PerfectScrollbar>
                                     </FormControl>
-                                );
+                                )
                             }
 
                             if (input.type === 'date') {
-                                const inputName = input.name;
+                                const inputName = input.name
 
                                 return (
                                     <FormControl
@@ -354,8 +359,8 @@ const ArrayInputParameters = ({
                                         sx={{ mb: 1, mt: 1 }}
                                         error={errors && errors.length > 0 && errors[index] ? Boolean(errors[index][inputName]) : false}
                                     >
-                                        <Stack direction="row">
-                                            <Typography variant="overline">{input.label}</Typography>
+                                        <Stack direction='row'>
+                                            <Typography variant='overline'>{input.label}</Typography>
                                             {input.description && <TooltipWithParser title={input.description} />}
                                         </Stack>
                                         <DatePicker
@@ -363,20 +368,20 @@ const ArrayInputParameters = ({
                                             selected={convertDateStringToDateObject(values[inputName]) || null}
                                             showTimeSelect
                                             isClearable
-                                            timeInputLabel="Time:"
-                                            dateFormat="MM/dd/yyyy h:mm aa"
+                                            timeInputLabel='Time:'
+                                            dateFormat='MM/dd/yyyy h:mm aa'
                                             onChange={(date) => {
-                                                const inputValue = date ? date.toISOString() : null;
-                                                onInputChange(inputValue, inputName, values, index);
-                                                onArrayItemMouseUp(false);
+                                                const inputValue = date ? date.toISOString() : null
+                                                onInputChange(inputValue, inputName, values, index)
+                                                onArrayItemMouseUp(false)
                                             }}
                                         />
                                     </FormControl>
-                                );
+                                )
                             }
 
                             if (input.type === 'string' || input.type === 'password' || input.type === 'number') {
-                                const inputName = input.name;
+                                const inputName = input.name
 
                                 return (
                                     <FormControl
@@ -385,8 +390,8 @@ const ArrayInputParameters = ({
                                         sx={{ mb: 1, mt: 1 }}
                                         error={errors && errors.length > 0 && errors[index] ? Boolean(errors[index][inputName]) : false}
                                     >
-                                        <Stack sx={{ position: 'relative' }} direction="row">
-                                            <Typography variant="overline">{input.label}</Typography>
+                                        <Stack sx={{ position: 'relative' }} direction='row'>
+                                            <Typography variant='overline'>{input.label}</Typography>
                                             {input.description && <TooltipWithParser title={input.description} />}
                                             {(input.type === 'string' || input.type === 'number') && (
                                                 <Button
@@ -398,7 +403,7 @@ const ArrayInputParameters = ({
                                                         height: 25,
                                                         width: 'max-content'
                                                     }}
-                                                    variant="outlined"
+                                                    variant='outlined'
                                                     onClick={() => onEditVariableDialogOpen(input, values, index)}
                                                 >
                                                     Edit Variables
@@ -412,22 +417,22 @@ const ArrayInputParameters = ({
                                             placeholder={input.placeholder}
                                             name={inputName}
                                             onBlur={(e) => {
-                                                const inputValue = e.target.value;
-                                                onInputBlur(inputValue, inputName, values, index);
-                                                onMouseUp(e, inputName, index);
+                                                const inputValue = e.target.value
+                                                onInputBlur(inputValue, inputName, values, index)
+                                                onMouseUp(e, inputName, index)
                                             }}
                                             onChange={(e) => {
-                                                const inputValue = e.target.value;
-                                                onInputChange(inputValue, inputName, values, index);
+                                                const inputValue = e.target.value
+                                                onInputChange(inputValue, inputName, values, index)
                                             }}
                                             onMouseUp={(e) => onMouseUp(e, inputName, index)}
                                         />
                                     </FormControl>
-                                );
+                                )
                             }
 
                             if (input.type === 'boolean') {
-                                const inputName = input.name;
+                                const inputName = input.name
 
                                 return (
                                     <FormControl
@@ -436,29 +441,29 @@ const ArrayInputParameters = ({
                                         sx={{ mb: 1, mt: 1 }}
                                         error={errors && errors.length > 0 && errors[index] ? Boolean(errors[index][inputName]) : false}
                                     >
-                                        <Stack direction="row">
-                                            <Typography variant="overline">{input.label}</Typography>
+                                        <Stack direction='row'>
+                                            <Typography variant='overline'>{input.label}</Typography>
                                             {input.description && <TooltipWithParser title={input.description} />}
                                         </Stack>
                                         <Switch
                                             checked={!!values[inputName]}
                                             onChange={(event) => {
-                                                onInputChange(event.target.checked, inputName, values, index);
+                                                onInputChange(event.target.checked, inputName, values, index)
                                             }}
                                             inputProps={{ 'aria-label': 'controlled' }}
                                         />
                                     </FormControl>
-                                );
+                                )
                             }
 
                             if (input.type === 'options') {
-                                const inputName = input.name;
-                                const availableOptions = input.options || [];
+                                const inputName = input.name
+                                const availableOptions = input.options || []
 
                                 return (
                                     <FormControl key={`${inputName}_${paramIndex}`} fullWidth sx={{ mb: 1, mt: 1 }}>
-                                        <Stack direction="row">
-                                            <Typography variant="overline">{input.label}</Typography>
+                                        <Stack direction='row'>
+                                            <Typography variant='overline'>{input.label}</Typography>
                                             {input.description && <TooltipWithParser title={input.description} />}
                                         </Stack>
                                         <Autocomplete
@@ -468,8 +473,8 @@ const ArrayInputParameters = ({
                                             options={availableOptions}
                                             value={findMatchingOptions(availableOptions, values[inputName]) || getDefaultOptionValue()}
                                             onChange={(e, selection) => {
-                                                const value = selection ? selection.name : '';
-                                                onInputBlur(value, inputName, values, index);
+                                                const value = selection ? selection.name : ''
+                                                onInputBlur(value, inputName, values, index)
                                             }}
                                             PopperComponent={StyledPopper}
                                             renderInput={(params) => (
@@ -484,9 +489,9 @@ const ArrayInputParameters = ({
                                                 />
                                             )}
                                             renderOption={(props, option) => (
-                                                <Box component="li" {...props}>
+                                                <Box component='li' {...props}>
                                                     <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                                        <Typography sx={{ p: 1 }} variant="h5">
+                                                        <Typography sx={{ p: 1 }} variant='h5'>
                                                             {option.label}
                                                         </Typography>
                                                         {option.description && <Typography sx={{ p: 1 }}>{option.description}</Typography>}
@@ -495,16 +500,16 @@ const ArrayInputParameters = ({
                                             )}
                                         />
                                     </FormControl>
-                                );
+                                )
                             }
-                            return null;
+                            return null
                         })}
                     </Box>
-                );
+                )
             })}
         </>
-    );
-};
+    )
+}
 
 ArrayInputParameters.propTypes = {
     initialValues: PropTypes.array,
@@ -517,6 +522,6 @@ ArrayInputParameters.propTypes = {
     onArrayItemRemove: PropTypes.func,
     onArrayItemMouseUp: PropTypes.func,
     onEditVariableDialogOpen: PropTypes.func
-};
+}
 
-export default ArrayInputParameters;
+export default ArrayInputParameters

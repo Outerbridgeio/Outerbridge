@@ -1,49 +1,36 @@
-import { 
-    Entity, 
-    Column, 
-    ObjectIdColumn, 
-    Index, 
-    BeforeInsert,
-    CreateDateColumn,
-    UpdateDateColumn
-} from "typeorm"
-import { ObjectId } from 'mongodb';
+import { Entity, Column, ObjectIdColumn, Index, BeforeInsert, CreateDateColumn, UpdateDateColumn } from 'typeorm'
+import { ObjectId } from 'mongodb'
 
-import {
-	shortId,
-} from '../utils';
+import { shortId } from '../utils'
 
-import {
-	IWorkflow,
-} from '../Interface';
+import { IWorkflow } from '../Interface'
 
 @Entity()
 export class Workflow implements IWorkflow {
-
     @ObjectIdColumn()
-    _id: ObjectId;
+    _id: ObjectId
 
     @Index()
     @Column()
-   	shortId: string;
+    shortId: string
 
-	@BeforeInsert()
-	beforeInsert() {
-		this.shortId = shortId('W', new Date());
-	}
-
-    @Column()
-	name: string;
+    @BeforeInsert()
+    beforeInsert() {
+        this.shortId = shortId('W', new Date())
+    }
 
     @Column()
-	flowData: string;
+    name: string
 
     @Column()
-	deployed: boolean;
+    flowData: string
+
+    @Column()
+    deployed: boolean
 
     @CreateDateColumn()
-    createdDate: Date;
+    createdDate: Date
 
     @UpdateDateColumn()
-    updatedDate: Date;
+    updatedDate: Date
 }

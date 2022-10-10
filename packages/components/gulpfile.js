@@ -1,8 +1,8 @@
-const { src, dest } = require('gulp');
+// // eslint-disable-next-line @typescript-eslint/no-var-requires
+const { src, dest } = require('gulp')
 
 function copyIcons() {
-	return src(['nodes/**/*.{jpg,png,svg}'])
-		.pipe(dest('dist/nodes'));
+    return src(['nodes/**/*.{jpg,png,svg}']).pipe(dest('dist/nodes'))
 }
 
-exports.default = copyIcons;
+exports.default = copyIcons

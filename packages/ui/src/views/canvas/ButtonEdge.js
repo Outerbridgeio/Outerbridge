@@ -1,11 +1,11 @@
-import { getBezierPath, getEdgeCenter, EdgeText } from 'react-flow-renderer';
-import PropTypes from 'prop-types';
-import { useDispatch } from 'react-redux';
-import { REMOVE_EDGE } from 'store/actions';
+import { getBezierPath, getEdgeCenter, EdgeText } from 'react-flow-renderer'
+import PropTypes from 'prop-types'
+import { useDispatch } from 'react-redux'
+import { REMOVE_EDGE } from 'store/actions'
 
-import './index.css';
+import './index.css'
 
-const foreignObjectSize = 40;
+const foreignObjectSize = 40
 
 const ButtonEdge = ({ id, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, style = {}, data, markerEnd }) => {
     const edgePath = getBezierPath({
@@ -15,25 +15,25 @@ const ButtonEdge = ({ id, sourceX, sourceY, targetX, targetY, sourcePosition, ta
         targetX,
         targetY,
         targetPosition
-    });
+    })
 
     const [edgeCenterX, edgeCenterY] = getEdgeCenter({
         sourceX,
         sourceY,
         targetX,
         targetY
-    });
+    })
 
-    const dispatch = useDispatch();
+    const dispatch = useDispatch()
 
     const onEdgeClick = (evt, id) => {
-        evt.stopPropagation();
-        dispatch({ type: REMOVE_EDGE, edgeId: id });
-    };
+        evt.stopPropagation()
+        dispatch({ type: REMOVE_EDGE, edgeId: id })
+    }
 
     return (
         <>
-            <path id={id} style={style} className="react-flow__edge-path" d={edgePath} markerEnd={markerEnd} />
+            <path id={id} style={style} className='react-flow__edge-path' d={edgePath} markerEnd={markerEnd} />
             {data && data.label && (
                 <EdgeText
                     x={sourceX + 10}
@@ -50,18 +50,18 @@ const ButtonEdge = ({ id, sourceX, sourceY, targetX, targetY, sourcePosition, ta
                 height={foreignObjectSize}
                 x={edgeCenterX - foreignObjectSize / 2}
                 y={edgeCenterY - foreignObjectSize / 2}
-                className="edgebutton-foreignobject"
-                requiredExtensions="http://www.w3.org/1999/xhtml"
+                className='edgebutton-foreignobject'
+                requiredExtensions='http://www.w3.org/1999/xhtml'
             >
                 <div>
-                    <button type="button" className="edgebutton" onClick={(event) => onEdgeClick(event, id)}>
+                    <button type='button' className='edgebutton' onClick={(event) => onEdgeClick(event, id)}>
                         ×
                     </button>
                 </div>
             </foreignObject>
         </>
-    );
-};
+    )
+}
 
 ButtonEdge.propTypes = {
     id: PropTypes.string,
@@ -74,6 +74,6 @@ ButtonEdge.propTypes = {
     style: PropTypes.object,
     data: PropTypes.object,
     markerEnd: PropTypes.any
-};
+}
 
-export default ButtonEdge;
+export default ButtonEdge

@@ -1,17 +1,17 @@
-import PropTypes from 'prop-types';
+import PropTypes from 'prop-types'
 
 // material-ui
-import { styled, useTheme } from '@mui/material/styles';
-import { Box, Grid, Chip, Typography } from '@mui/material';
+import { styled, useTheme } from '@mui/material/styles'
+import { Box, Grid, Chip, Typography } from '@mui/material'
 
 // project imports
-import MainCard from 'ui-component/cards/MainCard';
-import SkeletonWorkflowCard from 'ui-component/cards/Skeleton/WorkflowCard';
+import MainCard from 'ui-component/cards/MainCard'
+import SkeletonWorkflowCard from 'ui-component/cards/Skeleton/WorkflowCard'
 
 // Const
-import { networks } from 'store/constant';
+import { networks } from 'store/constant'
 
-import Jazzicon, { jsNumberForAddress } from 'react-jazzicon';
+import Jazzicon, { jsNumberForAddress } from 'react-jazzicon'
 
 const CardWrapper = styled(MainCard)(({ theme }) => ({
     backgroundColor: '#ffffff',
@@ -23,27 +23,27 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
     '&:hover': {
         boxShadow: '0 2px 14px 0 rgb(32 40 45 / 20%)'
     }
-}));
+}))
 
 // ===========================|| CONTRACT CARD ||=========================== //
 
 const ItemCard = ({ isLoading, data, images, onClick }) => {
-    const theme = useTheme();
+    const theme = useTheme()
 
     const chipSX = {
         height: 24,
         padding: '0 6px'
-    };
+    }
 
     const activeWorkflowSX = {
         ...chipSX,
         color: theme.palette.success.dark,
         backgroundColor: theme.palette.success.light
-    };
+    }
 
     const getNetworkItem = (network) => {
-        return networks.find((ntw) => ntw.name === network);
-    };
+        return networks.find((ntw) => ntw.name === network)
+    }
 
     return (
         <>
@@ -52,7 +52,7 @@ const ItemCard = ({ isLoading, data, images, onClick }) => {
             ) : (
                 <CardWrapper border={false} content={false} onClick={onClick}>
                     <Box sx={{ p: 2.25 }}>
-                        <Grid container direction="column">
+                        <Grid container direction='column'>
                             <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                                 {data.address && (
                                     <div style={{ width: 40, height: 40, borderRadius: '50%', backgroundColor: 'white', marginRight: 10 }}>
@@ -61,7 +61,7 @@ const ItemCard = ({ isLoading, data, images, onClick }) => {
                                 )}
                                 <Typography sx={{ fontSize: '1.5rem', fontWeight: 500 }}>{data.name}</Typography>
                             </div>
-                            <Grid sx={{ mt: 1, mb: 1 }} container direction="row">
+                            <Grid sx={{ mt: 1, mb: 1 }} container direction='row'>
                                 <Grid item sx={{ flexGrow: 1 }}>
                                     {data.address && (
                                         <Typography
@@ -92,7 +92,7 @@ const ItemCard = ({ isLoading, data, images, onClick }) => {
                                 </Grid>
                                 {data.deployed && (
                                     <Grid item>
-                                        <Chip label="Deployed" sx={activeWorkflowSX} />
+                                        <Chip label='Deployed' sx={activeWorkflowSX} />
                                     </Grid>
                                 )}
                             </Grid>
@@ -110,7 +110,7 @@ const ItemCard = ({ isLoading, data, images, onClick }) => {
                                         <div key={img} style={{ width: 40, height: 40, borderRadius: '50%', backgroundColor: 'white' }}>
                                             <img
                                                 style={{ width: '100%', height: '100%', padding: 5, objectFit: 'contain' }}
-                                                alt=""
+                                                alt=''
                                                 src={img}
                                             />
                                         </div>
@@ -122,14 +122,14 @@ const ItemCard = ({ isLoading, data, images, onClick }) => {
                 </CardWrapper>
             )}
         </>
-    );
-};
+    )
+}
 
 ItemCard.propTypes = {
     isLoading: PropTypes.bool,
     data: PropTypes.object,
     images: PropTypes.array,
     onClick: PropTypes.func
-};
+}
 
-export default ItemCard;
+export default ItemCard

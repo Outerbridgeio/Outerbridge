@@ -1,16 +1,11 @@
-import axios, { AxiosRequestConfig } from 'axios';
-import {
-    ICommonObject,
-	INodeExecutionData,
-	IWebhookNodeExecutionData,
-	IOAuth2RefreshResponse
-} from './Interface';
-import * as fs from 'fs';
-import * as path from 'path';
+import axios, { AxiosRequestConfig } from 'axios'
+import { ICommonObject, INodeExecutionData, IWebhookNodeExecutionData, IOAuth2RefreshResponse } from './Interface'
+import * as fs from 'fs'
+import * as path from 'path'
 
-export const OAUTH2_REFRESHED = 'oAuth2RefreshedData';
-export const numberOrExpressionRegex = '^(\\d+\\.?\\d*|{{.*}})$'; //return true if string consists only numbers OR expression {{}}
-export const notEmptyRegex = '(.|\\s)*\\S(.|\\s)*'; //return true if string is not empty or blank
+export const OAUTH2_REFRESHED = 'oAuth2RefreshedData'
+export const numberOrExpressionRegex = '^(\\d+\\.?\\d*|{{.*}})$' //return true if string consists only numbers OR expression {{}}
+export const notEmptyRegex = '(.|\\s)*\\S(.|\\s)*' //return true if string is not empty or blank
 
 /**
  * Return responses as INodeExecutionData
@@ -19,36 +14,29 @@ export const notEmptyRegex = '(.|\\s)*\\S(.|\\s)*'; //return true if string is n
  * @param {(ICommonObject | ICommonObject[])} responseData
  * @returns {INodeExecutionData[]}
  */
-export function returnNodeExecutionData(
-	responseData: ICommonObject | ICommonObject[],
-	oAuth2RefreshedData?: any
-): INodeExecutionData[] {
-	const returnData: INodeExecutionData[] = [];
+export function returnNodeExecutionData(responseData: ICommonObject | ICommonObject[], oAuth2RefreshedData?: any): INodeExecutionData[] {
+    const returnData: INodeExecutionData[] = []
 
-	if (!Array.isArray(responseData)) {
-		responseData = [responseData];
-	}
+    if (!Array.isArray(responseData)) {
+        responseData = [responseData]
+    }
 
-	responseData.forEach((data) => {
-		const obj = { data } as ICommonObject;
+    responseData.forEach((data) => {
+        const obj = { data } as ICommonObject
 
-		if (data && data.attachments) {
-			if (Array.isArray(data.attachments) && data.attachments.length) 
-				obj.attachments = data.attachments;
-			else if (!Array.isArray(data.attachments))
-				obj.attachments = data.attachments;
-		}
+        if (data && data.attachments) {
+            if (Array.isArray(data.attachments) && data.attachments.length) obj.attachments = data.attachments
+            else if (!Array.isArray(data.attachments)) obj.attachments = data.attachments
+        }
 
-		if (data && data.html)
-			obj.html = data.html;
+        if (data && data.html) obj.html = data.html
 
-		if (oAuth2RefreshedData && Object.keys(oAuth2RefreshedData).length > 0)
-			obj[OAUTH2_REFRESHED] = oAuth2RefreshedData;
-		
-		returnData.push(obj);
-	});
+        if (oAuth2RefreshedData && Object.keys(oAuth2RefreshedData).length > 0) obj[OAUTH2_REFRESHED] = oAuth2RefreshedData
 
-	return returnData;
+        returnData.push(obj)
+    })
+
+    return returnData
 }
 
 /**
@@ -60,26 +48,26 @@ export function returnNodeExecutionData(
  * @returns {IWebhookNodeExecutionData[]}
  */
 export function returnWebhookNodeExecutionData(
-	responseData: ICommonObject | ICommonObject[], 
-	webhookReturnResponse?: string
+    responseData: ICommonObject | ICommonObject[],
+    webhookReturnResponse?: string
 ): IWebhookNodeExecutionData[] {
-	const returnData: IWebhookNodeExecutionData[] = [];
+    const returnData: IWebhookNodeExecutionData[] = []
 
-	if (!Array.isArray(responseData)) {
-		responseData = [responseData];
-	}
+    if (!Array.isArray(responseData)) {
+        responseData = [responseData]
+    }
 
-	responseData.forEach((data) => {
-		const returnObj = {
-			data,
-		} as IWebhookNodeExecutionData;
+    responseData.forEach((data) => {
+        const returnObj = {
+            data
+        } as IWebhookNodeExecutionData
 
-		if (webhookReturnResponse) returnObj.response = webhookReturnResponse;
+        if (webhookReturnResponse) returnObj.response = webhookReturnResponse
 
-		returnData.push(returnObj);
-	});
+        returnData.push(returnObj)
+    })
 
-	return returnData;
+    return returnData
 }
 
 /**
@@ -91,37 +79,33 @@ export function returnWebhookNodeExecutionData(
  * @returns {string}
  */
 export function serializeQueryParams(params: any, skipIndex?: boolean): string {
-	const parts: any[] = [];
-				
-	const encode = (val: string) => {
-		return encodeURIComponent(val).replace(/%3A/gi, ':')
-			.replace(/%24/g, '$')
-			.replace(/%2C/gi, ',')
-			.replace(/%20/g, '+')
-			.replace(/%5B/gi, '[')
-			.replace(/%5D/gi, ']');
-	}
+    const parts: any[] = []
 
-	const convertPart = (key: string, val: any) => {
-		if (val instanceof Date)
-			val = val.toISOString()
-		else if (val instanceof Object)
-			val = JSON.stringify(val)
+    const encode = (val: string) => {
+        return encodeURIComponent(val)
+            .replace(/%3A/gi, ':')
+            .replace(/%24/g, '$')
+            .replace(/%2C/gi, ',')
+            .replace(/%20/g, '+')
+            .replace(/%5B/gi, '[')
+            .replace(/%5D/gi, ']')
+    }
 
-		parts.push(encode(key) + '=' + encode(val));
-	}
+    const convertPart = (key: string, val: any) => {
+        if (val instanceof Date) val = val.toISOString()
+        else if (val instanceof Object) val = JSON.stringify(val)
 
-	Object.entries(params).forEach(([key, val]) => {
-		if (val === null || typeof val === 'undefined')
-			return
+        parts.push(encode(key) + '=' + encode(val))
+    }
 
-		if (Array.isArray(val))
-			val.forEach((v, i) => convertPart(`${key}${skipIndex ? '' : `[${i}]`}`, v))
-		else
-			convertPart(key, val)
-	})
+    Object.entries(params).forEach(([key, val]) => {
+        if (val === null || typeof val === 'undefined') return
 
-	return parts.join('&');
+        if (Array.isArray(val)) val.forEach((v, i) => convertPart(`${key}${skipIndex ? '' : `[${i}]`}`, v))
+        else convertPart(key, val)
+    })
+
+    return parts.join('&')
 }
 
 /**
@@ -132,27 +116,24 @@ export function serializeQueryParams(params: any, skipIndex?: boolean): string {
  * @returns {string}
  */
 export function handleErrorMessage(error: any): string {
-	let errorMessage = '';
+    let errorMessage = ''
 
-	if(error.message){
-		errorMessage += error.message + '. ';
-	}
+    if (error.message) {
+        errorMessage += error.message + '. '
+    }
 
-	if(error.response && error.response.data){
-		if (error.response.data.error) {
-			if (typeof error.response.data.error === 'object')
-				errorMessage += JSON.stringify(error.response.data.error) + '. ';
-			else if (typeof error.response.data.error === 'string')
-				errorMessage += error.response.data.error + '. ';
-		}
-		else if (error.response.data.msg) errorMessage += error.response.data.msg + '. ';
-		else if (error.response.data.Message) errorMessage += error.response.data.Message + '. ';
-		else if (typeof error.response.data === 'string') errorMessage += error.response.data + '. ';
-	}
+    if (error.response && error.response.data) {
+        if (error.response.data.error) {
+            if (typeof error.response.data.error === 'object') errorMessage += JSON.stringify(error.response.data.error) + '. '
+            else if (typeof error.response.data.error === 'string') errorMessage += error.response.data.error + '. '
+        } else if (error.response.data.msg) errorMessage += error.response.data.msg + '. '
+        else if (error.response.data.Message) errorMessage += error.response.data.Message + '. '
+        else if (typeof error.response.data === 'string') errorMessage += error.response.data + '. '
+    }
 
-	if (!errorMessage) errorMessage = 'Unexpected Error.'
+    if (!errorMessage) errorMessage = 'Unexpected Error.'
 
-	return errorMessage;
+    return errorMessage
 }
 
 /**
@@ -162,60 +143,58 @@ export function handleErrorMessage(error: any): string {
  * @param {ICommonObject} credentials
  */
 export async function refreshOAuth2Token(credentials: ICommonObject) {
-	const url = credentials!.accessTokenUrl as string;
-	const client_id = credentials!.clientID as string;
-	const client_secret = credentials!.clientSecret as string;
-	const refresh_token = credentials!.refresh_token as string;
+    const url = credentials!.accessTokenUrl as string
+    const client_id = credentials!.clientID as string
+    const client_secret = credentials!.clientSecret as string
+    const refresh_token = credentials!.refresh_token as string
 
-	const method = 'POST';
-	const axiosConfig: AxiosRequestConfig = {
-		method,
-		url,
-		data: {
-			grant_type: 'refresh_token',
-			client_id,
-			client_secret,
-			refresh_token
-		},
-		headers: {
-			'Content-Type': 'application/json; charset=utf-8',
-		},
-	}
+    const method = 'POST'
+    const axiosConfig: AxiosRequestConfig = {
+        method,
+        url,
+        data: {
+            grant_type: 'refresh_token',
+            client_id,
+            client_secret,
+            refresh_token
+        },
+        headers: {
+            'Content-Type': 'application/json; charset=utf-8'
+        }
+    }
 
-	try {
-		const response = await axios(axiosConfig);
-		const refreshedTokenResp = response.data;
-		
-		const returnItem: IOAuth2RefreshResponse = {
-			access_token: refreshedTokenResp.access_token,
-			expires_in: refreshedTokenResp.expires_in,
-		}
-		
-		return returnItem;
+    try {
+        const response = await axios(axiosConfig)
+        const refreshedTokenResp = response.data
 
-	} catch(e) {
-		throw handleErrorMessage(e);
-	}
+        const returnItem: IOAuth2RefreshResponse = {
+            access_token: refreshedTokenResp.access_token,
+            expires_in: refreshedTokenResp.expires_in
+        }
+
+        return returnItem
+    } catch (e) {
+        throw handleErrorMessage(e)
+    }
 }
-
 
 /**
  * Returns the path of node modules package
  * @param {string} packageName
  * @returns {string}
  */
- export const getNodeModulesPackagePath = (packageName: string): string => {
+export const getNodeModulesPackagePath = (packageName: string): string => {
     const checkPaths = [
         path.join(__dirname, '..', 'node_modules', packageName),
         path.join(__dirname, '..', '..', 'node_modules', packageName),
         path.join(__dirname, '..', '..', '..', 'node_modules', packageName),
-		path.join(__dirname, '..', '..', '..', '..','node_modules', packageName),
-		path.join(__dirname, '..', '..', '..', '..', '..', 'node_modules', packageName),
-    ];
+        path.join(__dirname, '..', '..', '..', '..', 'node_modules', packageName),
+        path.join(__dirname, '..', '..', '..', '..', '..', 'node_modules', packageName)
+    ]
     for (const checkPath of checkPaths) {
         if (fs.existsSync(checkPath)) {
-            return checkPath;
+            return checkPath
         }
     }
-    return '';
+    return ''
 }

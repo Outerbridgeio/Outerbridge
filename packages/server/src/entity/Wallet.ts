@@ -1,40 +1,31 @@
-import { 
-    Entity, 
-    Column, 
-    ObjectIdColumn, 
-    CreateDateColumn,
-    UpdateDateColumn
-} from "typeorm"
-import { ObjectId } from 'mongodb';
+import { Entity, Column, ObjectIdColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm'
+import { ObjectId } from 'mongodb'
 
-import {
-    IWallet,
-} from '../Interface';
+import { IWallet } from '../Interface'
 
 @Entity()
 export class Wallet implements IWallet {
-
-	@ObjectIdColumn()
-    _id: ObjectId;
-
-	@Column()
-	name: string;
+    @ObjectIdColumn()
+    _id: ObjectId
 
     @Column()
-	address: string;
+    name: string
 
-	@Column()
-	network: string;
+    @Column()
+    address: string
+
+    @Column()
+    network: string
 
     @Column('text', { nullable: true })
-	providerCredential: string;
+    providerCredential: string
 
-	@Column()
-	walletCredential: string;
+    @Column()
+    walletCredential: string
 
-	@CreateDateColumn()
-    createdDate: Date;
+    @CreateDateColumn()
+    createdDate: Date
 
     @UpdateDateColumn()
-    updatedDate: Date;
+    updatedDate: Date
 }
