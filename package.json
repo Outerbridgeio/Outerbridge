@@ -11,13 +11,12 @@
         "dev": "lerna exec yarn dev --parallel",
         "clean": "lerna exec -- rimraf ./dist",
         "test": "lerna yarn test",
-        "lint": "eslint \"**/*.{js,jsx,ts,tsx}\"",
+        "lint": "eslint \"**/*.{js,jsx,ts,tsx,json,css}\"",
         "lint-fix": "yarn lint --fix",
-        "lint-ci": "cross-env CI=true yarn lint",
-        "lint-ci-fix": "yarn lint-ci --fix"
+        "lint-ci": "cross-env CI=true yarn lint"
     },
     "lint-staged": {
-        "*": "yarn lint-ci-fix"
+        "*.{js,jsx,ts,tsx,json}": "cross-env CI=true eslint --fix"
     },
     "devDependencies": {
         "@types/express": "^4.17.13",

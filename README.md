@@ -20,7 +20,7 @@ Detail [documentation](https://gist.github.com/HenryHengZJ/f8fb7dae0300d18a104cc
 
 Watch [Outerbridge Quickstart Demo](https://www.youtube.com/watch?v=x-AfrkKvZ4M) on Youtube (4mins)
 
-## Quickstart
+## Quick Start
 
 1. Install MongoDB from [here](https://www.mongodb.com/try/download/community?tck=docs_server).
 2. `npm install -g outerbridge`

@@ -28,7 +28,7 @@ npm i -g lerna
 
 Outerbridge uses MongoDB as database. Download and install one [here](https://www.mongodb.com/try/download/community?tck=docs_server).
 
-## Quickstart
+## Quick Start
 
 1. npm install -g outerbridge
 2. npx outerbridge start
