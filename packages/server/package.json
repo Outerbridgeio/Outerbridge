@@ -64,11 +64,11 @@
         "@types/cors": "^2.8.12",
         "@types/crypto-js": "^4.1.1",
         "@types/localtunnel": "^2.0.1",
-        "@types/mongodb": "3.6.0",
+        "@types/mongodb": "^3.6.0",
         "concurrently": "^7.1.0",
         "nodemon": "^2.0.15",
         "oclif": "^3",
         "shx": "^0.3.3",
-        "ts-node": "10.7.0"
+        "ts-node": "^10.7.0"
     }
 }

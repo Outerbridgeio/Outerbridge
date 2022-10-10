@@ -1,3 +1,3 @@
-import { client } from './client';
+import { client } from './client'
 
-export const deleteAllTestWebhooks = () => client.post(`/remove-test-webhooks`);
+export const deleteAllTestWebhooks = () => client.post(`/remove-test-webhooks`)

@@ -1,3 +1,3 @@
-export * from './useApi';
-export * from './useConfirm';
-export * from './useScriptRef';
+export * from './useApi'
+export * from './useConfirm'
+export * from './useScriptRef'
