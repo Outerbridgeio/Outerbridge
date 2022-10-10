@@ -14,6 +14,7 @@ export async function init(): Promise<void> {
         type: 'mongodb',
         url: `mongodb://${process.env.MONGO_HOST || 'localhost'}:27017/outerbridge`,
         useNewUrlParser: true,
+        useUnifiedTopology: true,
         synchronize: true,
         logging: false,
         entities: [Workflow, Execution, Credential, Webhook, Contract, Wallet],
