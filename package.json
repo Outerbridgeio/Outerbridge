@@ -20,7 +20,7 @@
         "*.{js,jsx,ts,tsx,json,md}": "cross-env CI=true eslint --fix"
     },
     "dependencies": {
-        "axios": "^0.26.1"
+        "axios": "^0.27.2"
     },
     "devDependencies": {
         "@babel/core": "^7.19.3",

@@ -1,5 +1,5 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-yarn lint-staged # eslint lint and prettify
-yarn quick # prettify file that is not lintable by eslint
+yarn quick # prettify
+yarn lint-staged # eslint lint(also include prettify but prettify support more file extensions than eslint, so run prettify first)
