@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 
-const oclif = require('@oclif/core')
+import oclif, { run } from '@oclif/core'
+import flush from '@oclif/core/flush'
+// @ts-expect-error no declaration file
+import handle from '@oclif/core/handle'
 
 const path = require('path')
 const project = path.join(__dirname, '..', 'tsconfig.json')
@@ -14,4 +17,4 @@ require('ts-node').register({ project })
 oclif.settings.debug = true
 
 // Start the CLI
-oclif.run().then(oclif.flush).catch(oclif.Errors.handle)
+run().then(flush).catch(handle)

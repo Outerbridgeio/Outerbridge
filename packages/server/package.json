@@ -17,15 +17,14 @@
     ],
     "oclif": {
         "bin": "outerbridge",
-        "commands": "./dist/commands"
+        "commands": "./dist/src/commands"
     },
     "scripts": {
         "build": "tsc",
-        "start": "cd bin && run start",
+        "start": "babel-node -x .ts -- bin/run.ts start",
         "dev": "concurrently \"yarn watch\" \"nodemon\"",
-        "oclif-dev": "cd bin && dev start",
+        "oclif-dev": "babel-node -x .ts -- bin/dev.ts start",
         "postpack": "shx rm -f oclif.manifest.json",
-        "posttest": "yarn lint",
         "prepack": "yarn build && oclif manifest && oclif readme",
         "typeorm": "typeorm-ts-node-commonjs",
         "watch": "tsc --watch",
