@@ -15,5 +15,6 @@
         "strictPropertyInitialization": false,
         "useUnknownInCatchVariables": false,
         "declaration": true
-    }
+    },
+    "include": ["src", "nodes", "credentials"]
 }
