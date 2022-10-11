@@ -17,7 +17,7 @@
     ],
     "oclif": {
         "bin": "outerbridge",
-        "commands": "./dist/src/commands"
+        "commands": "./dist/commands"
     },
     "scripts": {
         "build": "tsc",

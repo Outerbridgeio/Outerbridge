@@ -13,5 +13,6 @@
         "sourceMap": true,
         "strictPropertyInitialization": false,
         "declaration": true
-    }
+    },
+    "include": ["src"]
 }

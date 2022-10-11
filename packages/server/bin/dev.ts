@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 
-import oclif, { run } from '@oclif/core'
+import { run, settings } from '@oclif/core'
 import flush from '@oclif/core/flush'
-// @ts-expect-error no declaration file
 import handle from '@oclif/core/handle'
 
 const path = require('path')
@@ -14,7 +13,7 @@ process.env.NODE_ENV = 'development'
 require('ts-node').register({ project })
 
 // In dev mode, always show stack traces
-oclif.settings.debug = true
+settings.debug = true
 
 // Start the CLI
 run().then(flush).catch(handle)
