@@ -6,7 +6,7 @@ const icons = { IconTrash, IconFileUpload, IconFileExport }
 
 // ==============================|| SETTINGS MENU ITEMS ||============================== //
 
-const settings = {
+export const settings = {
     id: 'settings',
     title: '',
     type: 'group',
@@ -33,6 +33,4 @@ const settings = {
             icon: icons.IconTrash
         }
     ]
-}
-
-export default settings
+} as const

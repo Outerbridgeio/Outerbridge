@@ -6,7 +6,7 @@ const icons = { IconHierarchy, IconEditCircle, IconWallet }
 
 // ==============================|| DASHBOARD MENU ITEMS ||============================== //
 
-const dashboard = {
+export const dashboard = {
     id: 'dashboard',
     title: '',
     type: 'group',
@@ -38,4 +38,8 @@ const dashboard = {
     ]
 }
 
-export default dashboard
+// ==============================|| MENU ITEMS ||============================== //
+
+export const menuItems = {
+    items: [dashboard]
+}
