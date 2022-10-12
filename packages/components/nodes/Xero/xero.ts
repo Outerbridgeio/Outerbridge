@@ -45,8 +45,8 @@ class Xero implements INode {
                     },
                     {
                         label: 'Send email',
-                        name: 'sendEmail',
-                        description: 'Send email with invoice'
+                        name: 'sendToEmail',
+                        description: 'Send email with invoice to primary email.'
                     }
                 ],
                 default: 'getXeroBalance'
@@ -81,18 +81,18 @@ class Xero implements INode {
                 type: 'asyncOptions',
                 loadMethod: 'getInvoices',
                 show: {
-                    'actions.operation': ['getSingleInvoice']
-                }
-            },
-            {
-                label: 'Email Address',
-                name: 'emailAddress',
-                type: 'string',
-                description: 'Address to send invoice to.',
-                show: {
-                    'actions.operation': ['sendEmail']
+                    'actions.operation': ['getSingleInvoice', 'sendToEmail']
                 }
             }
+            // {
+            //     label: 'Email Address',
+            //     name: 'emailAddress',
+            //     type: 'string',
+            //     description: 'Address to send invoice to.',
+            //     show: {
+            //         'actions.operation': ['sendEmail']
+            //     }
+            // }
         ] as INodeParams[];
     }
 
@@ -229,8 +229,11 @@ class Xero implements INode {
         const queryParameters: ICommonObject = {};
 
         const invoiceId = inputParametersData?.invoice as string;
-        const emailAddress = inputParametersData?.emailAddress as string;
         const tenantId = inputParametersData?.tenant as string;
+
+        // Need to get these from the response
+        const invoiceType = inputParametersData?.invoiceType as string;
+        const invoiceStatus = inputParametersData?.invoiceStatus as string;
 
         let queryBody: any = {};
         let method: Method = 'POST';
@@ -249,11 +252,21 @@ class Xero implements INode {
                 if (operation === 'getAllInvoices') {
                     method = 'GET';
                     url = `https://api.xero.com/api.xro/2.0/Invoices`;
-                    headers['Xero-tenant-id'] = tenantId;
                 } else if (operation === 'getSingleInvoice') {
                     method = 'GET';
                     url = `https://api.xero.com/api.xro/2.0/Invoices/${invoiceId}`;
-                    headers['Xero-tenant-id'] = tenantId;
+                } else if (operation === 'sendToEmail') {
+                    console.log(inputParametersData);
+                    console.log(invoiceId, invoiceType, invoiceStatus, tenantId);
+
+                    // invoice must be of Type ACCREC and a valid Status for sending (SUBMITTED,AUTHORISED or PAID).
+                    if (
+                        invoiceType === 'ACCREC' &&
+                        (invoiceStatus === 'SUBMITTED' || invoiceStatus === 'AUTHORISED' || invoiceStatus === 'PAID')
+                    ) {
+                        method = 'POST';
+                        url = `https://api.xero.com/api.xro/2.0/Invoices/${invoiceId}/Email`;
+                    }
                 }
 
                 const axiosConfig: AxiosRequestConfig = {
