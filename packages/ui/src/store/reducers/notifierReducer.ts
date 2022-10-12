@@ -1,21 +1,19 @@
-import { ENQUEUE_SNACKBAR, CLOSE_SNACKBAR, REMOVE_SNACKBAR } from '../actions'
+import { ENQUEUE_SNACKBAR, CLOSE_SNACKBAR, REMOVE_SNACKBAR, enqueueSnackbar, closeSnackbar, removeSnackbar } from '../actions'
 
-export const initialState = {
+export const initialState: { notifications: { key: string }[] } = {
     notifications: []
 }
 
-const notifierReducer = (state = initialState, action) => {
+type EnqueueSnackbarR = ReturnType<typeof enqueueSnackbar>
+type CloseSnackbarR = ReturnType<typeof closeSnackbar>
+type RemoveSnackbarR = ReturnType<typeof removeSnackbar>
+
+export const notifierReducer = (state = initialState, action: EnqueueSnackbarR | CloseSnackbarR | RemoveSnackbarR) => {
     switch (action.type) {
         case ENQUEUE_SNACKBAR:
             return {
                 ...state,
-                notifications: [
-                    ...state.notifications,
-                    {
-                        key: action.key,
-                        ...action.notification
-                    }
-                ]
+                notifications: [...state.notifications, action.notification]
             }
 
         case CLOSE_SNACKBAR:
@@ -36,5 +34,3 @@ const notifierReducer = (state = initialState, action) => {
             return state
     }
 }
-
-export default notifierReducer

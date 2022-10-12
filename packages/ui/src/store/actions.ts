@@ -20,7 +20,23 @@ export const REMOVE_SNACKBAR = 'REMOVE_SNACKBAR'
 export const SHOW_CONFIRM = 'SHOW_CONFIRM'
 export const HIDE_CONFIRM = 'HIDE_CONFIRM'
 
-export const enqueueSnackbar = (notification) => {
+export type ACTION_TYPES =
+    | typeof SET_MENU
+    | typeof MENU_TOGGLE
+    | typeof MENU_OPEN
+    | typeof SET_FONT_FAMILY
+    | typeof SET_BORDER_RADIUS
+    | typeof REMOVE_EDGE
+    | typeof SET_DIRTY
+    | typeof REMOVE_DIRTY
+    | typeof SET_WORKFLOW
+    | typeof ENQUEUE_SNACKBAR
+    | typeof CLOSE_SNACKBAR
+    | typeof REMOVE_SNACKBAR
+    | typeof SHOW_CONFIRM
+    | typeof HIDE_CONFIRM
+
+export const enqueueSnackbar = (notification: { options?: { key: string } }) => {
     const key = notification.options && notification.options.key
 
     return {
@@ -29,16 +45,18 @@ export const enqueueSnackbar = (notification) => {
             ...notification,
             key: key || new Date().getTime() + Math.random()
         }
-    }
+    } as const
 }
 
-export const closeSnackbar = (key) => ({
-    type: CLOSE_SNACKBAR,
-    dismissAll: !key, // dismiss all if no key has been defined
-    key
-})
+export const closeSnackbar = (key: string) =>
+    ({
+        type: CLOSE_SNACKBAR,
+        dismissAll: !key, // dismiss all if no key has been defined
+        key
+    } as const)
 
-export const removeSnackbar = (key) => ({
-    type: REMOVE_SNACKBAR,
-    key
-})
+export const removeSnackbar = (key: string) =>
+    ({
+        type: REMOVE_SNACKBAR,
+        key
+    } as const)

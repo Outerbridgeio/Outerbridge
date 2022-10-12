@@ -1,6 +1,6 @@
 import { useContext } from 'react'
 import ConfirmContext from 'store/context/ConfirmContext'
-import { HIDE_CONFIRM, SHOW_CONFIRM } from 'store/actions'
+import { actions } from 'store'
 
 let resolveCallback: (...args: unknown[]) => unknown
 
@@ -9,7 +9,7 @@ export const useConfirm = () => {
 
     const closeConfirm = () => {
         dispatch({
-            type: HIDE_CONFIRM
+            type: actions.HIDE_CONFIRM
         })
     }
 
@@ -24,7 +24,7 @@ export const useConfirm = () => {
     }
     const confirm = (confirmPayload: unknown) => {
         dispatch({
-            type: SHOW_CONFIRM,
+            type: actions.SHOW_CONFIRM,
             payload: confirmPayload
         })
         return new Promise((res) => {

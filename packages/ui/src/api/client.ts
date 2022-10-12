@@ -1,8 +1,8 @@
 import axios from 'axios'
-import { baseURL } from 'store/constant'
+import { constant } from 'store'
 
 export const client = axios.create({
-    baseURL: `${baseURL}/api/v1`,
+    baseURL: `${constant.baseURL}/api/v1`,
     headers: {
         'Content-type': 'application/json'
     }

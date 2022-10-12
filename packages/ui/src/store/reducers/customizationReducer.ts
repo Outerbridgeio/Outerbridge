@@ -2,7 +2,7 @@
 import config from 'config'
 
 // action - state management
-import * as actionTypes from '../actions'
+import { MENU_OPEN, SET_MENU, SET_FONT_FAMILY, SET_BORDER_RADIUS } from '../actions'
 
 export const initialState = {
     isOpen: [], // for active default menu
@@ -13,26 +13,33 @@ export const initialState = {
 
 // ==============================|| CUSTOMIZATION REDUCER ||============================== //
 
-const customizationReducer = (state = initialState, action) => {
+export const customizationReducer = (
+    state = initialState,
+    action:
+        | { type: typeof MENU_OPEN; id: string }
+        | { type: typeof SET_MENU; opened: boolean }
+        | { type: typeof SET_FONT_FAMILY; fontFamily: string }
+        | { type: typeof SET_BORDER_RADIUS; borderRadius: string }
+) => {
     let id
     switch (action.type) {
-        case actionTypes.MENU_OPEN:
+        case MENU_OPEN:
             id = action.id
             return {
                 ...state,
                 isOpen: [id]
             }
-        case actionTypes.SET_MENU:
+        case SET_MENU:
             return {
                 ...state,
                 opened: action.opened
             }
-        case actionTypes.SET_FONT_FAMILY:
+        case SET_FONT_FAMILY:
             return {
                 ...state,
                 fontFamily: action.fontFamily
             }
-        case actionTypes.SET_BORDER_RADIUS:
+        case SET_BORDER_RADIUS:
             return {
                 ...state,
                 borderRadius: action.borderRadius
@@ -41,5 +48,3 @@ const customizationReducer = (state = initialState, action) => {
             return state
     }
 }
-
-export default customizationReducer

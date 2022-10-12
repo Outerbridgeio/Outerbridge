@@ -8,7 +8,10 @@ export const initialState = {
     cancelButtonName: 'Cancel'
 }
 
-const alertReducer = (state = initialState, action) => {
+export const dialogReducer = (
+    state = initialState,
+    action: { type: typeof SHOW_CONFIRM; payload: typeof initialState } | { type: typeof HIDE_CONFIRM }
+) => {
     switch (action.type) {
         case SHOW_CONFIRM:
             return {
@@ -24,5 +27,3 @@ const alertReducer = (state = initialState, action) => {
             return state
     }
 }
-
-export default alertReducer
