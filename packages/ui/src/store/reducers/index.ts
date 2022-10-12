@@ -8,9 +8,11 @@ import { dialogReducer } from './dialogReducer'
 
 // ==============================|| COMBINE REDUCER ||============================== //
 
-export const reducer = combineReducers({
+export const combinedReducers = combineReducers({
     customization: customizationReducer,
     canvas: canvasReducer,
     notifier: notifierReducer,
     dialog: dialogReducer
 })
+
+export * as dialog from './dialogReducer'

@@ -1,11 +1,10 @@
 import { useContext } from 'react'
-import ConfirmContext from 'store/context/ConfirmContext'
-import { actions } from 'store'
+import { context, actions, reducer } from 'store'
 
 let resolveCallback: (...args: unknown[]) => unknown
 
 export const useConfirm = () => {
-    const [confirmState, dispatch] = useContext(ConfirmContext)
+    const [confirmState, dispatch] = useContext(context.ConfirmContext)
 
     const closeConfirm = () => {
         dispatch({
@@ -22,7 +21,7 @@ export const useConfirm = () => {
         closeConfirm()
         resolveCallback(false)
     }
-    const confirm = (confirmPayload: unknown) => {
+    const confirm = (confirmPayload: typeof reducer.dialog.initialState) => {
         dispatch({
             type: actions.SHOW_CONFIRM,
             payload: confirmPayload
