@@ -13,7 +13,7 @@ import MainCard from 'ui-component/cards/MainCard'
 import Transitions from 'ui-component/extended/Transitions'
 import NavItem from 'layout/MainLayout/Sidebar/MenuList/NavItem'
 
-import settings from 'menu-items/settings'
+import { settings } from 'menu-items'
 
 // ==============================|| SETTINGS ||============================== //
 
