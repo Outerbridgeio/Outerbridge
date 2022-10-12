@@ -39,7 +39,7 @@ class Xero implements INode {
                         description: 'Returns all the invoices from Xero account.'
                     },
                     {
-                        label: 'Get single invoices',
+                        label: 'Get single invoice',
                         name: 'getSingleInvoice',
                         description: 'Returns single invoice from Xero account.'
                     },
@@ -77,9 +77,9 @@ class Xero implements INode {
             },
             {
                 label: 'Invoice',
-                name: 'invoiceId',
+                name: 'invoice',
                 type: 'asyncOptions',
-                loadMethod: 'getAllInvoices',
+                loadMethod: 'getInvoices',
                 show: {
                     'actions.operation': ['getSingleInvoice']
                 }
@@ -89,7 +89,7 @@ class Xero implements INode {
                 name: 'emailAddress',
                 type: 'string',
                 description: 'Address to send invoice to.',
-                hide: {
+                show: {
                     'actions.operation': ['sendEmail']
                 }
             }
@@ -141,6 +141,63 @@ class Xero implements INode {
                 }
             } while (--maxRetries);
             return returnData;
+        },
+
+        async getInvoices(nodeData: INodeData): Promise<INodeOptionsValue[]> {
+            const returnData: INodeOptionsValue[] = [];
+
+            const credentials = nodeData.credentials;
+            const inputParameters = nodeData.inputParameters;
+
+            if (credentials === undefined || inputParameters === undefined) {
+                return returnData;
+            }
+
+            // Get credentials
+            const tenantId = inputParameters.tenant as string;
+            const token_type = credentials!.token_type as string;
+            const access_token = credentials!.access_token as string;
+
+            const headers: AxiosRequestHeaders = {
+                Accept: 'application/json',
+                Authorization: `${token_type} ${access_token}`,
+                'Xero-tenant-id': tenantId
+            };
+
+            if (tenantId === undefined || token_type === undefined || access_token === undefined) {
+                return returnData;
+            }
+
+            const axiosConfig: AxiosRequestConfig = {
+                method: 'GET',
+                url: `https://api.xero.com/api.xro/2.0/Invoices`,
+                headers
+            };
+            let maxRetries = 5;
+            do {
+                try {
+                    const response = await axios(axiosConfig);
+
+                    const responseData = response.data;
+
+                    for (const invoice of responseData.Invoices || []) {
+                        returnData.push({
+                            label: `${invoice.Contact.Name as string} - ${invoice.InvoiceNumber as string} `,
+                            name: invoice.InvoiceID as string
+                        });
+                    }
+
+                    return returnData;
+                } catch (e) {
+                    if (e.response && e.response.status === 401) {
+                        const { access_token } = await refreshOAuth2Token(credentials);
+                        headers['Authorization'] = `${token_type} ${access_token}`;
+                        continue;
+                    }
+                    return returnData;
+                }
+            } while (--maxRetries);
+            return returnData;
         }
     };
 
@@ -170,17 +227,19 @@ class Xero implements INode {
 
         let url = '';
         const queryParameters: ICommonObject = {};
+
+        const invoiceId = inputParametersData?.invoice as string;
+        const emailAddress = inputParametersData?.emailAddress as string;
+        const tenantId = inputParametersData?.tenant as string;
+
         let queryBody: any = {};
         let method: Method = 'POST';
 
         const headers: AxiosRequestHeaders = {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            authorization: `${token_type} ${access_token}`
+            Accept: 'application/json',
+            authorization: `${token_type} ${access_token}`,
+            'Xero-tenant-id': tenantId
         };
-
-        const invoiceId = inputParametersData?.invoiceId as string;
-        const emailAddress = inputParametersData?.emailAddress as string;
-        const tenantId = inputParametersData?.tenant as string;
 
         let maxRetries = 5;
         let oAuth2RefreshedData: any = {};
@@ -190,6 +249,10 @@ class Xero implements INode {
                 if (operation === 'getAllInvoices') {
                     method = 'GET';
                     url = `https://api.xero.com/api.xro/2.0/Invoices`;
+                    headers['Xero-tenant-id'] = tenantId;
+                } else if (operation === 'getSingleInvoice') {
+                    method = 'GET';
+                    url = `https://api.xero.com/api.xro/2.0/Invoices/${invoiceId}`;
                     headers['Xero-tenant-id'] = tenantId;
                 }
 
