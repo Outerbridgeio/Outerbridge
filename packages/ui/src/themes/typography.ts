@@ -1,11 +1,12 @@
+import { Theme } from './theme'
+
 /**
  * Typography used in theme
- * @param {JsonObject} theme theme customization object
  */
 
-export default function themeTypography(theme) {
+export function themeTypographyCreator(theme: Theme) {
     return {
-        fontFamily: theme?.customization?.fontFamily,
+        fontFamily: theme.customization.fontFamily,
         h6: {
             fontWeight: 500,
             color: theme.heading,
@@ -71,7 +72,7 @@ export default function themeTypography(theme) {
             '& > label': {
                 top: 23,
                 left: 0,
-                color: theme.grey500,
+                color: theme.colors.grey500,
                 '&[data-shrink="false"]': {
                     top: 5
                 }
@@ -94,7 +95,7 @@ export default function themeTypography(theme) {
             padding: '20px',
             marginTop: '75px',
             marginRight: '20px',
-            borderRadius: `${theme?.customization?.borderRadius}px`
+            borderRadius: `${theme.customization.borderRadius}px`
         },
         menuCaption: {
             fontSize: '0.875rem',
@@ -129,5 +130,5 @@ export default function themeTypography(theme) {
             height: '44px',
             fontSize: '1.5rem'
         }
-    }
+    } as const
 }

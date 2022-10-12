@@ -1,5 +1,7 @@
-export default function componentStyleOverrides(theme) {
-    const bgColor = theme.colors?.grey50
+import { Theme } from './theme'
+
+export function componentStyleOverrides(theme: Theme) {
+    const bgColor = theme.colors.grey50
     return {
         MuiButton: {
             styleOverrides: {
@@ -18,14 +20,14 @@ export default function componentStyleOverrides(theme) {
                     backgroundImage: 'none'
                 },
                 rounded: {
-                    borderRadius: `${theme?.customization?.borderRadius}px`
+                    borderRadius: `${theme.customization.borderRadius}px`
                 }
             }
         },
         MuiCardHeader: {
             styleOverrides: {
                 root: {
-                    color: theme.colors?.textDark,
+                    color: theme.colors.darkTextPrimary,
                     padding: '24px'
                 },
                 title: {
@@ -103,12 +105,12 @@ export default function componentStyleOverrides(theme) {
             styleOverrides: {
                 root: {
                     background: bgColor,
-                    borderRadius: `${theme?.customization?.borderRadius}px`,
+                    borderRadius: `${theme.customization.borderRadius}px`,
                     '& .MuiOutlinedInput-notchedOutline': {
-                        borderColor: theme.colors?.grey400
+                        borderColor: theme.colors.grey300
                     },
                     '&:hover $notchedOutline': {
-                        borderColor: theme.colors?.primaryLight
+                        borderColor: theme.colors.primaryLight
                     },
                     '&.MuiInputBase-multiline': {
                         padding: 1
@@ -118,7 +120,7 @@ export default function componentStyleOverrides(theme) {
                     fontWeight: 500,
                     background: bgColor,
                     padding: '15.5px 14px',
-                    borderRadius: `${theme?.customization?.borderRadius}px`,
+                    borderRadius: `${theme.customization.borderRadius}px`,
                     '&.MuiInputBase-inputSizeSmall': {
                         padding: '10px 14px',
                         '&.MuiInputBase-inputAdornedStart': {
@@ -130,7 +132,7 @@ export default function componentStyleOverrides(theme) {
                     paddingLeft: 4
                 },
                 notchedOutline: {
-                    borderRadius: `${theme?.customization?.borderRadius}px`
+                    borderRadius: `${theme.customization.borderRadius}px`
                 }
             }
         },
@@ -138,7 +140,7 @@ export default function componentStyleOverrides(theme) {
             styleOverrides: {
                 root: {
                     '&.Mui-disabled': {
-                        color: theme.colors?.grey300
+                        color: theme.colors.grey300
                     }
                 },
                 mark: {
@@ -146,7 +148,7 @@ export default function componentStyleOverrides(theme) {
                     width: '4px'
                 },
                 valueLabel: {
-                    color: theme?.colors?.primaryLight
+                    color: theme.colors.primaryLight
                 }
             }
         },
@@ -161,8 +163,8 @@ export default function componentStyleOverrides(theme) {
         MuiAvatar: {
             styleOverrides: {
                 root: {
-                    color: theme.colors?.primaryDark,
-                    background: theme.colors?.primary200
+                    color: theme.colors.primaryDark,
+                    background: theme.colors.primary200
                 }
             }
         },
@@ -179,9 +181,9 @@ export default function componentStyleOverrides(theme) {
             styleOverrides: {
                 tooltip: {
                     color: theme.paper,
-                    background: theme.colors?.grey700
+                    background: theme.colors.grey700
                 }
             }
         }
-    }
+    } as const
 }
