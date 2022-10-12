@@ -1,7 +1,6 @@
-import { ICommonObject, INode, INodeData, INodeExecutionData, INodeParams, NodeType } from '../../src/Interface';
+import { ICommonObject, INode, INodeData, INodeExecutionData, INodeOptionsValue, INodeParams, NodeType } from '../../src/Interface';
 import { handleErrorMessage, refreshOAuth2Token, returnNodeExecutionData, serializeQueryParams } from '../../src/utils';
 import axios, { AxiosRequestConfig, AxiosRequestHeaders, Method } from 'axios';
-import { Buffer } from 'buffer';
 
 class Xero implements INode {
     label: string;
@@ -36,8 +35,13 @@ class Xero implements INode {
                 options: [
                     {
                         label: 'Get all invoices',
-                        name: 'getAll',
+                        name: 'getAllInvoices',
                         description: 'Returns all the invoices from Xero account.'
+                    },
+                    {
+                        label: 'Get single invoices',
+                        name: 'getSingleInvoice',
+                        description: 'Returns single invoice from Xero account.'
                     },
                     {
                         label: 'Send email',
@@ -66,12 +70,18 @@ class Xero implements INode {
 
         this.inputParameters = [
             {
+                label: 'Tenant',
+                name: 'tenant',
+                type: 'asyncOptions',
+                loadMethod: 'getTenants'
+            },
+            {
                 label: 'Invoice',
                 name: 'invoiceId',
                 type: 'asyncOptions',
                 loadMethod: 'getAllInvoices',
                 show: {
-                    'actions.operation': ['create']
+                    'actions.operation': ['getSingleInvoice']
                 }
             },
             {
@@ -79,12 +89,60 @@ class Xero implements INode {
                 name: 'emailAddress',
                 type: 'string',
                 description: 'Address to send invoice to.',
-                show: {
+                hide: {
                     'actions.operation': ['sendEmail']
                 }
             }
         ] as INodeParams[];
     }
+
+    loadMethods = {
+        async getTenants(nodeData: INodeData): Promise<INodeOptionsValue[]> {
+            const returnData: INodeOptionsValue[] = [];
+
+            const credentials = nodeData.credentials;
+
+            if (credentials === undefined) {
+                return returnData;
+            }
+
+            // Get credentials
+            const token_type = credentials!.token_type as string;
+            const access_token = credentials!.access_token as string;
+            const headers: AxiosRequestHeaders = {
+                'Content-Type': 'application/json',
+                Authorization: `${token_type} ${access_token}`
+            };
+
+            const axiosConfig: AxiosRequestConfig = {
+                method: 'GET',
+                url: `https://api.xero.com/connections`,
+                headers
+            };
+            let maxRetries = 5;
+            do {
+                try {
+                    const response = await axios(axiosConfig);
+                    const responseData = response.data;
+                    for (const tenant of responseData || []) {
+                        returnData.push({
+                            label: tenant.tenantName as string,
+                            name: tenant.tenantId as string
+                        });
+                    }
+                    return returnData;
+                } catch (e) {
+                    if (e.response && e.response.status === 401) {
+                        const { access_token } = await refreshOAuth2Token(credentials);
+                        headers['Authorization'] = `${token_type} ${access_token}`;
+                        continue;
+                    }
+                    return returnData;
+                }
+            } while (--maxRetries);
+            return returnData;
+        }
+    };
 
     async run(nodeData: INodeData): Promise<INodeExecutionData[] | null> {
         // function to start running node
@@ -102,37 +160,37 @@ class Xero implements INode {
         // Get Operation
         const operation = actionsData.operation as string;
 
-        // Get credentials
-        const clientId = credentials!.clientId as string;
-        const clientSecret = credentials!.clientSecret as string;
+        // Get credentials https://developer.xero.com/documentation/guides/oauth2/auth-flow/#4-receive-your-tokens
         const token_type = credentials!.token_type as string;
-        const accessTokenUrl = credentials!.accessTokenUrl as string;
-        const expires_in = credentials!.expires_in as string;
-        const refresh_token = credentials!.refresh_token as string;
+        const access_token = credentials!.access_token as string;
 
         const returnData: ICommonObject[] = [];
+
         let responseData: any;
 
         let url = '';
         const queryParameters: ICommonObject = {};
         let queryBody: any = {};
         let method: Method = 'POST';
+
         const headers: AxiosRequestHeaders = {
             'Content-Type': 'application/x-www-form-urlencoded',
-            authorization: `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`,
-            grant_type: 'authorization_code'
+            authorization: `${token_type} ${access_token}`
         };
 
         const invoiceId = inputParametersData?.invoiceId as string;
         const emailAddress = inputParametersData?.emailAddress as string;
+        const tenantId = inputParametersData?.tenant as string;
 
         let maxRetries = 5;
         let oAuth2RefreshedData: any = {};
 
         do {
             try {
-                if (operation === 'sendEmail') {
-                    console.log('Im trying to send email with an invoice');
+                if (operation === 'getAllInvoices') {
+                    method = 'GET';
+                    url = `https://api.xero.com/api.xro/2.0/Invoices`;
+                    headers['Xero-tenant-id'] = tenantId;
                 }
 
                 const axiosConfig: AxiosRequestConfig = {
@@ -154,9 +212,6 @@ class Xero implements INode {
                 responseData = response.data;
                 break;
             } catch (error) {
-                if (error.request) {
-                    console.log(error.request);
-                }
                 if (error.response && error.response.status === 401) {
                     const { access_token, expires_in } = await refreshOAuth2Token(credentials);
                     headers['Authorization'] = `${token_type} ${access_token}`;
