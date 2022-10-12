@@ -9,7 +9,7 @@ const Canvas = Loadable(lazy(() => import('views/canvas')))
 
 // ==============================|| CANVAS ROUTING ||============================== //
 
-const CanvasRoutes = {
+export const CanvasRoutes = {
     path: '/',
     element: <MinimalLayout />,
     children: [
@@ -23,5 +23,3 @@ const CanvasRoutes = {
         }
     ]
 }
-
-export default CanvasRoutes

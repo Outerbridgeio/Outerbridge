@@ -4,7 +4,7 @@ import { ThemeProvider } from '@mui/material/styles'
 import { CssBaseline, StyledEngineProvider } from '@mui/material'
 
 // routing
-import Routes from 'routes'
+import { ThemeRoutes } from 'routes'
 
 // defaultTheme
 import { themeCreator } from 'themes'
@@ -22,7 +22,7 @@ const App = () => {
             <ThemeProvider theme={themeCreator(customization)}>
                 <CssBaseline />
                 <NavigationScroll>
-                    <Routes />
+                    <ThemeRoutes />
                 </NavigationScroll>
             </ThemeProvider>
         </StyledEngineProvider>

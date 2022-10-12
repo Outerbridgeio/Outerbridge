@@ -15,7 +15,7 @@ const Wallets = Loadable(lazy(() => import('views/wallets')))
 
 // ==============================|| MAIN ROUTING ||============================== //
 
-const MainRoutes = {
+export const MainRoutes = {
     path: '/',
     element: <MainLayout />,
     children: [
@@ -37,5 +37,3 @@ const MainRoutes = {
         }
     ]
 }
-
-export default MainRoutes
