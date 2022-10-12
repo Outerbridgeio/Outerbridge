@@ -1,26 +1,25 @@
-import React from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { useSnackbar } from 'notistack'
-import { removeSnackbar } from 'store/actions'
+import { useEffect } from 'react'
+import { useDispatch, useSelector, actions } from 'store'
+import { useSnackbar, SnackbarKey } from 'notistack'
 
-let displayed = []
+let displayed: SnackbarKey[] = []
 
-const useNotifier = () => {
+export const useNotifier = () => {
     const dispatch = useDispatch()
     const notifier = useSelector((state) => state.notifier)
     const { notifications } = notifier
 
     const { enqueueSnackbar, closeSnackbar } = useSnackbar()
 
-    const storeDisplayed = (id) => {
+    const storeDisplayed = (id: SnackbarKey) => {
         displayed = [...displayed, id]
     }
 
-    const removeDisplayed = (id) => {
+    const removeDisplayed = (id: SnackbarKey) => {
         displayed = [...displayed.filter((key) => id !== key)]
     }
 
-    React.useEffect(() => {
+    useEffect(() => {
         notifications.forEach(({ key, message, options = {}, dismissed = false }) => {
             if (dismissed) {
                 // dismiss snackbar using notistack
@@ -35,14 +34,10 @@ const useNotifier = () => {
             enqueueSnackbar(message, {
                 key,
                 ...options,
-                onClose: (event, reason, myKey) => {
-                    if (options.onClose) {
-                        options.onClose(event, reason, myKey)
-                    }
-                },
+                onClose: options.onClose,
                 onExited: (event, myKey) => {
                     // remove this snackbar from redux store
-                    dispatch(removeSnackbar(myKey))
+                    dispatch(actions.removeSnackbar(myKey))
                     removeDisplayed(myKey)
                 }
             })
@@ -52,5 +47,3 @@ const useNotifier = () => {
         })
     }, [notifications, closeSnackbar, enqueueSnackbar, dispatch])
 }
-
-export default useNotifier

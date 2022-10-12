@@ -3,30 +3,35 @@ import moment from 'moment'
 
 export const numberOrExpressionRegex = /^(\d+\.?\d*|{{.*}})$/ //return true if string consists only numbers OR expression {{}}
 
-export const constructNodeDirectedGraph = (nodes, edges, reverse = false) => {
-    const graph = {}
-    const nodeDependencies = {}
+type Nodes = { id: string; data?: { type?: 'trigger' | 'webhook' } }[]
+type NodeDependencies = Record<string, number>
+type Graph = Record<string, string[]>
+type Edges = { source: string; target: string }[]
+
+export const constructNodeDirectedGraph = (nodes: Nodes, edges: Edges, reverse = false) => {
+    const graph: Graph = {}
+    const nodeDependencies: NodeDependencies = {}
 
     // Initialize node dependencies and graph
     for (let i = 0; i < nodes.length; i += 1) {
-        const nodeId = nodes[i].id
+        const nodeId = nodes[i]!.id
         nodeDependencies[nodeId] = 0
         graph[nodeId] = []
     }
 
     for (let i = 0; i < edges.length; i += 1) {
-        const source = edges[i].source
-        const target = edges[i].target
+        const source = edges[i]!.source
+        const target = edges[i]!.target
 
         if (Object.prototype.hasOwnProperty.call(graph, source)) {
-            graph[source].push(target)
+            graph[source]?.push(target)
         } else {
             graph[source] = [target]
         }
 
         if (reverse) {
             if (Object.prototype.hasOwnProperty.call(graph, target)) {
-                graph[target].push(source)
+                graph[target]?.push(source)
             } else {
                 graph[target] = [source]
             }
@@ -39,12 +44,12 @@ export const constructNodeDirectedGraph = (nodes, edges, reverse = false) => {
 }
 
 // Find starting node with 0 dependencies
-export const findStartingNodeIds = (nodes, nodeDependencies) => {
-    const startingNodeIds = []
+export const findStartingNodeIds = (nodes: Nodes, nodeDependencies: NodeDependencies) => {
+    const startingNodeIds: string[] = []
     Object.keys(nodeDependencies).forEach((nodeId) => {
         if (nodeDependencies[nodeId] === 0) {
             const node = nodes.find((nd) => nd.id === nodeId)
-            if (node && node.data && node.data.type && (node.data.type === 'trigger' || node.data.type === 'webhook')) {
+            if (node?.data?.type === 'trigger' || node?.data?.type === 'webhook') {
                 startingNodeIds.push(nodeId)
             }
         }
@@ -53,38 +58,9 @@ export const findStartingNodeIds = (nodes, nodeDependencies) => {
     return startingNodeIds
 }
 
-// Backtrack function to find all paths from start to target node
-export const getAllPathsFromStartToTarget = (startNodeId, targetNodeId, graph) => {
-    const paths = []
-    const visitedNodeIds = new Set()
-
-    const DFS = (currentNodeId, endNodeId, tempPath) => {
-        if (currentNodeId === endNodeId) {
-            paths.push(lodash.cloneDeep(tempPath))
-            return
-        }
-
-        const neighbourNodeIds = graph[currentNodeId]
-        visitedNodeIds.add(currentNodeId)
-
-        for (let i = 0; i < neighbourNodeIds.length; i += 1) {
-            const neighNodeId = neighbourNodeIds[i]
-            if (!visitedNodeIds.has(neighNodeId)) {
-                tempPath.push(neighNodeId)
-                DFS(neighNodeId, endNodeId, tempPath)
-                tempPath.pop()
-            }
-        }
-        visitedNodeIds.delete(currentNodeId)
-    }
-
-    DFS(startNodeId, targetNodeId, [startNodeId])
-    return paths
-}
-
 // Breadth First Search to get all connected parent nodes from target
-export const getAllConnectedNodesFromTarget = (targetNodeId, edges, graph) => {
-    const nodeQueue = []
+export const getAllConnectedNodesFromTarget = (targetNodeId: string, edges: Edges, graph: Graph) => {
+    const nodeQueue: string[] = []
     const exploredNodes = []
 
     nodeQueue.push(targetNodeId)

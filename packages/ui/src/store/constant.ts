@@ -1,7 +1,7 @@
 // constant
-export const gridSpacing = 3
-export const drawerWidth = 260
-export const appDrawerWidth = 320
+export const gridSpacing = 3 as const
+export const drawerWidth = 260 as const
+export const appDrawerWidth = 320 as const
 export const baseURL = process.env.NODE_ENV === 'production' ? window.location.origin : window.location.origin.replace(':8080', ':3000')
 export const networkExplorers = {
     homestead: 'https://etherscan.io',
@@ -99,7 +99,7 @@ export const networks = [
         uri: 'https://api-testnet.arbiscan.io/api',
         color: '#023e8a'
     }
-]
+] as const
 
 export const network_details = {
     networks: [

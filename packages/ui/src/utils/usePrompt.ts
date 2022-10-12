@@ -1,15 +1,18 @@
+import { History, Transition } from 'history'
 import { useCallback, useContext, useEffect } from 'react'
+import { Navigator } from 'react-router'
 import { UNSAFE_NavigationContext as NavigationContext } from 'react-router-dom'
 
 // https://stackoverflow.com/questions/71572678/react-router-v-6-useprompt-typescript
 
-export function useBlocker(blocker, when = true) {
+type ExtendNavigator = Navigator & Pick<History, 'block'>
+export function useBlocker(blocker: (tx: Transition) => void, when = true) {
     const { navigator } = useContext(NavigationContext)
 
     useEffect(() => {
         if (!when) return
 
-        const unblock = navigator.block((tx) => {
+        const unblock = (navigator as ExtendNavigator).block((tx) => {
             const autoUnblockingTx = {
                 ...tx,
                 retry() {
@@ -25,9 +28,9 @@ export function useBlocker(blocker, when = true) {
     }, [navigator, blocker, when])
 }
 
-export function usePrompt(message, when = true) {
+export default function usePrompt(message: string, when = true) {
     const blocker = useCallback(
-        (tx) => {
+        (tx: Transition) => {
             if (window.confirm(message)) tx.retry()
         },
         [message]

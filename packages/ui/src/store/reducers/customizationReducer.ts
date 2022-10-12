@@ -1,5 +1,5 @@
 // project imports
-import config from 'config'
+import { config } from 'config'
 
 // action - state management
 import { MENU_OPEN, SET_MENU, SET_FONT_FAMILY, SET_BORDER_RADIUS } from '../actions'
