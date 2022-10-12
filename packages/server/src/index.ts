@@ -7,6 +7,7 @@ import { ObjectId } from 'mongodb';
 import { Server, Socket } from "socket.io";
 import http from "http";
 import { ethers } from 'ethers';
+import ClientOAuth2 from 'client-oauth2';
 
 import { 
     IComponentCredentialsPool, 
@@ -1383,29 +1384,37 @@ export class App {
             // Get access_token and refresh_token
             const accessTokenUrl = decryptedCredentialData.accessTokenUrl as string;
             const client_id = decryptedCredentialData.clientID as string;
-            const client_secret = decryptedCredentialData.clientSecret as string;
+            const client_secret = decryptedCredentialData.clientSecret as string | undefined;
+            const authUrl = decryptedCredentialData.authUrl as string;
+            const scope = decryptedCredentialData.scope as string;
+            let scopeArray: string[] = [];
+            try {
+                scopeArray = JSON.parse(scope.replace(/\s/g, ''));
+            } catch (e) {
+                return res.status(500).send(e);
+            }
+          
             const baseURL = req.get('host');
             const redirect_uri = `${req.protocol}://${baseURL}/api/v1/oauth2/callback`;
-            
-            const axiosConfig: AxiosRequestConfig = {
-                method: 'POST' as Method,
-                url: accessTokenUrl,
-                data: {
-                    grant_type: 'authorization_code',
-                    code,
-                    client_id,
-                    client_secret,
-                    redirect_uri
-                },
-                headers: {
-                    'Content-Type': 'application/json; charset=utf-8',
-                },
-            };
 
-            const response = await axios(axiosConfig);
-            const responseData: IOAuth2Response = response.data;
+            const oAuth2Parameters = {
+				clientId: client_id,
+				clientSecret: client_secret,
+				accessTokenUri: accessTokenUrl,
+				authorizationUri: authUrl,
+				redirectUri: redirect_uri,
+				scopes: scopeArray,
+			};
 
-            const { access_token, token_type, expires_in, refresh_token } = responseData;
+            const oAuthObj = new ClientOAuth2(oAuth2Parameters);
+
+			const queryParameters = req.originalUrl.split('?').splice(1, 1).join('');
+  
+			const oauthToken = await oAuthObj.code.getToken(
+				`${oAuth2Parameters.redirectUri}?${queryParameters}`,
+			);
+
+            const { access_token, token_type, expires_in, refresh_token } = oauthToken.data;
 
             const body: ICredentialBody = {
                 name: credential.name,

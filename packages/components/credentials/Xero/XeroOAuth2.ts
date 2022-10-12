@@ -44,8 +44,19 @@ class XeroOAuth2 implements INodeCredential {
             {
                 label: 'Scope',
                 name: 'scope',
-                type: 'string',
-                default: `["openid", "profile", "email", "accounting.transactions", "accounting.attachments", "offline_access"]`
+                type: 'json',
+                default: `[
+                    "openid", 
+                    "profile", 
+                    "email", 
+                    "accounting.settings", 
+                    "accounting.reports.read", 
+                    "accounting.journals.read", 
+                    "accounting.contacts", 
+                    "accounting.attachments", 
+                    "accounting.transactions", 
+                    "offline_access"
+                ]`
             }
         ];
     }
