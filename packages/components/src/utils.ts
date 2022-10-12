@@ -1,4 +1,6 @@
 import axios, { AxiosRequestConfig } from 'axios';
+import ClientOAuth2 from 'client-oauth2';
+import FormData from "form-data";
 import {
     ICommonObject,
 	INodeExecutionData,
@@ -162,20 +164,83 @@ export function handleErrorMessage(error: any): string {
  * @param {ICommonObject} credentials
  */
 export async function refreshOAuth2Token(credentials: ICommonObject) {
-	const url = credentials!.accessTokenUrl as string;
+
+	const accessTokenUrl = credentials!.accessTokenUrl as string;
+	const authUrl = credentials!.authUrl as string;
 	const client_id = credentials!.clientID as string;
 	const client_secret = credentials!.clientSecret as string;
-	const refresh_token = credentials!.refresh_token as string;
+	const refreshToken = credentials!.refresh_token as string;
+	const accessToken = credentials!.access_token as string;
+	const tokenType = credentials!.token_type as string;
 
+	return await refreshThroughClient(
+		client_id,
+		client_secret, 
+		accessTokenUrl, 
+		authUrl,
+		accessToken,
+		refreshToken,
+		tokenType,
+	)
+}
+
+const refreshThroughClient = async(
+	client_id: string,
+	client_secret: string, 
+	accessTokenUrl: string, 
+	authUrl: string,
+	accessToken: string,
+	refreshToken: string,
+	tokenType: string,
+) => {
+	try {
+
+		const oAuth2Parameters = {
+			clientId: client_id,
+			clientSecret: client_secret,
+			accessTokenUri: accessTokenUrl,
+			authorizationUri: authUrl,
+		};
+
+		const oAuthObj = new ClientOAuth2(oAuth2Parameters);
+		const { data } = await oAuthObj.credentials.getToken();
+
+		const tokenInstance = oAuthObj.createToken(accessToken, refreshToken, tokenType, data);
+		const newToken = await tokenInstance.refresh();
+
+		const { access_token, expires_in } = newToken.data;
+		
+		const returnItem: IOAuth2RefreshResponse = {
+			access_token,
+			expires_in
+		}
+		return returnItem;
+
+	} catch (e) {
+		return await refreshThroughHttpBody(
+			client_id,
+			client_secret, 
+			accessTokenUrl, 
+			refreshToken
+		);
+	}
+}
+
+const refreshThroughHttpBody = async(
+	client_id: string,
+	client_secret: string, 
+	accessTokenUrl: string, 
+	refreshToken: string,
+) => {
 	const method = 'POST';
 	const axiosConfig: AxiosRequestConfig = {
 		method,
-		url,
+		url: accessTokenUrl,
 		data: {
 			grant_type: 'refresh_token',
 			client_id,
 			client_secret,
-			refresh_token
+			refresh_token: refreshToken
 		},
 		headers: {
 			'Content-Type': 'application/json; charset=utf-8',
@@ -194,10 +259,51 @@ export async function refreshOAuth2Token(credentials: ICommonObject) {
 		return returnItem;
 
 	} catch(e) {
-		throw handleErrorMessage(e);
+		return await refreshThroughHttpHeader(
+			client_id,
+			client_secret, 
+			accessTokenUrl, 
+			refreshToken
+		);
 	}
 }
 
+const refreshThroughHttpHeader = async(
+	client_id: string,
+	client_secret: string, 
+	accessTokenUrl: string, 
+	refreshToken: string,
+) => {
+	const method = 'POST';
+	const formData = new FormData();
+	formData.append("grant_type", 'refresh_token');
+	formData.append("refresh_token", refreshToken);
+
+	const axiosConfig: AxiosRequestConfig = {
+		method,
+		url: accessTokenUrl,
+		data: formData,
+		headers: {
+			...formData.getHeaders(),
+			'Authorization': `Basic ${Buffer.from(`${client_id}:${client_secret}`).toString('base64')}`
+		},
+	}
+
+	try {
+		const response = await axios(axiosConfig);
+		const refreshedTokenResp = response.data;
+		
+		const returnItem: IOAuth2RefreshResponse = {
+			access_token: refreshedTokenResp.access_token,
+			expires_in: refreshedTokenResp.expires_in,
+		}
+		
+		return returnItem;
+
+	} catch(e) {
+		throw handleErrorMessage(e);
+	}
+}
 
 /**
  * Returns the path of node modules package
