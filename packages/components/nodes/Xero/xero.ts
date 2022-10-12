@@ -232,8 +232,8 @@ class Xero implements INode {
         const tenantId = inputParametersData?.tenant as string;
 
         // Need to get these from the response
-        const invoiceType = inputParametersData?.invoiceType as string;
-        const invoiceStatus = inputParametersData?.invoiceStatus as string;
+        let invoiceType = '';
+        let invoiceStatus = '';
 
         let queryBody: any = {};
         let method: Method = 'POST';
