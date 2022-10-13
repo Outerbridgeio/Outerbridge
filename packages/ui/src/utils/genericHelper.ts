@@ -17,13 +17,13 @@ type Nodes = (INode & {
 type NodeDependencies = Record<string, number>
 type Graph = Record<string, string[]>
 type Edges = { source: string; target: string; targetHandle: '-input-'[] }[]
-type NodeParams = StrictOmit<INodeParams, 'type' | 'array'> &
+type NodeParams = StrictOmit<MarkOptional<INodeParams, 'label'>, 'type' | 'array'> &
     (
         | {
               type: StrictExtract<INodeParams['type'], 'array'>
               array: NonNullable<INodeParams['array']>
           }
-        | { type: StrictExclude<INodeParams['type'], 'array' | 'options'> }
+        | { type?: StrictExclude<INodeParams['type'], 'array' | 'options'> }
         | {
               type: StrictExtract<INodeParams['type'], 'options'>
               options: NonNullable<INodeParams['options']>
@@ -200,7 +200,7 @@ export const initializeNodeData = (nodeParams: NodeParams[]) => {
         initialValues[input.name] = input.default || ''
 
         // Special case for array, always initialize the item if default is not set
-        if (input.type === 'array' && !input.default) {
+        if (input?.type === 'array' && !input.default) {
             const newObj: ICommonObject = {}
             for (let j = 0; j < input.array!.length; j++) {
                 newObj[input.array[j]!.name] = input.array[j]!.default || ''
@@ -370,7 +370,7 @@ const isHideRegisteredCredential = (params: NodeParams[], paramsType: 'actions' 
 export const handleCredentialParams = (
     nodeParams: NodeParams[],
     paramsType: 'actions' | 'credentials' | 'networks',
-    reorganizedParams,
+    reorganizedParams: NodeParams[],
     nodeFlowData: NodeData
 ) => {
     if (
