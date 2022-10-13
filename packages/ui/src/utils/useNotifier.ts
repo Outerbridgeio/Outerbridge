@@ -28,7 +28,9 @@ export const useNotifier = () => {
             }
 
             // do nothing if snackbar is already displayed
-            if (displayed.includes(key)) return
+            if (displayed.includes(key)) {
+                return
+            }
 
             // display snackbar using notistack
             enqueueSnackbar(message, {

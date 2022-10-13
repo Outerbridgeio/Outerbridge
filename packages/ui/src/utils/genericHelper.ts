@@ -3,10 +3,26 @@ import moment from 'moment'
 
 export const numberOrExpressionRegex = /^(\d+\.?\d*|{{.*}})$/ //return true if string consists only numbers OR expression {{}}
 
-type Nodes = { id: string; data?: { type?: 'trigger' | 'webhook' } }[]
+type NodeData = {
+    name: string
+    type: 'trigger' | 'webhook'
+    label: string
+    incoming?: number
+    outgoing?: number
+    inputAnchors: { id: string }[]
+    outputAnchors: { id: string }[]
+    actions?: NodeParam
+    inputParameters?: NodeParam
+    credentials?: NodeParam & { credentialMethod: unknown }
+    networks?: NodeParam
+    selected: boolean
+}
+type Nodes = { id: string; data: NodeData; selected: boolean }[]
 type NodeDependencies = Record<string, number>
 type Graph = Record<string, string[]>
-type Edges = { source: string; target: string }[]
+type Edges = { source: string; target: string; targetHandle: '-input-'[] }[]
+type NodeParam = { name: string; default: string; type: 'array'; array: NodeParam[]; submit: null; wallet: unknown }
+type NodeParams = NodeParam[]
 
 export const constructNodeDirectedGraph = (nodes: Nodes, edges: Edges, reverse = false) => {
     const graph: Graph = {}
@@ -49,7 +65,7 @@ export const findStartingNodeIds = (nodes: Nodes, nodeDependencies: NodeDependen
     Object.keys(nodeDependencies).forEach((nodeId) => {
         if (nodeDependencies[nodeId] === 0) {
             const node = nodes.find((nd) => nd.id === nodeId)
-            if (node?.data?.type === 'trigger' || node?.data?.type === 'webhook') {
+            if (node?.data.type === 'trigger' || node?.data.type === 'webhook') {
                 startingNodeIds.push(nodeId)
             }
         }
@@ -73,26 +89,29 @@ export const getAllConnectedNodesFromTarget = (targetNodeId: string, edges: Edge
         const inputEdges = edges.filter((edg) => edg.target === nodeId && edg.targetHandle.includes('-input-'))
         if (inputEdges && inputEdges.length) {
             for (let j = 0; j < inputEdges.length; j += 1) {
-                parentNodeIds.push(inputEdges[j].source)
+                parentNodeIds.push(inputEdges[j]!.source)
             }
         }
 
         const neighbourNodeIds = graph[nodeId]
-
-        for (let i = 0; i < neighbourNodeIds.length; i += 1) {
-            const neighNodeId = neighbourNodeIds[i]
-            if (parentNodeIds.includes(neighNodeId)) {
-                if (!exploredNodes.includes(neighNodeId)) {
-                    exploredNodes.push(neighNodeId)
-                    nodeQueue.push(neighNodeId)
+        if (neighbourNodeIds) {
+            for (let i = 0; i < neighbourNodeIds.length; i += 1) {
+                const neighNodeId = neighbourNodeIds[i]!
+                if (parentNodeIds.includes(neighNodeId)) {
+                    if (!exploredNodes.includes(neighNodeId)) {
+                        exploredNodes.push(neighNodeId)
+                        nodeQueue.push(neighNodeId)
+                    }
                 }
             }
+        } else {
+            alert('something is wrong, contact admin. code:1000')
         }
     }
     return exploredNodes
 }
 
-export const getAvailableNodeIdsForVariable = (nodes, edges, targetNodeId) => {
+export const getAvailableNodeIdsForVariable = (nodes: Nodes, edges: Edges, targetNodeId: string) => {
     const { graph } = constructNodeDirectedGraph(nodes, edges, true)
     const exploreNodes = getAllConnectedNodesFromTarget(targetNodeId, edges, graph)
     const setPath = new Set(exploreNodes)
@@ -110,11 +129,11 @@ export const generateWebhookEndpoint = () => {
     return webhookEndpoint
 }
 
-export const getUniqueNodeId = (nodeData, nodes) => {
+export const getUniqueNodeId = (nodeData: NodeData, nodes: Nodes) => {
     // Get amount of same nodes
     let totalSameNodes = 0
     for (let i = 0; i < nodes.length; i += 1) {
-        const node = nodes[i]
+        const node = nodes[i]!
         if (node.data.name === nodeData.name) {
             totalSameNodes += 1
         }
@@ -123,7 +142,7 @@ export const getUniqueNodeId = (nodeData, nodes) => {
     // Get unique id
     let nodeId = `${nodeData.name}_${totalSameNodes}`
     for (let i = 0; i < nodes.length; i += 1) {
-        const node = nodes[i]
+        const node = nodes[i]!
         if (node.id === nodeId) {
             totalSameNodes += 1
             nodeId = `${nodeData.name}_${totalSameNodes}`
@@ -132,11 +151,11 @@ export const getUniqueNodeId = (nodeData, nodes) => {
     return nodeId
 }
 
-const getUniqueNodeLabel = (nodeData, nodes) => {
+const getUniqueNodeLabel = (nodeData: NodeData, nodes: Nodes) => {
     // Get amount of same nodes
     let totalSameNodes = 0
     for (let i = 0; i < nodes.length; i += 1) {
-        const node = nodes[i]
+        const node = nodes[i]!
         if (node.data.name === nodeData.name) {
             totalSameNodes += 1
         }
@@ -145,7 +164,7 @@ const getUniqueNodeLabel = (nodeData, nodes) => {
     // Get unique label
     let nodeLabel = `${nodeData.label}_${totalSameNodes}`
     for (let i = 0; i < nodes.length; i += 1) {
-        const node = nodes[i]
+        const node = nodes[i]!
         if (node.data.label === nodeLabel) {
             totalSameNodes += 1
             nodeLabel = `${nodeData.label}_${totalSameNodes}`
@@ -154,9 +173,9 @@ const getUniqueNodeLabel = (nodeData, nodes) => {
     return totalSameNodes === 0 ? nodeData.label : nodeLabel
 }
 
-export const checkIfNodeLabelUnique = (nodeLabel, nodes) => {
+export const checkIfNodeLabelUnique = (nodeLabel: string, nodes: Nodes) => {
     for (let i = 0; i < nodes.length; i += 1) {
-        const node = nodes[i]
+        const node = nodes[i]!
         if (node.data.label === nodeLabel) {
             return false
         }
@@ -164,20 +183,20 @@ export const checkIfNodeLabelUnique = (nodeLabel, nodes) => {
     return true
 }
 
-export const initializeNodeData = (nodeParams) => {
-    const initialValues = {}
+export const initializeNodeData = (nodeParams: NodeParams) => {
+    const initialValues: Record<string, string | Record<string, string>[]> & { submit?: null } = {}
 
     for (let i = 0; i < nodeParams.length; i += 1) {
-        const input = nodeParams[i]
+        const input = nodeParams[i]!
 
         // Load from nodeParams default values
         initialValues[input.name] = input.default || ''
 
         // Special case for array, always initialize the item if default is not set
         if (input.type === 'array' && !input.default) {
-            const newObj = {}
+            const newObj: Record<string, string> = {}
             for (let j = 0; j < input.array.length; j += 1) {
-                newObj[input.array[j].name] = input.array[j].default || ''
+                newObj[input.array[j]!.name] = input.array[j]!.default || ''
             }
             initialValues[input.name] = [newObj]
         }
@@ -188,7 +207,7 @@ export const initializeNodeData = (nodeParams) => {
     return initialValues
 }
 
-export const addAnchors = (nodeData, nodes, newNodeId) => {
+export const addAnchors = (nodeData: NodeData, nodes: Nodes, newNodeId: string) => {
     const incoming = nodeData.incoming || 0
     const outgoing = nodeData.outgoing || 0
 
@@ -212,26 +231,34 @@ export const addAnchors = (nodeData, nodes, newNodeId) => {
     nodeData.outputAnchors = outputAnchors
     nodeData.label = getUniqueNodeLabel(nodeData, nodes)
 
-    if (nodeData.actions) nodeData.actions = initializeNodeData(nodeData.actions)
-    if (nodeData.credentials) nodeData.credentials = initializeNodeData(nodeData.credentials)
-    if (nodeData.networks) nodeData.networks = initializeNodeData(nodeData.networks)
-    if (nodeData.inputParameters) nodeData.inputParameters = initializeNodeData(nodeData.inputParameters)
+    if (nodeData.actions) {
+        nodeData.actions = initializeNodeData(nodeData.actions)
+    }
+    if (nodeData.credentials) {
+        nodeData.credentials = initializeNodeData(nodeData.credentials)
+    }
+    if (nodeData.networks) {
+        nodeData.networks = initializeNodeData(nodeData.networks)
+    }
+    if (nodeData.inputParameters) {
+        nodeData.inputParameters = initializeNodeData(nodeData.inputParameters)
+    }
 
     return nodeData
 }
 
-export const getEdgeLabelName = (source) => {
+export const getEdgeLabelName = (source: string) => {
     const sourceSplit = source.split('-')
-    if (sourceSplit.length && sourceSplit[0].includes('ifElse')) {
+    if (sourceSplit.length && sourceSplit[0]?.includes('ifElse')) {
         const outputAnchorsIndex = sourceSplit[sourceSplit.length - 1]
         return outputAnchorsIndex === '0' ? 'true' : 'false'
     }
     return ''
 }
 
-export const checkMultipleTriggers = (nodes) => {
+export const checkMultipleTriggers = (nodes: Nodes) => {
     for (let i = 0; i < nodes.length; i += 1) {
-        const node = nodes[i]
+        const node = nodes[i]!
         if (node.data.type === 'webhook' || node.data.type === 'trigger') {
             return true
         }
@@ -239,7 +266,7 @@ export const checkMultipleTriggers = (nodes) => {
     return false
 }
 
-export const convertDateStringToDateObject = (dateString) => {
+export const convertDateStringToDateObject = (dateString: string) => {
     if (dateString === undefined || !dateString) return undefined
 
     const date = moment(dateString)
@@ -249,13 +276,13 @@ export const convertDateStringToDateObject = (dateString) => {
     return new Date(date.year(), date.month(), date.date(), date.hours(), date.minutes())
 }
 
-export const getFileName = (fileBase64) => {
+export const getFileName = (fileBase64: string) => {
     const splitDataURI = fileBase64.split(',')
-    const filename = splitDataURI[splitDataURI.length - 1].split(':')[1]
+    const filename = splitDataURI[splitDataURI.length - 1]?.split(':')[1]
     return filename
 }
 
-export const getFolderName = (base64ArrayStr) => {
+export const getFolderName = (base64ArrayStr: string) => {
     try {
         const base64Array = JSON.parse(base64ArrayStr)
         const filenames = []
@@ -271,14 +298,14 @@ export const getFolderName = (base64ArrayStr) => {
     }
 }
 
-export const generateExportFlowData = (flowData) => {
+export const generateExportFlowData = (flowData: { nodes: Nodes; edges: Edges }) => {
     const nodes = flowData.nodes
     const edges = flowData.edges
 
     for (let i = 0; i < nodes.length; i += 1) {
-        nodes[i].selected = false
-        const node = nodes[i]
-        const newNodeData = {
+        nodes[i]!.selected = false
+        const node = nodes[i]!
+        const newNodeData: NodeData = {
             label: node.data.label,
             name: node.data.name,
             type: node.data.type,
@@ -300,7 +327,7 @@ export const generateExportFlowData = (flowData) => {
         }
         if (node.data.credentials && node.data.credentials.credentialMethod) {
             newNodeData.credentials = { credentialMethod: node.data.credentials.credentialMethod, submit: null }
-            if (node.data.credentials.wallet) delete newNodeData.credentials.wallet
+            if (node.data.credentials.wallet) delete newNodeData.credentials?.wallet
         }
 
         nodes[i].data = newNodeData
@@ -357,7 +384,7 @@ export const handleCredentialParams = (nodeParams, paramsType, reorganizedParams
     return nodeParams
 }
 
-export const copyToClipboard = (e) => {
+export const copyToClipboard = (e: { src: string | [] | object }) => {
     const src = e.src
     if (Array.isArray(src) || typeof src === 'object') {
         navigator.clipboard.writeText(JSON.stringify(src, null, '  '))
