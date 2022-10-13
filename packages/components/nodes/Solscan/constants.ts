@@ -21,7 +21,7 @@ export const OPERATION = {
 
     // Chain Info
     GET_CHAIN_INFO: 'getChainInfo'
-} as const;
+} as const
 
 export const SORT_BY = [
     { label: 'Market cap', name: 'market_cap' },
@@ -35,9 +35,9 @@ export const SORT_BY = [
     { label: 'Price change 60 d', name: 'price_change_60d' },
     { label: 'Price change 200 d', name: 'price_change_200d' },
     { label: 'Price change 1 y', name: 'price_change_1y' }
-] as const;
+] as const
 
 export const SORT_DIRECTION = [
     { label: 'Desc', name: 'desc' },
     { label: 'Asc', name: 'asc' }
-] as const;
+] as const

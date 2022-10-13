@@ -1,35 +1,35 @@
-import { ICommonObject, INode, INodeData, INodeExecutionData, INodeParams, NodeType } from '../../src/Interface';
-import { handleErrorMessage, returnNodeExecutionData, serializeQueryParams } from '../../src/utils';
-import axios, { AxiosRequestConfig, Method } from 'axios';
-import { OPERATION, SORT_BY, SORT_DIRECTION } from './constants';
+import { ICommonObject, INode, INodeData, INodeExecutionData, INodeParams, NodeType } from '../../src/Interface'
+import { handleErrorMessage, returnNodeExecutionData, serializeQueryParams } from '../../src/utils'
+import axios, { AxiosRequestConfig, Method } from 'axios'
+import { OPERATION, SORT_BY, SORT_DIRECTION } from './constants'
 
 class Solscan implements INode {
     // properties
-    label: string;
-    name: string;
-    type: NodeType;
-    description?: string;
-    version: number;
-    icon: string;
-    incoming: number;
-    outgoing: number;
+    label: string
+    name: string
+    type: NodeType
+    description?: string
+    version: number
+    icon: string
+    incoming: number
+    outgoing: number
 
     // parameter
-    actions: INodeParams[];
-    credentials?: INodeParams[];
-    networks?: INodeParams[];
-    inputParameters?: INodeParams[];
+    actions: INodeParams[]
+    credentials?: INodeParams[]
+    networks?: INodeParams[]
+    inputParameters?: INodeParams[]
 
     constructor() {
         // properties
-        this.label = 'Solscan';
-        this.name = 'solscan';
-        this.icon = 'solscan.png';
-        this.type = 'action';
-        this.version = 1.0;
-        this.description = 'Solscan Public API';
-        this.incoming = 1;
-        this.outgoing = 1;
+        this.label = 'Solscan'
+        this.name = 'solscan'
+        this.icon = 'solscan.png'
+        this.type = 'action'
+        this.version = 1.0
+        this.description = 'Solscan Public API'
+        this.incoming = 1
+        this.outgoing = 1
 
         // parameter
         this.actions = [
@@ -116,7 +116,7 @@ class Solscan implements INode {
                 ],
                 default: OPERATION.GET_TOKEN_BALANCES
             }
-        ] as INodeParams[];
+        ] as INodeParams[]
 
         this.inputParameters = [
             {
@@ -191,74 +191,74 @@ class Solscan implements INode {
                     'actions.api': [OPERATION.GET_TOKENS]
                 }
             }
-        ] as INodeParams[];
+        ] as INodeParams[]
     }
 
     getEndpoint(operation: string, options?: { address?: string; signature?: string; tokenAddress?: string }): string {
-        const baseUrl = 'https://public-api.solscan.io';
+        const baseUrl = 'https://public-api.solscan.io'
         switch (operation) {
             case OPERATION.GET_TOKEN_BALANCES:
-                return `${baseUrl}/account/tokens`;
+                return `${baseUrl}/account/tokens`
 
             case OPERATION.GET_TRANSACTIONS:
-                return `${baseUrl}/account/transactions`;
+                return `${baseUrl}/account/transactions`
 
             case OPERATION.GET_STAKING_ACCOUNTS:
-                return `${baseUrl}/account/stakeAccounts`;
+                return `${baseUrl}/account/stakeAccounts`
 
             case OPERATION.GET_TOKEN_TRANSFERS:
-                return `${baseUrl}/account/splTransfers`;
+                return `${baseUrl}/account/splTransfers`
 
             case OPERATION.GET_SOL_TRANSFERS:
-                return `${baseUrl}/account/solTransfers`;
+                return `${baseUrl}/account/solTransfers`
 
             case OPERATION.GET_ACCOUNT_INFO:
-                return `${baseUrl}/account/${options?.address}`;
+                return `${baseUrl}/account/${options?.address}`
 
             case OPERATION.GET_LAST_TRANSACTIONS:
-                return `${baseUrl}/transaction/last`;
+                return `${baseUrl}/transaction/last`
 
             case OPERATION.GET_TRANSACTION_INFO:
-                return `${baseUrl}/transaction/${options?.signature}`;
+                return `${baseUrl}/transaction/${options?.signature}`
 
             case OPERATION.GET_TOKEN_HOLDER:
-                return `${baseUrl}/token/holders`;
+                return `${baseUrl}/token/holders`
 
             case OPERATION.GET_TOKEN_INFO:
-                return `${baseUrl}/token/meta`;
+                return `${baseUrl}/token/meta`
 
             case OPERATION.GET_TOKENS:
-                return `${baseUrl}/token/list`;
+                return `${baseUrl}/token/list`
 
             case OPERATION.GET_TOKEN_MARKET_INFO:
-                return `${baseUrl}/market/token/${options?.tokenAddress}`;
+                return `${baseUrl}/market/token/${options?.tokenAddress}`
 
             case OPERATION.GET_CHAIN_INFO:
-                return `${baseUrl}/chaininfo`;
+                return `${baseUrl}/chaininfo`
             default:
-                return baseUrl;
+                return baseUrl
         }
     }
 
     async run(nodeData: INodeData): Promise<INodeExecutionData[] | null> {
-        const actionData = nodeData.actions;
-        const inputParametersData = nodeData.inputParameters;
+        const actionData = nodeData.actions
+        const inputParametersData = nodeData.inputParameters
 
         if (actionData === undefined || inputParametersData === undefined) {
-            throw new Error('Required data missing');
+            throw new Error('Required data missing')
         }
 
-        const api = actionData.api as string;
+        const api = actionData.api as string
 
-        const address = inputParametersData.address as string;
-        const limit = inputParametersData.limit as number;
-        const offset = inputParametersData.offset as number;
-        const signature = inputParametersData.signature as string;
-        const tokenAddress = inputParametersData.tokenAddress as string;
-        const sortBy = inputParametersData.sortBy as string;
-        const direction = inputParametersData.direction as string;
+        const address = inputParametersData.address as string
+        const limit = inputParametersData.limit as number
+        const offset = inputParametersData.offset as number
+        const signature = inputParametersData.signature as string
+        const tokenAddress = inputParametersData.tokenAddress as string
+        const sortBy = inputParametersData.sortBy as string
+        const direction = inputParametersData.direction as string
 
-        const url = this.getEndpoint(api, { address, signature, tokenAddress });
+        const url = this.getEndpoint(api, { address, signature, tokenAddress })
 
         const queryParameters = {
             account: address,
@@ -267,10 +267,10 @@ class Solscan implements INode {
             offset,
             sortBy,
             direction
-        };
+        }
 
-        const returnData: ICommonObject[] = [];
-        let responseData: any;
+        const returnData: ICommonObject[] = []
+        let responseData: any
         try {
             const axiosConfig: AxiosRequestConfig = {
                 method: 'GET' as Method,
@@ -278,21 +278,21 @@ class Solscan implements INode {
                 params: queryParameters,
                 paramsSerializer: (params) => serializeQueryParams(params),
                 headers: { 'Content-Type': 'application/json' }
-            };
-            const response = await axios(axiosConfig);
-            responseData = response.data;
+            }
+            const response = await axios(axiosConfig)
+            responseData = response.data
         } catch (error) {
-            throw handleErrorMessage(error);
+            throw handleErrorMessage(error)
         }
 
         if (Array.isArray(responseData)) {
-            returnData.push(...responseData);
+            returnData.push(...responseData)
         } else {
-            returnData.push(responseData);
+            returnData.push(responseData)
         }
 
-        return returnNodeExecutionData(returnData);
+        return returnNodeExecutionData(returnData)
     }
 }
 
-module.exports = { nodeClass: Solscan };
+module.exports = { nodeClass: Solscan }

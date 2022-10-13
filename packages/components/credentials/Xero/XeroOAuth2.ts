@@ -58,10 +58,8 @@ class XeroOAuth2 implements INodeCredential {
                     "offline_access"
                 ]`
             }
-
         ]
     }
 }
 
 module.exports = { credClass: XeroOAuth2 }
-
