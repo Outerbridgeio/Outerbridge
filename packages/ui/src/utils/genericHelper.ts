@@ -1,41 +1,48 @@
 import lodash from 'lodash'
 import moment from 'moment'
+import { INode, INodeParams, INodeData, ICommonObject } from 'outerbridge-components'
+import { MarkOptional, StrictOmit, StrictExclude, StrictExtract } from 'ts-essentials'
 
-export const numberOrExpressionRegex = /^(\d+\.?\d*|{{.*}})$/ //return true if string consists only numbers OR expression {{}}
-
-type NodeData = {
-    name: string
-    type: 'trigger' | 'webhook'
-    label: string
-    incoming?: number
-    outgoing?: number
+type NodeData = MarkOptional<INodeData, 'version' | 'outgoing' | 'incoming'> & {
     inputAnchors: { id: string }[]
     outputAnchors: { id: string }[]
-    actions?: NodeParam
-    inputParameters?: NodeParam
-    credentials?: NodeParam & { credentialMethod: unknown }
-    networks?: NodeParam
     selected: boolean
+    submit?: null
 }
-type Nodes = { id: string; data: NodeData; selected: boolean }[]
+type Nodes = (INode & {
+    id: string
+    data: NodeData
+    selected: boolean
+})[]
 type NodeDependencies = Record<string, number>
 type Graph = Record<string, string[]>
 type Edges = { source: string; target: string; targetHandle: '-input-'[] }[]
-type NodeParam = { name: string; default: string; type: 'array'; array: NodeParam[]; submit: null; wallet: unknown }
-type NodeParams = NodeParam[]
+type NodeParams = StrictOmit<INodeParams, 'type' | 'array'> &
+    (
+        | {
+              type: StrictExtract<INodeParams['type'], 'array'>
+              array: NonNullable<INodeParams['array']>
+          }
+        | { type: StrictExclude<INodeParams['type'], 'array' | 'options'> }
+        | {
+              type: StrictExtract<INodeParams['type'], 'options'>
+              options: NonNullable<INodeParams['options']>
+          }
+    )
 
+export const numberOrExpressionRegex = /^(\d+\.?\d*|{{.*}})$/ //return true if string consists only numbers OR expression {{}}
 export const constructNodeDirectedGraph = (nodes: Nodes, edges: Edges, reverse = false) => {
     const graph: Graph = {}
     const nodeDependencies: NodeDependencies = {}
 
     // Initialize node dependencies and graph
-    for (let i = 0; i < nodes.length; i += 1) {
+    for (let i = 0; i < nodes.length; i++) {
         const nodeId = nodes[i]!.id
         nodeDependencies[nodeId] = 0
         graph[nodeId] = []
     }
 
-    for (let i = 0; i < edges.length; i += 1) {
+    for (let i = 0; i < edges.length; i++) {
         const source = edges[i]!.source
         const target = edges[i]!.target
 
@@ -53,7 +60,7 @@ export const constructNodeDirectedGraph = (nodes: Nodes, edges: Edges, reverse =
             }
         }
 
-        nodeDependencies[target] += 1
+        nodeDependencies[target]++
     }
 
     return { graph, nodeDependencies }
@@ -88,14 +95,14 @@ export const getAllConnectedNodesFromTarget = (targetNodeId: string, edges: Edge
 
         const inputEdges = edges.filter((edg) => edg.target === nodeId && edg.targetHandle.includes('-input-'))
         if (inputEdges && inputEdges.length) {
-            for (let j = 0; j < inputEdges.length; j += 1) {
+            for (let j = 0; j < inputEdges.length; j++) {
                 parentNodeIds.push(inputEdges[j]!.source)
             }
         }
 
         const neighbourNodeIds = graph[nodeId]
         if (neighbourNodeIds) {
-            for (let i = 0; i < neighbourNodeIds.length; i += 1) {
+            for (let i = 0; i < neighbourNodeIds.length; i++) {
                 const neighNodeId = neighbourNodeIds[i]!
                 if (parentNodeIds.includes(neighNodeId)) {
                     if (!exploredNodes.includes(neighNodeId)) {
@@ -132,19 +139,19 @@ export const generateWebhookEndpoint = () => {
 export const getUniqueNodeId = (nodeData: NodeData, nodes: Nodes) => {
     // Get amount of same nodes
     let totalSameNodes = 0
-    for (let i = 0; i < nodes.length; i += 1) {
+    for (let i = 0; i < nodes.length; i++) {
         const node = nodes[i]!
         if (node.data.name === nodeData.name) {
-            totalSameNodes += 1
+            totalSameNodes++
         }
     }
 
     // Get unique id
     let nodeId = `${nodeData.name}_${totalSameNodes}`
-    for (let i = 0; i < nodes.length; i += 1) {
+    for (let i = 0; i < nodes.length; i++) {
         const node = nodes[i]!
         if (node.id === nodeId) {
-            totalSameNodes += 1
+            totalSameNodes++
             nodeId = `${nodeData.name}_${totalSameNodes}`
         }
     }
@@ -154,19 +161,19 @@ export const getUniqueNodeId = (nodeData: NodeData, nodes: Nodes) => {
 const getUniqueNodeLabel = (nodeData: NodeData, nodes: Nodes) => {
     // Get amount of same nodes
     let totalSameNodes = 0
-    for (let i = 0; i < nodes.length; i += 1) {
+    for (let i = 0; i < nodes.length; i++) {
         const node = nodes[i]!
         if (node.data.name === nodeData.name) {
-            totalSameNodes += 1
+            totalSameNodes++
         }
     }
 
     // Get unique label
     let nodeLabel = `${nodeData.label}_${totalSameNodes}`
-    for (let i = 0; i < nodes.length; i += 1) {
+    for (let i = 0; i < nodes.length; i++) {
         const node = nodes[i]!
         if (node.data.label === nodeLabel) {
-            totalSameNodes += 1
+            totalSameNodes++
             nodeLabel = `${nodeData.label}_${totalSameNodes}`
         }
     }
@@ -174,7 +181,7 @@ const getUniqueNodeLabel = (nodeData: NodeData, nodes: Nodes) => {
 }
 
 export const checkIfNodeLabelUnique = (nodeLabel: string, nodes: Nodes) => {
-    for (let i = 0; i < nodes.length; i += 1) {
+    for (let i = 0; i < nodes.length; i++) {
         const node = nodes[i]!
         if (node.data.label === nodeLabel) {
             return false
@@ -183,10 +190,10 @@ export const checkIfNodeLabelUnique = (nodeLabel: string, nodes: Nodes) => {
     return true
 }
 
-export const initializeNodeData = (nodeParams: NodeParams) => {
-    const initialValues: Record<string, string | Record<string, string>[]> & { submit?: null } = {}
+export const initializeNodeData = (nodeParams: NodeParams[]) => {
+    const initialValues: ICommonObject = {}
 
-    for (let i = 0; i < nodeParams.length; i += 1) {
+    for (let i = 0; i < nodeParams.length; i++) {
         const input = nodeParams[i]!
 
         // Load from nodeParams default values
@@ -194,8 +201,8 @@ export const initializeNodeData = (nodeParams: NodeParams) => {
 
         // Special case for array, always initialize the item if default is not set
         if (input.type === 'array' && !input.default) {
-            const newObj: Record<string, string> = {}
-            for (let j = 0; j < input.array.length; j += 1) {
+            const newObj: ICommonObject = {}
+            for (let j = 0; j < input.array!.length; j++) {
                 newObj[input.array[j]!.name] = input.array[j]!.default || ''
             }
             initialValues[input.name] = [newObj]
@@ -212,7 +219,7 @@ export const addAnchors = (nodeData: NodeData, nodes: Nodes, newNodeId: string) 
     const outgoing = nodeData.outgoing || 0
 
     const inputAnchors = []
-    for (let i = 0; i < incoming; i += 1) {
+    for (let i = 0; i < incoming; i++) {
         const newInput = {
             id: `${newNodeId}-input-${i}`
         }
@@ -220,7 +227,7 @@ export const addAnchors = (nodeData: NodeData, nodes: Nodes, newNodeId: string) 
     }
 
     const outputAnchors = []
-    for (let i = 0; i < outgoing; i += 1) {
+    for (let i = 0; i < outgoing; i++) {
         const newOutput = {
             id: `${newNodeId}-output-${i}`
         }
@@ -231,16 +238,16 @@ export const addAnchors = (nodeData: NodeData, nodes: Nodes, newNodeId: string) 
     nodeData.outputAnchors = outputAnchors
     nodeData.label = getUniqueNodeLabel(nodeData, nodes)
 
-    if (nodeData.actions) {
+    if (nodeData.actions && Array.isArray(nodeData.actions)) {
         nodeData.actions = initializeNodeData(nodeData.actions)
     }
-    if (nodeData.credentials) {
+    if (nodeData.credentials && Array.isArray(nodeData.credentials)) {
         nodeData.credentials = initializeNodeData(nodeData.credentials)
     }
-    if (nodeData.networks) {
+    if (nodeData.networks && Array.isArray(nodeData.networks)) {
         nodeData.networks = initializeNodeData(nodeData.networks)
     }
-    if (nodeData.inputParameters) {
+    if (nodeData.inputParameters && Array.isArray(nodeData.inputParameters)) {
         nodeData.inputParameters = initializeNodeData(nodeData.inputParameters)
     }
 
@@ -257,7 +264,7 @@ export const getEdgeLabelName = (source: string) => {
 }
 
 export const checkMultipleTriggers = (nodes: Nodes) => {
-    for (let i = 0; i < nodes.length; i += 1) {
+    for (let i = 0; i < nodes.length; i++) {
         const node = nodes[i]!
         if (node.data.type === 'webhook' || node.data.type === 'trigger') {
             return true
@@ -286,7 +293,7 @@ export const getFolderName = (base64ArrayStr: string) => {
     try {
         const base64Array = JSON.parse(base64ArrayStr)
         const filenames = []
-        for (let i = 0; i < base64Array.length; i += 1) {
+        for (let i = 0; i < base64Array.length; i++) {
             const fileBase64 = base64Array[i]
             const splitDataURI = fileBase64.split(',')
             const filename = splitDataURI[splitDataURI.length - 1].split(':')[1]
@@ -302,7 +309,7 @@ export const generateExportFlowData = (flowData: { nodes: Nodes; edges: Edges })
     const nodes = flowData.nodes
     const edges = flowData.edges
 
-    for (let i = 0; i < nodes.length; i += 1) {
+    for (let i = 0; i < nodes.length; i++) {
         nodes[i]!.selected = false
         const node = nodes[i]!
         const newNodeData: NodeData = {
@@ -330,7 +337,7 @@ export const generateExportFlowData = (flowData: { nodes: Nodes; edges: Edges })
             if (node.data.credentials.wallet) delete newNodeData.credentials?.wallet
         }
 
-        nodes[i].data = newNodeData
+        nodes[i]!.data = newNodeData
     }
     const exportJson = {
         nodes,
@@ -339,14 +346,16 @@ export const generateExportFlowData = (flowData: { nodes: Nodes; edges: Edges })
     return exportJson
 }
 
-const isHideRegisteredCredential = (params, paramsType, nodeFlowData) => {
-    if (!nodeFlowData[paramsType] || !nodeFlowData[paramsType]['credentialMethod']) return undefined
+const isHideRegisteredCredential = (params: NodeParams[], paramsType: 'actions' | 'credentials' | 'networks', nodeFlowData: NodeData) => {
+    if (!nodeFlowData[paramsType] || !nodeFlowData[paramsType]?.['credentialMethod']) {
+        return undefined
+    }
     let clonedParams = params
 
-    for (let i = 0; i < clonedParams.length; i += 1) {
-        const input = clonedParams[i]
+    for (let i = 0; i < clonedParams.length; i++) {
+        const input = clonedParams[i]!
         if (input.type === 'options') {
-            const selectedCredentialMethodOption = input.options.find((opt) => opt.name === nodeFlowData[paramsType]['credentialMethod'])
+            const selectedCredentialMethodOption = input.options.find((opt) => opt.name === nodeFlowData[paramsType]?.['credentialMethod'])
             if (
                 selectedCredentialMethodOption &&
                 selectedCredentialMethodOption !== undefined &&
@@ -358,7 +367,12 @@ const isHideRegisteredCredential = (params, paramsType, nodeFlowData) => {
     return false
 }
 
-export const handleCredentialParams = (nodeParams, paramsType, reorganizedParams, nodeFlowData) => {
+export const handleCredentialParams = (
+    nodeParams: NodeParams[],
+    paramsType: 'actions' | 'credentials' | 'networks',
+    reorganizedParams,
+    nodeFlowData: NodeData
+) => {
     if (
         paramsType === 'credentials' &&
         nodeParams.find((nPrm) => nPrm.name === 'registeredCredential') === undefined &&
