@@ -585,39 +585,49 @@ const updateCredentialAfterOAuth2TokenRefreshed = async (
 
     if (!appDataSource) appDataSource = getDataSource()
 
+    let access_token = ''
+    let expires_in = ''
+
     for (let i = 0; i < result.length; i += 1) {
         if (Object.prototype.hasOwnProperty.call(result[i], OAUTH2_REFRESHED)) {
-            const { access_token, expires_in } = result[i][OAUTH2_REFRESHED] as unknown as IOAuth2RefreshResponse
-            result[i] = lodash.omit(result[i], [OAUTH2_REFRESHED])
+            const refreshData = result[i][OAUTH2_REFRESHED] as unknown as IOAuth2RefreshResponse
+            access_token = refreshData.access_token
+            expires_in = refreshData.expires_in
+            break
+        }
+    }
 
-            // Update credential
-            if (nodeData.credentials && nodeData.credentials.registeredCredential) {
-                // @ts-expect-error investigate this later
-                const credentialId = nodeData.credentials.registeredCredential._id as string
-                const credential = await appDataSource.getMongoRepository(Credential).findOneBy({
-                    _id: new ObjectId(credentialId)
-                })
+    result.forEach((el) => {
+        if (el[OAUTH2_REFRESHED]) delete el[OAUTH2_REFRESHED]
+        return el
+    })
 
-                if (!credential) return
+    // Update credential
+    if (access_token && expires_in && nodeData.credentials && nodeData.credentials.registeredCredential) {
+        // @ts-ignore
+        const credentialId = nodeData.credentials.registeredCredential._id as string
+        const credential = await appDataSource.getMongoRepository(Credential).findOneBy({
+            _id: new ObjectId(credentialId)
+        })
 
-                const encryptKey = await getEncryptionKey()
-                const decryptedCredentialData = decryptCredentialData(credential.credentialData, encryptKey)
+        if (!credential) return
 
-                const body: ICredentialBody = {
-                    name: credential.name,
-                    nodeCredentialName: credential.nodeCredentialName,
-                    credentialData: {
-                        ...decryptedCredentialData,
-                        access_token,
-                        expires_in
-                    }
-                }
-                const updateCredential = await transformToCredentialEntity(body)
+        const encryptKey = await getEncryptionKey()
+        const decryptedCredentialData = decryptCredentialData(credential.credentialData, encryptKey)
 
-                appDataSource.getMongoRepository(Credential).merge(credential, updateCredential)
-                await appDataSource.getMongoRepository(Credential).save(credential)
+        const body: ICredentialBody = {
+            name: credential.name,
+            nodeCredentialName: credential.nodeCredentialName,
+            credentialData: {
+                ...decryptedCredentialData,
+                access_token,
+                expires_in
             }
         }
+        const updateCredential = await transformToCredentialEntity(body)
+
+        appDataSource.getMongoRepository(Credential).merge(credential, updateCredential)
+        await appDataSource.getMongoRepository(Credential).save(credential)
     }
 }
 

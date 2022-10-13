@@ -1,6 +1,6 @@
 {
     "name": "outerbridge",
-    "version": "1.0.10",
+    "version": "1.0.11",
     "description": "Outerbridge Server",
     "main": "dist/index",
     "types": "dist/index.d.ts",
@@ -42,6 +42,8 @@
     "license": "SEE LICENSE IN LICENSE.md",
     "dependencies": {
         "@oclif/core": "^1.13.10",
+        "axios": "^0.27.2",
+        "client-oauth2": "^4.3.3",
         "cors": "^2.8.5",
         "crypto-js": "^4.1.1",
         "dotenv": "^16.0.0",
@@ -51,8 +53,8 @@
         "moment-timezone": "^0.5.34",
         "mongodb": "^3.6.0",
         "node-abort-controller": "^3.0.1",
-        "outerbridge-components": "^1.0.4",
-        "outerbridge-ui": "^1.0.5",
+        "outerbridge-components": "^1.0.5",
+        "outerbridge-ui": "^1.0.6",
         "pg": "^8.4.0",
         "reflect-metadata": "^0.1.13",
         "socket.io": "^4.5.1",
