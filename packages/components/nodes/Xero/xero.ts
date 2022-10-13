@@ -102,19 +102,22 @@ class Xero implements INode {
             {
                 label: 'Type of invoice',
                 name: 'invoiceType',
-                type: 'string',
+                type: 'options',
                 description: 'Which type of invoice? (ACCPAY or ACCREC)',
-                placeholder: 'ACCPAY',
+                options: [
+                    { label: 'ACCPAY - Accounts Payable', name: 'ACCPAY' },
+                    { label: 'ACCREC - Accounts Receivable', name: 'ACCREC' }
+                ],
                 show: {
                     'actions.operation': ['createInvoice']
                 }
             },
             {
-                label: 'LineItem',
+                label: 'Description',
                 name: 'lineItem',
                 type: 'string',
                 description: 'Service or product to be billed.',
-                placeholder: 'Test LineItem',
+                placeholder: 'What service / product is to be billed?',
                 show: {
                     'actions.operation': ['createInvoice']
                 }
