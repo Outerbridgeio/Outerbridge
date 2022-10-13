@@ -16,7 +16,7 @@ There are many awesome automation tools out there, however there isn't one that 
 
 Here is the [demo](https://demo.outerbridge.io) version of Outerbridge hosted using AWS t2-micro.
 
-Detail [documentation](https://gist.github.com/HenryHengZJ/f8fb7dae0300d18a104cc4a29ec51a7a) on how to setup using AWS t2-micro with your custom domain name.
+Detail [documentation](https://gist.github.com/HenryHengZJ/627cec19671664a88754c7e383232dc8) on how to setup using AWS t2-micro with your custom domain name.
 
 Watch [Outerbridge Quickstart Demo](https://www.youtube.com/watch?v=x-AfrkKvZ4M) on Youtube (4mins)
 

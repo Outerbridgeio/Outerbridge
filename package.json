@@ -1,6 +1,6 @@
 {
     "name": "outerbridge",
-    "version": "1.0.10",
+    "version": "1.0.11",
     "private": true,
     "homepage": "https://outerbridge.io",
     "scripts": {
@@ -18,9 +18,6 @@
     },
     "lint-staged": {
         "*.{js,jsx,ts,tsx,json,md}": "cross-env CI=true eslint --fix"
-    },
-    "dependencies": {
-        "axios": "^0.27.2"
     },
     "devDependencies": {
         "@babel/core": "^7.19.3",
