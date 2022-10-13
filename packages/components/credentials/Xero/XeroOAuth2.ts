@@ -57,7 +57,7 @@ class XeroOAuth2 implements INodeCredential {
                     "accounting.transactions", 
                     "offline_access"
                 ]`
-            },
+            }
         ];
     }
 }
