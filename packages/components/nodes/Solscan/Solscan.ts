@@ -21,7 +21,6 @@ class Solscan implements INode {
     inputParameters?: INodeParams[];
 
     constructor() {
-        console.log('Solscan initialized');
         // properties
         this.label = 'Solscan';
         this.name = 'solscan';
