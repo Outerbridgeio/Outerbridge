@@ -44,6 +44,11 @@ class Xero implements INode {
                         description: 'Returns single invoice from Xero account.'
                     },
                     {
+                        label: 'Create Invoice',
+                        name: 'createInvoice',
+                        description: 'Creates a new draft invoice.'
+                    },
+                    {
                         label: 'Send email',
                         name: 'sendToEmail',
                         description: 'Send email with invoice to primary email.'
@@ -83,16 +88,55 @@ class Xero implements INode {
                 show: {
                     'actions.operation': ['getSingleInvoice', 'sendToEmail']
                 }
+            },
+            // Get existing contacts
+            {
+                label: 'Who do you want to bill?',
+                name: 'contactName',
+                type: 'asyncOptions',
+                loadMethod: 'getContacts',
+                show: {
+                    'actions.operation': ['createInvoice']
+                }
+            },
+            {
+                label: 'Type of invoice',
+                name: 'invoiceType',
+                type: 'string',
+                description: 'Which type of invoice? (ACCPAY or ACCREC)',
+                placeholder: 'ACCPAY',
+                show: {
+                    'actions.operation': ['createInvoice']
+                }
+            },
+            {
+                label: 'LineItem',
+                name: 'lineItem',
+                type: 'string',
+                description: 'Service or product to be billed.',
+                placeholder: 'Test LineItem',
+                show: {
+                    'actions.operation': ['createInvoice']
+                }
+            },
+            {
+                label: 'Cost',
+                name: 'unitAmount',
+                type: 'number',
+                description: 'Cost of product / service',
+                show: {
+                    'actions.operation': ['createInvoice']
+                }
+            },
+            {
+                label: 'Quantity',
+                name: 'unitQuantity',
+                type: 'number',
+                description: 'Quantity of product / service',
+                show: {
+                    'actions.operation': ['createInvoice']
+                }
             }
-            // {
-            //     label: 'Email Address',
-            //     name: 'emailAddress',
-            //     type: 'string',
-            //     description: 'Address to send invoice to.',
-            //     show: {
-            //         'actions.operation': ['sendEmail']
-            //     }
-            // }
         ] as INodeParams[];
     }
 
@@ -198,6 +242,61 @@ class Xero implements INode {
                 }
             } while (--maxRetries);
             return returnData;
+        },
+
+        async getContacts(nodeData: INodeData): Promise<INodeOptionsValue[]> {
+            const returnData: INodeOptionsValue[] = [];
+
+            const credentials = nodeData.credentials;
+            const inputParameters = nodeData.inputParameters;
+
+            if (credentials === undefined || inputParameters === undefined) {
+                return returnData;
+            }
+
+            const tenantId = inputParameters.tenant as string;
+            const token_type = credentials!.token_type as string;
+            const access_token = credentials!.access_token as string;
+
+            const headers: AxiosRequestHeaders = {
+                Accept: 'application/json',
+                Authorization: `${token_type} ${access_token}`,
+                'Xero-tenant-id': tenantId
+            };
+
+            if (tenantId === undefined || token_type === undefined || access_token === undefined) {
+                return returnData;
+            }
+
+            const axiosConfig: AxiosRequestConfig = {
+                method: 'GET',
+                url: `https://api.xero.com/api.xro/2.0/contacts`,
+                headers
+            };
+
+            let maxRetries = 5;
+            do {
+                try {
+                    const response = await axios(axiosConfig);
+                    const responseData = response.data;
+
+                    for (const contact of responseData.Contacts || []) {
+                        returnData.push({
+                            label: `${contact.Name as string}`,
+                            name: `${contact.ContactID as string}`
+                        });
+                    }
+                    return returnData;
+                } catch (e) {
+                    if (e.response && e.response.status === 401) {
+                        const { access_token } = await refreshOAuth2Token(credentials);
+                        headers['Authorization'] = `${token_type} ${access_token}`;
+                        continue;
+                    }
+                    return returnData;
+                }
+            } while (--maxRetries);
+            return returnData;
         }
     };
 
@@ -231,9 +330,19 @@ class Xero implements INode {
         const invoiceId = inputParametersData?.invoice as string;
         const tenantId = inputParametersData?.tenant as string;
 
-        // Need to get these from the response
-        let invoiceType = '';
-        let invoiceStatus = '';
+        const invoiceType = inputParametersData?.invoiceType as string;
+        const contactId = inputParametersData?.contactName as string;
+        const lineItem = inputParametersData?.lineItem as string;
+        const unitAmount = inputParametersData?.unitAmount as string;
+        const unitQuantity = inputParametersData?.unitQuantity as string;
+        const lineItems = {
+            Description: lineItem,
+            UnitAmount: unitAmount,
+            Quantity: unitQuantity
+        };
+        const Contact = {
+            ContactID: contactId
+        };
 
         let queryBody: any = {};
         let method: Method = 'POST';
@@ -256,17 +365,18 @@ class Xero implements INode {
                     method = 'GET';
                     url = `https://api.xero.com/api.xro/2.0/Invoices/${invoiceId}`;
                 } else if (operation === 'sendToEmail') {
-                    console.log(inputParametersData);
-                    console.log(invoiceId, invoiceType, invoiceStatus, tenantId);
-
-                    // invoice must be of Type ACCREC and a valid Status for sending (SUBMITTED,AUTHORISED or PAID).
-                    if (
-                        invoiceType === 'ACCREC' &&
-                        (invoiceStatus === 'SUBMITTED' || invoiceStatus === 'AUTHORISED' || invoiceStatus === 'PAID')
-                    ) {
-                        method = 'POST';
-                        url = `https://api.xero.com/api.xro/2.0/Invoices/${invoiceId}/Email`;
-                    }
+                    // Will fail in the 'Test Node' because the test creates a req.body
+                    // The Endpoint requires and empty body to return successfully.
+                    method = 'POST';
+                    url = `https://api.xero.com/api.xro/2.0/Invoices/${invoiceId}/Email`;
+                } else if (operation === 'createInvoice') {
+                    method = 'POST';
+                    url = `https://api.xero.com/api.xro/2.0/Invoices`;
+                    queryBody = {
+                        Type: invoiceType,
+                        LineItems: [lineItems],
+                        Contact: Contact
+                    };
                 }
 
                 const axiosConfig: AxiosRequestConfig = {
