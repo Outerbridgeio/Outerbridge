@@ -35,10 +35,15 @@ class GoogleDocs implements INode {
                         label: 'Create New Document',
                         name: 'create',
                         description: 'Create a new document'
-                    }
+                    },
+                    {
+						label: 'Get All Values',
+						name: 'getAll',
+                        description: 'Get all values from a document'
+					},
                 ],
                 default: 'create'
-            }
+            },
         ] as INodeParams[];
 
         this.credentials = [
@@ -66,8 +71,68 @@ class GoogleDocs implements INode {
                 show: {
                     'actions.operation': ['create']
                 }
+            },
+            {
+                label: 'Document',
+                name: 'documentId',
+                type: 'asyncOptions',
+                loadMethod: 'getAllDocsFromDrive',
+                hide: {
+                    'actions.operation': ['create']
+                }
             }
         ] as INodeParams[];
+    }
+
+    loadMethods = {
+        async getAllDocsFromDrive(nodeData: INodeData): Promise<INodeOptionsValue[]> {
+            const returnData: INodeOptionsValue[] = [];
+
+            const credentials = nodeData.credentials;
+
+            if (credentials === undefined) {
+                return returnData;
+            }
+
+            // Get credentials
+            const token_type = credentials!.token_type as string;
+            const access_token = credentials!.access_token as string;
+            const headers: AxiosRequestHeaders = {
+                'Content-Type': 'application/json',
+                'Authorization': `${token_type} ${access_token}`,
+            };
+
+            const axiosConfig: AxiosRequestConfig = {
+                method: 'GET',
+                url: `https://www.googleapis.com/drive/v3/files?q=mimeType='application/vnd.google-apps.document'`,
+                headers
+            }
+
+            let maxRetries = 5;
+            do {
+                try {
+                    const response = await axios(axiosConfig);
+                    const responseData = response.data;
+                    for (const file of (responseData.files || [])) {
+                        returnData.push({
+                            label: file.name as string,
+                            name: file.id as string,
+                        });
+                    }
+                    return returnData;
+                } catch(e) {
+                    // Access_token expired
+                    if (e.response && e.response.status === 401) {
+                        const { access_token } = await refreshOAuth2Token(credentials);
+                        headers['Authorization'] = `${token_type} ${access_token}`;
+                        continue;                    
+                    }
+                    return returnData;
+                }
+            } while (--maxRetries);
+
+            return returnData;
+        }
     }
 
     async run(nodeData: INodeData): Promise<INodeExecutionData[] | null> {
@@ -102,6 +167,8 @@ class GoogleDocs implements INode {
             Authorization: `${token_type} ${access_token}`
         };
 
+        const documentId = inputParametersData?.documentId as string;
+
         let maxRetries = 5;
         let oAuth2RefreshedData: any = {};
 
@@ -113,6 +180,9 @@ class GoogleDocs implements INode {
                     if (documentName) {
                         queryBody['title'] = documentName;
                     }
+                } else if(operation === 'getAll') { 
+                    method = 'GET';
+                    url = `https://docs.googleapis.com/v1/documents/${documentId}`;
                 }
 
                 const axiosConfig: AxiosRequestConfig = {
