@@ -35,3 +35,6 @@ package.json.lerna_backup
 
 ## secrets
 **/*.key
+
+## compressed
+**/*.tgz

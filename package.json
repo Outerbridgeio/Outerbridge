@@ -20,6 +20,7 @@
         "*.{js,jsx,ts,tsx,json,md}": "cross-env CI=true eslint --fix"
     },
     "devDependencies": {
+        "@babel/cli": "^7.19.3",
         "@babel/core": "^7.19.3",
         "@babel/node": "^7.19.1",
         "@babel/preset-env": "^7.19.4",
