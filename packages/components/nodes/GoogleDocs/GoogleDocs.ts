@@ -226,7 +226,7 @@ class GoogleDocs implements INode {
                     url = `https://docs.googleapis.com/v1/documents/${documentId}:batchUpdate`;
 
                     const requestsString = inputParametersData?.requests as string;
-                    queryBody['requests'] = JSON.parse(requestsString.replace(/\s/g, ''));
+                    queryBody['requests'] = JSON.parse(requestsString);
                 }
 
                 const axiosConfig: AxiosRequestConfig = {
