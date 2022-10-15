@@ -1,5 +1,5 @@
 import { createTheme, Palette } from '@mui/material/styles'
-
+import { reducer } from 'store'
 // assets
 import colors from 'assets/scss/_themes-vars.module.scss'
 
@@ -12,8 +12,8 @@ import { themeTypographyCreator } from './typography'
  * Represent theme style and structure as per Material-UI
  */
 
-type Customization = { borderRadius: string; navType: Palette['mode']; fontFamily: string }
-export type Theme = typeof themeOption & { customization: Customization }
+type Customization = { borderRadius: string; navType: Palette['mode']; fontFamily: string } & typeof reducer.customization.initialState
+export type SubTheme = typeof themeOption & { customization: Customization }
 
 export const themeOption = {
     colors,

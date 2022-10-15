@@ -1,10 +1,10 @@
-import { Theme } from './theme'
+import { SubTheme } from './theme'
 
 /**
  * Typography used in theme
  */
 
-export function themeTypographyCreator(theme: Theme) {
+export function themeTypographyCreator(theme: SubTheme) {
     return {
         fontFamily: theme.customization.fontFamily,
         h6: {

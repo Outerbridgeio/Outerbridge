@@ -1,26 +1,27 @@
-import PropTypes from 'prop-types'
 import { useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useSelector } from 'store'
 
 // material-ui
-import { useTheme } from '@mui/material/styles'
+import { useTheme } from 'themes'
 import { Collapse, List, ListItemButton, ListItemIcon, ListItemText, Typography } from '@mui/material'
 
 // project imports
-import NavItem from '../NavItem'
+import { NavItem, Item } from '../NavItem'
 
 // assets
-import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord'
+import { FiberManualRecord } from '@mui/icons-material'
 import { IconChevronDown, IconChevronUp } from '@tabler/icons'
 
 // ==============================|| SIDEBAR MENU LIST COLLAPSE ITEMS ||============================== //
 
-const NavCollapse = ({ menu, level }) => {
+export type Menu = Item & { children?: (Item & { type: string })[] }
+
+export const NavCollapse = ({ menu, level }: { menu: Menu; level: number }) => {
     const theme = useTheme()
     const customization = useSelector((state) => state.customization)
 
     const [open, setOpen] = useState(false)
-    const [selected, setSelected] = useState(null)
+    const [selected, setSelected] = useState<string | null>(null)
 
     const handleClick = () => {
         setOpen(!open)
@@ -44,10 +45,10 @@ const NavCollapse = ({ menu, level }) => {
     })
 
     const Icon = menu.icon
-    const menuIcon = menu.icon ? (
+    const menuIcon = Icon ? (
         <Icon strokeWidth={1.5} size='1.3rem' style={{ marginTop: 'auto', marginBottom: 'auto' }} />
     ) : (
-        <FiberManualRecordIcon
+        <FiberManualRecord
             sx={{
                 width: selected === menu.id ? 8 : 6,
                 height: selected === menu.id ? 8 : 6
@@ -115,10 +116,3 @@ const NavCollapse = ({ menu, level }) => {
         </>
     )
 }
-
-NavCollapse.propTypes = {
-    menu: PropTypes.object,
-    level: PropTypes.number
-}
-
-export default NavCollapse

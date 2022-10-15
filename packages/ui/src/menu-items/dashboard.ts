@@ -7,12 +7,12 @@ const icons = { IconHierarchy, IconEditCircle, IconWallet }
 // ==============================|| DASHBOARD MENU ITEMS ||============================== //
 
 export const dashboard = {
-    id: 'dashboard',
+    id: 'dashboard' as const,
     title: '',
     type: 'group',
     children: [
         {
-            id: 'workflows',
+            id: 'workflows' as const,
             title: 'Workflows',
             type: 'item',
             url: '/workflows',
@@ -20,7 +20,7 @@ export const dashboard = {
             breadcrumbs: true
         },
         {
-            id: 'contracts',
+            id: 'contracts' as const,
             title: 'Contracts',
             type: 'item',
             url: '/contracts',
@@ -28,7 +28,7 @@ export const dashboard = {
             breadcrumbs: true
         },
         {
-            id: 'wallets',
+            id: 'wallets' as const,
             title: 'Wallets',
             type: 'item',
             url: '/wallets',

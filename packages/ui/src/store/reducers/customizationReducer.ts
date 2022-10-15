@@ -5,10 +5,10 @@ import { config } from 'config'
 import { MENU_OPEN, SET_MENU, SET_FONT_FAMILY, SET_BORDER_RADIUS } from '../actions'
 
 export const initialState = {
-    isOpen: [], // for active default menu
+    isOpen: [] as string[], // for active default menu
     fontFamily: config.fontFamily,
     borderRadius: config.borderRadius,
-    opened: true
+    opened: true as boolean
 }
 
 // ==============================|| CUSTOMIZATION REDUCER ||============================== //
@@ -19,7 +19,7 @@ export const customizationReducer = (
         | { type: typeof MENU_OPEN; id: string }
         | { type: typeof SET_MENU; opened: boolean }
         | { type: typeof SET_FONT_FAMILY; fontFamily: string }
-        | { type: typeof SET_BORDER_RADIUS; borderRadius: string }
+        | { type: typeof SET_BORDER_RADIUS; borderRadius: number }
 ) => {
     let id
     switch (action.type) {

@@ -1,6 +1,6 @@
-import { Theme } from './theme'
+import { SubTheme } from './theme'
 
-export function componentStyleOverrides(theme: Theme) {
+export function componentStyleOverrides(theme: SubTheme) {
     const bgColor = theme.colors.grey50
     return {
         MuiButton: {

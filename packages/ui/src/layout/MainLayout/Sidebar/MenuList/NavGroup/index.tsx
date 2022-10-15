@@ -1,16 +1,14 @@
-import PropTypes from 'prop-types'
-
+import { useTheme } from 'themes'
 // material-ui
-import { useTheme } from '@mui/material/styles'
 import { Divider, List, Typography } from '@mui/material'
 
 // project imports
-import NavItem from '../NavItem'
-import NavCollapse from '../NavCollapse'
+import { NavItem } from '../NavItem'
+import { NavCollapse, Menu } from '../NavCollapse'
 
 // ==============================|| SIDEBAR MENU LIST GROUP ||============================== //
 
-const NavGroup = ({ item }) => {
+export const NavGroup = ({ item }: { item: Menu }) => {
     const theme = useTheme()
 
     // menu list collapse & items
@@ -53,9 +51,3 @@ const NavGroup = ({ item }) => {
         </>
     )
 }
-
-NavGroup.propTypes = {
-    item: PropTypes.object
-}
-
-export default NavGroup

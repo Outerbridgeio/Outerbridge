@@ -1,35 +1,60 @@
-import PropTypes from 'prop-types'
-import { forwardRef, useEffect } from 'react'
+import { forwardRef, useEffect, ElementType, ChangeEvent, ComponentProps } from 'react'
 import { Link } from 'react-router-dom'
-import { useDispatch, useSelector } from 'react-redux'
-
+import { useDispatch, useSelector } from 'store'
+import { useTheme } from 'themes'
+import { TablerIcon } from '@tabler/icons'
 // material-ui
-import { useTheme } from '@mui/material/styles'
 import { Avatar, Chip, ListItemButton, ListItemIcon, ListItemText, Typography, useMediaQuery } from '@mui/material'
 
 // project imports
 import { MENU_OPEN, SET_MENU } from 'store/actions'
-import config from 'config'
+import { config } from 'config'
 
 // assets
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord'
 
 // ==============================|| SIDEBAR MENU LIST ITEMS ||============================== //
 
-const NavItem = ({ item, level, navType, onClick, onUploadFile }) => {
+type ID = 'loadWorkflow' | 'workflows' | 'contracts' | 'exportWorkflow' | 'deleteWorkflow' | 'wallets' | 'dashboard' | 'settings'
+
+export type Item = {
+    icon?: TablerIcon
+    id: ID
+    target?: string
+    url?: string
+    external?: string
+    disabled?: boolean
+    title: string
+    caption?: string
+    chip?: ComponentProps<typeof Chip>
+}
+
+export const NavItem = ({
+    item,
+    level,
+    navType,
+    onClick,
+    onUploadFile
+}: {
+    item: Item
+    level: number
+    navType?: 'SETTINGS' | 'MENU'
+    onClick?: (arg: string) => void
+    onUploadFile?: (arg: string | ArrayBuffer) => void
+}) => {
     const theme = useTheme()
     const dispatch = useDispatch()
     const customization = useSelector((state) => state.customization)
     const matchesSM = useMediaQuery(theme.breakpoints.down('lg'))
 
     const Icon = item.icon
-    const itemIcon = item?.icon ? (
+    const itemIcon = Icon ? (
         <Icon stroke={1.5} size='1.3rem' />
     ) : (
         <FiberManualRecordIcon
             sx={{
-                width: customization.isOpen.findIndex((id) => id === item?.id) > -1 ? 8 : 6,
-                height: customization.isOpen.findIndex((id) => id === item?.id) > -1 ? 8 : 6
+                width: customization.isOpen.findIndex((id) => id === item.id) > -1 ? 8 : 6,
+                height: customization.isOpen.findIndex((id) => id === item.id) > -1 ? 8 : 6
             }}
             fontSize={level > 0 ? 'inherit' : 'medium'}
         />
@@ -40,22 +65,22 @@ const NavItem = ({ item, level, navType, onClick, onUploadFile }) => {
         itemTarget = '_blank'
     }
 
-    let listItemProps = {
+    let listItemProps: { component: ElementType; href?: string; target?: string } = {
         component: forwardRef(function ListItemPropsComponent(props, ref) {
             return <Link ref={ref} {...props} to={`${config.basename}${item.url}`} target={itemTarget} />
         })
     }
-    if (item?.external) {
+    if (item.external) {
         listItemProps = { component: 'a', href: item.url, target: itemTarget }
     }
-    if (item?.id === 'loadWorkflow') {
+    if (item.id === 'loadWorkflow') {
         listItemProps.component = 'label'
     }
 
-    const handleFileUpload = (e) => {
+    const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files) return
 
-        const file = e.target.files[0]
+        const file = e.target.files[0]!
 
         const reader = new FileReader()
         reader.onload = (evt) => {
@@ -63,14 +88,14 @@ const NavItem = ({ item, level, navType, onClick, onUploadFile }) => {
                 return
             }
             const { result } = evt.target
-            onUploadFile(result)
+            onUploadFile && onUploadFile(result)
         }
         reader.readAsText(file)
     }
 
-    const itemHandler = (id) => {
+    const itemHandler = (id: ID) => {
         if (navType === 'SETTINGS' && id !== 'loadWorkflow') {
-            onClick(id)
+            onClick && onClick(id)
         } else {
             dispatch({ type: MENU_OPEN, id })
             if (matchesSM) dispatch({ type: SET_MENU, opened: false })
@@ -111,7 +136,7 @@ const NavItem = ({ item, level, navType, onClick, onUploadFile }) => {
             onClick={() => itemHandler(item.id)}
         >
             {item.id === 'loadWorkflow' && <input type='file' hidden accept='.json' onChange={(e) => handleFileUpload(e)} />}
-            <ListItemIcon sx={{ my: 'auto', minWidth: !item?.icon ? 18 : 36 }}>{itemIcon}</ListItemIcon>
+            <ListItemIcon sx={{ my: 'auto', minWidth: !item.icon ? 18 : 36 }}>{itemIcon}</ListItemIcon>
             <ListItemText
                 primary={
                     <Typography variant={customization.isOpen.findIndex((id) => id === item.id) > -1 ? 'h5' : 'body1'} color='inherit'>
@@ -138,13 +163,3 @@ const NavItem = ({ item, level, navType, onClick, onUploadFile }) => {
         </ListItemButton>
     )
 }
-
-NavItem.propTypes = {
-    item: PropTypes.object,
-    level: PropTypes.number,
-    navType: PropTypes.string,
-    onClick: PropTypes.func,
-    onUploadFile: PropTypes.func
-}
-
-export default NavItem

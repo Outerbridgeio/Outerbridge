@@ -1,5 +1,3 @@
-import PropTypes from 'prop-types'
-
 // material-ui
 import { useTheme } from '@mui/material/styles'
 import { Box, Drawer, useMediaQuery } from '@mui/material'
@@ -9,13 +7,23 @@ import PerfectScrollbar from 'react-perfect-scrollbar'
 import { BrowserView, MobileView } from 'react-device-detect'
 
 // project imports
-import MenuList from './MenuList'
-import LogoSection from '../LogoSection'
-import { drawerWidth } from 'store/constant'
+import { MenuList } from './MenuList'
+import { LogoSection } from '../LogoSection'
+import { constant } from 'store'
+
+const { drawerWidth } = constant
 
 // ==============================|| SIDEBAR DRAWER ||============================== //
 
-const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
+export const Sidebar = ({
+    drawerOpen,
+    drawerToggle,
+    window
+}: {
+    drawerOpen: boolean
+    drawerToggle: (...args: any) => void
+    window?: Window
+}) => {
     const theme = useTheme()
     const matchUpMd = useMediaQuery(theme.breakpoints.up('md'))
 
@@ -75,11 +83,3 @@ const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
         </Box>
     )
 }
-
-Sidebar.propTypes = {
-    drawerOpen: PropTypes.bool,
-    drawerToggle: PropTypes.func,
-    window: PropTypes.object
-}
-
-export default Sidebar

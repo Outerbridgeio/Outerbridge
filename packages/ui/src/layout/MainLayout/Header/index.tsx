@@ -1,18 +1,16 @@
-import PropTypes from 'prop-types'
-
+import { useTheme } from 'themes'
 // material-ui
-import { useTheme } from '@mui/material/styles'
 import { Avatar, Box, ButtonBase } from '@mui/material'
 
 // project imports
-import LogoSection from '../LogoSection'
+import { LogoSection } from '../LogoSection'
 
 // assets
 import { IconMenu2 } from '@tabler/icons'
 
 // ==============================|| MAIN NAVBAR / HEADER ||============================== //
 
-const Header = ({ handleLeftDrawerToggle }) => {
+export const Header = ({ handleLeftDrawerToggle }: { handleLeftDrawerToggle: (...arg: any[]) => void }) => {
     const theme = useTheme()
 
     return (
@@ -54,9 +52,3 @@ const Header = ({ handleLeftDrawerToggle }) => {
         </>
     )
 }
-
-Header.propTypes = {
-    handleLeftDrawerToggle: PropTypes.func
-}
-
-export default Header

@@ -4,4 +4,4 @@ export const config = {
     defaultPath: '/workflows',
     fontFamily: `'Roboto', sans-serif`,
     borderRadius: 12
-} as const
+}

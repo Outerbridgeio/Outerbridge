@@ -1,10 +1,10 @@
-import { Theme } from './theme'
+import { SubTheme } from './theme'
 
 /**
  * Color intention that you want to used in your theme
  */
 
-export function themePaletteCreator(theme: Theme) {
+export function themePaletteCreator(theme: SubTheme) {
     return {
         mode: theme.customization.navType,
         common: {
