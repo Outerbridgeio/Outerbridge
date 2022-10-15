@@ -95,44 +95,25 @@ class GoogleDocs implements INode {
                 label: 'Requests',
                 name: 'requests',
                 description:
-                    "update a document. You can simply add one reequest data or add multiple request data. If request format is invalid, document won't be updated.",
+                    "update a document. You can simply add one reequest data or add multiple request data. If request format is invalid, document won't be updated. The details about how to write a request data can be found at https://developers.google.com/docs/api/reference/rest/v1/documents/batchUpdate", 
                 type: 'json',
                 placeholder: `[
                     {
-                        replaceAllText: {
-                            containsText: {
-                                matchCase: false,
-                                text: 'text'
-                            },
-                            replaceText: 'new text'
-                        }
-                    },
-                    {
-                        insertText: {
-                            text: 'new text',
-                            location: {
-                                segmentId: '3',
-                                index: 0
-                            },
-                            endOfSegmentLocation: {
-                                segmentId: '3'
+                        "insertText": {
+                          "text": "new text",
+                            "location": {
+                                "index": 1 
                             }
                         }
                     },
                     {
-                        createFooter: {
-                            sectionBreakLocation: {
-                                index: 0,
-                                segmentId: '11'
-                            },
-                            type: 'HEADER_FOOTER_TYPE_UNSPECIFIED'
+                        "insertTable": {
+                            "rows": 3,
+                            "columns": 4,
+                            "endOfSegmentLocation":{
+                            }
                         }
-                    },
-                    {
-                        deleteFooter: {
-                            footerId: '11'
-                        }
-                    },
+                    }
 ]`,
                 show: {
                     'actions.operation': ['update']
