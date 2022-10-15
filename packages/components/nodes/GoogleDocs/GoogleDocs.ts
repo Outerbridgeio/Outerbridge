@@ -37,13 +37,18 @@ class GoogleDocs implements INode {
                         description: 'Create a new document'
                     },
                     {
-						label: 'Get All Values',
-						name: 'getAll',
+                        label: 'Get All Values',
+                        name: 'getAll',
                         description: 'Get all values from a document'
-					},
+                    },
+                    {
+                        label: 'Update a Document',
+                        name: 'update',
+                        description: 'Update a document'
+                    }
                 ],
                 default: 'create'
-            },
+            }
         ] as INodeParams[];
 
         this.credentials = [
@@ -80,6 +85,58 @@ class GoogleDocs implements INode {
                 hide: {
                     'actions.operation': ['create']
                 }
+            },
+
+            /**
+             *  batch update
+             */
+
+            {
+                label: 'Requests',
+                name: 'requests',
+                description:
+                    "update a document. You can simply add one reequest data or add multiple request data. If request format is invalid, document won't be updated.",
+                type: 'json',
+                placeholder: `[
+                    {
+                        replaceAllText: {
+                            containsText: {
+                                matchCase: false,
+                                text: 'text'
+                            },
+                            replaceText: 'new text'
+                        }
+                    },
+                    {
+                        insertText: {
+                            text: 'new text',
+                            location: {
+                                segmentId: '3',
+                                index: 0
+                            },
+                            endOfSegmentLocation: {
+                                segmentId: '3'
+                            }
+                        }
+                    },
+                    {
+                        createFooter: {
+                            sectionBreakLocation: {
+                                index: 0,
+                                segmentId: '11'
+                            },
+                            type: 'HEADER_FOOTER_TYPE_UNSPECIFIED'
+                        }
+                    },
+                    {
+                        deleteFooter: {
+                            footerId: '11'
+                        }
+                    },
+]`,
+                show: {
+                    'actions.operation': ['update']
+                }
             }
         ] as INodeParams[];
     }
@@ -99,33 +156,33 @@ class GoogleDocs implements INode {
             const access_token = credentials!.access_token as string;
             const headers: AxiosRequestHeaders = {
                 'Content-Type': 'application/json',
-                'Authorization': `${token_type} ${access_token}`,
+                Authorization: `${token_type} ${access_token}`
             };
 
             const axiosConfig: AxiosRequestConfig = {
                 method: 'GET',
                 url: `https://www.googleapis.com/drive/v3/files?q=mimeType='application/vnd.google-apps.document'`,
                 headers
-            }
+            };
 
             let maxRetries = 5;
             do {
                 try {
                     const response = await axios(axiosConfig);
                     const responseData = response.data;
-                    for (const file of (responseData.files || [])) {
+                    for (const file of responseData.files || []) {
                         returnData.push({
                             label: file.name as string,
-                            name: file.id as string,
+                            name: file.id as string
                         });
                     }
                     return returnData;
-                } catch(e) {
+                } catch (e) {
                     // Access_token expired
                     if (e.response && e.response.status === 401) {
                         const { access_token } = await refreshOAuth2Token(credentials);
                         headers['Authorization'] = `${token_type} ${access_token}`;
-                        continue;                    
+                        continue;
                     }
                     return returnData;
                 }
@@ -133,7 +190,7 @@ class GoogleDocs implements INode {
 
             return returnData;
         }
-    }
+    };
 
     async run(nodeData: INodeData): Promise<INodeExecutionData[] | null> {
         const actionsData = nodeData.actions;
@@ -180,9 +237,15 @@ class GoogleDocs implements INode {
                     if (documentName) {
                         queryBody['title'] = documentName;
                     }
-                } else if(operation === 'getAll') { 
+                } else if (operation === 'getAll') {
                     method = 'GET';
                     url = `https://docs.googleapis.com/v1/documents/${documentId}`;
+                } else if (operation === 'update') {
+                    // batch update
+                    url = `https://docs.googleapis.com/v1/documents/${documentId}:batchUpdate`;
+
+                    const requestsString = inputParametersData?.requests as string;
+                    queryBody['requests'] = JSON.parse(requestsString.replace(/\s/g, ''));
                 }
 
                 const axiosConfig: AxiosRequestConfig = {
