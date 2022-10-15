@@ -1,10 +1,10 @@
 // material-ui
 import { Card, CardContent, Grid } from '@mui/material'
-import Skeleton from '@mui/material/Skeleton'
+import { Skeleton } from '@mui/material'
 
 // ==============================|| SKELETON - BRIDGE CARD ||============================== //
 
-const WorkflowCard = () => (
+export const WorkflowCard = () => (
     <Card>
         <CardContent>
             <Grid container direction='column'>
@@ -28,5 +28,3 @@ const WorkflowCard = () => (
         </CardContent>
     </Card>
 )
-
-export default WorkflowCard

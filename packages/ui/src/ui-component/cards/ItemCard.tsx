@@ -1,19 +1,18 @@
-import PropTypes from 'prop-types'
-
+import { useTheme, Theme } from 'themes'
 // material-ui
-import { styled, useTheme } from '@mui/material/styles'
+import { styled } from '@mui/material/styles'
 import { Box, Grid, Chip, Typography } from '@mui/material'
 
 // project imports
 import MainCard from 'ui-component/cards/MainCard'
-import SkeletonWorkflowCard from 'ui-component/cards/Skeleton/WorkflowCard'
+import { WorkflowCard } from './Skeleton'
 
 // Const
 import { networks } from 'store/constant'
 
 import Jazzicon, { jsNumberForAddress } from 'react-jazzicon'
 
-const CardWrapper = styled(MainCard)(({ theme }) => ({
+const CardWrapper = styled(MainCard)(({ theme }: { theme: Theme }) => ({
     backgroundColor: '#ffffff',
     color: theme.darkTextPrimary,
     overflow: 'hidden',
@@ -27,7 +26,17 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
 
 // ===========================|| CONTRACT CARD ||=========================== //
 
-const ItemCard = ({ isLoading, data, images, onClick }) => {
+export const ItemCard = ({
+    isLoading,
+    data,
+    images,
+    onClick
+}: {
+    isLoading: boolean
+    data
+    images: string[]
+    onClick: (...arg: any) => void
+}) => {
     const theme = useTheme()
 
     const chipSX = {
@@ -48,7 +57,7 @@ const ItemCard = ({ isLoading, data, images, onClick }) => {
     return (
         <>
             {isLoading ? (
-                <SkeletonWorkflowCard />
+                <WorkflowCard />
             ) : (
                 <CardWrapper border={false} content={false} onClick={onClick}>
                     <Box sx={{ p: 2.25 }}>
@@ -124,12 +133,3 @@ const ItemCard = ({ isLoading, data, images, onClick }) => {
         </>
     )
 }
-
-ItemCard.propTypes = {
-    isLoading: PropTypes.bool,
-    data: PropTypes.object,
-    images: PropTypes.array,
-    onClick: PropTypes.func
-}
-
-export default ItemCard

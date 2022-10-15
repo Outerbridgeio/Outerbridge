@@ -1,10 +1,9 @@
-import { useEffect } from 'react'
+import { useEffect, PropsWithChildren } from 'react'
 import { useLocation } from 'react-router-dom'
-import { ReactNode } from 'react'
 
 // ==============================|| NAVIGATION SCROLL TO TOP ||============================== //
 
-export const NavigationScroll = ({ children }: { children: ReactNode }) => {
+export const NavigationScroll = ({ children }: PropsWithChildren) => {
     const location = useLocation()
     const { pathname } = location
 

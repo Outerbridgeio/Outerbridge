@@ -1,17 +1,14 @@
-import { Suspense } from 'react'
-
+import { Suspense, FC, PropsWithChildren } from 'react'
 // project imports
-import Loader from './Loader'
+import { Loader } from './Loader'
 
 // ==============================|| LOADABLE - LAZY LOADING ||============================== //
 
-const Loadable = (Component) =>
-    function WithLoader(props) {
+export const Loadable = <T extends PropsWithChildren>(Component: FC<T>) =>
+    function WithLoader(props: T) {
         return (
             <Suspense fallback={<Loader />}>
                 <Component {...props} />
             </Suspense>
         )
     }
-
-export default Loadable

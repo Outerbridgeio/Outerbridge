@@ -1,8 +1,8 @@
 import { motion } from 'framer-motion'
-import { ReactNode } from 'react'
+import { PropsWithChildren } from 'react'
 // ==============================|| ANIMATION FOR CONTENT ||============================== //
 
-export const NavMotion = ({ children }: { children: ReactNode }) => {
+export const NavMotion = ({ children }: PropsWithChildren) => {
     const motionVariants = {
         initial: {
             opacity: 0,
