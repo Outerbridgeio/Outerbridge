@@ -1,4 +1,4 @@
-import { useReducer, createContext, FC, Dispatch } from 'react'
+import { useReducer, createContext, Dispatch, ReactNode } from 'react'
 import { dialog } from '../reducers'
 
 export const ConfirmContext = createContext([
@@ -6,7 +6,7 @@ export const ConfirmContext = createContext([
     (() => {}) as Dispatch<Parameters<typeof dialog.dialogReducer>[1]>
 ] as const)
 
-export const ConfirmContextProvider: FC = (props) => {
+export const ConfirmContextProvider = (props: { children: ReactNode }) => {
     const [state, dispatch] = useReducer(dialog.dialogReducer, dialog.initialState)
 
     return <ConfirmContext.Provider value={[state, dispatch]} {...props} />

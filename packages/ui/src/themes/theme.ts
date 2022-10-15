@@ -12,7 +12,7 @@ import { themeTypographyCreator } from './typography'
  * Represent theme style and structure as per Material-UI
  */
 
-type Customization = { borderRadius: string; navType: Palette['mode']; fontFamily: string } & typeof reducer.customization.initialState
+type Customization = { navType?: Palette['mode'] } & typeof reducer.customization.initialState
 export type SubTheme = typeof themeOption & { customization: Customization }
 
 export const themeOption = {
