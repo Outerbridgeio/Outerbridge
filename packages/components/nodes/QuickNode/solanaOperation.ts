@@ -1,11 +1,7 @@
-import { NETWORK, NETWORK_PROVIDER } from "../../src/ChainNetwork";
-import { IETHOperation } from "../../src/ETHOperations";
+import { NETWORK, NETWORK_PROVIDER } from '../../src/ChainNetwork'
+import { IETHOperation } from '../../src/ETHOperations'
 
-export const solanaOperationsNetworks = [
-    NETWORK.SOLANA,
-    NETWORK.SOLANA_DEVNET,
-    NETWORK.SOLANA_TESTNET,
-];
+export const solanaOperationsNetworks = [NETWORK.SOLANA, NETWORK.SOLANA_DEVNET, NETWORK.SOLANA_TESTNET]
 
 export const solanaOperations = [
     {
@@ -18,10 +14,10 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getAccountInfo",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getAccountInfo',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -41,7 +37,7 @@ export const solanaOperations = [
         exampleParameters: `[
   "vines1vzrYbzLMRdu58ou5XTby4qAqVRLmqo36NKPTg",
   {"encoding": "base58"}
-]`,
+]`
     },
     {
         name: 'Get Balance (getBalance)',
@@ -53,10 +49,10 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getBalance",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getBalance',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -73,7 +69,7 @@ export const solanaOperations = [
         </ul>`,
         exampleParameters: `[
   "vines1vzrYbzLMRdu58ou5XTby4qAqVRLmqo36NKPTg"
-]`,
+]`
     },
     {
         name: 'Get Block (getBlock)',
@@ -85,10 +81,10 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getBlock",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getBlock',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -114,7 +110,7 @@ export const solanaOperations = [
     "transactionDetails":"full",
     "rewards":false
   }
-]`,
+]`
     },
     {
         name: 'Get Block Commitment (getBlockCommitment)',
@@ -126,10 +122,10 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getBlockCommitment",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getBlockCommitment',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -137,7 +133,7 @@ export const solanaOperations = [
         </ul>`,
         exampleParameters: `[
   94101948
-]`,
+]`
     },
     {
         name: 'Get Block Height (getBlockHeight)',
@@ -149,10 +145,10 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getBlockHeight",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getBlockHeight',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -165,7 +161,7 @@ export const solanaOperations = [
                     <li><code class="inline">Processed</code> - the node will query its most recent block. Note that the block may not be complete.</li>
                 </ul>
             </ul>
-        </ul>`,
+        </ul>`
     },
     {
         name: 'Get Block Production (getBlockProduction)',
@@ -177,10 +173,10 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getBlockProduction",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getBlockProduction',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -199,7 +195,7 @@ export const solanaOperations = [
                 </ul>
                 <li><code class="inline">identity</code> - (optional) Only return results for this validator identity (base-58 encoded).</li>
             </ul>
-        </ul>`,
+        </ul>`
     },
     {
         name: 'Get Block Time (getBlockTime)',
@@ -211,10 +207,10 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getBlockTime",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getBlockTime',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -222,7 +218,7 @@ export const solanaOperations = [
         </ul>`,
         exampleParameters: `[
   94101948
-]`,
+]`
     },
     {
         name: 'Get Blocks (getBlocks)',
@@ -234,10 +230,10 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getBlocks",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getBlocks',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -254,7 +250,7 @@ export const solanaOperations = [
         </ul>`,
         exampleParameters: `[
   5, 10
-]`,
+]`
     },
     {
         name: 'Get Blocks With Limit (getBlocksWithLimit)',
@@ -266,10 +262,10 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getBlocksWithLimit",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getBlocksWithLimit',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -286,7 +282,7 @@ export const solanaOperations = [
         </ul>`,
         exampleParameters: `[
   5, 3
-]`,
+]`
     },
     {
         name: 'Get Cluster Nodes (getClusterNodes)',
@@ -298,11 +294,11 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getClusterNodes",
-            "params":[],
-            "id":1
-        },
+            jsonrpc: '2.0',
+            method: 'getClusterNodes',
+            params: [],
+            id: 1
+        }
     },
     {
         name: 'Get Confirmed Block (getConfirmedBlock)',
@@ -314,10 +310,10 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getConfirmedBlock",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getConfirmedBlock',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -343,7 +339,7 @@ export const solanaOperations = [
     "transactionDetails":"full",
     "rewards":false
   }
-]`,
+]`
     },
     {
         name: 'Get Confirmed Blocks (getConfirmedBlocks)',
@@ -355,10 +351,10 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getConfirmedBlocks",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getConfirmedBlocks',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -374,7 +370,7 @@ export const solanaOperations = [
         exampleParameters: `[
   94101945,
   94101948
-]`,
+]`
     },
     {
         name: 'Get Confirmed Blocks With Limit (getConfirmedBlocksWithLimit)',
@@ -386,10 +382,10 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getConfirmedBlocksWithLimit",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getConfirmedBlocksWithLimit',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -405,22 +401,23 @@ export const solanaOperations = [
         exampleParameters: `[
   94101945, 
   3
-]`,
+]`
     },
     {
         name: 'Get Confirmed Signatures For Address2 (getConfirmedSignaturesForAddress2)',
         value: 'getConfirmedSignaturesForAddress2',
         parentGroup: 'Reading & Writing Transactions',
-        description: 'Returns confirmed signatures for transactions involving an address backwards in time from the provided signature or most recent confirmed block.',
+        description:
+            'Returns confirmed signatures for transactions involving an address backwards in time from the provided signature or most recent confirmed block.',
         providerNetworks: {
             [NETWORK_PROVIDER.QUICKNODE]: solanaOperationsNetworks
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getConfirmedSignaturesForAddress2",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getConfirmedSignaturesForAddress2',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -440,7 +437,7 @@ export const solanaOperations = [
         exampleParameters: `[
   "Vote111111111111111111111111111111111111111",
   {"limit": 1}
-]`,
+]`
     },
     {
         name: 'Get Confirmed Transaction (getConfirmedTransaction)',
@@ -452,10 +449,10 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getConfirmedTransaction",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getConfirmedTransaction',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -475,7 +472,7 @@ export const solanaOperations = [
   {
     "encoding": "json",
   }
-]`,
+]`
     },
     {
         name: 'Get Epoch Info (getEpochInfo)',
@@ -487,10 +484,10 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getEpochInfo",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getEpochInfo',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -503,7 +500,7 @@ export const solanaOperations = [
                     <li><code class="inline">Processed</code> - the node will query its most recent block. Note that the block may not be complete.</li>
                 </ul>
             </ul>
-        </ul>`,
+        </ul>`
     },
     {
         name: 'Get Epoch Schedule (getEpochSchedule)',
@@ -515,11 +512,11 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getEpochSchedule",
-            "params":[],
-            "id":1
-        },
+            jsonrpc: '2.0',
+            method: 'getEpochSchedule',
+            params: [],
+            id: 1
+        }
     },
     {
         name: 'Get Fee Calculator For Blockhash (getFeeCalculatorForBlockhash)',
@@ -531,10 +528,10 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getFeeCalculatorForBlockhash",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getFeeCalculatorForBlockhash',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -546,7 +543,7 @@ export const solanaOperations = [
                 <li><code class="inline">Processed</code> - the node will query its most recent block. Note that the block may not be complete.</li>
             </ul>
         </ul>`,
-        exampleParameters: `["6EUDAG2UBZ1J7CbpixutsELc5c6s4k8YzaWawyKH2Pit"]`,
+        exampleParameters: `["6EUDAG2UBZ1J7CbpixutsELc5c6s4k8YzaWawyKH2Pit"]`
     },
     {
         name: 'Get Fee For Message (getFeeForMessage)',
@@ -558,10 +555,10 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getFeeForMessage",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getFeeForMessage',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -581,7 +578,7 @@ export const solanaOperations = [
   {
     "commitment": "processed"
   }
-]`,
+]`
     },
     {
         name: 'Get Fee Rate Governor (getFeeRateGovernor)',
@@ -593,26 +590,27 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getFeeRateGovernor",
-            "params":[],
-            "id":1
-        },
+            jsonrpc: '2.0',
+            method: 'getFeeRateGovernor',
+            params: [],
+            id: 1
+        }
     },
     {
         name: 'Get Fees (getFees)',
         value: 'getFees',
         parentGroup: 'Network Information',
-        description: 'Returns a recent block hash from the ledger, a fee schedule that can be used to compute the cost of submitting a transaction using it, and the last slot in which the blockhash will be valid.',
+        description:
+            'Returns a recent block hash from the ledger, a fee schedule that can be used to compute the cost of submitting a transaction using it, and the last slot in which the blockhash will be valid.',
         providerNetworks: {
             [NETWORK_PROVIDER.QUICKNODE]: solanaOperationsNetworks
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getFees",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getFees',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -630,7 +628,7 @@ export const solanaOperations = [
   {
     "commitment": "processed"
   }
-]`,
+]`
     },
     {
         name: 'Get First Available Block (getFirstAvailableBlock)',
@@ -642,11 +640,11 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getFirstAvailableBlock",
-            "params":[],
-            "id":1
-        },
+            jsonrpc: '2.0',
+            method: 'getFirstAvailableBlock',
+            params: [],
+            id: 1
+        }
     },
     {
         name: 'Get Genesis Hash (getGenesisHash)',
@@ -658,11 +656,11 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getGenesisHash",
-            "params":[],
-            "id":1
-        },
+            jsonrpc: '2.0',
+            method: 'getGenesisHash',
+            params: [],
+            id: 1
+        }
     },
     {
         name: 'Get Health (getHealth)',
@@ -674,27 +672,28 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getHealth",
-            "params":[],
-            "id":1
-        },
+            jsonrpc: '2.0',
+            method: 'getHealth',
+            params: [],
+            id: 1
+        }
     },
     {
         name: 'Get Highest Snapshot Slot (getHighestSnapshotSlot)',
         value: 'getHighestSnapshotSlot',
         parentGroup: 'Node Information',
-        description: 'Returns the highest slot that the node has a snapshot for. This will find the highest full snapshot slot, and the highest incremental snapshot slot based on the full snapshot slot, if there is one.',
+        description:
+            'Returns the highest slot that the node has a snapshot for. This will find the highest full snapshot slot, and the highest incremental snapshot slot based on the full snapshot slot, if there is one.',
         providerNetworks: {
             [NETWORK_PROVIDER.QUICKNODE]: solanaOperationsNetworks
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getHighestSnapshotSlot",
-            "params":[],
-            "id":1
-        },
+            jsonrpc: '2.0',
+            method: 'getHighestSnapshotSlot',
+            params: [],
+            id: 1
+        }
     },
     {
         name: 'Get Identity (getIdentity)',
@@ -706,11 +705,11 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getIdentity",
-            "params":[],
-            "id":1
-        },
+            jsonrpc: '2.0',
+            method: 'getIdentity',
+            params: [],
+            id: 1
+        }
     },
     {
         name: 'Get Inflation Governor (getInflationGovernor)',
@@ -722,10 +721,10 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getInflationGovernor",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getInflationGovernor',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -743,7 +742,7 @@ export const solanaOperations = [
   {
     "commitment": "processed"
   }
-]`,
+]`
     },
     {
         name: 'Get Inflation Rate (getInflationRate)',
@@ -755,11 +754,11 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getInflationRate",
-            "params":[],
-            "id":1
-        },
+            jsonrpc: '2.0',
+            method: 'getInflationRate',
+            params: [],
+            id: 1
+        }
     },
     {
         name: 'Get Inflation Reward (getInflationReward)',
@@ -771,10 +770,10 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getInflationReward",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getInflationReward',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -798,7 +797,7 @@ export const solanaOperations = [
     "ADDRESS_TO_SEARCH_2"
   ], 
   {"epoch": 2}
-]`,
+]`
     },
     {
         name: 'Get Largest Accounts (getLargestAccounts)',
@@ -810,10 +809,10 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getLargestAccounts",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getLargestAccounts',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -827,7 +826,7 @@ export const solanaOperations = [
                 </ul>
             </ul>
             <li><code class="inline">filter</code> - (optional) filter results by account type; currently supported: <code class="inline">circulating</code> | <code class="inline">nonCirculating</code></li>
-        </ul>`,
+        </ul>`
     },
     {
         name: 'Get Latest Blockhash (getLatestBlockhash)',
@@ -839,10 +838,10 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getLatestBlockhash",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getLatestBlockhash',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -861,7 +860,7 @@ export const solanaOperations = [
   {
     "commitment": "processed"
   }
-]`,
+]`
     },
     {
         name: 'Get Leader Schedule (getLeaderSchedule)',
@@ -873,10 +872,10 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getLeaderSchedule",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getLeaderSchedule',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -891,7 +890,7 @@ export const solanaOperations = [
                 </ul>
                 <li><code class="inline">identity</code> - (optional) Only return results for this validator identity (base-58 encoded).</li>
             </ul>
-        </ul>`,
+        </ul>`
     },
     {
         name: 'Get Max Retransmit Slot (getMaxRetransmitSlot)',
@@ -903,11 +902,11 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getMaxRetransmitSlot",
-            "params":[],
-            "id":1
-        },
+            jsonrpc: '2.0',
+            method: 'getMaxRetransmitSlot',
+            params: [],
+            id: 1
+        }
     },
     {
         name: 'Get Max Shred Insert Slot (getMaxShredInsertSlot)',
@@ -919,11 +918,11 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getMaxShredInsertSlot",
-            "params":[],
-            "id":1
-        },
+            jsonrpc: '2.0',
+            method: 'getMaxShredInsertSlot',
+            params: [],
+            id: 1
+        }
     },
     {
         name: 'Get Minimum Balance For Rent Exemption (getMinimumBalanceForRentExemption)',
@@ -935,10 +934,10 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getMinimumBalanceForRentExemption",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getMinimumBalanceForRentExemption',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -953,7 +952,7 @@ export const solanaOperations = [
                 </ul>
             </ul>
         </ul>`,
-        exampleParameters: `[50]`,
+        exampleParameters: `[50]`
     },
     {
         name: 'Get Multiple Accounts (getMultipleAccounts)',
@@ -965,10 +964,10 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getMultipleAccounts",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getMultipleAccounts',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -996,7 +995,7 @@ export const solanaOperations = [
       "length": 0
     }
   }
-]`,
+]`
     },
     {
         name: 'Get Program Accounts (getProgramAccounts)',
@@ -1008,10 +1007,10 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getProgramAccounts",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getProgramAccounts',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -1031,22 +1030,23 @@ export const solanaOperations = [
                 <li><code class="inline">minContextSlot</code> - (optional) set the minimum slot that the request can be evaluated at.</li>
             </ul>
         </ul>`,
-        exampleParameters: `["PROGRAM_TO_SEARCH"]`,
+        exampleParameters: `["PROGRAM_TO_SEARCH"]`
     },
     {
         name: 'Get Recent Blockhash (getRecentBlockhash)',
         value: 'getRecentBlockhash',
         parentGroup: 'Getting Blocks',
-        description: 'Returns a recent block hash from the ledger, and a fee schedule that can be used to compute the cost of submitting a transaction using it.',
+        description:
+            'Returns a recent block hash from the ledger, and a fee schedule that can be used to compute the cost of submitting a transaction using it.',
         providerNetworks: {
             [NETWORK_PROVIDER.QUICKNODE]: solanaOperationsNetworks
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getRecentBlockhash",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getRecentBlockhash',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -1060,47 +1060,49 @@ export const solanaOperations = [
                 </ul>
             </ul>
         </ul>`,
-       exampleParameters: `[
+        exampleParameters: `[
   {
     "commitment": "processed"
   }
-]`,
+]`
     },
     {
         name: 'Get Recent Performance Samples (getRecentPerformanceSamples)',
         value: 'getRecentPerformanceSamples',
         parentGroup: 'Slot Information',
-        description: 'Returns a list of recent performance samples, in reverse slot order. Performance samples are taken every 60 seconds and include the number of transactions and slots that occur in a given time window.',
+        description:
+            'Returns a list of recent performance samples, in reverse slot order. Performance samples are taken every 60 seconds and include the number of transactions and slots that occur in a given time window.',
         providerNetworks: {
             [NETWORK_PROVIDER.QUICKNODE]: solanaOperationsNetworks
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getRecentPerformanceSamples",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getRecentPerformanceSamples',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
             <li><code class="inline">limit</code> - (optional) number of samples to return (maximum 720).</li>
         </ul>`,
-       exampleParameters: `[4]`,
+        exampleParameters: `[4]`
     },
     {
         name: 'Get Signature Statuses (getSignatureStatuses)',
         value: 'getSignatureStatuses',
         parentGroup: 'Reading & Writing Transactions',
-        description: 'Returns the statuses of a list of signatures. Unless the searchTransactionHistory configuration parameter is included, this method only searches the recent status cache of signatures, which retains statuses for all active slots plus MAX_RECENT_BLOCKHASHES rooted slots.',
+        description:
+            'Returns the statuses of a list of signatures. Unless the searchTransactionHistory configuration parameter is included, this method only searches the recent status cache of signatures, which retains statuses for all active slots plus MAX_RECENT_BLOCKHASHES rooted slots.',
         providerNetworks: {
             [NETWORK_PROVIDER.QUICKNODE]: solanaOperationsNetworks
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getSignatureStatuses",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getSignatureStatuses',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -1110,28 +1112,29 @@ export const solanaOperations = [
                 <li><code class="inline">searchTransactionHistory</code> -  Boolean value, if true, a Solana node will search its ledger cache for any signatures not found in the recent status cache.</li>
             </ul>
         </ul>`,
-       exampleParameters: `[
+        exampleParameters: `[
   [
     "5tGfZLNDxtCtWsW1BJoeTyHvnfGqpADDfBkUgkKENQJ8iz5yTN3ae51j8m8GRFevJx82gyuKnEX7iexFsqf7X2vS",
     "D13jTJYXoQBcRY9AfT5xRtsew7ENgCkNs6mwwwAcUCp4ZZCEM7YwZ7en4tVsoDa7Gu75Jjj2FgLXNUz8Zmgedff"
   ],
   {"searchTransactionHistory": true}
-]`,
+]`
     },
     {
         name: 'Get Signatures For Address (getSignaturesForAddress)',
         value: 'getSignaturesForAddress',
         parentGroup: 'Reading & Writing Transactions',
-        description: 'Returns confirmed signatures for transactions involving an address backwards in time from the provided signature or most recent confirmed block.',
+        description:
+            'Returns confirmed signatures for transactions involving an address backwards in time from the provided signature or most recent confirmed block.',
         providerNetworks: {
             [NETWORK_PROVIDER.QUICKNODE]: solanaOperationsNetworks
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getSignaturesForAddress",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getSignaturesForAddress',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -1149,10 +1152,10 @@ export const solanaOperations = [
                 </ul>
             </ul>
         </ul>`,
-       exampleParameters: `[
+        exampleParameters: `[
   "Vote111111111111111111111111111111111111111",
   {"limit": 1}
-]`,
+]`
     },
     {
         name: 'Get Slot (getSlot)',
@@ -1164,10 +1167,10 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getSlot",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getSlot',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -1181,11 +1184,11 @@ export const solanaOperations = [
                 </ul>
             </ul>
         </ul>`,
-       exampleParameters: `[
+        exampleParameters: `[
   {
     "commitment": "processed"
   }
-]`,
+]`
     },
     {
         name: 'Get Slot Leader (getSlotLeader)',
@@ -1197,10 +1200,10 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getSlotLeader",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getSlotLeader',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -1214,9 +1217,9 @@ export const solanaOperations = [
                 </ul>
             </ul>
         </ul>`,
-       exampleParameters: `[
+        exampleParameters: `[
   {"commitment": "processed"}
-]`,
+]`
     },
     {
         name: 'Get Slot Leaders (getSlotLeaders)',
@@ -1228,17 +1231,17 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getSlotLeaders",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getSlotLeaders',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
             <li><code class="inline">Start slot</code> - Start slot, as 64-bit unsigned integer.</li>
             <li><code class="inline">Limit</code> - Limit, as 64-bit unsigned integer.</li>
         </ul>`,
-       exampleParameters: `[140630426, 10]`,
+        exampleParameters: `[140630426, 10]`
     },
     {
         name: 'Get Snapshot Slot (getSnapshotSlot)',
@@ -1250,11 +1253,11 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getSnapshotSlot",
-            "params":[],
-            "id":1
-        },
+            jsonrpc: '2.0',
+            method: 'getSnapshotSlot',
+            params: [],
+            id: 1
+        }
     },
     {
         name: 'Get Stake Activation (getStakeActivation)',
@@ -1266,10 +1269,10 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getStakeActivation",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getStakeActivation',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -1285,7 +1288,7 @@ export const solanaOperations = [
                 <li><code class="inline">epoch</code> - (optional) epoch for which to calculate activation details. If parameter not provided, defaults to current epoch.</li>
             </ul>
         </ul>`,
-       exampleParameters: `["Buc3N8TitzhVtvy7sm85YWpY2F5PAAKV2iLP1cZAbwrJ"]`,
+        exampleParameters: `["Buc3N8TitzhVtvy7sm85YWpY2F5PAAKV2iLP1cZAbwrJ"]`
     },
     {
         name: 'Get Supply (getSupply)',
@@ -1297,10 +1300,10 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getSupply",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getSupply',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -1310,7 +1313,7 @@ export const solanaOperations = [
                 <li><code class="inline">Confirmed</code> - the node will query the most recent block that has been voted on by supermajority of the cluster.</li>
                 <li><code class="inline">Processed</code> - the node will query its most recent block. Note that the block may not be complete.</li>
             </ul>
-        </ul>`,
+        </ul>`
     },
     {
         name: 'Get Token Account Balance (getTokenAccountBalance)',
@@ -1322,10 +1325,10 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getTokenAccountBalance",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getTokenAccountBalance',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -1337,7 +1340,7 @@ export const solanaOperations = [
                 <li><code class="inline">Processed</code> - the node will query its most recent block. Note that the block may not be complete.</li>
             </ul>
         </ul>`,
-       exampleParameters: `["DhzDoryP2a4rMK2bcWwJxrE2uW6ir81ES8ZwJJPPpxDN"]`,
+        exampleParameters: `["DhzDoryP2a4rMK2bcWwJxrE2uW6ir81ES8ZwJJPPpxDN"]`
     },
     {
         name: 'Get Token Accounts By Delegate (getTokenAccountsByDelegate)',
@@ -1349,10 +1352,10 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getTokenAccountsByDelegate",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getTokenAccountsByDelegate',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -1374,7 +1377,7 @@ export const solanaOperations = [
                 <li><code class="inline">dataSlice</code> - limit the returned account data using the provided offset: (unsigned integer) and length: (unsigned integer) fields; only available for "base58", "base64" or "base64+zstd" encodings.</li>
             </ul>
         </ul>`,
-       exampleParameters: `[
+        exampleParameters: `[
   "4Nd1mBQtrMJVYVfKf2PJy9NZUZdTAsp7D4xWLs4gDB4T",
   {
     "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
@@ -1382,7 +1385,7 @@ export const solanaOperations = [
   {
     "encoding": "jsonParsed"
   }
-]`,
+]`
     },
     {
         name: 'Get Token Accounts By Owner (getTokenAccountsByOwner)',
@@ -1394,10 +1397,10 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getTokenAccountsByOwner",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getTokenAccountsByOwner',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -1419,7 +1422,7 @@ export const solanaOperations = [
                 <li><code class="inline">dataSlice</code> - limit the returned account data using the provided offset: (unsigned integer) and length: (unsigned integer) fields; only available for "base58", "base64" or "base64+zstd" encodings.</li>
             </ul>
         </ul>`,
-       exampleParameters: `[
+        exampleParameters: `[
   "GgPpTKg78vmzgDtP1DNn72CHAYjRdKY7AV6zgszoHCSa",
   {
     "mint": "1YDQ35V8g68FGvcT85haHwAXv1U7XMzuc4mZeEXfrjE"
@@ -1427,7 +1430,7 @@ export const solanaOperations = [
   {
     "encoding": "jsonParsed"
   }
-]`,
+]`
     },
     {
         name: 'Get Token Largest Accounts (getTokenLargestAccounts)',
@@ -1439,10 +1442,10 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getTokenLargestAccounts",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getTokenLargestAccounts',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -1457,12 +1460,12 @@ export const solanaOperations = [
                 </ul>
             </ul>
         </ul>`,
-       exampleParameters: `[
+        exampleParameters: `[
   "1YDQ35V8g68FGvcT85haHwAXv1U7XMzuc4mZeEXfrjE",
   {
     "commitment": "processed"
   }
-]`,
+]`
     },
     {
         name: 'Get Token Supply (getTokenSupply)',
@@ -1474,10 +1477,10 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getTokenSupply",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getTokenSupply',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -1492,12 +1495,12 @@ export const solanaOperations = [
                 </ul>
             </ul>
         </ul>`,
-       exampleParameters: `[
+        exampleParameters: `[
   "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU",
   {
     "commitment": "processed"
   }
-]`,
+]`
     },
     {
         name: 'Get Transaction (getTransaction)',
@@ -1509,10 +1512,10 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getTransaction",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getTransaction',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -1529,10 +1532,10 @@ export const solanaOperations = [
                 <li><code class="inline">maxSupportedTransactionVersion</code> - (optional) set the max transaction version to return in responses. If the requested transaction is a higher version, an error will be returned.</li>
             </ul>
         </ul>`,
-       exampleParameters: `[
+        exampleParameters: `[
   "D13jTJYXoQBcRY9AfT5xRtsew7ENgCkNs6mwwwAcUCp4ZZCEM7YwZ7en4tVsoDa7Gu75Jjj2FgLXNUz8Zmgedff",
   {"encoding": "json"}
-]`,
+]`
     },
     {
         name: 'Get Transaction Count (getTransactionCount)',
@@ -1544,10 +1547,10 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getTransactionCount",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getTransactionCount',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -1561,9 +1564,9 @@ export const solanaOperations = [
                 </ul>
             </ul>
         </ul>`,
-       exampleParameters: `[
+        exampleParameters: `[
   {"commitment": "processed"}
-]`,
+]`
     },
     {
         name: 'Get Version (getVersion)',
@@ -1575,11 +1578,11 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getVersion",
-            "params":[],
-            "id":1
-        },
+            jsonrpc: '2.0',
+            method: 'getVersion',
+            params: [],
+            id: 1
+        }
     },
     {
         name: 'Get Vote Accounts (getVoteAccounts)',
@@ -1591,10 +1594,10 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"getVoteAccounts",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'getVoteAccounts',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -1611,9 +1614,9 @@ export const solanaOperations = [
                 <li><code class="inline">delinquentSlotDistance</code> - (optional) Specify the number of slots behind the tip that a validator must fall to be considered delinquent. Passed as an integer. It is not recomended to specify this argument.</li>
             </ul>
         </ul>`,
-       exampleParameters: `[
+        exampleParameters: `[
   {"commitment": "processed"}
-]`,
+]`
     },
     {
         name: 'Is Blockhash Valid (isBlockhashValid)',
@@ -1625,10 +1628,10 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"isBlockhashValid",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'isBlockhashValid',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -1644,10 +1647,10 @@ export const solanaOperations = [
             </ul>
             <li><code class="inline">minContextSlot</code> - (optional) set the minimum slot that the request can be evaluated at</li>
         </ul>`,
-       exampleParameters: `[
+        exampleParameters: `[
   "ENTER_BLOCKHASH_ID_HERE",
   {"commitment": "processed"}
-]`,
+]`
     },
     {
         name: 'Minimum Ledger Slot (minimumLedgerSlot)',
@@ -1659,11 +1662,11 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"minimumLedgerSlot",
-            "params":[],
-            "id":1
-        },
+            jsonrpc: '2.0',
+            method: 'minimumLedgerSlot',
+            params: [],
+            id: 1
+        }
     },
     {
         name: 'Send Transaction (sendTransaction)',
@@ -1675,10 +1678,10 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"sendTransaction",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'sendTransaction',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -1691,9 +1694,9 @@ export const solanaOperations = [
                 <li><code class="inline">maxRetries</code> - (optional).</li>
             </ul>
         </ul>`,
-       exampleParameters: `[
+        exampleParameters: `[
   "ENTER_ENCODED_TRANSACTION_ID",
-]`,
+]`
     },
     {
         name: 'Simulate Transaction (simulateTransaction)',
@@ -1705,10 +1708,10 @@ export const solanaOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"simulateTransaction",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'simulateTransaction',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -1731,8 +1734,8 @@ export const solanaOperations = [
                 </ul>
             </ul>
         </ul>`,
-       exampleParameters: `[
+        exampleParameters: `[
   "ENTER_ENCODED_TRANSACTION_ID",
-]`,
-    },
-] as IETHOperation[];
+]`
+    }
+] as IETHOperation[]

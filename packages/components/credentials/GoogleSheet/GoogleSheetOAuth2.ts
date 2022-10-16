@@ -1,17 +1,13 @@
-import {
-    INodeParams, 
-	INodeCredential,
-} from '../../src/Interface';
+import { INodeParams, INodeCredential } from '../../src/Interface'
 
 class GoogleSheetOAuth2 implements INodeCredential {
+    name: string
+    version: number
+    credentials: INodeParams[]
 
-    name: string;
-    version: number;
-    credentials: INodeParams[];
-
-    constructor() {	
-        this.name = 'googleSheetsOAuth2Api';
-        this.version = 1.0;
+    constructor() {
+        this.name = 'googleSheetsOAuth2Api'
+        this.version = 1.0
         this.credentials = [
             {
                 label: 'Client ID',
@@ -31,29 +27,28 @@ class GoogleSheetOAuth2 implements INodeCredential {
                 label: 'Authorization URL',
                 name: 'authUrl',
                 type: 'string',
-                default: 'https://accounts.google.com/o/oauth2/v2/auth',
+                default: 'https://accounts.google.com/o/oauth2/v2/auth'
             },
             {
                 label: 'Access Token URL',
                 name: 'accessTokenUrl',
                 type: 'string',
-                default: 'https://oauth2.googleapis.com/token',
+                default: 'https://oauth2.googleapis.com/token'
             },
             {
                 label: 'Authorization URL Parameters',
                 name: 'authorizationURLParameters',
                 type: 'string',
-                default: 'access_type=offline&prompt=consent&response_type=code',
+                default: 'access_type=offline&prompt=consent&response_type=code'
             },
             {
                 label: 'Scope',
                 name: 'scope',
                 type: 'json',
-                default: `["https://www.googleapis.com/auth/drive", "https://www.googleapis.com/auth/spreadsheets"]`,
-            },
-        ];
+                default: `["https://www.googleapis.com/auth/drive", "https://www.googleapis.com/auth/spreadsheets"]`
+            }
+        ]
     }
 }
 
 module.exports = { credClass: GoogleSheetOAuth2 }
-

@@ -1,9 +1,7 @@
-import { NETWORK_PROVIDER } from "../../src/ChainNetwork";
-import { IETHOperation, infuraSupportedNetworks } from "../../src/ETHOperations";
+import { NETWORK_PROVIDER } from '../../src/ChainNetwork'
+import { IETHOperation, infuraSupportedNetworks } from '../../src/ETHOperations'
 
-export const subsOperationsNetworks = [
-    ...infuraSupportedNetworks,
-];
+export const subsOperationsNetworks = [...infuraSupportedNetworks]
 
 export const subscribeOperations = [
     {
@@ -16,10 +14,10 @@ export const subscribeOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "id": 1, 
-            "method": "eth_subscribe",
-            "params":[],
+            jsonrpc: '2.0',
+            id: 1,
+            method: 'eth_subscribe',
+            params: []
         },
         inputParameters: `
         <ul>
@@ -36,10 +34,9 @@ export const subscribeOperations = [
             </ul>
             <li><code class="inline">data</code>: <code class="inline">object</code> - (Optional) - Arguments such as an address, multiple addresses, and topics. Note, only logs that are created from these addresses or match the specified topics will return logs.</li>
         </ul>`,
-        exampleParameters: `["newHeads"]`,
-    },
-] as IETHOperation[];
-
+        exampleParameters: `["newHeads"]`
+    }
+] as IETHOperation[]
 
 export const unsubscribeOperations = [
     {
@@ -52,10 +49,10 @@ export const unsubscribeOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "id": 1, 
-            "method": "eth_unsubscribe",
-            "params":[],
-        },
-    },
-] as IETHOperation[];
+            jsonrpc: '2.0',
+            id: 1,
+            method: 'eth_unsubscribe',
+            params: []
+        }
+    }
+] as IETHOperation[]

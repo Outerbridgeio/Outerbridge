@@ -1,13 +1,13 @@
-import { INodeParams, INodeCredential } from '../../src/Interface';
+import { INodeParams, INodeCredential } from '../../src/Interface'
 
 class TelegramApi implements INodeCredential {
-    name: string;
-    version: number;
-    credentials: INodeParams[];
+    name: string
+    version: number
+    credentials: INodeParams[]
 
     constructor() {
-        this.name = 'telegramApi';
-        this.version = 1.0;
+        this.name = 'telegramApi'
+        this.version = 1.0
         this.credentials = [
             {
                 label: 'Bot Token',
@@ -18,8 +18,8 @@ class TelegramApi implements INodeCredential {
                 description:
                     'Telegram bot token. <a target="_blank" href="https://www.youtube.com/watch?v=MZixi8oIdaA">Learn how to get it</a>'
             }
-        ];
+        ]
     }
 }
 
-module.exports = { credClass: TelegramApi };
+module.exports = { credClass: TelegramApi }

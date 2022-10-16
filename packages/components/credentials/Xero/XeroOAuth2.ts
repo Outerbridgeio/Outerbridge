@@ -1,13 +1,13 @@
-import { INodeParams, INodeCredential } from '../../src/Interface';
+import { INodeParams, INodeCredential } from '../../src/Interface'
 
 class XeroOAuth2 implements INodeCredential {
-    name: string;
-    version: number;
-    credentials: INodeParams[];
+    name: string
+    version: number
+    credentials: INodeParams[]
 
     constructor() {
-        this.name = 'xeroOAuth2Api';
-        this.version = 1.0;
+        this.name = 'xeroOAuth2Api'
+        this.version = 1.0
         this.credentials = [
             {
                 label: 'Client ID',
@@ -58,8 +58,8 @@ class XeroOAuth2 implements INodeCredential {
                     "offline_access"
                 ]`
             }
-        ];
+        ]
     }
 }
 
-module.exports = { credClass: XeroOAuth2 };
+module.exports = { credClass: XeroOAuth2 }
