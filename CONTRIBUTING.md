@@ -28,13 +28,12 @@ Found an issue? [Report it](https://github.com/Outerbridgeio/Outerbridge/issues/
 
 Not sure what to contribute? Some ideas:
 
--   Docker containerization for easier setup
 -   Create new node/credential component
 -   Update existing components such as extending functionality, fixing bugs
 -   Add new blockchain network to support
 -   Unit tests and E2E tests
 
-### Dev setup
+### Developers
 
 Outerbridge has 3 different modules in a single mono repository.
 
@@ -42,13 +41,13 @@ Outerbridge has 3 different modules in a single mono repository.
 -   `ui`: React frontend
 -   `components`: Nodes and Credentials of applications
 
-#### Lerna
+#### Prerequisite
 
-Lerna is used to link these modules together.
-
-#### MongoDB
-
-Outerbridge uses MongoDB as database. Download and install one [here](https://www.mongodb.com/try/download/community?tck=docs_server).
+-   Install MongoDB [here](https://www.mongodb.com/try/download/community?tck=docs_server)
+-   Install Yarn
+    ```bash
+    npm i -g yarn
+    ```
 
 #### Step by step
 
@@ -69,25 +68,31 @@ Outerbridge uses MongoDB as database. Download and install one [here](https://ww
     cd Outerbridge
     ```
 
-6. Install all dependencies of all modules and link them together:
+6. Install `lerna`, `husky` and `rimraf` :
+
+    ```bash
+    yarn setup
+    ```
+
+7. Install all dependencies of all modules and link them together:
 
     ```bash
     yarn bootstrap
     ```
 
-7. Build all the code:
+8. Build all the code:
 
     ```bash
     yarn build
     ```
 
-8. Start the app on [http://localhost:3000](http://localhost:3000)
+9. Start the app on [http://localhost:3000](http://localhost:3000)
 
     ```bash
     yarn start
     ```
 
-9. For development, run
+10. For development, run
 
     ```bash
     yarn dev
@@ -97,7 +102,7 @@ Outerbridge uses MongoDB as database. Download and install one [here](https://ww
 
     For changes made in `packages/components`, run `yarn build` again to pickup the changes.
 
-10. After making all the changes, run
+11. After making all the changes, run
 
     ```bash
     yarn build
@@ -111,20 +116,20 @@ Outerbridge uses MongoDB as database. Download and install one [here](https://ww
 
     to make sure everything works fine in production.
 
-11. Commit code and submit Pull Request from forked branch pointing to [Outerbridge master](https://github.com/Outerbridgeio/Outerbridge/tree/master). Example [PR](https://github.com/Outerbridgeio/Outerbridge/pull/50).
+12. Commit code and submit Pull Request from forked branch pointing to [Outerbridge master](https://github.com/Outerbridgeio/Outerbridge/tree/master). Example [PR](https://github.com/Outerbridgeio/Outerbridge/pull/50).
 
 ## 📖 Contribute to Docs
 
 Contribute to Outerbridge [docs](https://github.com/Outerbridgeio/outerbridge-docs) if there is any mistake, confusion or grap.
 
-## Pull Request process
+## 🏷️ Pull Request process
 
 A member of the Outerbridge team will automatically be notified/assigned when you open a pull request. You can also reach out to us on [Discord](https://discord.gg/Y9VE4ykPDJ).
 
-## Contributor License Agreement
+## 📃 Contributor License Agreement
 
 Before we can merge your contribution you have to sign our [Contributor License Agreement (CLA)](https://cla-assistant.io/OuterbridgeIO/Outerbridge). The CLA contains the terms and conditions under which the contribution is submitted. You need to do this only once for your first pull request. Keep in mind that without a signed CLA we cannot merge your contribution.
 
-## Code of Conduct
+## 📜 Code of Conduct
 
 This project and everyone participating in it are governed by the Code of Conduct which can be found in the [file](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to henryheng@outerbridge.io or hello@outerbridge.io.
