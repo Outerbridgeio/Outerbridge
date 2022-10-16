@@ -8,26 +8,24 @@ Outerbridge is a low code/no code workflow automation application, focusing on i
 
 ![Outerbridge Screenshot](./assets/screenshot_outerbridge.jpg)
 
-## Why another workflow automation tool?
+## 💡Why another workflow automation tool?
 
 There are many awesome automation tools out there, however there isn't one that has the built-in logic of interacting/consuming information from blockchains. Hence, Outerbridge is created to allow people building workflows involving on-chain and off-chain applications, with simple drag and drop interface.
 
-## Demo
+## 💻 Demo
 
-Here is the [demo](https://demo.outerbridge.io) version of Outerbridge hosted using AWS t2-micro.
+-   [Public demo](https://demo.outerbridge.io) version of Outerbridge.
 
-Detail [documentation](https://gist.github.com/HenryHengZJ/627cec19671664a88754c7e383232dc8) on how to setup using AWS t2-micro with your custom domain name.
+-   Watch [Outerbridge Quickstart Demo](https://www.youtube.com/watch?v=x-AfrkKvZ4M) on Youtube (4mins)
 
-Watch [Outerbridge Quickstart Demo](https://www.youtube.com/watch?v=x-AfrkKvZ4M) on Youtube (4mins)
-
-## Quick Start
+## ⚡Quick Start
 
 1. Install MongoDB from [here](https://www.mongodb.com/try/download/community?tck=docs_server).
 2. `npm install -g outerbridge`
 3. `npx outerbridge start`
 4. Open [http://localhost:3000](http://localhost:3000)
 
-## Docker
+## 🐳 Docker
 
 1. Go to `docker` folder at the root of the project
 2. `docker-compose up -d`
@@ -35,13 +33,7 @@ Watch [Outerbridge Quickstart Demo](https://www.youtube.com/watch?v=x-AfrkKvZ4M)
 4. Open [http://localhost:3000](http://localhost:3000)
 5. You can bring the containers down by `docker-compose stop`
 
-## Developers
-
-### Prerequisite
-
-Lerna, MongoDB and Yarn have to be installed before setting up the project.
-
-### Lerna
+## 👨‍💻 Developers
 
 Outerbridge has 3 different modules in a single mono repository.
 
@@ -49,7 +41,9 @@ Outerbridge has 3 different modules in a single mono repository.
 -   `ui`: React frontend
 -   `components`: Nodes and Credentials of applications
 
-Lerna is used to link these modules together.
+### Prerequisite
+
+`MongoDB` and `Yarn` have to be installed before setting up the project.
 
 ### MongoDB
 
@@ -66,7 +60,7 @@ npm i -g yarn
 1. Clone the repository
 
     ```bash
-        git clone https://github.com/Outerbridgeio/Outerbridge.git
+    git clone https://github.com/Outerbridgeio/Outerbridge.git
     ```
 
 2. Go into repository folder
@@ -109,18 +103,23 @@ npm i -g yarn
 
     Any code changes will reload the app automatically on [http://localhost:8080](http://localhost:8080)
 
-## Documentation
+## 📖 Documentation
 
 Official Outerbridge docs can be found under: [https://docs.outerbridge.io](https://docs.outerbridge.io)
 
-## Support
+## 🌐 Host
+
+-   Digital Ocean Droplet: [Setup guide](https://gist.github.com/HenryHengZJ/93210d43d655b4172ee50794ce473b62)
+-   AWS EC2: [Setup guide](https://gist.github.com/HenryHengZJ/627cec19671664a88754c7e383232dc8)
+
+## 🙋 Support
 
 Feel free to ask any questions, raise problems, and request new features in [discussion](https://github.com/Outerbridgeio/Outerbridge/discussions)
 
-## Contributing
+## 🙌 Contributing
 
 See [contributing guide](CONTRIBUTING.md). Reach out to us at [Discord](https://discord.gg/Y9VE4ykPDJ) if you have any questions or issues.
 
-## License
+## 📄 License
 
 Source code in this repository is made available under the [Apache License Version 2.0](LICENSE.md).

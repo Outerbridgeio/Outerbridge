@@ -4,7 +4,7 @@
 
 React frontend ui for Outerbridge.
 
-![Outerbridge](../../assets/outerbridge_brand.png)
+![Outerbridge](https://raw.githubusercontent.com/Outerbridgeio/Outerbridge/master/assets/outerbridge_brand.png)
 
 Install:
 
@@ -14,4 +14,4 @@ npm i outerbridge-ui
 
 ## License
 
-Source code in this repository is made available under the [Apache License Version 2.0](../../LICENSE.md).
+Source code in this repository is made available under the [Apache License Version 2.0](https://github.com/Outerbridgeio/Outerbridge/blob/master/LICENSE.md).
