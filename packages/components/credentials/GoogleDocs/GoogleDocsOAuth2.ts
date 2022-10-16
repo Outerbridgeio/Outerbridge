@@ -1,13 +1,13 @@
-import { INodeParams, INodeCredential } from '../../src/Interface';
+import { INodeParams, INodeCredential } from '../../src/Interface'
 
 class GoogleDocsOAuth2 implements INodeCredential {
-    name: string;
-    version: number;
-    credentials: INodeParams[];
+    name: string
+    version: number
+    credentials: INodeParams[]
 
     constructor() {
-        this.name = 'googleDocsOAuth2Api';
-        this.version = 1.0;
+        this.name = 'googleDocsOAuth2Api'
+        this.version = 1.0
         this.credentials = [
             {
                 label: 'Client ID',
@@ -47,8 +47,8 @@ class GoogleDocsOAuth2 implements INodeCredential {
                 type: 'json',
                 default: `["https://www.googleapis.com/auth/drive", "https://www.googleapis.com/auth/documents"]`
             }
-        ];
+        ]
     }
 }
 
-module.exports = { credClass: GoogleDocsOAuth2 };
+module.exports = { credClass: GoogleDocsOAuth2 }

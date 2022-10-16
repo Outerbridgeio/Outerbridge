@@ -1,6 +1,6 @@
-import { ICommonObject, INode, INodeData, INodeExecutionData, INodeParams, NodeType } from '../../src/Interface';
-import { handleErrorMessage, returnNodeExecutionData, serializeQueryParams } from '../../src/utils';
-import axios, { AxiosRequestConfig, Method } from 'axios';
+import { ICommonObject, INode, INodeData, INodeExecutionData, INodeParams, NodeType } from '../../src/Interface'
+import { handleErrorMessage, returnNodeExecutionData, serializeQueryParams } from '../../src/utils'
+import axios, { AxiosRequestConfig, Method } from 'axios'
 import {
     SORT_BY,
     OPERATIONS,
@@ -21,35 +21,35 @@ import {
     GET_TOKEN_INFO,
     GET_MATIC_PRICE,
     GET_HISTORICAL_MATIC_PRICE
-} from './constants';
+} from './constants'
 
 class PolygonScan implements INode {
     // properties
-    label: string;
-    name: string;
-    type: NodeType;
-    description?: string;
-    version: number;
-    icon: string;
-    incoming: number;
-    outgoing: number;
+    label: string
+    name: string
+    type: NodeType
+    description?: string
+    version: number
+    icon: string
+    incoming: number
+    outgoing: number
 
     // parameter
-    actions: INodeParams[];
-    credentials?: INodeParams[];
-    networks?: INodeParams[];
-    inputParameters?: INodeParams[];
+    actions: INodeParams[]
+    credentials?: INodeParams[]
+    networks?: INodeParams[]
+    inputParameters?: INodeParams[]
 
     constructor() {
         // properties
-        this.label = 'PolygonScan';
-        this.name = 'polygonscan';
-        this.icon = 'polygonscan.png';
-        this.type = 'action';
-        this.version = 1.0;
-        this.description = 'PolygonScan Public API';
-        this.incoming = 1;
-        this.outgoing = 1;
+        this.label = 'PolygonScan'
+        this.name = 'polygonscan'
+        this.icon = 'polygonscan.png'
+        this.type = 'action'
+        this.version = 1.0
+        this.description = 'PolygonScan Public API'
+        this.incoming = 1
+        this.outgoing = 1
 
         // parameter
         this.actions = [
@@ -151,7 +151,7 @@ class PolygonScan implements INode {
                 ],
                 default: GET_MATIC_BALANCE.name
             }
-        ] as INodeParams[];
+        ] as INodeParams[]
 
         this.networks = [
             {
@@ -171,7 +171,7 @@ class PolygonScan implements INode {
                 ],
                 default: 'testnet'
             }
-        ] as INodeParams[];
+        ] as INodeParams[]
 
         this.credentials = [
             {
@@ -186,7 +186,7 @@ class PolygonScan implements INode {
                 ],
                 default: 'polygonscanApi'
             }
-        ] as INodeParams[];
+        ] as INodeParams[]
 
         this.inputParameters = [
             {
@@ -351,57 +351,57 @@ class PolygonScan implements INode {
                     'actions.api': [GET_HISTORICAL_MATIC_PRICE.name]
                 }
             }
-        ];
+        ]
     }
 
     getNetwork(network: string): string {
         switch (network) {
             case 'mainnet':
-                return 'https://api.polygonscan.com/api';
+                return 'https://api.polygonscan.com/api'
             case 'testnet':
             default:
-                return 'https://api-testnet.polygonscan.com/api';
+                return 'https://api-testnet.polygonscan.com/api'
         }
     }
 
     getBaseParams(api: string) {
-        const operation = OPERATIONS.filter(({ name }) => name === api)[0];
-        return { module: operation.module, action: operation.action };
+        const operation = OPERATIONS.filter(({ name }) => name === api)[0]
+        return { module: operation.module, action: operation.action }
     }
 
     getISODate(date: Date) {
-        return date.toISOString().split('T')[0];
+        return date.toISOString().split('T')[0]
     }
 
     async run(nodeData: INodeData): Promise<INodeExecutionData[] | null> {
-        const { actions, networks, inputParameters, credentials } = nodeData;
+        const { actions, networks, inputParameters, credentials } = nodeData
 
         if (actions === undefined || inputParameters === undefined || credentials === undefined || networks === undefined) {
-            throw new Error('Required data missing');
+            throw new Error('Required data missing')
         }
 
-        const api = actions.api as string;
-        const network = networks.network as string;
-        const apiKey = credentials.apiKey as string;
+        const api = actions.api as string
+        const network = networks.network as string
+        const apiKey = credentials.apiKey as string
 
-        const address = inputParameters.address as string;
-        const startblock = inputParameters.startBlock as number;
-        const endblock = inputParameters.endBlock as number;
-        const page = inputParameters.page as number;
-        const offset = inputParameters.offset as number;
-        const sort = inputParameters.sortBy as string;
-        const txhash = inputParameters.txhash as string;
-        const blocktype = inputParameters.blockType as string;
-        const contractaddress = inputParameters.contractAddress as string;
-        const tag = inputParameters.tag as string;
-        const startTime = inputParameters.startTime as string;
-        const endTime = inputParameters.endTime as string;
+        const address = inputParameters.address as string
+        const startblock = inputParameters.startBlock as number
+        const endblock = inputParameters.endBlock as number
+        const page = inputParameters.page as number
+        const offset = inputParameters.offset as number
+        const sort = inputParameters.sortBy as string
+        const txhash = inputParameters.txhash as string
+        const blocktype = inputParameters.blockType as string
+        const contractaddress = inputParameters.contractAddress as string
+        const tag = inputParameters.tag as string
+        const startTime = inputParameters.startTime as string
+        const endTime = inputParameters.endTime as string
 
-        const startdate = startTime ? this.getISODate(new Date(startTime)) : undefined;
-        const enddate = endTime ? this.getISODate(new Date(endTime)) : undefined;
+        const startdate = startTime ? this.getISODate(new Date(startTime)) : undefined
+        const enddate = endTime ? this.getISODate(new Date(endTime)) : undefined
 
-        const url = this.getNetwork(network);
-        const { module, action } = this.getBaseParams(api);
+        const url = this.getNetwork(network)
+        const { module, action } = this.getBaseParams(api)
 
         const queryParameters = {
             module,
@@ -419,10 +419,10 @@ class PolygonScan implements INode {
             tag,
             startdate,
             enddate
-        };
+        }
 
-        const returnData: ICommonObject[] = [];
-        let responseData: any;
+        const returnData: ICommonObject[] = []
+        let responseData: any
 
         try {
             const axiosConfig: AxiosRequestConfig = {
@@ -431,21 +431,21 @@ class PolygonScan implements INode {
                 params: queryParameters,
                 paramsSerializer: (params) => serializeQueryParams(params),
                 headers: { 'Content-Type': 'application/json' }
-            };
-            const response = await axios(axiosConfig);
-            responseData = response.data;
+            }
+            const response = await axios(axiosConfig)
+            responseData = response.data
         } catch (error) {
-            throw handleErrorMessage(error);
+            throw handleErrorMessage(error)
         }
 
         if (Array.isArray(responseData)) {
-            returnData.push(...responseData);
+            returnData.push(...responseData)
         } else {
-            returnData.push(responseData);
+            returnData.push(responseData)
         }
 
-        return returnNodeExecutionData(returnData);
+        return returnNodeExecutionData(returnData)
     }
 }
 
-module.exports = { nodeClass: PolygonScan };
+module.exports = { nodeClass: PolygonScan }
