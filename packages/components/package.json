@@ -1,6 +1,6 @@
 {
     "name": "outerbridge-components",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "description": "Outerbridge Components",
     "main": "dist/src/index",
     "types": "dist/src/index.d.ts",
