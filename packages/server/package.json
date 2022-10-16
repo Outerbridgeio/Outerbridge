@@ -5,10 +5,9 @@
     "main": "dist/index",
     "types": "dist/index.d.ts",
     "bin": {
-        "outerbridge": "./bin/run"
+        "outerbridge": "dist/bin/run.js"
     },
     "files": [
-        "bin",
         "dist",
         "npm-shrinkwrap.json",
         "oclif.manifest.json",
@@ -20,7 +19,7 @@
         "commands": "./dist/commands"
     },
     "scripts": {
-        "build": "tsc",
+        "build": "tsc && babel bin -d dist/bin && babel bin/run.ts -o dist/bin/run.js",
         "start": "babel-node -x .ts -- bin/run.ts start",
         "dev": "concurrently \"yarn watch\" \"nodemon\"",
         "oclif-dev": "babel-node -x .ts -- bin/dev.ts start",
@@ -61,6 +60,7 @@
         "typeorm": "^0.3.6"
     },
     "devDependencies": {
+        "@babel/cli": "^7.19.3",
         "@babel/node": "^7.19.1",
         "@types/cors": "^2.8.12",
         "@types/crypto-js": "^4.1.1",
