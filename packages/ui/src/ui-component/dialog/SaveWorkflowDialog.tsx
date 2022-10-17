@@ -1,11 +1,20 @@
 import { createPortal } from 'react-dom'
-import { useState, useEffect } from 'react'
-import PropTypes from 'prop-types'
+import { useState, useEffect, ComponentProps } from 'react'
 
 import { Button, Dialog, DialogActions, DialogContent, OutlinedInput, DialogTitle } from '@mui/material'
 
-const SaveWorkflowDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
-    const portalElement = document.getElementById('portal')
+export const SaveWorkflowDialog = ({
+    show,
+    dialogProps,
+    onCancel,
+    onConfirm
+}: {
+    show: boolean
+    dialogProps: { title: string; cancelButtonName: string; confirmButtonName: string }
+    onCancel: ComponentProps<typeof Button>['onClick']
+    onConfirm: (value: string) => void
+}) => {
+    const portalElement = document.getElementById('portal')!
 
     const [workflowName, setWorkflowName] = useState('')
     const [isReadyToSave, setIsReadyToSave] = useState(false)
@@ -49,12 +58,3 @@ const SaveWorkflowDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
 
     return createPortal(component, portalElement)
 }
-
-SaveWorkflowDialog.propTypes = {
-    show: PropTypes.bool,
-    dialogProps: PropTypes.object,
-    onCancel: PropTypes.func,
-    onConfirm: PropTypes.func
-}
-
-export default SaveWorkflowDialog

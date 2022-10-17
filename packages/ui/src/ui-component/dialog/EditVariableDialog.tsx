@@ -1,6 +1,6 @@
 import { createPortal } from 'react-dom'
-import { useState, useEffect } from 'react'
-import PropTypes from 'prop-types'
+import { useState, useEffect, SyntheticEvent, ComponentProps } from 'react'
+import { useTheme } from 'themes'
 import {
     Button,
     Dialog,
@@ -14,13 +14,13 @@ import {
     Typography,
     AccordionDetails
 } from '@mui/material'
-import { useTheme } from '@mui/material/styles'
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import ReactJson from 'react-json-view'
+import { ExpandMore } from '@mui/icons-material'
+import ReactJson, { OnCopyProps } from 'react-json-view'
 import PerfectScrollbar from 'react-perfect-scrollbar'
 import { IconArrowsMaximize } from '@tabler/icons'
-import ExpandDataDialog from './ExpandDataDialog'
+import { ExpandDataDialog, Node, Input, ExpandDialogProps } from './ExpandDataDialog'
 import Editor from 'react-simple-code-editor'
+// @ts-expect-error no declaration file
 import { highlight, languages } from 'prismjs/components/prism-core'
 import 'prismjs/components/prism-clike'
 import 'prismjs/components/prism-javascript'
@@ -30,26 +30,51 @@ import 'prismjs/themes/prism.css'
 
 import './EditVariableDialog.css'
 
-const isPositiveNumeric = (value) => /^\d+$/.test(value)
+const isPositiveNumeric = (value: string | null | undefined) => (value ? /^\d+$/.test(value) : false) // ! logic changed
 
-const EditVariableDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
-    const portalElement = document.getElementById('portal')
+export const EditVariableDialog = ({
+    show,
+    dialogProps,
+    onCancel,
+    onConfirm
+}: {
+    show: boolean
+    dialogProps: {
+        values: Record<string, string>
+        input: Input
+        confirmButtonName: string
+        cancelButtonName: string
+        hideVariables?: boolean
+        availableNodesForVariable: Node[]
+        arrayItemBody: {
+            arrayItemValues: Record<string, string>
+            arrayItemInput: Input
+            arrayItemIndex: number
+            initialValues: Record<string, unknown>
+        }
+    }
+    onCancel: ComponentProps<typeof Button>['onClick']
+    onConfirm: (value: Record<string, unknown>) => void
+}) => {
+    const portalElement = document.getElementById('portal')!
 
     const theme = useTheme()
 
     const [inputValue, setInputValue] = useState('')
-    const [input, setInput] = useState(null)
-    const [expanded, setExpanded] = useState(false)
+    const [input, setInput] = useState<Input | null>(null)
+    const [expanded, setExpanded] = useState<string | false>(false)
     const [showExpandDialog, setShowExpandDialog] = useState(false)
-    const [expandDialogProps, setExpandDialogProps] = useState({})
-    const [copiedVariableBody, setCopiedVariableBody] = useState({})
+    const [expandDialogProps, setExpandDialogProps] = useState<ExpandDialogProps | null>(null) // ! logic changed
+    const [copiedVariableBody, setCopiedVariableBody] = useState<{ textBeforeCursorPosition?: string; textAfterCursorPosition?: string }>(
+        {}
+    )
     const [languageType, setLanguageType] = useState(languages.js)
 
-    const handleAccordionChange = (nodeLabel) => (event, isExpanded) => {
+    const handleAccordionChange = (nodeLabel: string) => (event: SyntheticEvent<Element, Event>, isExpanded: boolean) => {
         setExpanded(isExpanded ? nodeLabel : false)
     }
 
-    const onExpandDialogClicked = (data, node) => {
+    const onExpandDialogClicked = (data: Record<string, unknown>, node: Node) => {
         const dialogProp = {
             title: `Variable Data: ${node.data.label}`,
             data,
@@ -59,11 +84,17 @@ const EditVariableDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
         setShowExpandDialog(true)
     }
 
-    const onMouseUp = (e) => {
-        if (e.target && e.target.selectionEnd && e.target.value) {
-            const cursorPosition = e.target.selectionEnd
-            const textBeforeCursorPosition = e.target.value.substring(0, cursorPosition)
-            const textAfterCursorPosition = e.target.value.substring(cursorPosition, e.target.value.length)
+    const onMouseUp = (
+        e:
+            | React.MouseEvent<HTMLDivElement, MouseEvent>
+            | (React.FocusEvent<HTMLDivElement, Element> | React.FocusEvent<HTMLTextAreaElement, Element>)
+    ) => {
+        const selectionEnd: number | undefined = (e.target as EventTarget & HTMLTextAreaElement).selectionEnd
+        const value: string | undefined = (e.target as EventTarget & HTMLTextAreaElement).value
+        if (e.target && selectionEnd && (e.target as EventTarget & HTMLTextAreaElement).value) {
+            const cursorPosition = selectionEnd
+            const textBeforeCursorPosition = value.substring(0, cursorPosition)
+            const textAfterCursorPosition = value.substring(cursorPosition, value.length)
             const body = {
                 textBeforeCursorPosition,
                 textAfterCursorPosition
@@ -74,7 +105,7 @@ const EditVariableDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
         }
     }
 
-    const onClipboardCopy = (e, node) => {
+    const onClipboardCopy = (e: OnCopyProps, node: Node) => {
         const namespaces = e.namespace
         let returnVariablePath = `${node.id}`
         for (let i = 0; i < namespaces.length; i += 1) {
@@ -103,7 +134,7 @@ const EditVariableDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
         }
     }
 
-    const onSave = (value) => {
+    const onSave = (value: string) => {
         // ArrayInputParameter
         if (dialogProps.arrayItemBody) {
             const updateArrayValues = {
@@ -138,7 +169,7 @@ const EditVariableDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
                 input = dialogProps.arrayItemBody.arrayItemInput
             }
             setInput(input)
-            setInputValue(inputValues[input.name].toString() || '')
+            setInputValue(inputValues[input.name]?.toString() || '')
             if (input.type === 'json' || input.type === 'string' || input.type === 'number') setLanguageType(languages.json)
             if (input.type === 'code') setLanguageType(languages.js)
         }
@@ -221,7 +252,7 @@ const EditVariableDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
                                                         onChange={handleAccordionChange(node.data.label)}
                                                     >
                                                         <AccordionSummary
-                                                            expandIcon={<ExpandMoreIcon />}
+                                                            expandIcon={<ExpandMore />}
                                                             aria-controls={`${node.data.label}-content`}
                                                             id={`${node.data.label}-header`}
                                                         >
@@ -271,16 +302,18 @@ const EditVariableDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
                             )}
                         </div>
                     )}
-                    <ExpandDataDialog
-                        enableClipboard
-                        show={showExpandDialog}
-                        dialogProps={expandDialogProps}
-                        onCancel={() => setShowExpandDialog(false)}
-                        onCopyClick={(e, node) => {
-                            onClipboardCopy(e, node)
-                            setShowExpandDialog(false)
-                        }}
-                    ></ExpandDataDialog>
+                    {expandDialogProps && (
+                        <ExpandDataDialog
+                            enableClipboard
+                            show={showExpandDialog}
+                            dialogProps={expandDialogProps}
+                            onCancel={() => setShowExpandDialog(false)}
+                            onCopyClick={(e, node) => {
+                                onClipboardCopy(e, node)
+                                setShowExpandDialog(false)
+                            }}
+                        />
+                    )}
                 </div>
             </DialogContent>
             <DialogActions>
@@ -294,12 +327,3 @@ const EditVariableDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
 
     return createPortal(component, portalElement)
 }
-
-EditVariableDialog.propTypes = {
-    show: PropTypes.bool,
-    dialogProps: PropTypes.object,
-    onCancel: PropTypes.func,
-    onConfirm: PropTypes.func
-}
-
-export default EditVariableDialog

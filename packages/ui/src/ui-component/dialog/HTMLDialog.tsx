@@ -1,11 +1,9 @@
 import { createPortal } from 'react-dom'
-import { useState } from 'react'
-import PropTypes from 'prop-types'
+import { useState, ComponentProps, SyntheticEvent } from 'react'
 
-import { Dialog, DialogContent, DialogTitle, Tabs, Tab, Box } from '@mui/material'
+import { Dialog, DialogContent, DialogTitle, Tabs, Tab, Box, DialogProps } from '@mui/material'
 
-function TabPanel(props) {
-    const { children, value, index, ...other } = props
+function TabPanel({ children, value, index, ...other }: ComponentProps<'div'> & { index: number; value: number }) {
     return (
         <div
             role='tabpanel'
@@ -19,25 +17,27 @@ function TabPanel(props) {
     )
 }
 
-TabPanel.propTypes = {
-    children: PropTypes.node,
-    index: PropTypes.number.isRequired,
-    value: PropTypes.number.isRequired
-}
-
-function a11yProps(index) {
+function a11yProps(index: number) {
     return {
         id: `attachment-tab-${index}`,
         'aria-controls': `attachment-tabpanel-${index}`
     }
 }
 
-const HTMLDialog = ({ show, dialogProps, onCancel }) => {
-    const portalElement = document.getElementById('portal')
+export const HTMLDialog = ({
+    show,
+    dialogProps,
+    onCancel
+}: {
+    show: boolean
+    dialogProps: { title: string; executionData: { html?: string }[] }
+    onCancel: DialogProps['onClose']
+}) => {
+    const portalElement = document.getElementById('portal')!
 
     const [value, setValue] = useState(0)
 
-    const handleChange = (event, newValue) => {
+    const handleChange = (event: SyntheticEvent<Element, Event>, newValue: number) => {
         setValue(newValue)
     }
 
@@ -76,11 +76,3 @@ const HTMLDialog = ({ show, dialogProps, onCancel }) => {
 
     return createPortal(component, portalElement)
 }
-
-HTMLDialog.propTypes = {
-    show: PropTypes.bool,
-    dialogProps: PropTypes.object,
-    onCancel: PropTypes.func
-}
-
-export default HTMLDialog

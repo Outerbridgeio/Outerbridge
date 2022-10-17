@@ -7,6 +7,11 @@ export const initialState = {
     workflow: null
 }
 
+export type ExecutionData = {
+    nodeLabel: string
+    data: { html: string; attachments: { filename: string; contentType: string; content: string; size?: number }[] }[]
+}
+
 // ==============================|| CANVAS REDUCER ||============================== //
 
 export const canvasReducer = (
@@ -26,10 +31,7 @@ export const canvasReducer = (
                   execution: {
                       shortId: string
                       state: 'INPROGRESS' | 'FINISHED' | 'ERROR' | 'TERMINATED' | 'TIMEOUT'
-                      executionData: {
-                          nodeLabel: string
-                          data: { html: string; attachments: { filename: string; contentType: string; content: string }[] }[]
-                      }
+                      executionData: ExecutionData
                   }[]
               }
           }

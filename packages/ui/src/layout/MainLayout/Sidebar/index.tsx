@@ -1,6 +1,6 @@
 // material-ui
 import { useTheme } from '@mui/material/styles'
-import { Box, Drawer, useMediaQuery } from '@mui/material'
+import { Box, Drawer, useMediaQuery, DrawerProps } from '@mui/material'
 
 // third-party
 import PerfectScrollbar from 'react-perfect-scrollbar'
@@ -21,7 +21,7 @@ export const Sidebar = ({
     window
 }: {
     drawerOpen: boolean
-    drawerToggle: (...args: any) => void
+    drawerToggle: DrawerProps['onClose']
     window?: Window
 }) => {
     const theme = useTheme()

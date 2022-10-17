@@ -1,10 +1,9 @@
 import { createPortal } from 'react-dom'
-import { useState } from 'react'
-import PropTypes from 'prop-types'
+import { useState, ComponentProps, SyntheticEvent } from 'react'
+import { reducer } from 'store'
+import { Dialog, DialogContent, DialogTitle, Tabs, Tab, Box, Typography, DialogProps } from '@mui/material'
 
-import { Dialog, DialogContent, DialogTitle, Tabs, Tab, Box, Typography } from '@mui/material'
-
-function TabPanel(props) {
+function TabPanel(props: ComponentProps<'div'> & { value: number; index: number }) {
     const { children, value, index, ...other } = props
     return (
         <div
@@ -19,29 +18,31 @@ function TabPanel(props) {
     )
 }
 
-TabPanel.propTypes = {
-    children: PropTypes.node,
-    index: PropTypes.number.isRequired,
-    value: PropTypes.number.isRequired
-}
-
-function a11yProps(index) {
+function a11yProps(index: number) {
     return {
         id: `attachment-tab-${index}`,
         'aria-controls': `attachment-tabpanel-${index}`
     }
 }
 
-const AttachmentDialog = ({ show, dialogProps, onCancel }) => {
-    const portalElement = document.getElementById('portal')
+export const AttachmentDialog = ({
+    show,
+    dialogProps,
+    onCancel
+}: {
+    show: boolean
+    dialogProps: { executionData: reducer.canvas.ExecutionData['data']; title: string }
+    onCancel: DialogProps['onClose']
+}) => {
+    const portalElement = document.getElementById('portal')!
 
     const [value, setValue] = useState(0)
 
-    const handleChange = (event, newValue) => {
+    const handleChange = (event: SyntheticEvent<Element, Event>, newValue: number) => {
         setValue(newValue)
     }
 
-    const formatBytes = (bytes, decimals = 2) => {
+    const formatBytes = (bytes: number, decimals = 2) => {
         if (bytes === 0) return '0 Bytes'
 
         const k = 1024
@@ -103,11 +104,3 @@ const AttachmentDialog = ({ show, dialogProps, onCancel }) => {
 
     return createPortal(component, portalElement)
 }
-
-AttachmentDialog.propTypes = {
-    show: PropTypes.bool,
-    dialogProps: PropTypes.object,
-    onCancel: PropTypes.func
-}
-
-export default AttachmentDialog

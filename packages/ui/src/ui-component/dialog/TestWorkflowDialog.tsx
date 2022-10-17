@@ -1,8 +1,7 @@
 import { createPortal } from 'react-dom'
-import PropTypes from 'prop-types'
-import { useSelector } from 'react-redux'
+import { useTheme } from 'themes'
+import { useSelector, constant } from 'store'
 import { useState, useEffect } from 'react'
-
 import {
     Dialog,
     DialogContent,
@@ -16,25 +15,37 @@ import {
     ListItemAvatar,
     ListItemText,
     OutlinedInput,
-    Stack
+    Stack,
+    DialogProps
 } from '@mui/material'
-import { useTheme } from '@mui/material/styles'
 
 // icons
 import { IconSearch } from '@tabler/icons'
 
 // const
-import { baseURL } from 'store/constant'
+const { baseURL } = constant
 
-const TestWorkflowDialog = ({ show, dialogProps, onCancel, onItemClick }) => {
-    const portalElement = document.getElementById('portal')
+type Node = { id: string; data: { label: string; name: string; description: string } }
+
+export const TestWorkflowDialog = ({
+    show,
+    dialogProps,
+    onCancel,
+    onItemClick
+}: {
+    show: boolean
+    onCancel: DialogProps['onClose']
+    onItemClick: (value: string) => void
+    dialogProps: { nodes: Node[]; title: string }
+}) => {
+    const portalElement = document.getElementById('portal')!
     const theme = useTheme()
     const customization = useSelector((state) => state.customization)
 
     const [searchValue, setSearchValue] = useState('')
-    const [nodes, setNodes] = useState([])
+    const [nodes, setNodes] = useState<Node[]>([])
 
-    const filterSearch = (value) => {
+    const filterSearch = (value: string) => {
         setSearchValue(value)
         setTimeout(() => {
             if (value) {
@@ -139,12 +150,3 @@ const TestWorkflowDialog = ({ show, dialogProps, onCancel, onItemClick }) => {
 
     return createPortal(component, portalElement)
 }
-
-TestWorkflowDialog.propTypes = {
-    show: PropTypes.bool,
-    dialogProps: PropTypes.object,
-    onCancel: PropTypes.func,
-    onItemClick: PropTypes.func
-}
-
-export default TestWorkflowDialog

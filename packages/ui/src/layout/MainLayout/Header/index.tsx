@@ -1,3 +1,4 @@
+import { ComponentProps } from 'react'
 import { useTheme } from 'themes'
 // material-ui
 import { Avatar, Box, ButtonBase } from '@mui/material'
@@ -10,7 +11,7 @@ import { IconMenu2 } from '@tabler/icons'
 
 // ==============================|| MAIN NAVBAR / HEADER ||============================== //
 
-export const Header = ({ handleLeftDrawerToggle }: { handleLeftDrawerToggle: (...arg: any[]) => void }) => {
+export const Header = ({ handleLeftDrawerToggle }: { handleLeftDrawerToggle: ComponentProps<typeof Avatar>['onClick'] }) => {
     const theme = useTheme()
 
     return (

@@ -17,3 +17,4 @@ export const combinedReducers = combineReducers({
 
 export * as dialog from './dialogReducer'
 export * as customization from './customizationReducer'
+export * as canvas from './canvasReducer'
