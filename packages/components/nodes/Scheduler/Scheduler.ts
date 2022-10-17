@@ -205,7 +205,7 @@ class Scheduler extends EventEmitter implements INode {
                 const minute = scheduleItem.minute || '0'
                 const hour = scheduleItem.hour || '0'
                 // At XX:XX AM/PM, every days
-                cronTimes.push(`${minute} ${hour} */ * *`)
+                cronTimes.push(`${minute} ${hour} * * *`)
             }
 
             if (scheduleItem.mode === 'everyWeek') {
