@@ -4,16 +4,15 @@ import { motion, useCycle } from 'framer-motion'
 
 // ==============================|| ANIMATION BUTTON ||============================== //
 
-export const AnimateButton = forwardRef(function AnimateButton(
-    {
-        children,
-        type,
-        direction,
-        offset,
-        scale
-    }: PropsWithChildren<{ type: 'rotate' | 'slide' | 'scale'; direction: 'up' | 'left' | 'right' | 'down' }>,
-    ref
-) {
+export const AnimateButton = forwardRef<
+    HTMLDivElement,
+    PropsWithChildren<{
+        type: 'rotate' | 'slide' | 'scale'
+        direction: 'up' | 'left' | 'right' | 'down'
+        offset: number
+        scale?: number | { hover: number; tap: number }
+    }>
+>(function AnimateButton({ children, type, direction, offset, scale }, ref) {
     let offset1
     let offset2
     switch (direction) {

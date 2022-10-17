@@ -1,20 +1,26 @@
-import { useTheme, Theme } from 'themes'
+import { useTheme, AppTheme } from 'themes'
+import { FlowData } from 'utils'
+
 // material-ui
 import { styled } from '@mui/material/styles'
 import { Box, Grid, Chip, Typography } from '@mui/material'
 
 // project imports
-import MainCard from 'ui-component/cards/MainCard'
+import { MainCard } from './MainCard'
 import { WorkflowCard } from './Skeleton'
 
 // Const
-import { networks } from 'store/constant'
+import { constant } from 'store'
 
 import Jazzicon, { jsNumberForAddress } from 'react-jazzicon'
 
-const CardWrapper = styled(MainCard)(({ theme }: { theme: Theme }) => ({
+const { networks } = constant
+
+type NetWork = typeof networks[number]
+
+const CardWrapper = styled(MainCard)(({ theme }: { theme?: AppTheme }) => ({
     backgroundColor: '#ffffff',
-    color: theme.darkTextPrimary,
+    color: theme?.darkTextPrimary,
     overflow: 'hidden',
     position: 'relative',
     boxShadow: '0 2px 14px 0 rgb(32 40 45 / 8%)',
@@ -33,7 +39,7 @@ export const ItemCard = ({
     onClick
 }: {
     isLoading: boolean
-    data
+    data: { address?: string; network?: NetWork['name']; deployed?: boolean; executionCount?: number; flowData?: FlowData; name: string }
     images: string[]
     onClick: (...arg: any) => void
 }) => {
@@ -50,8 +56,8 @@ export const ItemCard = ({
         backgroundColor: theme.palette.success.light
     }
 
-    const getNetworkItem = (network) => {
-        return networks.find((ntw) => ntw.name === network)
+    const getNetworkItem = (network: NetWork['name']) => {
+        return constant.networks.find((ntw) => ntw.name === network)
     }
 
     return (
@@ -108,8 +114,8 @@ export const ItemCard = ({
                             {data.network && (
                                 <Grid item>
                                     <Chip
-                                        label={getNetworkItem(data.network).label}
-                                        sx={{ ...chipSX, backgroundColor: getNetworkItem(data.network).color, color: 'white' }}
+                                        label={getNetworkItem(data.network)?.label}
+                                        sx={{ ...chipSX, backgroundColor: getNetworkItem(data.network)?.color, color: 'white' }}
                                     />
                                 </Grid>
                             )}

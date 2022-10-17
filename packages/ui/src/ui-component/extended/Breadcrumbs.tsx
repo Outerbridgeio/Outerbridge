@@ -1,21 +1,18 @@
-import PropTypes from 'prop-types'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, PropsWithChildren } from 'react'
 import { Link } from 'react-router-dom'
+import { useTheme } from 'themes'
 
 // material-ui
-import { useTheme } from '@mui/material/styles'
 import { Box, Card, Divider, Grid, Typography } from '@mui/material'
-import MuiBreadcrumbs from '@mui/material/Breadcrumbs'
+import { Breadcrumbs } from '@mui/material'
 
 // project imports
-import config from 'config'
+import { config } from 'config'
 import { gridSpacing } from 'store/constant'
 
 // assets
-import { IconTallymark1 } from '@tabler/icons'
-import AccountTreeTwoToneIcon from '@mui/icons-material/AccountTreeTwoTone'
-import HomeIcon from '@mui/icons-material/Home'
-import HomeTwoToneIcon from '@mui/icons-material/HomeTwoTone'
+import { IconTallymark1, TablerIcon } from '@tabler/icons'
+import { AccountTreeTwoTone, Home, HomeTwoTone } from '@mui/icons-material'
 
 const linkSX = {
     display: 'flex',
@@ -24,10 +21,32 @@ const linkSX = {
     alignContent: 'center',
     alignItems: 'center'
 }
-
+type Menu = { type?: 'collapse' | 'group' | 'item'; title: string; icon: TablerIcon; children: Menu[]; url: string; breadcrumbs: boolean }
 // ==============================|| BREADCRUMBS ||============================== //
-
-const Breadcrumbs = ({ card, divider, icon, icons, maxItems, navigation, rightAlign, separator, title, titleBottom, ...others }) => {
+export const AppBreadcrumbs = ({
+    card,
+    divider,
+    icon,
+    icons,
+    maxItems,
+    navigation,
+    rightAlign,
+    separator: SeparatorIcon,
+    title,
+    titleBottom,
+    ...others
+}: PropsWithChildren<{
+    card: boolean
+    divider: boolean
+    icon: boolean
+    icons: boolean
+    maxItems: number
+    navigation?: { items?: Menu[] }
+    rightAlign: boolean
+    separator?: TablerIcon
+    title: boolean
+    titleBottom: boolean
+}>) => {
     const theme = useTheme()
 
     const iconStyle = {
@@ -38,11 +57,11 @@ const Breadcrumbs = ({ card, divider, icon, icons, maxItems, navigation, rightAl
         color: theme.palette.secondary.main
     }
 
-    const [main, setMain] = useState()
-    const [item, setItem] = useState()
+    const [main, setMain] = useState<Menu>()
+    const [item, setItem] = useState<Menu>()
 
     // set active item state
-    const getCollapse = (menu) => {
+    const getCollapse = (menu: Menu) => {
         if (menu.children) {
             menu.children.filter((collapse) => {
                 if (collapse.type && collapse.type === 'collapse') {
@@ -68,8 +87,7 @@ const Breadcrumbs = ({ card, divider, icon, icons, maxItems, navigation, rightAl
     })
 
     // item separator
-    const SeparatorIcon = separator
-    const separatorIcon = separator ? <SeparatorIcon stroke={1.5} size='1rem' /> : <IconTallymark1 stroke={1.5} size='1rem' />
+    const separatorIcon = SeparatorIcon ? <SeparatorIcon stroke={1.5} size='1rem' /> : <IconTallymark1 stroke={1.5} size='1rem' />
 
     let mainContent
     let itemContent
@@ -80,7 +98,7 @@ const Breadcrumbs = ({ card, divider, icon, icons, maxItems, navigation, rightAl
 
     // collapse item
     if (main && main.type === 'collapse') {
-        CollapseIcon = main.icon ? main.icon : AccountTreeTwoToneIcon
+        CollapseIcon = main.icon ? main.icon : AccountTreeTwoTone
         mainContent = (
             <Typography component={Link} to='#' variant='subtitle1' sx={linkSX}>
                 {icons && <CollapseIcon style={iconStyle} />}
@@ -93,7 +111,7 @@ const Breadcrumbs = ({ card, divider, icon, icons, maxItems, navigation, rightAl
     if (item && item.type === 'item') {
         itemTitle = item.title
 
-        ItemIcon = item.icon ? item.icon : AccountTreeTwoToneIcon
+        ItemIcon = item.icon ? item.icon : AccountTreeTwoTone
         itemContent = (
             <Typography
                 variant='subtitle1'
@@ -135,20 +153,20 @@ const Breadcrumbs = ({ card, divider, icon, icons, maxItems, navigation, rightAl
                                 </Grid>
                             )}
                             <Grid item>
-                                <MuiBreadcrumbs
+                                <Breadcrumbs
                                     sx={{ '& .MuiBreadcrumbs-separator': { width: 16, ml: 1.25, mr: 1.25 } }}
                                     aria-label='breadcrumb'
                                     maxItems={maxItems || 8}
                                     separator={separatorIcon}
                                 >
                                     <Typography component={Link} to='/' color='inherit' variant='subtitle1' sx={linkSX}>
-                                        {icons && <HomeTwoToneIcon sx={iconStyle} />}
-                                        {icon && <HomeIcon sx={{ ...iconStyle, mr: 0 }} />}
+                                        {icons && <HomeTwoTone sx={iconStyle} />}
+                                        {icon && <Home sx={{ ...iconStyle, mr: 0 }} />}
                                         {!icon && 'Dashboard'}
                                     </Typography>
                                     {mainContent}
                                     {itemContent}
-                                </MuiBreadcrumbs>
+                                </Breadcrumbs>
                             </Grid>
                             {title && titleBottom && (
                                 <Grid item>
@@ -167,18 +185,3 @@ const Breadcrumbs = ({ card, divider, icon, icons, maxItems, navigation, rightAl
 
     return breadcrumbContent
 }
-
-Breadcrumbs.propTypes = {
-    card: PropTypes.bool,
-    divider: PropTypes.bool,
-    icon: PropTypes.bool,
-    icons: PropTypes.bool,
-    maxItems: PropTypes.number,
-    navigation: PropTypes.object,
-    rightAlign: PropTypes.bool,
-    separator: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
-    title: PropTypes.bool,
-    titleBottom: PropTypes.bool
-}
-
-export default Breadcrumbs

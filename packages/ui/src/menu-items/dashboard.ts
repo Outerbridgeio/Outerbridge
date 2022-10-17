@@ -9,7 +9,7 @@ const icons = { IconHierarchy, IconEditCircle, IconWallet }
 export const dashboard = {
     id: 'dashboard' as const,
     title: '',
-    type: 'group',
+    type: 'group' as const,
     children: [
         {
             id: 'workflows' as const,
@@ -37,6 +37,8 @@ export const dashboard = {
         }
     ]
 }
+
+export type Dashboard = typeof dashboard
 
 // ==============================|| MENU ITEMS ||============================== //
 

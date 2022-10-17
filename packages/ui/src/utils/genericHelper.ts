@@ -29,6 +29,7 @@ type NodeParams = StrictOmit<MarkOptional<INodeParams, 'label'>, 'type' | 'array
               options: NonNullable<INodeParams['options']>
           }
     )
+export type FlowData = { nodes: Nodes; edges: Edges }
 
 export const numberOrExpressionRegex = /^(\d+\.?\d*|{{.*}})$/ //return true if string consists only numbers OR expression {{}}
 export const constructNodeDirectedGraph = (nodes: Nodes, edges: Edges, reverse = false) => {
@@ -305,7 +306,7 @@ export const getFolderName = (base64ArrayStr: string) => {
     }
 }
 
-export const generateExportFlowData = (flowData: { nodes: Nodes; edges: Edges }) => {
+export const generateExportFlowData = (flowData: FlowData) => {
     const nodes = flowData.nodes
     const edges = flowData.edges
 

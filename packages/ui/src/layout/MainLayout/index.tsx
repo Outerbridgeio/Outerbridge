@@ -7,7 +7,7 @@ import { styled } from '@mui/material/styles'
 import { AppBar, Box, CssBaseline, Toolbar, useMediaQuery } from '@mui/material'
 
 // themes
-import { useTheme, Theme } from 'themes'
+import { useTheme, AppTheme } from 'themes'
 
 // project imports
 import { Header } from './Header'
@@ -18,7 +18,7 @@ const { SET_MENU } = actions
 
 // styles
 export const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
-    ({ theme, open }: { theme: Theme; open: boolean }) => ({
+    ({ theme, open }: { theme: AppTheme; open: boolean }) => ({
         ...theme.typography.mainContent,
         ...(!open && {
             borderBottomLeftRadius: 0,

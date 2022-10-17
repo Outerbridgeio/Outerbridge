@@ -1,9 +1,8 @@
-import PropTypes from 'prop-types'
-import { forwardRef } from 'react'
+import { forwardRef, ComponentProps, ReactNode } from 'react'
+import { useTheme, AppTheme } from 'themes'
 
 // material-ui
-import { useTheme } from '@mui/material/styles'
-import { Card, CardContent, CardHeader, Divider, Typography } from '@mui/material'
+import { Card, CardContent, CardHeader, Divider, Typography, SxProps } from '@mui/material'
 
 // constant
 const headerSX = {
@@ -12,7 +11,19 @@ const headerSX = {
 
 // ==============================|| CUSTOM MAIN CARD ||============================== //
 
-const MainCard = forwardRef(function MainCard(
+export const MainCard = forwardRef<
+    HTMLDivElement,
+    ComponentProps<typeof Card> & {
+        border?: boolean
+        boxShadow?: boolean
+        content?: boolean
+        contentClass?: string
+        shadow?: string
+        darkTitle?: boolean
+        contentSX?: SxProps<AppTheme>
+        secondary?: ReactNode
+    }
+>(function MainCard(
     {
         border = true,
         boxShadow,
@@ -53,7 +64,11 @@ const MainCard = forwardRef(function MainCard(
 
             {/* card content */}
             {content && (
-                <CardContent sx={contentSX} className={contentClass}>
+                <CardContent
+                    // @ts-expect-error card content sx is not dynamic
+                    sx={contentSX}
+                    className={contentClass}
+                >
                     {children}
                 </CardContent>
             )}
@@ -61,19 +76,3 @@ const MainCard = forwardRef(function MainCard(
         </Card>
     )
 })
-
-MainCard.propTypes = {
-    border: PropTypes.bool,
-    boxShadow: PropTypes.bool,
-    children: PropTypes.node,
-    content: PropTypes.bool,
-    contentClass: PropTypes.string,
-    contentSX: PropTypes.object,
-    darkTitle: PropTypes.bool,
-    secondary: PropTypes.oneOfType([PropTypes.node, PropTypes.string, PropTypes.object]),
-    shadow: PropTypes.string,
-    sx: PropTypes.object,
-    title: PropTypes.oneOfType([PropTypes.node, PropTypes.string, PropTypes.object])
-}
-
-export default MainCard
