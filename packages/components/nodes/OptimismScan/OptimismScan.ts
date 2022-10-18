@@ -13,7 +13,7 @@ import {
     GET_CONTRACT_ABI,
     GET_CONTRACT_SOURCE_CODE,
     GET_ERC20_TOKEN_SUPPLY,
-    GET_ERC20_TOKEN_ACCOUNT_BALANCE,
+    GET_ERC20_TOKEN_ACCOUNT_BALANCE
 } from './constants'
 
 class OptimismScan implements INode {
