@@ -14,7 +14,7 @@ export const dashboard = {
         {
             id: 'workflows' as const,
             title: 'Workflows',
-            type: 'item',
+            type: 'item' as const,
             url: '/workflows',
             icon: icons.IconHierarchy,
             breadcrumbs: true
@@ -22,7 +22,7 @@ export const dashboard = {
         {
             id: 'contracts' as const,
             title: 'Contracts',
-            type: 'item',
+            type: 'item' as const,
             url: '/contracts',
             icon: icons.IconEditCircle,
             breadcrumbs: true
@@ -30,7 +30,7 @@ export const dashboard = {
         {
             id: 'wallets' as const,
             title: 'Wallets',
-            type: 'item',
+            type: 'item' as const,
             url: '/wallets',
             icon: icons.IconWallet,
             breadcrumbs: true

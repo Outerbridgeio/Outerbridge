@@ -4,9 +4,7 @@ import { Dialog, DialogContent, DialogTitle, DialogProps } from '@mui/material'
 import ReactJson, { OnCopyProps } from 'react-json-view'
 
 // utils
-import { copyToClipboard } from 'utils/genericHelper'
-
-export type Node = { id: string; data: { label: string; outputResponses?: { output: Record<string, unknown> } } }
+import { copyToClipboard, Node } from 'utils'
 
 export type Input = { name: string; type: 'json' | 'string' | 'number' | 'code'; placeholder: string }
 
@@ -44,8 +42,10 @@ export const ExpandDataDialog = ({
                 {dialogProps.title}
             </DialogTitle>
             <DialogContent>
-                {!enableClipboard && <ReactJson src={dialogProps.data} enableClipboard={(e) => copyToClipboard(e)} />}
-                {enableClipboard && <ReactJson src={dialogProps.data} enableClipboard={(e) => onCopyClick(e, dialogProps.node)} />}
+                <ReactJson
+                    src={dialogProps.data}
+                    enableClipboard={(e) => (enableClipboard ? onCopyClick(e, dialogProps.node) : copyToClipboard(e))}
+                />
             </DialogContent>
         </Dialog>
     ) : null

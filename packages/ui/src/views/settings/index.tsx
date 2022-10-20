@@ -1,25 +1,37 @@
-import { useState, useEffect } from 'react'
-import PropTypes from 'prop-types'
+import { useState, useEffect, ComponentProps } from 'react'
+import { useTheme } from 'themes'
+import { reducer } from 'store'
 
 // material-ui
-import { useTheme } from '@mui/material/styles'
 import { Box, List, Paper, Popper } from '@mui/material'
 
 // third-party
 import PerfectScrollbar from 'react-perfect-scrollbar'
 
 // project imports
-import MainCard from 'ui-component/cards/MainCard'
-import Transitions from 'ui-component/extended/Transitions'
-import NavItem from 'layout/MainLayout/Sidebar/MenuList/NavItem'
+import { MainCard, Transitions } from 'ui-component'
 
-import { settings } from 'menu-items'
+import { NavItem } from 'layout/MainLayout/Sidebar/MenuList/NavItem'
+
+import { settings, Settings as SettingsType } from 'menu-items'
 
 // ==============================|| SETTINGS ||============================== //
 
-const Settings = ({ workflow, isSettingsOpen, anchorEl, onSettingsItemClick, onUploadFile }) => {
+export const Settings = ({
+    workflow,
+    isSettingsOpen,
+    anchorEl,
+    onSettingsItemClick,
+    onUploadFile
+}: {
+    workflow?: reducer.canvas.WorkFlow
+    isSettingsOpen: boolean
+    anchorEl: ComponentProps<typeof Popper>['anchorEl']
+    onSettingsItemClick: ComponentProps<typeof NavItem>['onClick']
+    onUploadFile: ComponentProps<typeof NavItem>['onUploadFile']
+}) => {
     const theme = useTheme()
-    const [settingsMenu, setSettingsMenu] = useState([])
+    const [settingsMenu, setSettingsMenu] = useState<SettingsType['children']>([])
 
     const [open, setOpen] = useState(false)
 
@@ -39,16 +51,7 @@ const Settings = ({ workflow, isSettingsOpen, anchorEl, onSettingsItemClick, onU
 
     // settings list items
     const items = settingsMenu.map((menu) => {
-        return (
-            <NavItem
-                key={menu.id}
-                item={menu}
-                level={1}
-                navType='SETTINGS'
-                onClick={(id) => onSettingsItemClick(id)}
-                onUploadFile={onUploadFile}
-            />
-        )
+        return <NavItem key={menu.id} item={menu} level={1} navType='SETTINGS' onClick={onSettingsItemClick} onUploadFile={onUploadFile} />
     })
 
     return (
@@ -89,13 +92,3 @@ const Settings = ({ workflow, isSettingsOpen, anchorEl, onSettingsItemClick, onU
         </>
     )
 }
-
-Settings.propTypes = {
-    workflow: PropTypes.object,
-    isSettingsOpen: PropTypes.bool,
-    anchorEl: PropTypes.any,
-    onSettingsItemClick: PropTypes.func,
-    onUploadFile: PropTypes.func
-}
-
-export default Settings

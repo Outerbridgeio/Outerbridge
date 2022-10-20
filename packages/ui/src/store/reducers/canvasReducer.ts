@@ -9,7 +9,20 @@ export const initialState = {
 
 export type ExecutionData = {
     nodeLabel: string
-    data: { html: string; attachments: { filename: string; contentType: string; content: string; size?: number }[] }[]
+    data: { html: string; attachments?: { filename: string; contentType: string; content: string; size?: number }[] }[]
+}
+
+export type WorkFlow = {
+    flowData: Record<string, unknown>
+    name: string
+    shortId?: string
+    deployed?: boolean
+    executionCount?: number
+    execution: {
+        shortId: string
+        state: 'INPROGRESS' | 'FINISHED' | 'ERROR' | 'TERMINATED' | 'TIMEOUT'
+        executionData: ExecutionData
+    }[]
 }
 
 // ==============================|| CANVAS REDUCER ||============================== //
@@ -22,18 +35,7 @@ export const canvasReducer = (
         | { type: typeof REMOVE_DIRTY }
         | {
               type: typeof SET_WORKFLOW
-              workflow: {
-                  flowData: Record<string, unknown>
-                  name: string
-                  shortId?: string
-                  deployed?: boolean
-                  executionCount?: number
-                  execution: {
-                      shortId: string
-                      state: 'INPROGRESS' | 'FINISHED' | 'ERROR' | 'TERMINATED' | 'TIMEOUT'
-                      executionData: ExecutionData
-                  }[]
-              }
+              workflow: WorkFlow
           }
 ) => {
     switch (action.type) {

@@ -1,12 +1,12 @@
-import PropTypes from 'prop-types'
 import { Handle, Position } from 'react-flow-renderer'
-
+import { useTheme, AppTheme } from 'themes'
+import { NodeData } from 'utils'
 // material-ui
-import { styled, useTheme } from '@mui/material/styles'
+import { styled } from '@mui/material/styles'
 import { Avatar, Box, Typography } from '@mui/material'
 
 // project imports
-import MainCard from 'ui-component/cards/MainCard'
+import { MainCard } from 'ui-component'
 
 // icons
 import { IconCheck, IconExclamationMark } from '@tabler/icons'
@@ -14,24 +14,24 @@ import { IconCheck, IconExclamationMark } from '@tabler/icons'
 // const
 import { baseURL } from 'store/constant'
 
-const CardWrapper = styled(MainCard)(({ theme }) => ({
+const CardWrapper = styled(MainCard)(({ theme }: { theme?: AppTheme }) => ({
     backgroundColor: '#ffffff',
     border: 'solid 1px',
-    color: theme.darkTextPrimary,
+    color: theme?.darkTextPrimary,
     width: '200px',
     height: 'auto',
     padding: '10px',
     boxShadow: '0 2px 14px 0 rgb(32 40 45 / 8%)',
     '&:hover': {
-        borderColor: theme.palette.primary.main
+        borderColor: theme?.palette.primary.main
     }
 }))
 
-const handlerPosition = [[['50%']], [['30%'], ['70%']]]
+const handlerPosition = [['50%'], ['30%', '70%']]
 
 // ===========================|| CANVAS NODE ||=========================== //
 
-const CanvasNode = ({ data }) => {
+export const CanvasNode = ({ data }: { data: NodeData }) => {
     const theme = useTheme()
 
     return (
@@ -43,7 +43,7 @@ const CanvasNode = ({ data }) => {
                 }}
                 border={false}
             >
-                {data && data.outputResponses && data.outputResponses.submit && (
+                {data.outputResponses?.submit && (
                     <Avatar
                         variant='rounded'
                         sx={{
@@ -61,7 +61,7 @@ const CanvasNode = ({ data }) => {
                     </Avatar>
                 )}
 
-                {data && data.outputResponses && data.outputResponses.needRetest && (
+                {data.outputResponses?.needRetest && (
                     <Avatar
                         variant='rounded'
                         sx={{
@@ -91,12 +91,12 @@ const CanvasNode = ({ data }) => {
                                 width: 15,
                                 top: -7.5,
                                 backgroundColor: data.selected ? theme.palette.primary.main : theme.palette.text.secondary,
-                                left: handlerPosition[data.inputAnchors.length - 1][index]
+                                left: handlerPosition[data.inputAnchors.length - 1]?.[index]
                             }}
                         />
                     ))}
                     <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                        <Box item style={{ width: 50, marginRight: 10 }}>
+                        <Box style={{ width: 50, marginRight: 10 }}>
                             <div
                                 style={{
                                     ...theme.typography.commonAvatar,
@@ -134,7 +134,7 @@ const CanvasNode = ({ data }) => {
                                 width: 15,
                                 bottom: -7.5,
                                 backgroundColor: data.selected ? theme.palette.primary.main : theme.palette.text.secondary,
-                                left: handlerPosition[data.outputAnchors.length - 1][index]
+                                left: handlerPosition[data.outputAnchors.length - 1]?.[index]
                             }}
                         />
                     ))}
@@ -143,9 +143,3 @@ const CanvasNode = ({ data }) => {
         </>
     )
 }
-
-CanvasNode.propTypes = {
-    data: PropTypes.object
-}
-
-export default CanvasNode

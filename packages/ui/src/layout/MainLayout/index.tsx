@@ -132,3 +132,7 @@ export const MainLayout = () => {
         </Box>
     )
 }
+
+export * from './Header'
+export * from './LogoSection'
+export * from './Sidebar'

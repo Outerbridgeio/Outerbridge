@@ -13,7 +13,7 @@ export const Transitions = forwardRef(function Transitions(
         direction,
         ...others
     }: PropsWithChildren<{
-        type: 'grow' | 'collapse' | 'fade' | 'slide' | 'zoom'
+        type?: 'grow' | 'collapse' | 'fade' | 'slide' | 'zoom'
         position?: 'top-right' | 'top' | 'bottom-right' | 'bottom' | 'top-left' | 'bottom-left'
         direction?: 'right' | 'left' | 'up' | 'down'
     }>,

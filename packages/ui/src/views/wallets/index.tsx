@@ -5,8 +5,7 @@ import { Grid, Button, Box, Stack } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 
 // project imports
-import MainCard from 'ui-component/cards/MainCard'
-import ItemCard from 'ui-component/cards/ItemCard'
+import { MainCard, ItemCard } from 'ui-component'
 import WalletDialog from './WalletDialog'
 import WalletEmptySVG from 'assets/images/wallet_empty.svg'
 
@@ -14,14 +13,14 @@ import WalletEmptySVG from 'assets/images/wallet_empty.svg'
 import { gridSpacing } from 'store/constant'
 
 // API
-import walletsApi from 'api/wallets'
+import { walletsApi } from 'api'
 
 // Hooks
-import useApi from 'hooks/useApi'
+import { useApi } from 'hooks'
 
 // ==============================|| WALLETS ||============================== //
 
-const Wallets = () => {
+export const Wallets = () => {
     const theme = useTheme()
 
     const [isLoading, setLoading] = useState(true)
@@ -52,7 +51,7 @@ const Wallets = () => {
         setShowDialog(true)
     }
 
-    const edit = (id) => {
+    const edit = (id: string) => {
         const dialogProp = {
             title: 'Edit Wallet',
             type: 'EDIT',
@@ -127,5 +126,3 @@ const Wallets = () => {
         </>
     )
 }
-
-export default Wallets

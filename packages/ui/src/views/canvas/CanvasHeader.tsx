@@ -1,10 +1,10 @@
 import PropTypes from 'prop-types'
 import { useNavigate } from 'react-router-dom'
-import { useSelector } from 'react-redux'
+import { useSelector } from 'store'
 import { useEffect, useRef, useState } from 'react'
+import { useTheme } from 'themes'
 
 // material-ui
-import { useTheme } from '@mui/material/styles'
 import { Avatar, Box, ButtonBase, Typography, Stack, TextField, Chip } from '@mui/material'
 
 // icons
@@ -23,13 +23,13 @@ import {
 // project imports
 import Executions from 'views/executions'
 import Settings from 'views/settings'
-import SaveWorkflowDialog from 'ui-component/dialog/SaveWorkflowDialog'
+import { SaveWorkflowDialog } from 'ui-component/'
 
 // API
-import workflowsApi from 'api/workflows'
+import { workflowsApi } from 'api'
 
 // Hooks
-import useApi from 'hooks/useApi'
+import { useApi } from 'hooks'
 
 // utils
 import { generateExportFlowData } from 'utils/genericHelper'

@@ -83,3 +83,5 @@ export const Sidebar = ({
         </Box>
     )
 }
+
+export * from './MenuList'

@@ -1,13 +1,35 @@
-import { getBezierPath, getEdgeCenter, EdgeText } from 'react-flow-renderer'
-import PropTypes from 'prop-types'
-import { useDispatch } from 'react-redux'
-import { REMOVE_EDGE } from 'store/actions'
-
+import { getBezierPath, getEdgeCenter, EdgeText, Position } from 'react-flow-renderer'
+import { useDispatch, actions } from 'store'
+import { ComponentProps } from 'react'
 import './index.css'
+
+const { REMOVE_EDGE } = actions
 
 const foreignObjectSize = 40
 
-const ButtonEdge = ({ id, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, style = {}, data, markerEnd }) => {
+export const ButtonEdge = ({
+    id,
+    sourceX,
+    sourceY,
+    targetX,
+    targetY,
+    sourcePosition,
+    targetPosition,
+    style = {},
+    data,
+    markerEnd
+}: {
+    id: string
+    sourceX: number
+    sourceY: number
+    targetX: number
+    targetY: number
+    sourcePosition: Position
+    targetPosition: Position
+    data?: { label?: string }
+    markerEnd: string
+    style: ComponentProps<'path'>['style']
+}) => {
     const edgePath = getBezierPath({
         sourceX,
         sourceY,
@@ -26,7 +48,7 @@ const ButtonEdge = ({ id, sourceX, sourceY, targetX, targetY, sourcePosition, ta
 
     const dispatch = useDispatch()
 
-    const onEdgeClick = (evt, id) => {
+    const onEdgeClick = (evt: React.MouseEvent<HTMLButtonElement, MouseEvent>, id: string) => {
         evt.stopPropagation()
         dispatch({ type: REMOVE_EDGE, edgeId: id })
     }
@@ -62,18 +84,3 @@ const ButtonEdge = ({ id, sourceX, sourceY, targetX, targetY, sourcePosition, ta
         </>
     )
 }
-
-ButtonEdge.propTypes = {
-    id: PropTypes.string,
-    sourceX: PropTypes.number,
-    sourceY: PropTypes.number,
-    targetX: PropTypes.number,
-    targetY: PropTypes.number,
-    sourcePosition: PropTypes.any,
-    targetPosition: PropTypes.any,
-    style: PropTypes.object,
-    data: PropTypes.object,
-    markerEnd: PropTypes.any
-}
-
-export default ButtonEdge

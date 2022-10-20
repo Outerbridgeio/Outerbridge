@@ -5,27 +5,27 @@ import { useNavigate } from 'react-router-dom'
 import { Grid, Button, Box, Stack } from '@mui/material'
 
 // project imports
-import MainCard from 'ui-component/cards/MainCard'
-import ItemCard from 'ui-component/cards/ItemCard'
-import { gridSpacing } from 'store/constant'
+import { MainCard, ItemCard } from 'ui-component'
 import WorkflowEmptySVG from 'assets/images/workflow_empty.svg'
 
 // API
-import workflowsApi from 'api/workflows'
+import { workflowsApi } from 'api'
 
 // Hooks
-import useApi from 'hooks/useApi'
+import { useApi, WorkFlowData } from 'hooks'
 
 // const
-import { baseURL } from 'store/constant'
+import { constant } from 'store'
+
+const { gridSpacing, baseURL } = constant
 
 // ==============================|| WORKFLOWS ||============================== //
 
-const Workflows = () => {
+export const Workflows = () => {
     const navigate = useNavigate()
 
     const [isLoading, setLoading] = useState(true)
-    const [images, setImages] = useState({})
+    const [images, setImages] = useState<Record<string, string[]>>({})
 
     const getAllWorkflowsApi = useApi(workflowsApi.getAllWorkflows)
 
@@ -33,7 +33,7 @@ const Workflows = () => {
         navigate('/canvas')
     }
 
-    const goToCanvas = (selectedWorkflow) => {
+    const goToCanvas = (selectedWorkflow: WorkFlowData) => {
         navigate(`/canvas/${selectedWorkflow.shortId}`)
     }
 
@@ -51,18 +51,18 @@ const Workflows = () => {
         if (getAllWorkflowsApi.data) {
             try {
                 const workflows = getAllWorkflowsApi.data
-                const images = {}
+                const images: Record<string, string[]> = {}
 
                 for (let i = 0; i < workflows.length; i += 1) {
-                    const flowDataStr = workflows[i].flowData
+                    const flowDataStr = workflows[i]!.flowData
                     const flowData = JSON.parse(flowDataStr)
                     const nodes = flowData.nodes || []
-                    images[workflows[i].shortId] = []
+                    images[workflows[i]!.shortId] = []
 
                     for (let j = 0; j < nodes.length; j += 1) {
                         const imageSrc = `${baseURL}/api/v1/node-icon/${nodes[j].data.name}`
-                        if (!images[workflows[i].shortId].includes(imageSrc)) {
-                            images[workflows[i].shortId].push(imageSrc)
+                        if (!images[workflows[i]!.shortId]?.includes(imageSrc)) {
+                            images[workflows[i]!.shortId]?.push(imageSrc)
                         }
                     }
                 }
@@ -106,5 +106,3 @@ const Workflows = () => {
         </MainCard>
     )
 }
-
-export default Workflows

@@ -61,13 +61,14 @@ export const HTMLDialog = ({
                 </Tabs>
                 {dialogProps.executionData.map((execObj, execObjIndex) => (
                     <TabPanel key={execObjIndex} value={value} index={execObjIndex}>
-                        {execObj.html && (
+                        {execObj.html ? (
                             <div
                                 style={{ width: '100%', height: '100%', overflow: 'auto' }}
                                 dangerouslySetInnerHTML={{ __html: execObj.html }}
                             />
+                        ) : (
+                            <div>No HTML</div>
                         )}
-                        {!execObj.html && <div>No HTML</div>}
                     </TabPanel>
                 ))}
             </DialogContent>

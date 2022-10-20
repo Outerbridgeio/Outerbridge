@@ -9,28 +9,30 @@ const icons = { IconTrash, IconFileUpload, IconFileExport }
 export const settings = {
     id: 'settings' as const,
     title: '',
-    type: 'group',
+    type: 'group' as const,
     children: [
         {
             id: 'loadWorkflow' as const,
             title: 'Load Workflow',
-            type: 'item',
+            type: 'item' as const,
             url: '',
             icon: icons.IconFileUpload
         },
         {
             id: 'exportWorkflow' as const,
             title: 'Export Workflow',
-            type: 'item',
+            type: 'item' as const,
             url: '',
             icon: icons.IconFileExport
         },
         {
             id: 'deleteWorkflow' as const,
             title: 'Delete Workflow',
-            type: 'item',
+            type: 'item' as const,
             url: '',
             icon: icons.IconTrash
         }
     ]
-} as const
+}
+
+export type Settings = typeof settings

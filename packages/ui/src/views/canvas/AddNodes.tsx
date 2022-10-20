@@ -1,9 +1,8 @@
-import { useState, useRef, useEffect } from 'react'
-import { useSelector } from 'react-redux'
-import PropTypes from 'prop-types'
-
+import { useState, useRef, useEffect, ComponentProps } from 'react'
+import { useSelector, constant } from 'store'
+import { useTheme } from 'themes'
+import { NodeData, Node } from 'utils'
 // material-ui
-import { useTheme } from '@mui/material/styles'
 import {
     Box,
     Fab,
@@ -26,29 +25,28 @@ import {
 import PerfectScrollbar from 'react-perfect-scrollbar'
 
 // project imports
-import MainCard from 'ui-component/cards/MainCard'
-import Transitions from 'ui-component/extended/Transitions'
+import { MainCard, Transitions } from 'ui-component'
 
 // icons
 import { IconPlus, IconSearch, IconMinus } from '@tabler/icons'
 
 // const
-import { baseURL } from 'store/constant'
+const { baseURL } = constant
 
 // ==============================|| ADD NODES||============================== //
 
-const AddNodes = ({ nodesData, node }) => {
+export const AddNodes = ({ nodesData, node }: { nodesData: NodeData[]; node: Node }) => {
     const theme = useTheme()
     const customization = useSelector((state) => state.customization)
 
     const [searchValue, setSearchValue] = useState('')
-    const [nodes, setNodes] = useState([])
+    const [nodes, setNodes] = useState<NodeData[]>([])
     const [open, setOpen] = useState(false)
 
-    const anchorRef = useRef(null)
+    const anchorRef = useRef<HTMLButtonElement>(null)
     const prevOpen = useRef(open)
 
-    const filterSearch = (value) => {
+    const filterSearch = (value: string) => {
         setSearchValue(value)
         setTimeout(() => {
             if (value) {
@@ -60,8 +58,14 @@ const AddNodes = ({ nodesData, node }) => {
         }, 500)
     }
 
-    const handleClose = (event) => {
-        if (anchorRef.current && anchorRef.current.contains(event.target)) {
+    const handleClose: ComponentProps<typeof ClickAwayListener>['onClickAway'] = (event) => {
+        if (
+            anchorRef.current &&
+            anchorRef.current.contains(
+                // @ts-expect-error investigate this later
+                event.target
+            )
+        ) {
             return
         }
         setOpen(false)
@@ -71,14 +75,14 @@ const AddNodes = ({ nodesData, node }) => {
         setOpen((prevOpen) => !prevOpen)
     }
 
-    const onDragStart = (event, node) => {
+    const onDragStart = (event: React.DragEvent<HTMLDivElement>, node: NodeData) => {
         event.dataTransfer.setData('application/reactflow', JSON.stringify(node))
         event.dataTransfer.effectAllowed = 'move'
     }
 
     useEffect(() => {
         if (prevOpen.current === true && open === false) {
-            anchorRef.current.focus()
+            anchorRef.current?.focus()
         }
 
         prevOpen.current = open
@@ -222,10 +226,3 @@ const AddNodes = ({ nodesData, node }) => {
         </>
     )
 }
-
-AddNodes.propTypes = {
-    nodesData: PropTypes.array,
-    node: PropTypes.object
-}
-
-export default AddNodes

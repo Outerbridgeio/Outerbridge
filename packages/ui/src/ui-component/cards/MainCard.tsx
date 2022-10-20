@@ -55,15 +55,21 @@ export const MainCard = forwardRef<
                 ...sx
             }}
         >
-            {/* card header and action */}
-            {!darkTitle && title && <CardHeader sx={headerSX} title={title} action={secondary} />}
-            {darkTitle && title && <CardHeader sx={headerSX} title={<Typography variant='h3'>{title}</Typography>} action={secondary} />}
-
-            {/* content & header divider */}
-            {title && <Divider />}
+            {title && (
+                <>
+                    {/* card header and action */}
+                    <CardHeader
+                        sx={headerSX}
+                        title={darkTitle ? <Typography variant='h3'>{title}</Typography> : title}
+                        action={secondary}
+                    />
+                    {/* content & header divider */}
+                    <Divider />
+                </>
+            )}
 
             {/* card content */}
-            {content && (
+            {content ? (
                 <CardContent
                     // @ts-expect-error card content sx is not dynamic
                     sx={contentSX}
@@ -71,8 +77,9 @@ export const MainCard = forwardRef<
                 >
                     {children}
                 </CardContent>
+            ) : (
+                children
             )}
-            {!content && children}
         </Card>
     )
 })

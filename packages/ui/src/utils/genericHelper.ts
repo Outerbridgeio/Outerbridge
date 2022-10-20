@@ -3,17 +3,20 @@ import moment from 'moment'
 import { INode, INodeParams, INodeData, ICommonObject } from 'outerbridge-components'
 import { MarkOptional, StrictOmit, StrictExclude, StrictExtract } from 'ts-essentials'
 
-type NodeData = MarkOptional<INodeData, 'version' | 'outgoing' | 'incoming'> & {
+export type NodeData = MarkOptional<StrictOmit<INodeData, 'outputResponses'>, 'version' | 'outgoing' | 'incoming'> & {
+    outputResponses?: { output: Record<string, unknown>; submit?: boolean; needRetest?: boolean }
+} & {
     inputAnchors: { id: string }[]
     outputAnchors: { id: string }[]
     selected: boolean
-    submit?: null
+    submit?: boolean
 }
-type Nodes = (INode & {
+export type Node = INode & {
     id: string
     data: NodeData
     selected: boolean
-})[]
+}
+export type Nodes = Node[]
 type NodeDependencies = Record<string, number>
 type Graph = Record<string, string[]>
 type Edges = { source: string; target: string; targetHandle: '-input-'[] }[]
@@ -95,10 +98,8 @@ export const getAllConnectedNodesFromTarget = (targetNodeId: string, edges: Edge
         const parentNodeIds = []
 
         const inputEdges = edges.filter((edg) => edg.target === nodeId && edg.targetHandle.includes('-input-'))
-        if (inputEdges && inputEdges.length) {
-            for (let j = 0; j < inputEdges.length; j++) {
-                parentNodeIds.push(inputEdges[j]!.source)
-            }
+        for (let j = 0; j < inputEdges.length; j++) {
+            parentNodeIds.push(inputEdges[j]!.source)
         }
 
         const neighbourNodeIds = graph[nodeId]
@@ -201,7 +202,7 @@ export const initializeNodeData = (nodeParams: NodeParams[]) => {
         initialValues[input.name] = input.default || ''
 
         // Special case for array, always initialize the item if default is not set
-        if (input?.type === 'array' && !input.default) {
+        if (input.type === 'array' && !input.default) {
             const newObj: ICommonObject = {}
             for (let j = 0; j < input.array!.length; j++) {
                 newObj[input.array[j]!.name] = input.array[j]!.default || ''
@@ -357,12 +358,7 @@ const isHideRegisteredCredential = (params: NodeParams[], paramsType: 'actions' 
         const input = clonedParams[i]!
         if (input.type === 'options') {
             const selectedCredentialMethodOption = input.options.find((opt) => opt.name === nodeFlowData[paramsType]?.['credentialMethod'])
-            if (
-                selectedCredentialMethodOption &&
-                selectedCredentialMethodOption !== undefined &&
-                selectedCredentialMethodOption.hideRegisteredCredential
-            )
-                return true
+            if (selectedCredentialMethodOption?.hideRegisteredCredential) return true
         }
     }
     return false

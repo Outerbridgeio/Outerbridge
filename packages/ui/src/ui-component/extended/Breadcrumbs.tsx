@@ -79,7 +79,7 @@ export const AppBreadcrumbs = ({
 
     useEffect(() => {
         navigation?.items?.map((menu) => {
-            if (menu.type && menu.type === 'group') {
+            if (menu.type === 'group') {
                 getCollapse(menu)
             }
             return false
@@ -97,7 +97,7 @@ export const AppBreadcrumbs = ({
     let ItemIcon
 
     // collapse item
-    if (main && main.type === 'collapse') {
+    if (main?.type === 'collapse') {
         CollapseIcon = main.icon ? main.icon : AccountTreeTwoTone
         mainContent = (
             <Typography component={Link} to='#' variant='subtitle1' sx={linkSX}>
@@ -108,7 +108,7 @@ export const AppBreadcrumbs = ({
     }
 
     // items
-    if (item && item.type === 'item') {
+    if (item?.type === 'item') {
         itemTitle = item.title
 
         ItemIcon = item.icon ? item.icon : AccountTreeTwoTone
@@ -160,9 +160,14 @@ export const AppBreadcrumbs = ({
                                     separator={separatorIcon}
                                 >
                                     <Typography component={Link} to='/' color='inherit' variant='subtitle1' sx={linkSX}>
-                                        {icons && <HomeTwoTone sx={iconStyle} />}
-                                        {icon && <Home sx={{ ...iconStyle, mr: 0 }} />}
-                                        {!icon && 'Dashboard'}
+                                        {icons ? (
+                                            <>
+                                                <HomeTwoTone sx={iconStyle} />
+                                                <Home sx={{ ...iconStyle, mr: 0 }} />
+                                            </>
+                                        ) : (
+                                            'Dashboard'
+                                        )}
                                     </Typography>
                                     {mainContent}
                                     {itemContent}

@@ -1,7 +1,7 @@
 import { createPortal } from 'react-dom'
 import PropTypes from 'prop-types'
 import { useState, useEffect } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch } from 'store'
 import { enqueueSnackbar as enqueueSnackbarAction, closeSnackbar as closeSnackbarAction } from 'store/actions'
 
 import {
@@ -20,33 +20,32 @@ import {
     Stack,
     IconButton
 } from '@mui/material'
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import { useTheme } from '@mui/material/styles'
+import { ExpandMore } from '@mui/icons-material'
+import { useTheme } from 'themes'
 
 // third-party
 import * as Yup from 'yup'
 import lodash from 'lodash'
 
 // project imports
-import InputParameters from 'views/inputs/InputParameters'
-import CredentialInput from 'views/inputs/CredentialInput'
-import EditVariableDialog from 'ui-component/dialog/EditVariableDialog'
+import { InputParameters, CredentialInput } from './inputs'
+import { EditVariableDialog } from 'ui-component'
 
 // Icons
 import { IconCheck, IconX, IconArrowUpRightCircle, IconCopy, IconKey } from '@tabler/icons'
 
 // API
-import walletsApi from 'api/wallets'
+import { walletsApi } from 'api'
 
 // Hooks
-import useApi from 'hooks/useApi'
+import { useApi } from 'hooks'
 
 // Const
 import { wallet_details, networkExplorers, privateKeyField } from 'store/constant'
 
 // utils
 import { handleCredentialParams, initializeNodeData } from 'utils/genericHelper'
-import useNotifier from 'utils/useNotifier'
+import { useNotifier } from 'utils'
 
 const WalletDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
     const portalElement = document.getElementById('portal')
@@ -564,7 +563,7 @@ const WalletDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
                 {/* networks */}
                 <Box sx={{ p: 2 }}>
                     <Accordion expanded={expanded === 'networks'} onChange={handleAccordionChange('networks')}>
-                        <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls='networks-content' id='networks-header'>
+                        <AccordionSummary expandIcon={<ExpandMore />} aria-controls='networks-content' id='networks-header'>
                             <Typography variant='h4'>Networks</Typography>
                             {walletData && walletData.networks && walletData.networks.submit && (
                                 <Avatar
@@ -600,7 +599,7 @@ const WalletDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
                 {/* credentials */}
                 <Box sx={{ p: 2 }}>
                     <Accordion expanded={expanded === 'credentials'} onChange={handleAccordionChange('credentials')}>
-                        <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls='credentials-content' id='credentials-header'>
+                        <AccordionSummary expandIcon={<ExpandMore />} aria-controls='credentials-content' id='credentials-header'>
                             <Typography variant='h4'>Credentials</Typography>
                             {walletData && walletData.credentials && walletData.credentials.submit && (
                                 <Avatar
@@ -635,7 +634,7 @@ const WalletDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
                 {/* walletInfo */}
                 <Box sx={{ p: 2 }}>
                     <Accordion expanded={expanded === 'walletInfo'} onChange={handleAccordionChange('walletInfo')}>
-                        <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls='walletInfo-content' id='walletInfo-header'>
+                        <AccordionSummary expandIcon={<ExpandMore />} aria-controls='walletInfo-content' id='walletInfo-header'>
                             <Typography variant='h4'>Wallet Details</Typography>
                             {walletData && walletData.walletInfo && walletData.walletInfo.submit && (
                                 <Avatar

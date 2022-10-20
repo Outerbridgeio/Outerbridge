@@ -1,6 +1,7 @@
 import { createPortal } from 'react-dom'
 import { useState, useEffect, SyntheticEvent, ComponentProps } from 'react'
 import { useTheme } from 'themes'
+import { Node } from 'utils'
 import {
     Button,
     Dialog,
@@ -18,7 +19,7 @@ import { ExpandMore } from '@mui/icons-material'
 import ReactJson, { OnCopyProps } from 'react-json-view'
 import PerfectScrollbar from 'react-perfect-scrollbar'
 import { IconArrowsMaximize } from '@tabler/icons'
-import { ExpandDataDialog, Node, Input, ExpandDialogProps } from './ExpandDataDialog'
+import { ExpandDataDialog, Input, ExpandDialogProps } from './ExpandDataDialog'
 import Editor from 'react-simple-code-editor'
 // @ts-expect-error no declaration file
 import { highlight, languages } from 'prismjs/components/prism-core'
@@ -262,11 +263,7 @@ export const EditVariableDialog = ({
                                                             <div style={{ position: 'relative' }}>
                                                                 <ReactJson
                                                                     collapsed
-                                                                    src={
-                                                                        node.data.outputResponses && node.data.outputResponses.output
-                                                                            ? node.data.outputResponses.output
-                                                                            : {}
-                                                                    }
+                                                                    src={node.data.outputResponses?.output || {}}
                                                                     enableClipboard={(e) => onClipboardCopy(e, node)}
                                                                 />
                                                                 <IconButton
@@ -281,12 +278,7 @@ export const EditVariableDialog = ({
                                                                     title='Expand Variable'
                                                                     color='primary'
                                                                     onClick={() =>
-                                                                        onExpandDialogClicked(
-                                                                            node.data.outputResponses && node.data.outputResponses.output
-                                                                                ? node.data.outputResponses.output
-                                                                                : {},
-                                                                            node
-                                                                        )
+                                                                        onExpandDialogClicked(node.data.outputResponses?.output || {}, node)
                                                                     }
                                                                 >
                                                                     <IconArrowsMaximize />

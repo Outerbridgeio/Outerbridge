@@ -1,7 +1,6 @@
 import { useTheme, AppTheme } from 'themes'
-import { FlowData } from 'utils'
 import { ComponentProps } from 'react'
-
+import { WorkFlowData } from 'hooks'
 // material-ui
 import { styled } from '@mui/material/styles'
 import { Box, Grid, Chip, Typography } from '@mui/material'
@@ -39,9 +38,9 @@ export const ItemCard = ({
     images,
     onClick
 }: {
-    isLoading: boolean
-    data: { address?: string; network?: NetWork['name']; deployed?: boolean; executionCount?: number; flowData?: FlowData; name: string }
-    images: string[]
+    isLoading?: boolean
+    data: WorkFlowData
+    images?: string[]
     onClick: ComponentProps<typeof CardWrapper>['onClick']
 }) => {
     const theme = useTheme()
