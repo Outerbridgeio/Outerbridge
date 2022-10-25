@@ -114,7 +114,14 @@ class Mailchimp implements INode {
         }
         const api = actionData.api as string
         const apiKey = credentials.apiKey as string
-        const dc = credentials.dc as string
+        const dc = ((apiKey && apiKey.split('-')[1]) || '') as string
+        if (!apiKey) {
+            throw handleErrorMessage({ message: 'Api key is required' })
+        }
+        if (!dc) {
+            throw handleErrorMessage({ message: 'Date center is required' })
+        }
+
         let campaignId
 
         if (['deleteCampaign', 'getCampaign'].includes(api)) {
@@ -123,12 +130,7 @@ class Mailchimp implements INode {
                 campaignId = nodeData?.inputParameters?.campaignId
             }
         }
-        if (!apiKey) {
-            throw handleErrorMessage({ message: 'Api key is required' })
-        }
-        if (!dc) {
-            throw handleErrorMessage({ message: 'Date center is required' })
-        }
+
         let returnData: ICommonObject[] = []
         let url = `https://${dc}.api.mailchimp.com/3.0/campaigns`
         authObj = { username: '', password: apiKey }

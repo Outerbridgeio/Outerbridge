@@ -12,12 +12,6 @@ class MailchimpApi implements INodeCredential {
                 name: 'apiKey',
                 type: 'string',
                 default: ''
-            },
-            {
-                label: 'Mailchimp data center',
-                name: 'dc',
-                type: 'string',
-                default: ''
             }
         ]
     }
