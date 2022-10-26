@@ -1,10 +1,10 @@
 import PropTypes from 'prop-types'
 import { forwardRef } from 'react'
-
+import { useTheme } from 'themes'
 // material-ui
 import { Box, Button, Stack, FormControl, OutlinedInput, Popper, TextField, Typography, Switch } from '@mui/material'
 import Autocomplete, { autocompleteClasses } from '@mui/material/Autocomplete'
-import { styled, useTheme } from '@mui/material/styles'
+import { styled } from '@mui/material/styles'
 
 // third party
 import lodash from 'lodash'
@@ -24,10 +24,10 @@ import 'react-datepicker/dist/react-datepicker.css'
 import { TooltipWithParser } from '../../ui-component/TooltipWithParser'
 
 // project imports
-import useScriptRef from 'hooks/useScriptRef'
-import AnimateButton from 'ui-component/extended/AnimateButton'
+import { useScriptRef } from 'hooks'
+import { AnimateButton } from 'ui-component/'
 import ArrayInputParameters from './ArrayInputParameters'
-import OptionParamsResponse from './OptionParamsResponse'
+import { OptionParamsResponse } from './OptionParamsResponse'
 import AsyncSelectWrapper from './AsyncSelectWrapper'
 
 // icons

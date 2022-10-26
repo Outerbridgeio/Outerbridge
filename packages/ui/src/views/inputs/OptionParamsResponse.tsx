@@ -1,5 +1,3 @@
-import PropTypes from 'prop-types'
-
 // material-ui
 import { Box, Typography } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
@@ -15,12 +13,18 @@ import './OptionParamsResponse.css'
 
 // ==============================|| OPTION PARAMS RESPONSE ||============================== //
 
-const OptionParamsResponse = ({ value, options }) => {
+export const OptionParamsResponse = ({
+    value,
+    options
+}: {
+    value: string
+    options: { name: string; inputParameters: string; exampleParameters: string; exampleResponse: string }[]
+}) => {
     const theme = useTheme()
 
-    const getSelectedValue = (value) => options.find((option) => option.name === value)
+    const getSelectedValue = (value: string) => options.find((option) => option.name === value)
 
-    const getSelectedOptionInputParams = (value) => {
+    const getSelectedOptionInputParams = (value: string) => {
         const selectedOption = options.find((option) => option.name === value)
         if (selectedOption) {
             return selectedOption.inputParameters || ''
@@ -28,7 +32,7 @@ const OptionParamsResponse = ({ value, options }) => {
         return ''
     }
 
-    const getSelectedOptionExampleParams = (value) => {
+    const getSelectedOptionExampleParams = (value: string) => {
         const selectedOption = options.find((option) => option.name === value)
         if (selectedOption) {
             return selectedOption.exampleParameters || ''
@@ -36,12 +40,12 @@ const OptionParamsResponse = ({ value, options }) => {
         return ''
     }
 
-    const getSelectedOptionExampleResponse = (value) => {
+    const getSelectedOptionExampleResponse = (value: string) => {
         const selectedOption = options.find((option) => option.name === value)
         if (selectedOption) {
-            return selectedOption.exampleResponse || ''
+            return selectedOption.exampleResponse || {}
         }
-        return ''
+        return {}
     }
 
     return (
@@ -103,10 +107,3 @@ const OptionParamsResponse = ({ value, options }) => {
         </>
     )
 }
-
-OptionParamsResponse.propTypes = {
-    value: PropTypes.string,
-    options: PropTypes.array
-}
-
-export default OptionParamsResponse

@@ -7,9 +7,9 @@ import { motion, useCycle } from 'framer-motion'
 export const AnimateButton = forwardRef<
     HTMLDivElement,
     PropsWithChildren<{
-        type: 'rotate' | 'slide' | 'scale'
-        direction: 'up' | 'left' | 'right' | 'down'
-        offset: number
+        type?: 'rotate' | 'slide' | 'scale'
+        direction?: 'up' | 'left' | 'right' | 'down'
+        offset?: number
         scale?: number | { hover: number; tap: number }
     }>
 >(function AnimateButton({ children, type, direction, offset, scale }, ref) {

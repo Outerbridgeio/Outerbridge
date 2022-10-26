@@ -1,47 +1,63 @@
 import { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
+import { NodeType, NodeParamsType } from 'outerbridge-components'
+import { useTheme } from 'themes'
 
 // material-ui
 import { Box, Button, Chip, CircularProgress, Stack, Typography, IconButton } from '@mui/material'
-import { useTheme } from '@mui/material/styles'
 
 // third party
 import ReactJson from 'react-json-view'
 import socketIOClient from 'socket.io-client'
 
 // project imports
-import AnimateButton from 'ui-component/extended/AnimateButton'
-import AttachmentDialog from 'ui-component/dialog/AttachmentDialog'
-import HTMLDialog from 'ui-component/dialog/HTMLDialog'
-import ExpandDataDialog from 'ui-component/dialog/ExpandDataDialog'
+import { AnimateButton, AttachmentDialog, HTMLDialog, ExpandDataDialog } from 'ui-component'
 
 // API
-import nodesApi from 'api/nodes'
+import { nodesApi } from 'api'
 
 // Hooks
-import useApi from 'hooks/useApi'
+import { useApi } from 'hooks'
 
 // icons
 import { IconExclamationMark, IconCopy, IconArrowUpRightCircle, IconX, IconArrowsMaximize } from '@tabler/icons'
 
 // const
-import { baseURL } from 'store/constant'
+import { constant, reducer } from 'store'
+
+const { baseURL } = constant
 
 // utils
-import { copyToClipboard } from 'utils/genericHelper'
+import { copyToClipboard, Nodes, Edges, NodeData } from 'utils'
 
 // ==============================|| OUTPUT RESPONSES ||============================== //
 
-const OutputResponses = ({ nodeId, nodeParamsType, nodeFlowData, nodes, edges, workflow, onSubmit }) => {
+const OutputResponses = ({
+    nodeId,
+    nodeParamsType,
+    nodeFlowData,
+    nodes,
+    edges,
+    workflow,
+    onSubmit
+}: {
+    nodeId: string
+    nodeParamsType: NodeParamsType[]
+    nodeFlowData: NodeData
+    nodes: Nodes
+    edges: Edges
+    workflow: reducer.canvas.WorkFlow
+    onSubmit
+}) => {
     const theme = useTheme()
 
-    const [outputResponse, setOutputResponse] = useState([])
-    const [errorResponse, setErrorResponse] = useState(null)
+    const [outputResponse, setOutputResponse] = useState<[]>([])
+    const [errorResponse, setErrorResponse] = useState<unknown | null>(null)
     const [nodeName, setNodeName] = useState(null)
     const [nodeType, setNodeType] = useState(null)
     const [nodeLabel, setNodeLabel] = useState(null)
     const [isTestNodeBtnDisabled, disableTestNodeBtn] = useState(true)
-    const [testNodeLoading, setTestNodeLoading] = useState(null)
+    const [testNodeLoading, setTestNodeLoading] = useState<boolean | null>(null)
     const [showHTMLDialog, setShowHTMLDialog] = useState(false)
     const [HTMLDialogProps, setHTMLDialogProps] = useState({})
     const [showAttachmentDialog, setShowAttachmentDialog] = useState(false)
@@ -51,7 +67,7 @@ const OutputResponses = ({ nodeId, nodeParamsType, nodeFlowData, nodes, edges, w
 
     const testNodeApi = useApi(nodesApi.testNode)
 
-    const onTestNodeClick = (nodeType) => {
+    const onTestNodeClick = (nodeType: NodeType) => {
         /* If workflow is already deployed, stop it first to be safe.
          *  Because it could cause throttled calls
          */
@@ -61,7 +77,12 @@ const OutputResponses = ({ nodeId, nodeParamsType, nodeFlowData, nodes, edges, w
             return
         }
 
-        const testNodeBody = {
+        const testNodeBody: {
+            nodes: Nodes
+            edges: Edges
+            nodeId: string
+            clientId?: string
+        } = {
             nodes,
             edges,
             nodeId
@@ -103,7 +124,7 @@ const OutputResponses = ({ nodeId, nodeParamsType, nodeFlowData, nodes, edges, w
     const checkIfTestNodeValid = () => {
         const paramsTypes = nodeParamsType.filter((type) => type !== 'outputResponses')
         for (let i = 0; i < paramsTypes.length; i += 1) {
-            const paramType = paramsTypes[i]
+            const paramType = paramsTypes[i]!
 
             if (!nodeFlowData[paramType] || !nodeFlowData[paramType].submit) {
                 return true

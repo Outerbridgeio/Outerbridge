@@ -1,41 +1,68 @@
-import { useState, useRef, useEffect } from 'react'
-import PropTypes from 'prop-types'
+import { useState, useRef, useEffect, ComponentProps } from 'react'
+import { useTheme } from 'themes'
+import { Node } from 'utils'
 
 // material-ui
-import { useTheme } from '@mui/material/styles'
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import { Box, Fab, List, Accordion, AccordionSummary, AccordionDetails, Paper, Popper, Stack, Typography, IconButton } from '@mui/material'
+import { ExpandMore } from '@mui/icons-material'
+import {
+    Box,
+    Fab,
+    List,
+    Accordion,
+    AccordionSummary,
+    AccordionDetails,
+    Paper,
+    Popper,
+    Stack,
+    Typography,
+    IconButton,
+    PopperProps,
+    FabProps,
+    AccordionProps
+} from '@mui/material'
 
 // third-party
 import PerfectScrollbar from 'react-perfect-scrollbar'
-import ReactJson from 'react-json-view'
+import ReactJson, { OnCopyProps } from 'react-json-view'
 
 // project imports
-import MainCard from 'ui-component/cards/MainCard'
-import Transitions from 'ui-component/extended/Transitions'
-import ExpandDataDialog from 'ui-component/dialog/ExpandDataDialog'
+import { MainCard, Transitions, ExpandDataDialog } from 'ui-component'
 
 // icons
 import { IconX, IconArrowsMaximize } from '@tabler/icons'
 
 // ==============================|| VARIABLE SELECTOR ||============================== //
 
-const isPositiveNumeric = (value) => /^\d+$/.test(value)
+const isPositiveNumeric = (value: string | null | undefined) => /^\d+$/.test(`${value}`)
 
-const VariableSelector = ({ nodes, isVariableSelectorOpen, anchorEl, onVariableSelected, handleClose }) => {
+export const VariableSelector = ({
+    nodes,
+    isVariableSelectorOpen,
+    anchorEl,
+    onVariableSelected,
+    handleClose
+}: {
+    nodes: Node[]
+    isVariableSelectorOpen: boolean
+    anchorEl: PopperProps['anchorEl']
+    onVariableSelected: (value: string) => void
+    handleClose: FabProps['onClick']
+}) => {
     const theme = useTheme()
-    const [expanded, setExpanded] = useState(false)
+    const [expanded, setExpanded] = useState<string | false>(false)
     const [open, setOpen] = useState(false)
     const [showExpandDialog, setShowExpandDialog] = useState(false)
-    const [expandDialogProps, setExpandDialogProps] = useState({})
+    const [expandDialogProps, setExpandDialogProps] = useState<ComponentProps<typeof ExpandDataDialog>['dialogProps'] | null>(null) // !logic changed
 
     const varPrevOpen = useRef(open)
 
-    const handleAccordionChange = (nodeLabel) => (event, isExpanded) => {
-        setExpanded(isExpanded ? nodeLabel : false)
-    }
+    const handleAccordionChange =
+        (nodeLabel: string): AccordionProps['onChange'] =>
+        (event, isExpanded) => {
+            setExpanded(isExpanded ? nodeLabel : false)
+        }
 
-    const onClipboardCopy = (e, node) => {
+    const onClipboardCopy = (e: OnCopyProps, node: Node) => {
         const namespaces = e.namespace
         let returnVariablePath = `${node.id}`
         for (let i = 0; i < namespaces.length; i += 1) {
@@ -57,7 +84,7 @@ const VariableSelector = ({ nodes, isVariableSelectorOpen, anchorEl, onVariableS
         onVariableSelected(returnVariablePath)
     }
 
-    const onExpandDialogClicked = (data, node) => {
+    const onExpandDialogClicked = (data: Record<string, unknown>, node: Node) => {
         const dialogProp = {
             title: `Variable Data: ${node.data.label}`,
             data,
@@ -154,7 +181,7 @@ const VariableSelector = ({ nodes, isVariableSelectorOpen, anchorEl, onVariableS
                                                             onChange={handleAccordionChange(node.data.label)}
                                                         >
                                                             <AccordionSummary
-                                                                expandIcon={<ExpandMoreIcon />}
+                                                                expandIcon={<ExpandMore />}
                                                                 aria-controls={`${node.data.label}-content`}
                                                                 id={`${node.data.label}-header`}
                                                             >
@@ -164,11 +191,7 @@ const VariableSelector = ({ nodes, isVariableSelectorOpen, anchorEl, onVariableS
                                                                 <div style={{ position: 'relative' }}>
                                                                     <ReactJson
                                                                         collapsed
-                                                                        src={
-                                                                            node.data.outputResponses && node.data.outputResponses.output
-                                                                                ? node.data.outputResponses.output
-                                                                                : {}
-                                                                        }
+                                                                        src={node.data.outputResponses?.output || {}}
                                                                         enableClipboard={(e) => onClipboardCopy(e, node)}
                                                                     />
                                                                     <IconButton
@@ -184,10 +207,7 @@ const VariableSelector = ({ nodes, isVariableSelectorOpen, anchorEl, onVariableS
                                                                         color='primary'
                                                                         onClick={() =>
                                                                             onExpandDialogClicked(
-                                                                                node.data.outputResponses &&
-                                                                                    node.data.outputResponses.output
-                                                                                    ? node.data.outputResponses.output
-                                                                                    : {},
+                                                                                node.data.outputResponses?.output || {},
                                                                                 node
                                                                             )
                                                                         }
@@ -208,26 +228,18 @@ const VariableSelector = ({ nodes, isVariableSelectorOpen, anchorEl, onVariableS
                     </Transitions>
                 )}
             </Popper>
-            <ExpandDataDialog
-                enableClipboard
-                show={showExpandDialog}
-                dialogProps={expandDialogProps}
-                onCancel={() => setShowExpandDialog(false)}
-                onCopyClick={(e, node) => {
-                    onClipboardCopy(e, node)
-                    setShowExpandDialog(false)
-                }}
-            ></ExpandDataDialog>
+            {expandDialogProps && ( // ! logic changed
+                <ExpandDataDialog
+                    enableClipboard
+                    show={showExpandDialog}
+                    dialogProps={expandDialogProps}
+                    onCancel={() => setShowExpandDialog(false)}
+                    onCopyClick={(e, node) => {
+                        onClipboardCopy(e, node)
+                        setShowExpandDialog(false)
+                    }}
+                />
+            )}
         </>
     )
 }
-
-VariableSelector.propTypes = {
-    nodes: PropTypes.array,
-    isVariableSelectorOpen: PropTypes.bool,
-    anchorEl: PropTypes.any,
-    onVariableSelected: PropTypes.func,
-    handleClose: PropTypes.func
-}
-
-export default VariableSelector

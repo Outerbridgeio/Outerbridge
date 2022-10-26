@@ -1,6 +1,12 @@
 import { SHOW_CONFIRM, HIDE_CONFIRM } from '../actions'
 
-export const initialState = {
+export const initialState: {
+    show?: boolean
+    title: string
+    description: string
+    confirmButtonName: string
+    cancelButtonName: string
+} = {
     show: false,
     title: '',
     description: '',

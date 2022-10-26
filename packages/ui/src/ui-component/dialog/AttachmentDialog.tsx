@@ -31,7 +31,7 @@ export const AttachmentDialog = ({
     onCancel
 }: {
     show: boolean
-    dialogProps: { executionData: reducer.canvas.ExecutionData['data']; title: string }
+    dialogProps: { executionData?: reducer.canvas.ExecutionData['data']; title?: string }
     onCancel: DialogProps['onClose']
 }) => {
     const portalElement = document.getElementById('portal')!
@@ -68,11 +68,11 @@ export const AttachmentDialog = ({
             </DialogTitle>
             <DialogContent>
                 <Tabs value={value} onChange={handleChange} aria-label='attachment tabs'>
-                    {dialogProps.executionData.map((execObj, execObjIndex) => (
+                    {dialogProps.executionData?.map((execObj, execObjIndex) => (
                         <Tab key={execObjIndex} label={`Item ${execObjIndex}`} {...a11yProps(execObjIndex)} />
                     ))}
                 </Tabs>
-                {dialogProps.executionData.map((execObj, execObjIndex) => (
+                {dialogProps.executionData?.map((execObj, execObjIndex) => (
                     <TabPanel key={execObjIndex} value={value} index={execObjIndex}>
                         {execObj.attachments?.map((attachment, attchIndex) => (
                             <div key={attchIndex} style={{ marginBottom: 10 }}>

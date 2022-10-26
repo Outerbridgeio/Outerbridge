@@ -19,7 +19,7 @@ export type Node = INode & {
 export type Nodes = Node[]
 type NodeDependencies = Record<string, number>
 type Graph = Record<string, string[]>
-type Edges = { source: string; target: string; targetHandle: '-input-'[] }[]
+export type Edges = { source: string; target: string; targetHandle: '-input-'[] }[]
 type NodeParams = StrictOmit<MarkOptional<INodeParams, 'label'>, 'type' | 'array'> &
     (
         | {

@@ -1,17 +1,18 @@
-import { useState, useEffect } from 'react'
-import PropTypes from 'prop-types'
-import { TooltipWithParser } from '../../ui-component/TooltipWithParser'
-
+import { useState, useEffect, ComponentProps } from 'react'
+import { TooltipWithParser } from 'ui-component'
+import { useTheme } from 'themes'
+import { NodeData } from 'utils'
 // material-ui
 import { Typography, Stack } from '@mui/material'
-import { useTheme } from '@mui/material/styles'
 
 // project imports
-import OptionParamsResponse from './OptionParamsResponse'
+import { OptionParamsResponse } from './OptionParamsResponse'
 
 // third party
 import lodash from 'lodash'
 import AsyncSelect from 'react-select/async'
+import { StylesConfig, GroupBase, SingleValue } from 'react-select'
+import { AsyncAdditionalProps } from 'react-select/dist/declarations/src/useAsync'
 import axios from 'axios'
 
 // icons
@@ -22,7 +23,18 @@ import { baseURL } from 'store/constant'
 
 // ==============================|| ASYNC SELECT WRAPPER ||============================== //
 
-const AsyncSelectWrapper = ({
+type Option = {
+    name: string
+    label: string
+    description: string
+    inputParameters: string
+    exampleParameters: string
+    exampleResponse: string
+    hide: Record<string, unknown>
+    show: Record<string, unknown>
+}
+
+export const AsyncSelectWrapper = ({
     title,
     description,
     value,
@@ -33,10 +45,21 @@ const AsyncSelectWrapper = ({
     onChange,
     onMenuOpen,
     onSetError
+}: {
+    title: string
+    description: string
+    value: string
+    loadMethod: string
+    loadFromDbCollections: unknown[]
+    nodeFlowData: NodeData
+    error: string
+    onChange: (value: SingleValue<Option>) => void
+    onMenuOpen: ComponentProps<typeof AsyncSelect>['onMenuOpen']
+    onSetError: (...args: any) => void
 }) => {
     const theme = useTheme()
 
-    const customStyles = {
+    const customStyles: StylesConfig<Option, false, GroupBase<Option>> = {
         option: (provided, state) => ({
             ...provided,
             paddingTop: 15,
@@ -75,27 +98,25 @@ const AsyncSelectWrapper = ({
         })
     }
 
-    const [asyncOptions, setAsyncOptions] = useState([])
+    const [asyncOptions, setAsyncOptions] = useState<Option[]>([])
 
-    const getSelectedValue = (value) => asyncOptions.find((option) => option.name === value)
+    const getSelectedValue = (value: string) => asyncOptions.find((option) => option.name === value)
 
-    const getDefaultOptionValue = () => ''
-
-    const formatErrorMessage = (error) => {
+    const formatErrorMessage = (error: string) => {
         if (error) return `*${error.replace(/["]/g, '')}`
         return ''
     }
 
-    const showHideOptions = (options) => {
+    const showHideOptions = (options: Option[]) => {
         let returnOptions = options
-        const toBeDeleteOptions = []
-        const displayTypes = ['show', 'hide']
+        const toBeDeleteOptions: typeof options = []
+        const displayTypes = ['show', 'hide'] as const
 
-        for (let x = 0; x < displayTypes.length; x += 1) {
-            const displayType = displayTypes[x]
+        for (let x = 0; x < displayTypes.length; x++) {
+            const displayType = displayTypes[x]!
 
-            for (let i = 0; i < returnOptions.length; i += 1) {
-                const option = returnOptions[i]
+            for (let i = 0; i < returnOptions.length; i++) {
+                const option = returnOptions[i]!
                 const displayOptions = option[displayType]
 
                 if (displayOptions) {
@@ -129,18 +150,18 @@ const AsyncSelectWrapper = ({
             }
         }
 
-        for (let i = 0; i < toBeDeleteOptions.length; i += 1) {
+        for (let i = 0; i < toBeDeleteOptions.length; i++) {
             returnOptions = returnOptions.filter((opt) => JSON.stringify(opt) !== JSON.stringify(toBeDeleteOptions[i]))
         }
 
         return returnOptions
     }
 
-    const loadOptions = (inputValue, callback) => {
+    const loadOptions: AsyncAdditionalProps<Option, GroupBase<Option>>['loadOptions'] = (inputValue, callback) => {
         axios
             .post(`${baseURL}/api/v1/node-load-method/${nodeFlowData.name}`, { ...nodeFlowData, loadMethod, loadFromDbCollections })
             .then((response) => {
-                const data = response.data
+                const data: Option[] | undefined = response.data
                 const filteredOption = (data || []).filter((i) => i.label.toLowerCase().includes(inputValue.toLowerCase()))
                 const options = showHideOptions(filteredOption)
                 setAsyncOptions(options)
@@ -148,7 +169,10 @@ const AsyncSelectWrapper = ({
             })
     }
 
-    const formatOptionLabel = ({ label, description }, { context }) => (
+    const formatOptionLabel = (
+        { label, description }: { label: string; description: string },
+        { context }: { context: 'menu' | 'value' }
+    ) => (
         <>
             {context === 'menu' && (
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -184,10 +208,10 @@ const AsyncSelectWrapper = ({
                 {description && <TooltipWithParser title={description} />}
             </Stack>
             <div style={{ position: 'relative' }}>
-                <AsyncSelect
+                <AsyncSelect<Option>
                     key={JSON.stringify(nodeFlowData)} // to reload async select whenever flowdata changed
                     styles={customStyles}
-                    value={getSelectedValue(value) || getDefaultOptionValue()}
+                    value={getSelectedValue(value)} // ! logic change
                     formatOptionLabel={formatOptionLabel}
                     getOptionLabel={(option) => option.label}
                     getOptionValue={(option) => option.name}
@@ -224,18 +248,3 @@ const AsyncSelectWrapper = ({
         </>
     )
 }
-
-AsyncSelectWrapper.propTypes = {
-    title: PropTypes.string,
-    description: PropTypes.string,
-    value: PropTypes.string,
-    loadMethod: PropTypes.string,
-    loadFromDbCollections: PropTypes.array,
-    nodeFlowData: PropTypes.object,
-    error: PropTypes.string,
-    onChange: PropTypes.func,
-    onMenuOpen: PropTypes.func,
-    onSetError: PropTypes.func
-}
-
-export default AsyncSelectWrapper

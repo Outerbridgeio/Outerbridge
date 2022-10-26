@@ -1,11 +1,11 @@
-import { useState, useRef, useEffect } from 'react'
-import PropTypes from 'prop-types'
+import { useState, useRef, useEffect, ComponentProps } from 'react'
 import { SET_WORKFLOW, enqueueSnackbar as enqueueSnackbarAction, closeSnackbar as closeSnackbarAction } from 'store/actions'
-import { useDispatch } from 'react-redux'
+import { useDispatch } from 'store'
+import { useTheme } from 'themes'
+import { StrictOmit } from 'ts-essentials'
 
 // material-ui
-import { useTheme } from '@mui/material/styles'
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import { ExpandMore } from '@mui/icons-material'
 import {
     Box,
     List,
@@ -18,61 +18,71 @@ import {
     Stack,
     Typography,
     Button,
-    IconButton
+    IconButton,
+    PopperProps,
+    AccordionProps
 } from '@mui/material'
 
 // third-party
 import PerfectScrollbar from 'react-perfect-scrollbar'
 import moment from 'moment'
 import ReactJson from 'react-json-view'
-
+import { reducer } from 'store'
 // project imports
-import MainCard from 'ui-component/cards/MainCard'
-import Transitions from 'ui-component/extended/Transitions'
-import AttachmentDialog from 'ui-component/dialog/AttachmentDialog'
-import HTMLDialog from 'ui-component/dialog/HTMLDialog'
-import ExpandDataDialog from 'ui-component/dialog/ExpandDataDialog'
+import { MainCard, Transitions, AttachmentDialog, HTMLDialog, ExpandDataDialog } from 'ui-component'
 
 // hooks
-import useConfirm from 'hooks/useConfirm'
-import useNotifier from 'utils/useNotifier'
+import { useConfirm } from 'hooks'
 
 // icon
 import { IconTrash, IconX, IconArrowsMaximize } from '@tabler/icons'
 
 // API
-import executionsApi from 'api/executions'
-import workflowsApi from 'api/workflows'
+import { executionsApi, workflowsApi } from 'api'
 
 // utils
-import { copyToClipboard } from 'utils/genericHelper'
+import { copyToClipboard, useNotifier } from 'utils'
 
 // ==============================|| EXECUTIONS ||============================== //
 
-const Executions = ({ workflowShortId, execution, executionCount, isExecutionOpen, anchorEl }) => {
+export const Executions = ({
+    workflowShortId,
+    execution,
+    executionCount,
+    isExecutionOpen,
+    anchorEl
+}: {
+    workflowShortId: string
+    execution: (StrictOmit<reducer.canvas.Execution, 'executionData'> & { executionData: string })[]
+    executionCount: number
+    isExecutionOpen: boolean
+    anchorEl: PopperProps['anchorEl']
+}) => {
     const theme = useTheme()
-    const [expanded, setExpanded] = useState(false)
+    const [expanded, setExpanded] = useState<string | false>(false)
     const [open, setOpen] = useState(false)
     const [showHTMLDialog, setShowHTMLDialog] = useState(false)
-    const [HTMLDialogProps, setHTMLDialogProps] = useState({})
+    const [HTMLDialogProps, setHTMLDialogProps] = useState<ComponentProps<typeof HTMLDialog>['dialogProps']>({})
     const [showAttachmentDialog, setShowAttachmentDialog] = useState(false)
-    const [attachmentDialogProps, setAttachmentDialogProps] = useState({})
+    const [attachmentDialogProps, setAttachmentDialogProps] = useState<ComponentProps<typeof AttachmentDialog>['dialogProps']>({})
     const [showExpandDialog, setShowExpandDialog] = useState(false)
-    const [expandDialogProps, setExpandDialogProps] = useState({})
+    const [expandDialogProps, setExpandDialogProps] = useState<ComponentProps<typeof ExpandDataDialog>['dialogProps'] | null>(null)
 
     const dispatch = useDispatch()
     const varPrevOpen = useRef(open)
     const { confirm } = useConfirm()
 
     useNotifier()
-    const enqueueSnackbar = (...args) => dispatch(enqueueSnackbarAction(...args))
-    const closeSnackbar = (...args) => dispatch(closeSnackbarAction(...args))
+    const enqueueSnackbar = (...args: Parameters<typeof enqueueSnackbarAction>) => dispatch(enqueueSnackbarAction(...args))
+    const closeSnackbar = (...args: Parameters<typeof closeSnackbarAction>) => dispatch(closeSnackbarAction(...args))
 
-    const handleAccordionChange = (executionShortId) => (event, isExpanded) => {
-        setExpanded(isExpanded ? executionShortId : false)
-    }
+    const handleAccordionChange =
+        (executionShortId: string): AccordionProps['onChange'] =>
+        (event, isExpanded) => {
+            setExpanded(isExpanded ? executionShortId : false)
+        }
 
-    const setChipColor = (execState) => {
+    const setChipColor = (execState: reducer.canvas.State) => {
         if (execState === 'INPROGRESS') return theme.palette.warning.dark
         if (execState === 'FINISHED') return theme.palette.success.dark
         if (execState === 'ERROR') return theme.palette.error.dark
@@ -80,7 +90,7 @@ const Executions = ({ workflowShortId, execution, executionCount, isExecutionOpe
         return theme.palette.primary.dark
     }
 
-    const setChipBgColor = (execState) => {
+    const setChipBgColor = (execState: reducer.canvas.State) => {
         if (execState === 'INPROGRESS') return theme.palette.warning.light
         if (execState === 'FINISHED') return theme.palette.success.light
         if (execState === 'ERROR') return theme.palette.error.light
@@ -88,7 +98,7 @@ const Executions = ({ workflowShortId, execution, executionCount, isExecutionOpe
         return theme.palette.primary.light
     }
 
-    const openAttachmentDialog = (executionData) => {
+    const openAttachmentDialog = (executionData: reducer.canvas.ExecutionData['data']) => {
         const dialogProp = {
             title: 'Attachments',
             executionData
@@ -97,7 +107,7 @@ const Executions = ({ workflowShortId, execution, executionCount, isExecutionOpe
         setShowAttachmentDialog(true)
     }
 
-    const openHTMLDialog = (executionData) => {
+    const openHTMLDialog = (executionData: reducer.canvas.ExecutionData['data']) => {
         const dialogProp = {
             title: 'HTML',
             executionData
@@ -106,7 +116,7 @@ const Executions = ({ workflowShortId, execution, executionCount, isExecutionOpe
         setShowHTMLDialog(true)
     }
 
-    const onExpandDialogClicked = (executionData, nodeLabel) => {
+    const onExpandDialogClicked = (executionData: reducer.canvas.ExecutionData['data'], nodeLabel: string) => {
         const dialogProp = {
             title: `Execution Data: ${nodeLabel}`,
             data: executionData
@@ -115,7 +125,7 @@ const Executions = ({ workflowShortId, execution, executionCount, isExecutionOpe
         setShowExpandDialog(true)
     }
 
-    const deleteExecution = async (e, executionShortId) => {
+    const deleteExecution = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, executionShortId: string) => {
         e.stopPropagation()
         const confirmPayload = {
             title: `Delete`,
@@ -144,8 +154,8 @@ const Executions = ({ workflowShortId, execution, executionCount, isExecutionOpe
                         )
                     }
                 })
-            } catch (error) {
-                const errorData = error.response.data || `${error.response.status}: ${error.response.statusText}`
+            } catch (error: any) {
+                const errorData = error?.response?.data || `${error?.response?.status}: ${error?.response?.statusText}`
                 enqueueSnackbar({
                     message: errorData,
                     options: {
@@ -235,7 +245,7 @@ const Executions = ({ workflowShortId, execution, executionCount, isExecutionOpe
                                                                 onChange={handleAccordionChange(exec.shortId)}
                                                             >
                                                                 <AccordionSummary
-                                                                    expandIcon={<ExpandMoreIcon />}
+                                                                    expandIcon={<ExpandMore />}
                                                                     aria-controls={`${exec.shortId}-content`}
                                                                     id={`${exec.shortId}-header`}
                                                                 >
@@ -274,7 +284,11 @@ const Executions = ({ workflowShortId, execution, executionCount, isExecutionOpe
                                                                         </Stack>
                                                                     </Stack>
                                                                 </AccordionSummary>
-                                                                {JSON.parse(exec.executionData).map((execData, execDataIndex) => (
+                                                                {(
+                                                                    JSON.parse(
+                                                                        exec.executionData
+                                                                    ) as reducer.canvas.Execution['executionData']
+                                                                ).map((execData, execDataIndex) => (
                                                                     <AccordionDetails key={execDataIndex}>
                                                                         <Box
                                                                             sx={{
@@ -371,7 +385,9 @@ const Executions = ({ workflowShortId, execution, executionCount, isExecutionOpe
                                                                                                             src={attachment.content}
                                                                                                             width='100%'
                                                                                                             height='100%'
-                                                                                                            style={{ borderStyle: 'solid' }}
+                                                                                                            style={{
+                                                                                                                borderStyle: 'solid'
+                                                                                                            }}
                                                                                                             type={attachment.contentType}
                                                                                                         />
                                                                                                         <Button
@@ -412,21 +428,9 @@ const Executions = ({ workflowShortId, execution, executionCount, isExecutionOpe
                 onCancel={() => setShowAttachmentDialog(false)}
             ></AttachmentDialog>
             <HTMLDialog show={showHTMLDialog} dialogProps={HTMLDialogProps} onCancel={() => setShowHTMLDialog(false)}></HTMLDialog>
-            <ExpandDataDialog
-                show={showExpandDialog}
-                dialogProps={expandDialogProps}
-                onCancel={() => setShowExpandDialog(false)}
-            ></ExpandDataDialog>
+            {expandDialogProps && ( // ! logic changed
+                <ExpandDataDialog show={showExpandDialog} dialogProps={expandDialogProps} onCancel={() => setShowExpandDialog(false)} />
+            )}
         </>
     )
 }
-
-Executions.propTypes = {
-    workflowShortId: PropTypes.string,
-    execution: PropTypes.array,
-    executionCount: PropTypes.number,
-    isExecutionOpen: PropTypes.bool,
-    anchorEl: PropTypes.any
-}
-
-export default Executions

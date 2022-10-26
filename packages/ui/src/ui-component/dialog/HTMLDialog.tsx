@@ -29,9 +29,9 @@ export const HTMLDialog = ({
     dialogProps,
     onCancel
 }: {
-    show: boolean
-    dialogProps: { title: string; executionData: { html?: string }[] }
-    onCancel: DialogProps['onClose']
+    show?: boolean
+    dialogProps?: { title?: string; executionData?: { html?: string }[] }
+    onCancel?: DialogProps['onClose']
 }) => {
     const portalElement = document.getElementById('portal')!
 
@@ -51,15 +51,15 @@ export const HTMLDialog = ({
             aria-describedby='alert-dialog-description'
         >
             <DialogTitle sx={{ fontSize: '1rem' }} id='alert-dialog-title'>
-                {dialogProps.title}
+                {dialogProps?.title}
             </DialogTitle>
             <DialogContent>
                 <Tabs value={value} onChange={handleChange} aria-label='attachment tabs'>
-                    {dialogProps.executionData.map((execObj, execObjIndex) => (
+                    {dialogProps?.executionData?.map((execObj, execObjIndex) => (
                         <Tab key={execObjIndex} label={`Item ${execObjIndex}`} {...a11yProps(execObjIndex)} />
                     ))}
                 </Tabs>
-                {dialogProps.executionData.map((execObj, execObjIndex) => (
+                {dialogProps?.executionData?.map((execObj, execObjIndex) => (
                     <TabPanel key={execObjIndex} value={value} index={execObjIndex}>
                         {execObj.html ? (
                             <div

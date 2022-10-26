@@ -31,7 +31,7 @@ import 'prismjs/themes/prism.css'
 
 import './EditVariableDialog.css'
 
-const isPositiveNumeric = (value: string | null | undefined) => (value ? /^\d+$/.test(value) : false) // ! logic changed
+const isPositiveNumeric = (value: string | null | undefined) => /^\d+$/.test(`${value}`)
 
 export const EditVariableDialog = ({
     show,

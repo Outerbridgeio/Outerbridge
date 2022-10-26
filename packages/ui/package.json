@@ -73,6 +73,8 @@
         "@testing-library/jest-dom": "^5.11.10",
         "@testing-library/react": "^11.2.6",
         "@testing-library/user-event": "^12.8.3",
+        "@types/prismjs": "^1.26.0",
+        "@types/react-datepicker": "^4.4.2",
         "@types/react-dom": "^18.0.6",
         "outerbridge-components": "^1.0.5",
         "outerbridge-ui": "^1.0.6",
@@ -80,7 +82,6 @@
         "react-scripts": "^4.0.3",
         "sass": "^1.42.1",
         "typed-css-modules": "^0.7.2",
-        "@types/prismjs": "^1.26.0",
         "typed-scss-modules": "^7.0.1",
         "typescript": "^4.8.4"
     }

@@ -3,6 +3,8 @@ import { createPortal } from 'react-dom'
 import { Dialog, DialogContent, DialogTitle, DialogProps } from '@mui/material'
 import ReactJson, { OnCopyProps } from 'react-json-view'
 
+import { reducer } from 'store'
+
 // utils
 import { copyToClipboard, Node } from 'utils'
 
@@ -10,25 +12,24 @@ export type Input = { name: string; type: 'json' | 'string' | 'number' | 'code';
 
 export type ExpandDialogProps = {
     title: string
-    data: Record<string, unknown>
-    node: Node
+    data: reducer.canvas.ExecutionData['data']
+    node?: Node
 }
 
-export const ExpandDataDialog = ({
-    show,
-    dialogProps,
-    onCancel,
-    onCopyClick,
-    enableClipboard
-}: {
-    show: boolean
-    enableClipboard: boolean
-    dialogProps: ExpandDialogProps
-    onCopyClick: (e: OnCopyProps, node: Node) => void
-    onCancel: DialogProps['onClose']
-}) => {
+export const ExpandDataDialog = (
+    props: {
+        show: boolean
+        dialogProps: ExpandDialogProps
+        onCancel: DialogProps['onClose']
+    } & ({ enableClipboard: boolean; onCopyClick: (e: OnCopyProps, node: Node) => void } | { enableClipboard?: undefined })
+) => {
     const portalElement = document.getElementById('portal')!
-
+    const {
+        show,
+        dialogProps: { node, title, data },
+        onCancel,
+        enableClipboard
+    } = props
     const component = show ? (
         <Dialog
             open={show}
@@ -39,13 +40,12 @@ export const ExpandDataDialog = ({
             aria-describedby='alert-dialog-description'
         >
             <DialogTitle sx={{ fontSize: '1rem' }} id='alert-dialog-title'>
-                {dialogProps.title}
+                {title}
             </DialogTitle>
             <DialogContent>
-                <ReactJson
-                    src={dialogProps.data}
-                    enableClipboard={(e) => (enableClipboard ? onCopyClick(e, dialogProps.node) : copyToClipboard(e))}
-                />
+                {node && ( // ! logic changed
+                    <ReactJson src={data} enableClipboard={(e) => (enableClipboard ? props.onCopyClick(e, node) : copyToClipboard(e))} />
+                )}
             </DialogContent>
         </Dialog>
     ) : null

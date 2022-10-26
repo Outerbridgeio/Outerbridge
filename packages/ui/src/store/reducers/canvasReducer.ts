@@ -12,17 +12,24 @@ export type ExecutionData = {
     data: { html: string; attachments?: { filename: string; contentType: string; content: string; size?: number }[] }[]
 }
 
+export type State = 'INPROGRESS' | 'FINISHED' | 'ERROR' | 'TERMINATED' | 'TIMEOUT'
+
+export type Execution = {
+    createdDate: Date
+    shortId: string
+    state: State
+    executionData: ExecutionData[]
+}
+
+export type ExecutionArr = Execution[]
+
 export type WorkFlow = {
     flowData: Record<string, unknown>
     name: string
     shortId?: string
     deployed?: boolean
     executionCount?: number
-    execution: {
-        shortId: string
-        state: 'INPROGRESS' | 'FINISHED' | 'ERROR' | 'TERMINATED' | 'TIMEOUT'
-        executionData: ExecutionData
-    }[]
+    execution: Execution[]
 }
 
 // ==============================|| CANVAS REDUCER ||============================== //
