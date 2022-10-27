@@ -1,6 +1,6 @@
-import { createPortal } from 'react-dom';
-import { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
+import { createPortal } from 'react-dom'
+import { useState, useEffect } from 'react'
+import PropTypes from 'prop-types'
 import {
     Button,
     Dialog,
@@ -13,95 +13,95 @@ import {
     AccordionSummary,
     Typography,
     AccordionDetails
-} from '@mui/material';
-import { useTheme } from '@mui/material/styles';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ReactJson from 'react-json-view';
-import PerfectScrollbar from 'react-perfect-scrollbar';
-import { IconArrowsMaximize } from '@tabler/icons';
-import ExpandDataDialog from './ExpandDataDialog';
-import Editor from 'react-simple-code-editor';
-import { highlight, languages } from 'prismjs/components/prism-core';
-import 'prismjs/components/prism-clike';
-import 'prismjs/components/prism-javascript';
-import 'prismjs/components/prism-json';
-import 'prismjs/components/prism-markup';
-import 'prismjs/themes/prism.css';
+} from '@mui/material'
+import { useTheme } from '@mui/material/styles'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import ReactJson from 'react-json-view'
+import PerfectScrollbar from 'react-perfect-scrollbar'
+import { IconArrowsMaximize } from '@tabler/icons'
+import ExpandDataDialog from './ExpandDataDialog'
+import Editor from 'react-simple-code-editor'
+import { highlight, languages } from 'prismjs/components/prism-core'
+import 'prismjs/components/prism-clike'
+import 'prismjs/components/prism-javascript'
+import 'prismjs/components/prism-json'
+import 'prismjs/components/prism-markup'
+import 'prismjs/themes/prism.css'
 
-import './EditVariableDialog.css';
+import './EditVariableDialog.css'
 
-const isPositiveNumeric = (value) => /^\d+$/.test(value);
+const isPositiveNumeric = (value) => /^\d+$/.test(value)
 
 const EditVariableDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
-    const portalElement = document.getElementById('portal');
+    const portalElement = document.getElementById('portal')
 
-    const theme = useTheme();
+    const theme = useTheme()
 
-    const [inputValue, setInputValue] = useState('');
-    const [input, setInput] = useState(null);
-    const [expanded, setExpanded] = useState(false);
-    const [showExpandDialog, setShowExpandDialog] = useState(false);
-    const [expandDialogProps, setExpandDialogProps] = useState({});
-    const [copiedVariableBody, setCopiedVariableBody] = useState({});
-    const [languageType, setLanguageType] = useState(languages.js);
+    const [inputValue, setInputValue] = useState('')
+    const [input, setInput] = useState(null)
+    const [expanded, setExpanded] = useState(false)
+    const [showExpandDialog, setShowExpandDialog] = useState(false)
+    const [expandDialogProps, setExpandDialogProps] = useState({})
+    const [copiedVariableBody, setCopiedVariableBody] = useState({})
+    const [languageType, setLanguageType] = useState(languages.js)
 
     const handleAccordionChange = (nodeLabel) => (event, isExpanded) => {
-        setExpanded(isExpanded ? nodeLabel : false);
-    };
+        setExpanded(isExpanded ? nodeLabel : false)
+    }
 
     const onExpandDialogClicked = (data, node) => {
         const dialogProp = {
             title: `Variable Data: ${node.data.label}`,
             data,
             node
-        };
-        setExpandDialogProps(dialogProp);
-        setShowExpandDialog(true);
-    };
+        }
+        setExpandDialogProps(dialogProp)
+        setShowExpandDialog(true)
+    }
 
     const onMouseUp = (e) => {
         if (e.target && e.target.selectionEnd && e.target.value) {
-            const cursorPosition = e.target.selectionEnd;
-            const textBeforeCursorPosition = e.target.value.substring(0, cursorPosition);
-            const textAfterCursorPosition = e.target.value.substring(cursorPosition, e.target.value.length);
+            const cursorPosition = e.target.selectionEnd
+            const textBeforeCursorPosition = e.target.value.substring(0, cursorPosition)
+            const textAfterCursorPosition = e.target.value.substring(cursorPosition, e.target.value.length)
             const body = {
                 textBeforeCursorPosition,
                 textAfterCursorPosition
-            };
-            setCopiedVariableBody(body);
+            }
+            setCopiedVariableBody(body)
         } else {
-            setCopiedVariableBody({});
+            setCopiedVariableBody({})
         }
-    };
+    }
 
     const onClipboardCopy = (e, node) => {
-        const namespaces = e.namespace;
-        let returnVariablePath = `${node.id}`;
+        const namespaces = e.namespace
+        let returnVariablePath = `${node.id}`
         for (let i = 0; i < namespaces.length; i += 1) {
-            const namespace = namespaces[i];
+            const namespace = namespaces[i]
             if (namespace !== 'root') {
                 if (isPositiveNumeric(namespace)) {
                     if (returnVariablePath.endsWith('.')) {
-                        returnVariablePath = returnVariablePath.substring(0, returnVariablePath.length - 1);
+                        returnVariablePath = returnVariablePath.substring(0, returnVariablePath.length - 1)
                     }
-                    returnVariablePath += `[${namespace}]`;
+                    returnVariablePath += `[${namespace}]`
                 } else {
-                    returnVariablePath += namespace;
+                    returnVariablePath += namespace
                 }
                 if (i !== namespaces.length - 1) {
-                    returnVariablePath += '.';
+                    returnVariablePath += '.'
                 }
             }
         }
         if (copiedVariableBody) {
-            let newInput = '';
+            let newInput = ''
             if (copiedVariableBody.textBeforeCursorPosition === undefined && copiedVariableBody.textAfterCursorPosition === undefined)
-                newInput = `${inputValue}${`{{${returnVariablePath}}}`}`;
+                newInput = `${inputValue}${`{{${returnVariablePath}}}`}`
             else
-                newInput = `${copiedVariableBody.textBeforeCursorPosition}{{${returnVariablePath}}}${copiedVariableBody.textAfterCursorPosition}`;
-            setInputValue(newInput);
+                newInput = `${copiedVariableBody.textBeforeCursorPosition}{{${returnVariablePath}}}${copiedVariableBody.textAfterCursorPosition}`
+            setInputValue(newInput)
         }
-    };
+    }
 
     const onSave = (value) => {
         // ArrayInputParameter
@@ -109,48 +109,48 @@ const EditVariableDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
             const updateArrayValues = {
                 ...dialogProps.arrayItemBody.arrayItemValues,
                 [dialogProps.arrayItemBody.arrayItemInput.name]: value
-            };
-            const updateInitialValues = dialogProps.arrayItemBody.initialValues;
-            updateInitialValues[dialogProps.arrayItemBody.arrayItemIndex] = updateArrayValues;
+            }
+            const updateInitialValues = dialogProps.arrayItemBody.initialValues
+            updateInitialValues[dialogProps.arrayItemBody.arrayItemIndex] = updateArrayValues
             const updateValues = {
                 ...dialogProps.values,
                 [dialogProps.input.name]: updateInitialValues
-            };
-            onConfirm(updateValues);
+            }
+            onConfirm(updateValues)
         } else {
             // InputParameter
             const updateValues = {
                 ...dialogProps.values,
                 [dialogProps.input.name]: value,
                 submit: null
-            };
-            onConfirm(updateValues);
+            }
+            onConfirm(updateValues)
         }
-    };
+    }
 
     // Handle Accordian
     useEffect(() => {
         if (dialogProps.values && dialogProps.input) {
-            let inputValues = dialogProps.values;
-            let input = dialogProps.input;
+            let inputValues = dialogProps.values
+            let input = dialogProps.input
             if (dialogProps.arrayItemBody) {
-                inputValues = dialogProps.arrayItemBody.arrayItemValues;
-                input = dialogProps.arrayItemBody.arrayItemInput;
+                inputValues = dialogProps.arrayItemBody.arrayItemValues
+                input = dialogProps.arrayItemBody.arrayItemInput
             }
-            setInput(input);
-            setInputValue(inputValues[input.name].toString() || '');
-            if (input.type === 'json' || input.type === 'string' || input.type === 'number') setLanguageType(languages.json);
-            if (input.type === 'code') setLanguageType(languages.js);
+            setInput(input)
+            setInputValue(inputValues[input.name].toString() || '')
+            if (input.type === 'json' || input.type === 'string' || input.type === 'number') setLanguageType(languages.json)
+            if (input.type === 'code') setLanguageType(languages.js)
         }
-    }, [dialogProps]);
+    }, [dialogProps])
 
     const component = show ? (
-        <Dialog open={show} fullWidth maxWidth="lg" aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
+        <Dialog open={show} fullWidth maxWidth='lg' aria-labelledby='alert-dialog-title' aria-describedby='alert-dialog-description'>
             <DialogContent>
                 <div style={{ display: 'flex', flexDirection: 'row' }}>
                     {input && (input.type === 'json' || input.type === 'string' || input.type === 'number' || input.type === 'code') && (
                         <div style={{ flex: 1 }}>
-                            <Typography sx={{ mb: 2, ml: 1 }} variant="h4">
+                            <Typography sx={{ mb: 2, ml: 1 }} variant='h4'>
                                 Input
                             </Typography>
                             <PerfectScrollbar
@@ -177,14 +177,14 @@ const EditVariableDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
                                         minHeight: 'calc(100vh - 220px)',
                                         width: '100%'
                                     }}
-                                    textareaClassName="editor__textarea"
+                                    textareaClassName='editor__textarea'
                                 />
                             </PerfectScrollbar>
                         </div>
                     )}
                     {!dialogProps.hideVariables && (
                         <div style={{ flex: 1 }}>
-                            <Typography sx={{ mb: 2, ml: 2 }} variant="h4">
+                            <Typography sx={{ mb: 2, ml: 2 }} variant='h4'>
                                 Variables
                             </Typography>
                             {dialogProps.availableNodesForVariable.length === 0 && (
@@ -225,7 +225,7 @@ const EditVariableDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
                                                             aria-controls={`${node.data.label}-content`}
                                                             id={`${node.data.label}-header`}
                                                         >
-                                                            <Typography variant="h5">{node.data.label}</Typography>
+                                                            <Typography variant='h5'>{node.data.label}</Typography>
                                                         </AccordionSummary>
                                                         <AccordionDetails>
                                                             <div style={{ position: 'relative' }}>
@@ -239,7 +239,7 @@ const EditVariableDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
                                                                     enableClipboard={(e) => onClipboardCopy(e, node)}
                                                                 />
                                                                 <IconButton
-                                                                    size="small"
+                                                                    size='small'
                                                                     sx={{
                                                                         height: 25,
                                                                         width: 25,
@@ -247,8 +247,8 @@ const EditVariableDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
                                                                         top: -5,
                                                                         right: 5
                                                                     }}
-                                                                    title="Expand Variable"
-                                                                    color="primary"
+                                                                    title='Expand Variable'
+                                                                    color='primary'
                                                                     onClick={() =>
                                                                         onExpandDialogClicked(
                                                                             node.data.outputResponses && node.data.outputResponses.output
@@ -277,29 +277,29 @@ const EditVariableDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
                         dialogProps={expandDialogProps}
                         onCancel={() => setShowExpandDialog(false)}
                         onCopyClick={(e, node) => {
-                            onClipboardCopy(e, node);
-                            setShowExpandDialog(false);
+                            onClipboardCopy(e, node)
+                            setShowExpandDialog(false)
                         }}
                     ></ExpandDataDialog>
                 </div>
             </DialogContent>
             <DialogActions>
                 <Button onClick={onCancel}>{dialogProps.cancelButtonName}</Button>
-                <Button variant="contained" onClick={() => onSave(inputValue)}>
+                <Button variant='contained' onClick={() => onSave(inputValue)}>
                     {dialogProps.confirmButtonName}
                 </Button>
             </DialogActions>
         </Dialog>
-    ) : null;
+    ) : null
 
-    return createPortal(component, portalElement);
-};
+    return createPortal(component, portalElement)
+}
 
 EditVariableDialog.propTypes = {
     show: PropTypes.bool,
     dialogProps: PropTypes.object,
     onCancel: PropTypes.func,
     onConfirm: PropTypes.func
-};
+}
 
-export default EditVariableDialog;
+export default EditVariableDialog

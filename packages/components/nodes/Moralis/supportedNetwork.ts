@@ -1,4 +1,4 @@
-import { INodeOptionsValue, NETWORK_LABEL } from '../../src';
+import { INodeOptionsValue, NETWORK_LABEL } from '../../src'
 
 export const MoralisSupportedNetworks = [
     {
@@ -57,4 +57,4 @@ export const MoralisSupportedNetworks = [
         label: NETWORK_LABEL.CRONOS_TESTNET,
         name: 'cronos testnet'
     }
-] as INodeOptionsValue[];
+] as INodeOptionsValue[]

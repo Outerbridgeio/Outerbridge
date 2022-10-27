@@ -1,41 +1,41 @@
-import { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
+import { useState, useEffect } from 'react'
+import PropTypes from 'prop-types'
 
 // material-ui
-import { useTheme } from '@mui/material/styles';
-import { Box, List, Paper, Popper } from '@mui/material';
+import { useTheme } from '@mui/material/styles'
+import { Box, List, Paper, Popper } from '@mui/material'
 
 // third-party
-import PerfectScrollbar from 'react-perfect-scrollbar';
+import PerfectScrollbar from 'react-perfect-scrollbar'
 
 // project imports
-import MainCard from 'ui-component/cards/MainCard';
-import Transitions from 'ui-component/extended/Transitions';
-import NavItem from 'layout/MainLayout/Sidebar/MenuList/NavItem';
+import MainCard from 'ui-component/cards/MainCard'
+import Transitions from 'ui-component/extended/Transitions'
+import NavItem from 'layout/MainLayout/Sidebar/MenuList/NavItem'
 
-import settings from 'menu-items/settings';
+import settings from 'menu-items/settings'
 
 // ==============================|| SETTINGS ||============================== //
 
 const Settings = ({ workflow, isSettingsOpen, anchorEl, onSettingsItemClick, onUploadFile }) => {
-    const theme = useTheme();
-    const [settingsMenu, setSettingsMenu] = useState([]);
+    const theme = useTheme()
+    const [settingsMenu, setSettingsMenu] = useState([])
 
-    const [open, setOpen] = useState(false);
+    const [open, setOpen] = useState(false)
 
     useEffect(() => {
         if (workflow && !workflow.shortId) {
-            const settingsMenu = settings.children.filter((menu) => menu.id === 'loadWorkflow');
-            setSettingsMenu(settingsMenu);
+            const settingsMenu = settings.children.filter((menu) => menu.id === 'loadWorkflow')
+            setSettingsMenu(settingsMenu)
         } else if (workflow && workflow.shortId) {
-            const settingsMenu = settings.children;
-            setSettingsMenu(settingsMenu);
+            const settingsMenu = settings.children
+            setSettingsMenu(settingsMenu)
         }
-    }, [workflow]);
+    }, [workflow])
 
     useEffect(() => {
-        setOpen(isSettingsOpen);
-    }, [isSettingsOpen]);
+        setOpen(isSettingsOpen)
+    }, [isSettingsOpen])
 
     // settings list items
     const items = settingsMenu.map((menu) => {
@@ -44,17 +44,17 @@ const Settings = ({ workflow, isSettingsOpen, anchorEl, onSettingsItemClick, onU
                 key={menu.id}
                 item={menu}
                 level={1}
-                navType="SETTINGS"
+                navType='SETTINGS'
                 onClick={(id) => onSettingsItemClick(id)}
                 onUploadFile={onUploadFile}
             />
-        );
-    });
+        )
+    })
 
     return (
         <>
             <Popper
-                placement="bottom-end"
+                placement='bottom-end'
                 open={open}
                 anchorEl={anchorEl}
                 role={undefined}
@@ -87,8 +87,8 @@ const Settings = ({ workflow, isSettingsOpen, anchorEl, onSettingsItemClick, onU
                 )}
             </Popper>
         </>
-    );
-};
+    )
+}
 
 Settings.propTypes = {
     workflow: PropTypes.object,
@@ -96,6 +96,6 @@ Settings.propTypes = {
     anchorEl: PropTypes.any,
     onSettingsItemClick: PropTypes.func,
     onUploadFile: PropTypes.func
-};
+}
 
-export default Settings;
+export default Settings

@@ -1,11 +1,11 @@
-import { useState, useRef, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import { SET_WORKFLOW, enqueueSnackbar as enqueueSnackbarAction, closeSnackbar as closeSnackbarAction } from 'store/actions';
-import { useDispatch } from 'react-redux';
+import { useState, useRef, useEffect } from 'react'
+import PropTypes from 'prop-types'
+import { SET_WORKFLOW, enqueueSnackbar as enqueueSnackbarAction, closeSnackbar as closeSnackbarAction } from 'store/actions'
+import { useDispatch } from 'react-redux'
 
 // material-ui
-import { useTheme } from '@mui/material/styles';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { useTheme } from '@mui/material/styles'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import {
     Box,
     List,
@@ -19,118 +19,118 @@ import {
     Typography,
     Button,
     IconButton
-} from '@mui/material';
+} from '@mui/material'
 
 // third-party
-import PerfectScrollbar from 'react-perfect-scrollbar';
-import moment from 'moment';
-import ReactJson from 'react-json-view';
+import PerfectScrollbar from 'react-perfect-scrollbar'
+import moment from 'moment'
+import ReactJson from 'react-json-view'
 
 // project imports
-import MainCard from 'ui-component/cards/MainCard';
-import Transitions from 'ui-component/extended/Transitions';
-import AttachmentDialog from 'ui-component/dialog/AttachmentDialog';
-import HTMLDialog from 'ui-component/dialog/HTMLDialog';
-import ExpandDataDialog from 'ui-component/dialog/ExpandDataDialog';
+import MainCard from 'ui-component/cards/MainCard'
+import Transitions from 'ui-component/extended/Transitions'
+import AttachmentDialog from 'ui-component/dialog/AttachmentDialog'
+import HTMLDialog from 'ui-component/dialog/HTMLDialog'
+import ExpandDataDialog from 'ui-component/dialog/ExpandDataDialog'
 
 // hooks
-import useConfirm from 'hooks/useConfirm';
-import useNotifier from 'utils/useNotifier';
+import useConfirm from 'hooks/useConfirm'
+import useNotifier from 'utils/useNotifier'
 
 // icon
-import { IconTrash, IconX, IconArrowsMaximize } from '@tabler/icons';
+import { IconTrash, IconX, IconArrowsMaximize } from '@tabler/icons'
 
 // API
-import executionsApi from 'api/executions';
-import workflowsApi from 'api/workflows';
+import executionsApi from 'api/executions'
+import workflowsApi from 'api/workflows'
 
 // utils
-import { copyToClipboard } from 'utils/genericHelper';
+import { copyToClipboard } from 'utils/genericHelper'
 
 // ==============================|| EXECUTIONS ||============================== //
 
 const Executions = ({ workflowShortId, execution, executionCount, isExecutionOpen, anchorEl }) => {
-    const theme = useTheme();
-    const [expanded, setExpanded] = useState(false);
-    const [open, setOpen] = useState(false);
-    const [showHTMLDialog, setShowHTMLDialog] = useState(false);
-    const [HTMLDialogProps, setHTMLDialogProps] = useState({});
-    const [showAttachmentDialog, setShowAttachmentDialog] = useState(false);
-    const [attachmentDialogProps, setAttachmentDialogProps] = useState({});
-    const [showExpandDialog, setShowExpandDialog] = useState(false);
-    const [expandDialogProps, setExpandDialogProps] = useState({});
+    const theme = useTheme()
+    const [expanded, setExpanded] = useState(false)
+    const [open, setOpen] = useState(false)
+    const [showHTMLDialog, setShowHTMLDialog] = useState(false)
+    const [HTMLDialogProps, setHTMLDialogProps] = useState({})
+    const [showAttachmentDialog, setShowAttachmentDialog] = useState(false)
+    const [attachmentDialogProps, setAttachmentDialogProps] = useState({})
+    const [showExpandDialog, setShowExpandDialog] = useState(false)
+    const [expandDialogProps, setExpandDialogProps] = useState({})
 
-    const dispatch = useDispatch();
-    const varPrevOpen = useRef(open);
-    const { confirm } = useConfirm();
+    const dispatch = useDispatch()
+    const varPrevOpen = useRef(open)
+    const { confirm } = useConfirm()
 
-    useNotifier();
-    const enqueueSnackbar = (...args) => dispatch(enqueueSnackbarAction(...args));
-    const closeSnackbar = (...args) => dispatch(closeSnackbarAction(...args));
+    useNotifier()
+    const enqueueSnackbar = (...args) => dispatch(enqueueSnackbarAction(...args))
+    const closeSnackbar = (...args) => dispatch(closeSnackbarAction(...args))
 
     const handleAccordionChange = (executionShortId) => (event, isExpanded) => {
-        setExpanded(isExpanded ? executionShortId : false);
-    };
+        setExpanded(isExpanded ? executionShortId : false)
+    }
 
     const setChipColor = (execState) => {
-        if (execState === 'INPROGRESS') return theme.palette.warning.dark;
-        if (execState === 'FINISHED') return theme.palette.success.dark;
-        if (execState === 'ERROR') return theme.palette.error.dark;
-        if (execState === 'TERMINATED' || execState === 'TIMEOUT') return theme.palette.grey['700'];
-        return theme.palette.primary.dark;
-    };
+        if (execState === 'INPROGRESS') return theme.palette.warning.dark
+        if (execState === 'FINISHED') return theme.palette.success.dark
+        if (execState === 'ERROR') return theme.palette.error.dark
+        if (execState === 'TERMINATED' || execState === 'TIMEOUT') return theme.palette.grey['700']
+        return theme.palette.primary.dark
+    }
 
     const setChipBgColor = (execState) => {
-        if (execState === 'INPROGRESS') return theme.palette.warning.light;
-        if (execState === 'FINISHED') return theme.palette.success.light;
-        if (execState === 'ERROR') return theme.palette.error.light;
-        if (execState === 'TERMINATED' || execState === 'TIMEOUT') return theme.palette.grey['300'];
-        return theme.palette.primary.light;
-    };
+        if (execState === 'INPROGRESS') return theme.palette.warning.light
+        if (execState === 'FINISHED') return theme.palette.success.light
+        if (execState === 'ERROR') return theme.palette.error.light
+        if (execState === 'TERMINATED' || execState === 'TIMEOUT') return theme.palette.grey['300']
+        return theme.palette.primary.light
+    }
 
     const openAttachmentDialog = (executionData) => {
         const dialogProp = {
             title: 'Attachments',
             executionData
-        };
-        setAttachmentDialogProps(dialogProp);
-        setShowAttachmentDialog(true);
-    };
+        }
+        setAttachmentDialogProps(dialogProp)
+        setShowAttachmentDialog(true)
+    }
 
     const openHTMLDialog = (executionData) => {
         const dialogProp = {
             title: 'HTML',
             executionData
-        };
-        setHTMLDialogProps(dialogProp);
-        setShowHTMLDialog(true);
-    };
+        }
+        setHTMLDialogProps(dialogProp)
+        setShowHTMLDialog(true)
+    }
 
     const onExpandDialogClicked = (executionData, nodeLabel) => {
         const dialogProp = {
             title: `Execution Data: ${nodeLabel}`,
             data: executionData
-        };
-        setExpandDialogProps(dialogProp);
-        setShowExpandDialog(true);
-    };
+        }
+        setExpandDialogProps(dialogProp)
+        setShowExpandDialog(true)
+    }
 
     const deleteExecution = async (e, executionShortId) => {
-        e.stopPropagation();
+        e.stopPropagation()
         const confirmPayload = {
             title: `Delete`,
             description: `Delete execution ${executionShortId}?`,
             confirmButtonName: 'Delete',
             cancelButtonName: 'Cancel'
-        };
-        const isConfirmed = await confirm(confirmPayload);
+        }
+        const isConfirmed = await confirm(confirmPayload)
 
         if (isConfirmed) {
             try {
-                const executionResp = await executionsApi.deleteExecution(executionShortId);
+                const executionResp = await executionsApi.deleteExecution(executionShortId)
                 if (executionResp.data) {
-                    const workflowResponse = await workflowsApi.getSpecificWorkflow(workflowShortId);
-                    if (workflowResponse.data) dispatch({ type: SET_WORKFLOW, workflow: workflowResponse.data });
+                    const workflowResponse = await workflowsApi.getSpecificWorkflow(workflowShortId)
+                    if (workflowResponse.data) dispatch({ type: SET_WORKFLOW, workflow: workflowResponse.data })
                 }
                 enqueueSnackbar({
                     message: 'Execution deleted!',
@@ -143,9 +143,9 @@ const Executions = ({ workflowShortId, execution, executionCount, isExecutionOpe
                             </Button>
                         )
                     }
-                });
+                })
             } catch (error) {
-                const errorData = error.response.data || `${error.response.status}: ${error.response.statusText}`;
+                const errorData = error.response.data || `${error.response.status}: ${error.response.statusText}`
                 enqueueSnackbar({
                     message: errorData,
                     options: {
@@ -158,24 +158,24 @@ const Executions = ({ workflowShortId, execution, executionCount, isExecutionOpe
                             </Button>
                         )
                     }
-                });
+                })
             }
         }
-    };
+    }
 
     // Handle Accordian
     useEffect(() => {
-        varPrevOpen.current = open;
-    }, [open]);
+        varPrevOpen.current = open
+    }, [open])
 
     useEffect(() => {
-        setOpen(isExecutionOpen);
-    }, [isExecutionOpen]);
+        setOpen(isExecutionOpen)
+    }, [isExecutionOpen])
 
     return (
         <>
             <Popper
-                placement="bottom-end"
+                placement='bottom-end'
                 open={open}
                 anchorEl={anchorEl}
                 role={undefined}
@@ -199,7 +199,7 @@ const Executions = ({ workflowShortId, execution, executionCount, isExecutionOpe
                             <MainCard border={false} elevation={16} content={false} boxShadow shadow={theme.shadows[16]}>
                                 <Box sx={{ p: 2 }}>
                                     <Stack>
-                                        <Typography variant="h4">{executionCount} Executions</Typography>
+                                        <Typography variant='h4'>{executionCount} Executions</Typography>
                                     </Stack>
                                 </Box>
                                 <PerfectScrollbar style={{ height: '100%', maxHeight: 'calc(100vh - 250px)', overflowX: 'hidden' }}>
@@ -239,9 +239,9 @@ const Executions = ({ workflowShortId, execution, executionCount, isExecutionOpe
                                                                     aria-controls={`${exec.shortId}-content`}
                                                                     id={`${exec.shortId}-header`}
                                                                 >
-                                                                    <Stack sx={{ p: 1, mr: 1 }} direction="column">
-                                                                        <Stack sx={{ mb: 1, alignItems: 'center' }} direction="row">
-                                                                            <Typography variant="h5">{exec.shortId}</Typography>
+                                                                    <Stack sx={{ p: 1, mr: 1 }} direction='column'>
+                                                                        <Stack sx={{ mb: 1, alignItems: 'center' }} direction='row'>
+                                                                            <Typography variant='h5'>{exec.shortId}</Typography>
                                                                             {exec.state && (
                                                                                 <Chip
                                                                                     sx={{
@@ -253,9 +253,9 @@ const Executions = ({ workflowShortId, execution, executionCount, isExecutionOpe
                                                                                 />
                                                                             )}
                                                                         </Stack>
-                                                                        <Stack sx={{ mb: -1, alignItems: 'center' }} direction="row">
+                                                                        <Stack sx={{ mb: -1, alignItems: 'center' }} direction='row'>
                                                                             <Typography
-                                                                                variant="h6"
+                                                                                variant='h6'
                                                                                 sx={{ color: theme.palette.grey['500'] }}
                                                                             >
                                                                                 {moment(exec.createdDate).format(
@@ -263,10 +263,10 @@ const Executions = ({ workflowShortId, execution, executionCount, isExecutionOpe
                                                                                 )}
                                                                             </Typography>
                                                                             <IconButton
-                                                                                size="small"
+                                                                                size='small'
                                                                                 sx={{ height: 25, width: 25, ml: 1 }}
-                                                                                title="Delete Execution"
-                                                                                color="error"
+                                                                                title='Delete Execution'
+                                                                                color='error'
                                                                                 onClick={(e) => deleteExecution(e, exec.shortId)}
                                                                             >
                                                                                 <IconTrash />
@@ -285,7 +285,7 @@ const Executions = ({ workflowShortId, execution, executionCount, isExecutionOpe
                                                                             }}
                                                                             key={execDataIndex}
                                                                         >
-                                                                            <Typography sx={{ p: 1 }} variant="h5">
+                                                                            <Typography sx={{ p: 1 }} variant='h5'>
                                                                                 {execData.nodeLabel}
                                                                             </Typography>
                                                                             <ReactJson
@@ -294,7 +294,7 @@ const Executions = ({ workflowShortId, execution, executionCount, isExecutionOpe
                                                                                 enableClipboard={(e) => copyToClipboard(e)}
                                                                             />
                                                                             <IconButton
-                                                                                size="small"
+                                                                                size='small'
                                                                                 sx={{
                                                                                     height: 25,
                                                                                     width: 25,
@@ -302,8 +302,8 @@ const Executions = ({ workflowShortId, execution, executionCount, isExecutionOpe
                                                                                     top: 5,
                                                                                     right: 5
                                                                                 }}
-                                                                                title="Expand Data"
-                                                                                color="primary"
+                                                                                title='Expand Data'
+                                                                                color='primary'
                                                                                 onClick={() =>
                                                                                     onExpandDialogClicked(execData.data, execData.nodeLabel)
                                                                                 }
@@ -314,7 +314,7 @@ const Executions = ({ workflowShortId, execution, executionCount, isExecutionOpe
                                                                                 {execData.data.map((execObj, execObjIndex) => (
                                                                                     <div key={execObjIndex}>
                                                                                         {execObj.html && (
-                                                                                            <Typography sx={{ p: 1, mt: 2 }} variant="h5">
+                                                                                            <Typography sx={{ p: 1, mt: 2 }} variant='h5'>
                                                                                                 HTML
                                                                                             </Typography>
                                                                                         )}
@@ -336,8 +336,8 @@ const Executions = ({ workflowShortId, execution, executionCount, isExecutionOpe
                                                                                         {execObj.html && (
                                                                                             <Button
                                                                                                 sx={{ mt: 1 }}
-                                                                                                size="small"
-                                                                                                variant="contained"
+                                                                                                size='small'
+                                                                                                variant='contained'
                                                                                                 onClick={() =>
                                                                                                     openHTMLDialog(execData.data)
                                                                                                 }
@@ -349,7 +349,7 @@ const Executions = ({ workflowShortId, execution, executionCount, isExecutionOpe
                                                                                         {execObj.attachments && (
                                                                                             <Typography
                                                                                                 sx={{ p: 1, pb: 0, mt: 2 }}
-                                                                                                variant="h5"
+                                                                                                variant='h5'
                                                                                             >
                                                                                                 Attachments
                                                                                             </Typography>
@@ -360,7 +360,7 @@ const Executions = ({ workflowShortId, execution, executionCount, isExecutionOpe
                                                                                                     <div key={attchIndex}>
                                                                                                         <Typography
                                                                                                             sx={{ p: 1 }}
-                                                                                                            variant="h6"
+                                                                                                            variant='h6'
                                                                                                         >
                                                                                                             Item {execObjIndex} |{' '}
                                                                                                             {attachment.filename
@@ -369,14 +369,14 @@ const Executions = ({ workflowShortId, execution, executionCount, isExecutionOpe
                                                                                                         </Typography>
                                                                                                         <embed
                                                                                                             src={attachment.content}
-                                                                                                            width="100%"
-                                                                                                            height="100%"
+                                                                                                            width='100%'
+                                                                                                            height='100%'
                                                                                                             style={{ borderStyle: 'solid' }}
                                                                                                             type={attachment.contentType}
                                                                                                         />
                                                                                                         <Button
-                                                                                                            size="small"
-                                                                                                            variant="contained"
+                                                                                                            size='small'
+                                                                                                            variant='contained'
                                                                                                             onClick={() =>
                                                                                                                 openAttachmentDialog(
                                                                                                                     execData.data
@@ -418,8 +418,8 @@ const Executions = ({ workflowShortId, execution, executionCount, isExecutionOpe
                 onCancel={() => setShowExpandDialog(false)}
             ></ExpandDataDialog>
         </>
-    );
-};
+    )
+}
 
 Executions.propTypes = {
     workflowShortId: PropTypes.string,
@@ -427,6 +427,6 @@ Executions.propTypes = {
     executionCount: PropTypes.number,
     isExecutionOpen: PropTypes.bool,
     anchorEl: PropTypes.any
-};
+}
 
-export default Executions;
+export default Executions

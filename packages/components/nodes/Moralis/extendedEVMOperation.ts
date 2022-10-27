@@ -1,53 +1,52 @@
-import { INodeOptionsValue, INodeParams } from "../../src";
+import { INodeOptionsValue, INodeParams } from '../../src'
 
 export const nativeEvmOperation = [
     {
-        label:'Get Native Balance',
+        label: 'Get Native Balance',
         name: 'getNativeBalance',
         description: 'Get native balance for a specific address.'
     },
     {
-        label:'Get Token Balances',
+        label: 'Get Token Balances',
         name: 'getTokenBalances',
         description: 'Get token balances for a specific address.'
     },
     {
-        label:'Get Token Transfers',
+        label: 'Get Token Transfers',
         name: 'getTokenTransfers',
         description: 'Get ERC20 token transactions ordered by block number in descending order.'
     },
     {
-        label:'Get Date To Block',
+        label: 'Get Date To Block',
         name: 'getDateToBlock',
         description: 'Get the closest block of the provided date.'
     },
     {
-        label:'Get Block',
+        label: 'Get Block',
         name: 'getBlock',
         description: 'Get the contents of a block by block hash.'
     },
     {
-        label:'Get Transaction',
+        label: 'Get Transaction',
         name: 'getTransaction',
         description: 'Get the contents of a transaction by transaction hash.'
     },
     {
-        label:'Get Transactions',
+        label: 'Get Transactions',
         name: 'getTransactions',
         description: 'Get native transactions ordered by block number in descending order.'
     },
     {
-        label:'Get Contract Events',
+        label: 'Get Contract Events',
         name: 'getContractEvents',
         description: 'Get events for a specific contract ordered by block number in descending order.'
     },
     {
-        label:'Run Contract Function',
+        label: 'Run Contract Function',
         name: 'runContractFunction',
         description: 'Run a given function of a contract abi and retrieve readonly data.'
-    },
-] as INodeOptionsValue[];
-
+    }
+] as INodeOptionsValue[]
 
 export const getDateToBlock = [
     {
@@ -57,9 +56,7 @@ export const getDateToBlock = [
         optional: true,
         description: 'Web3 provider url to user when using local dev chain',
         show: {
-            'inputParameters.operation': [
-                'getDateToBlock',
-            ]
+            'inputParameters.operation': ['getDateToBlock']
         }
     },
     {
@@ -68,13 +65,10 @@ export const getDateToBlock = [
         type: 'date',
         optional: true,
         show: {
-            'inputParameters.operation': [
-                'getDateToBlock',
-            ]
+            'inputParameters.operation': ['getDateToBlock']
         }
-    },
-] as INodeParams[];
-
+    }
+] as INodeParams[]
 
 export const getBlock = [
     {
@@ -83,9 +77,7 @@ export const getBlock = [
         type: 'string',
         description: 'The block hash or block number',
         show: {
-            'inputParameters.operation': [
-                'getBlock', 'getNFTTransfersByBlock'
-            ]
+            'inputParameters.operation': ['getBlock', 'getNFTTransfersByBlock']
         }
     },
     {
@@ -95,12 +87,10 @@ export const getBlock = [
         optional: true,
         description: 'The subdomain of the moralis server to use (Only use when selecting local devchain as chain)',
         show: {
-            'inputParameters.operation': [
-                'getBlock', 'getNFTTransfersByBlock', 'getTransaction'
-            ]
+            'inputParameters.operation': ['getBlock', 'getNFTTransfersByBlock', 'getTransaction']
         }
-    },
-] as INodeParams[];
+    }
+] as INodeParams[]
 
 export const getTransaction = [
     {
@@ -109,12 +99,10 @@ export const getTransaction = [
         type: 'string',
         description: 'The transaction hash',
         show: {
-            'inputParameters.operation': [
-                'getTransaction'
-            ]
+            'inputParameters.operation': ['getTransaction']
         }
-    },
-] as INodeParams[];
+    }
+] as INodeParams[]
 
 export const getContractEvents = [
     {
@@ -123,9 +111,7 @@ export const getContractEvents = [
         type: 'string',
         description: 'Address of the contract',
         show: {
-            'inputParameters.operation': [
-                'getContractEvents', 'getTransactions', 'getTokenTransfers'
-            ]
+            'inputParameters.operation': ['getContractEvents', 'getTransactions', 'getTokenTransfers']
         }
     },
     {
@@ -134,9 +120,7 @@ export const getContractEvents = [
         type: 'string',
         description: 'The topic of the event',
         show: {
-            'inputParameters.operation': [
-                'getContractEvents'
-            ]
+            'inputParameters.operation': ['getContractEvents']
         }
     },
     {
@@ -146,9 +130,7 @@ export const getContractEvents = [
         optional: true,
         description: 'The subdomain of the moralis server to use (Only use when selecting local devchain as chain)',
         show: {
-            'inputParameters.operation': [
-                'getContractEvents', 'getTransactions', 'getTokenTransfers'
-            ]
+            'inputParameters.operation': ['getContractEvents', 'getTransactions', 'getTokenTransfers']
         }
     },
     {
@@ -158,9 +140,7 @@ export const getContractEvents = [
         optional: true,
         description: 'Web3 provider url to user when using local dev chain',
         show: {
-            'inputParameters.operation': [
-                'getContractEvents',
-            ]
+            'inputParameters.operation': ['getContractEvents']
         }
     },
     {
@@ -170,9 +150,7 @@ export const getContractEvents = [
         description: 'The date from where to get the logs',
         optional: true,
         show: {
-            'inputParameters.operation': [
-                'getContractEvents', 'getTransactions', 'getTokenTransfers'
-            ]
+            'inputParameters.operation': ['getContractEvents', 'getTransactions', 'getTokenTransfers']
         }
     },
     {
@@ -182,9 +160,7 @@ export const getContractEvents = [
         description: 'Get the logs to this date',
         optional: true,
         show: {
-            'inputParameters.operation': [
-                'getContractEvents', 'getTransactions', 'getTokenTransfers'
-            ]
+            'inputParameters.operation': ['getContractEvents', 'getTransactions', 'getTokenTransfers']
         }
     },
     {
@@ -194,9 +170,7 @@ export const getContractEvents = [
         description: 'The minimum block number from where to get the logs',
         optional: true,
         show: {
-            'inputParameters.operation': [
-                'getContractEvents', 'getTransactions', 'getTokenTransfers'
-            ]
+            'inputParameters.operation': ['getContractEvents', 'getTransactions', 'getTokenTransfers']
         }
     },
     {
@@ -206,12 +180,10 @@ export const getContractEvents = [
         description: 'The maximum block number from where to get the logs.',
         optional: true,
         show: {
-            'inputParameters.operation': [
-                'getContractEvents', 'getTransactions', 'getTokenTransfers'
-            ]
+            'inputParameters.operation': ['getContractEvents', 'getTransactions', 'getTokenTransfers']
         }
-    },
-] as INodeParams[];
+    }
+] as INodeParams[]
 
 export const runContractFunction = [
     {
@@ -220,9 +192,7 @@ export const runContractFunction = [
         type: 'string',
         description: 'Address of the contract',
         show: {
-            'inputParameters.operation': [
-                'runContractFunction'
-            ]
+            'inputParameters.operation': ['runContractFunction']
         }
     },
     {
@@ -231,9 +201,7 @@ export const runContractFunction = [
         type: 'string',
         description: 'Function Name of the contract to run',
         show: {
-            'inputParameters.operation': [
-                'runContractFunction'
-            ]
+            'inputParameters.operation': ['runContractFunction']
         }
     },
     {
@@ -243,9 +211,7 @@ export const runContractFunction = [
         placeholder: '[ "event Transfer(address indexed from, address indexed to, uint value)" ]',
         description: 'ABI of the contract in array',
         show: {
-            'inputParameters.operation': [
-                'runContractFunction'
-            ]
+            'inputParameters.operation': ['runContractFunction']
         }
     },
     {
@@ -256,9 +222,7 @@ export const runContractFunction = [
         description: 'Function parameters in json. Ex: {"var1": "value1"}',
         optional: true,
         show: {
-            'inputParameters.operation': [
-                'runContractFunction'
-            ]
+            'inputParameters.operation': ['runContractFunction']
         }
     },
     {
@@ -268,9 +232,7 @@ export const runContractFunction = [
         optional: true,
         description: 'The subdomain of the moralis server to use (Only use when selecting local devchain as chain)',
         show: {
-            'inputParameters.operation': [
-                'runContractFunction'
-            ]
+            'inputParameters.operation': ['runContractFunction']
         }
     },
     {
@@ -280,12 +242,10 @@ export const runContractFunction = [
         optional: true,
         description: 'Web3 provider url to user when using local dev chain',
         show: {
-            'inputParameters.operation': [
-                'runContractFunction',
-            ]
+            'inputParameters.operation': ['runContractFunction']
         }
-    },
-] as INodeParams[];
+    }
+] as INodeParams[]
 
 export const getNativeBalance = [
     {
@@ -294,9 +254,7 @@ export const getNativeBalance = [
         type: 'string',
         description: 'The address for which the native balance will be checked',
         show: {
-            'inputParameters.operation': [
-                'getNativeBalance'
-            ]
+            'inputParameters.operation': ['getNativeBalance']
         }
     },
     {
@@ -306,9 +264,7 @@ export const getNativeBalance = [
         optional: true,
         description: 'Web3 provider url to user when using local dev chain',
         show: {
-            'inputParameters.operation': [
-                'getNativeBalance',
-            ]
+            'inputParameters.operation': ['getNativeBalance']
         }
     },
     {
@@ -318,12 +274,10 @@ export const getNativeBalance = [
         description: 'The block number on which the balances should be checked.',
         optional: true,
         show: {
-            'inputParameters.operation': [
-                'getNativeBalance'
-            ]
+            'inputParameters.operation': ['getNativeBalance']
         }
-    },
-] as INodeParams[]; 
+    }
+] as INodeParams[]
 
 export const getTokenBalances = [
     {
@@ -332,9 +286,7 @@ export const getTokenBalances = [
         type: 'string',
         description: 'The address for which token balances will be checked',
         show: {
-            'inputParameters.operation': [
-                'getTokenBalances'
-            ]
+            'inputParameters.operation': ['getTokenBalances']
         }
     },
     {
@@ -345,9 +297,7 @@ export const getTokenBalances = [
         optional: true,
         description: 'The addresses to get balances for',
         show: {
-            'inputParameters.operation': [
-                'getTokenBalances'
-            ]
+            'inputParameters.operation': ['getTokenBalances']
         }
     },
     {
@@ -357,9 +307,7 @@ export const getTokenBalances = [
         optional: true,
         description: 'The subdomain of the moralis server to use (Only use when selecting local devchain as chain)',
         show: {
-            'inputParameters.operation': [
-                'getTokenBalances'
-            ]
+            'inputParameters.operation': ['getTokenBalances']
         }
     },
     {
@@ -369,9 +317,7 @@ export const getTokenBalances = [
         description: 'The block number on which the balances should be checked.',
         optional: true,
         show: {
-            'inputParameters.operation': [
-                'getTokenBalances'
-            ]
+            'inputParameters.operation': ['getTokenBalances']
         }
-    },
-] as INodeParams[]; 
+    }
+] as INodeParams[]

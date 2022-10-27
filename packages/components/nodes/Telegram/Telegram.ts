@@ -1,27 +1,27 @@
-import { ICommonObject, INode, INodeData, INodeExecutionData, INodeParams, NodeType } from '../../src/Interface';
-import { handleErrorMessage, returnNodeExecutionData, serializeQueryParams } from '../../src/utils';
-import axios, { AxiosRequestConfig, Method } from 'axios';
+import { ICommonObject, INode, INodeData, INodeExecutionData, INodeParams, NodeType } from '../../src/Interface'
+import { handleErrorMessage, returnNodeExecutionData } from '../../src/utils'
+import axios from 'axios'
 
 class Telegram implements INode {
-    label: string;
-    name: string;
-    type: NodeType;
-    description: string;
-    version: number;
-    icon: string;
-    incoming: number;
-    outgoing: number;
-    inputParameters: INodeParams[];
-    credentials: INodeParams[];
+    label: string
+    name: string
+    type: NodeType
+    description: string
+    version: number
+    icon: string
+    incoming: number
+    outgoing: number
+    inputParameters: INodeParams[]
+    credentials: INodeParams[]
     constructor() {
-        this.label = 'Telegram';
-        this.name = 'telegram';
-        this.icon = 'telegram.svg';
-        this.type = 'action';
-        this.version = 1.0;
-        this.description = 'Perform Telegram operations';
-        this.incoming = 1;
-        this.outgoing = 1;
+        this.label = 'Telegram'
+        this.name = 'telegram'
+        this.icon = 'telegram.svg'
+        this.type = 'action'
+        this.version = 1.0
+        this.description = 'Perform Telegram operations'
+        this.incoming = 1
+        this.outgoing = 1
         this.credentials = [
             {
                 label: 'Credential Method',
@@ -36,7 +36,7 @@ class Telegram implements INode {
                 placeholder: 'eg: 1234567890:ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHI',
                 default: ''
             }
-        ];
+        ]
         this.inputParameters = [
             {
                 label: 'Channel ID',
@@ -55,28 +55,28 @@ class Telegram implements INode {
                 type: 'string',
                 default: ''
             }
-        ];
+        ]
     }
 
     async run(nodeData: INodeData): Promise<INodeExecutionData[] | null> {
-        const inputParametersData = nodeData.inputParameters;
-        const credentials = nodeData.credentials;
+        const inputParametersData = nodeData.inputParameters
+        const credentials = nodeData.credentials
 
         if (inputParametersData === undefined || credentials === undefined) {
-            throw new Error('Required data missing');
+            throw new Error('Required data missing')
         }
-        const botToken = credentials.botToken as string;
-        const channelID = inputParametersData.channelID as string;
-        const content = inputParametersData.content as string;
-        const returnData: ICommonObject[] = [];
+        const botToken = credentials.botToken as string
+        const channelID = inputParametersData.channelID as string
+        const content = inputParametersData.content as string
+        const returnData: ICommonObject[] = []
         try {
-            const response = await axios.get(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=@${channelID}&text=${content}`);
-            returnData.push(response.data);
+            const response = await axios.get(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=@${channelID}&text=${content}`)
+            returnData.push(response.data)
         } catch (error) {
-            throw handleErrorMessage(error);
+            throw handleErrorMessage(error)
         }
 
-        return returnNodeExecutionData(returnData);
+        return returnNodeExecutionData(returnData)
     }
 }
-module.exports = { nodeClass: Telegram };
+module.exports = { nodeClass: Telegram }
