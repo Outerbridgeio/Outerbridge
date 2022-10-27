@@ -20,7 +20,7 @@ export type Nodes = Node[]
 type NodeDependencies = Record<string, number>
 type Graph = Record<string, string[]>
 export type Edges = { source: string; target: string; targetHandle: '-input-'[] }[]
-type NodeParams = StrictOmit<MarkOptional<INodeParams, 'label'>, 'type' | 'array'> &
+export type NodeParams = StrictOmit<MarkOptional<INodeParams, 'label'>, 'type' | 'array'> &
     (
         | {
               type: StrictExtract<INodeParams['type'], 'array'>
@@ -275,7 +275,7 @@ export const checkMultipleTriggers = (nodes: Nodes) => {
     return false
 }
 
-export const convertDateStringToDateObject = (dateString: string) => {
+export const convertDateStringToDateObject = (dateString: string | undefined | null) => {
     if (dateString === undefined || !dateString) return undefined
 
     const date = moment(dateString)

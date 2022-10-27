@@ -1,12 +1,13 @@
-import { useSelector } from 'react-redux'
-import PropTypes from 'prop-types'
-import { forwardRef } from 'react'
-
+import { useSelector } from 'store'
+import { forwardRef, ComponentProps } from 'react'
+import { useTheme } from 'themes'
+import { NodeParams } from 'utils'
+import { ElementOf } from 'ts-essentials'
 // material-ui
 import { Box, Switch, Fab, FormControl, OutlinedInput, Popper, TextField, Typography, Stack, Button } from '@mui/material'
 import Autocomplete, { autocompleteClasses } from '@mui/material/Autocomplete'
-import { useTheme, styled } from '@mui/material/styles'
-import { TooltipWithParser } from '../../ui-component/TooltipWithParser'
+import { styled } from '@mui/material/styles'
+import { TooltipWithParser } from 'ui-component'
 
 // icons
 import { IconX, IconUpload } from '@tabler/icons'
@@ -15,6 +16,7 @@ import { IconX, IconUpload } from '@tabler/icons'
 import lodash from 'lodash'
 import Editor from 'react-simple-code-editor'
 import PerfectScrollbar from 'react-perfect-scrollbar'
+// @ts-expect-error no type definition
 import { highlight, languages } from 'prismjs/components/prism-core'
 import 'prismjs/components/prism-clike'
 import 'prismjs/components/prism-javascript'
@@ -42,42 +44,40 @@ const StyledPopper = styled(Popper)({
     }
 })
 
-const DateCustomInput = forwardRef(function DateCustomInput({ value, onClick }, ref) {
-    return (
-        <button
-            style={{
-                backgroundColor: '#fafafa',
-                paddingTop: 8,
-                paddingBottom: 8,
-                paddingRight: 12,
-                paddingLeft: 12,
-                borderRadius: 12,
-                width: '100%',
-                height: 50,
-                border: `1px solid #BDBDBD`,
-                cursor: 'pointer',
-                fontWeight: 'bold',
-                textAlign: 'start',
-                color: '#212121',
-                opacity: 0.9
-            }}
-            type='button'
-            onClick={onClick}
-            ref={ref}
-        >
-            {value}
-        </button>
-    )
-})
-
-DateCustomInput.propTypes = {
-    value: PropTypes.string,
-    onClick: PropTypes.func
-}
+const DateCustomInput = forwardRef<HTMLButtonElement, { value?: string; onClick?: ComponentProps<'button'>['onClick'] }>(
+    function DateCustomInput({ value, onClick }, ref) {
+        return (
+            <button
+                style={{
+                    backgroundColor: '#fafafa',
+                    paddingTop: 8,
+                    paddingBottom: 8,
+                    paddingRight: 12,
+                    paddingLeft: 12,
+                    borderRadius: 12,
+                    width: '100%',
+                    height: 50,
+                    border: `1px solid #BDBDBD`,
+                    cursor: 'pointer',
+                    fontWeight: 'bold',
+                    textAlign: 'start',
+                    color: '#212121',
+                    opacity: 0.9
+                }}
+                type='button'
+                onClick={onClick}
+                ref={ref}
+            >
+                {value}
+            </button>
+        )
+    }
+)
 
 // ==============================|| ARRAY INPUT PARAMETERS ||============================== //
 
-const ArrayInputParameters = ({
+type Values = Record<string, unknown>
+export const ArrayInputParameters = ({
     initialValues,
     arrayParams,
     paramsType,
@@ -88,11 +88,30 @@ const ArrayInputParameters = ({
     onArrayItemRemove,
     onArrayItemMouseUp,
     onEditVariableDialogOpen
+}: {
+    initialValues: Values[]
+    arrayParams: NodeParams[][]
+    paramsType: 'actions' | 'networks' | 'credentials' | 'inputParameters' | 'outputResponses'
+    arrayGroupName: string
+    errors?: Record<string, string>[]
+    onArrayInputChange: (values: Values[]) => void
+    onArrayInputBlur: (values: Values[]) => void
+    onArrayItemRemove: (values: Values[]) => void
+    onArrayItemMouseUp: (
+        value: boolean,
+        body?: {
+            textBeforeCursorPosition: string
+            textAfterCursorPosition: string
+            path: string
+            paramsType: 'actions' | 'networks' | 'credentials' | 'inputParameters' | 'outputResponses'
+        }
+    ) => void
+    onEditVariableDialogOpen: (input: NodeParams, values: Values, index: number) => void
 }) => {
     const theme = useTheme()
     const customization = useSelector((state) => state.customization)
 
-    const processUpdateValues = (inputValue, inputName, values, index) => {
+    const processUpdateValues = (inputValue: unknown, inputName: string, values: Values, index: number) => {
         const updateArrayValues = {
             ...values,
             [inputName]: inputValue
@@ -102,24 +121,24 @@ const ArrayInputParameters = ({
         return updateInitialValues
     }
 
-    const onInputChange = (inputValue, inputName, values, index) => {
+    const onInputChange = (inputValue: unknown, inputName: string, values: Values, index: number) => {
         const updateInitialValues = processUpdateValues(inputValue, inputName, values, index)
         onArrayInputChange(updateInitialValues)
     }
 
-    const onInputBlur = (inputValue, inputName, values, index) => {
+    const onInputBlur = (inputValue: string, inputName: string, values: Values, index: number) => {
         const updateInitialValues = processUpdateValues(inputValue, inputName, values, index)
         onArrayInputBlur(updateInitialValues)
     }
 
-    const onRemoveClick = (index) => {
+    const onRemoveClick = (index: number) => {
         const updateInitialValues = initialValues
         updateInitialValues.splice(index, 1)
         onArrayItemRemove(updateInitialValues)
         onArrayItemMouseUp(false)
     }
 
-    const onMouseUp = (e, inputName, valueIndex) => {
+    const onMouseUp = (e: React.FocusEvent<HTMLTextAreaElement, Element>, inputName: string, valueIndex: number) => {
         const cursorPosition = e.target.selectionEnd
         const textBeforeCursorPosition = e.target.value.substring(0, cursorPosition)
         const textAfterCursorPosition = e.target.value.substring(cursorPosition, e.target.value.length)
@@ -133,17 +152,17 @@ const ArrayInputParameters = ({
         onArrayItemMouseUp(true, body)
     }
 
-    const handleFolderUpload = (e, values, inputName, index) => {
+    const handleFolderUpload = (e: React.ChangeEvent<HTMLInputElement>, values: Values, inputName: string, index: number) => {
         if (!e.target.files) return
         const files = e.target.files
         const reader = new FileReader()
 
-        function readFile(fileIndex, base64Array) {
+        function readFile(fileIndex: number, base64Array: string[]) {
             if (fileIndex >= files.length) {
                 onInputChange(JSON.stringify(base64Array), inputName, values, index)
                 return
             }
-            const file = files[fileIndex]
+            const file = files[fileIndex]!
             reader.onload = (evt) => {
                 if (!evt?.target?.result) {
                     return
@@ -158,12 +177,11 @@ const ArrayInputParameters = ({
         readFile(0, [])
     }
 
-    const handleFileUpload = (e, onInputChange, values, inputName, index) => {
-        if (!e.target.files) {
+    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, values: Values, inputName: string, index: number) => {
+        const file = e.target.files?.[0]
+        if (!file) {
             return
         }
-
-        const file = e.target.files[0]
         const { name } = file
 
         const reader = new FileReader()
@@ -178,7 +196,8 @@ const ArrayInputParameters = ({
         reader.readAsDataURL(file)
     }
 
-    const findMatchingOptions = (options, value) => options.find((option) => option.name === value)
+    const findMatchingOptions = (options: NodeParams['options'], value: string | null | undefined) =>
+        options?.find((option) => option.name === value)
 
     const getDefaultOptionValue = () => ''
 
@@ -221,13 +240,14 @@ const ArrayInputParameters = ({
                         {params.map((input, paramIndex) => {
                             if (input.type === 'file' || input.type === 'folder') {
                                 const inputName = input.name
+                                const name = values[inputName]
 
                                 return (
                                     <FormControl
                                         key={`${inputName}_${paramIndex}`}
                                         fullWidth
                                         sx={{ mb: 1, mt: 1 }}
-                                        error={errors && errors.length > 0 && errors[index] ? Boolean(errors[index][inputName]) : false}
+                                        error={!!errors?.[index]?.[inputName]}
                                     >
                                         <Stack direction='row'>
                                             <Typography variant='overline'>{input.label}</Typography>
@@ -242,7 +262,7 @@ const ArrayInputParameters = ({
                                                     marginBottom: '1rem'
                                                 }}
                                             >
-                                                {values[inputName] ? getFileName(values[inputName]) : 'Choose a file to upload'}
+                                                {name ? getFileName(name as string) : 'Choose a file to upload'}
                                             </span>
                                         )}
 
@@ -254,7 +274,7 @@ const ArrayInputParameters = ({
                                                     marginBottom: '1rem'
                                                 }}
                                             >
-                                                {values[inputName] ? getFolderName(values[inputName]) : 'Choose a folder to upload'}
+                                                {name ? getFolderName(name as string) : 'Choose a folder to upload'}
                                             </span>
                                         )}
 
@@ -273,9 +293,10 @@ const ArrayInputParameters = ({
                                                 <input
                                                     type='file'
                                                     // https://github.com/jsx-eslint/eslint-plugin-react/issues/3454
-                                                    // eslint-disable-next-line react/no-unknown-property
+                                                    /* eslint-disable react/no-unknown-property */
+                                                    // @ts-expect-error https://stackoverflow.com/a/73734709/5338829
                                                     directory=''
-                                                    // eslint-disable-next-line react/no-unknown-property
+                                                    /* eslint-enable react/no-unknown-property */
                                                     webkitdirectory=''
                                                     hidden
                                                     onChange={(e) => handleFolderUpload(e, values, inputName, index)}
@@ -294,7 +315,7 @@ const ArrayInputParameters = ({
                                         key={`${inputName}_${paramIndex}`}
                                         fullWidth
                                         sx={{ mb: 1, mt: 1 }}
-                                        error={errors && errors.length > 0 && errors[index] ? Boolean(errors[index][inputName]) : false}
+                                        error={!!errors?.[index]?.[inputName]}
                                     >
                                         <Stack sx={{ position: 'relative' }} direction='row'>
                                             <Typography variant='overline'>{input.label}</Typography>
@@ -328,13 +349,25 @@ const ArrayInputParameters = ({
                                         >
                                             <Editor
                                                 placeholder={input.placeholder}
-                                                value={values[inputName] || ''}
+                                                value={(values[inputName] as string) || ''}
                                                 onBlur={(e) => {
-                                                    onInputBlur(e.target.value, inputName, values, index)
-                                                    onMouseUp(e, inputName, index)
+                                                    onInputBlur(
+                                                        (e as React.FocusEvent<HTMLTextAreaElement, Element>).target.value,
+                                                        inputName,
+                                                        values,
+                                                        index
+                                                    )
+                                                    onMouseUp(e as React.FocusEvent<HTMLTextAreaElement, Element>, inputName, index)
                                                 }}
                                                 onValueChange={(code) => onInputChange(code, inputName, values, index)}
-                                                onMouseUp={(e) => onMouseUp(e, inputName, index)}
+                                                onMouseUp={(e) =>
+                                                    onMouseUp(
+                                                        // @ts-expect-error TODO
+                                                        e,
+                                                        inputName,
+                                                        index
+                                                    )
+                                                }
                                                 highlight={(code) => highlight(code, input.type === 'json' ? languages.json : languages.js)}
                                                 padding={10}
                                                 style={{
@@ -357,7 +390,7 @@ const ArrayInputParameters = ({
                                         key={`${inputName}_${paramIndex}`}
                                         fullWidth
                                         sx={{ mb: 1, mt: 1 }}
-                                        error={errors && errors.length > 0 && errors[index] ? Boolean(errors[index][inputName]) : false}
+                                        error={!!errors?.[index]?.[inputName]}
                                     >
                                         <Stack direction='row'>
                                             <Typography variant='overline'>{input.label}</Typography>
@@ -365,7 +398,7 @@ const ArrayInputParameters = ({
                                         </Stack>
                                         <DatePicker
                                             customInput={<DateCustomInput />}
-                                            selected={convertDateStringToDateObject(values[inputName]) || null}
+                                            selected={convertDateStringToDateObject(values[inputName] as string) || null}
                                             showTimeSelect
                                             isClearable
                                             timeInputLabel='Time:'
@@ -388,7 +421,7 @@ const ArrayInputParameters = ({
                                         key={`${inputName}_${paramIndex}`}
                                         fullWidth
                                         sx={{ mb: 1, mt: 1 }}
-                                        error={errors && errors.length > 0 && errors[index] ? Boolean(errors[index][inputName]) : false}
+                                        error={!!errors?.[index]?.[inputName]}
                                     >
                                         <Stack sx={{ position: 'relative' }} direction='row'>
                                             <Typography variant='overline'>{input.label}</Typography>
@@ -419,13 +452,20 @@ const ArrayInputParameters = ({
                                             onBlur={(e) => {
                                                 const inputValue = e.target.value
                                                 onInputBlur(inputValue, inputName, values, index)
-                                                onMouseUp(e, inputName, index)
+                                                onMouseUp(e as React.FocusEvent<HTMLTextAreaElement, Element>, inputName, index)
                                             }}
                                             onChange={(e) => {
                                                 const inputValue = e.target.value
                                                 onInputChange(inputValue, inputName, values, index)
                                             }}
-                                            onMouseUp={(e) => onMouseUp(e, inputName, index)}
+                                            onMouseUp={(e) =>
+                                                onMouseUp(
+                                                    // @ts-expect-error TODO
+                                                    e,
+                                                    inputName,
+                                                    index
+                                                )
+                                            }
                                         />
                                     </FormControl>
                                 )
@@ -439,7 +479,7 @@ const ArrayInputParameters = ({
                                         key={`${inputName}_${paramIndex}`}
                                         fullWidth
                                         sx={{ mb: 1, mt: 1 }}
-                                        error={errors && errors.length > 0 && errors[index] ? Boolean(errors[index][inputName]) : false}
+                                        error={!!errors?.[index]?.[inputName]}
                                     >
                                         <Stack direction='row'>
                                             <Typography variant='overline'>{input.label}</Typography>
@@ -471,22 +511,19 @@ const ArrayInputParameters = ({
                                             freeSolo
                                             onOpen={() => onArrayItemMouseUp(false)}
                                             options={availableOptions}
-                                            value={findMatchingOptions(availableOptions, values[inputName]) || getDefaultOptionValue()}
+                                            value={
+                                                findMatchingOptions(availableOptions, values[inputName] as string) ||
+                                                getDefaultOptionValue()
+                                            }
                                             onChange={(e, selection) => {
-                                                const value = selection ? selection.name : ''
+                                                const value = selection
+                                                    ? (selection as ElementOf<NonNullable<NodeParams['options']>>).name
+                                                    : ''
                                                 onInputBlur(value, inputName, values, index)
                                             }}
                                             PopperComponent={StyledPopper}
                                             renderInput={(params) => (
-                                                <TextField
-                                                    {...params}
-                                                    value={values[inputName]}
-                                                    error={
-                                                        errors && errors.length > 0 && errors[index]
-                                                            ? Boolean(errors[index][inputName])
-                                                            : false
-                                                    }
-                                                />
+                                                <TextField {...params} value={values[inputName]} error={!!errors?.[index]?.[inputName]} />
                                             )}
                                             renderOption={(props, option) => (
                                                 <Box component='li' {...props}>
@@ -510,18 +547,3 @@ const ArrayInputParameters = ({
         </>
     )
 }
-
-ArrayInputParameters.propTypes = {
-    initialValues: PropTypes.array,
-    arrayParams: PropTypes.array,
-    paramsType: PropTypes.string,
-    arrayGroupName: PropTypes.string,
-    errors: PropTypes.array,
-    onArrayInputChange: PropTypes.func,
-    onArrayInputBlur: PropTypes.func,
-    onArrayItemRemove: PropTypes.func,
-    onArrayItemMouseUp: PropTypes.func,
-    onEditVariableDialogOpen: PropTypes.func
-}
-
-export default ArrayInputParameters
