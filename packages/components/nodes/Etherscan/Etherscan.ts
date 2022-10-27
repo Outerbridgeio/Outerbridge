@@ -67,6 +67,26 @@ class Etherscan implements INode {
                         name: 'getContractABI',
                         description: 'Returns the Contract Application Binary Interface ( ABI ) of a verified smart contract.'
                     },
+                    {
+                        label: 'Get Contract Source Code for Verified Contract Source Codes',
+                        name: 'getContractSourceCode',
+                        description: 'Returns the Solidity source code of a verified smart contract'
+                    },
+                    {
+                        label: 'Get Contract Creator and Creation Tx Hash',
+                        name: 'getContractCreatorTxHash',
+                        description: 'Returns a contract\'s deployer address and transaction hash it was created, up to 5 at a time(addresses entered in one line , each separated by a comma).'
+                    },
+                    {
+                        label: 'Check Contract Execution Status',
+                        name: 'getContractExecStatus',
+                        description: 'Returns the status code of a contract execution.'
+                    },
+                    {
+                        label: 'Check Transaction Receipt Status',
+                        name: 'getTxReceiptStatus',
+                        description: 'Returns the status code of a transaction execution.'
+                    },
                 ],
                 
                 default: 'getEtherBalance'
@@ -109,7 +129,29 @@ class Etherscan implements INode {
                 label: 'Address',
                 name: 'address',
                 type: 'string',
-                description: 'The address to check for balance'
+                description: 'The address parameter(s) required',
+                show: {
+                    'actions.api': [
+                        'getEtherBalance',
+                        'getEtherBalanceMulti',
+                        'getContractCreatorTxHash',
+                        'getContractABI',
+                        'getContractSourceCode',
+                    ]
+                }
+            },
+            {
+                label: 'TxHash',
+                name: 'txhash',
+                type: 'string',
+                description: 'The txhash required',
+                show: {
+                    'actions.api': [
+                        'getContractExecStatus',
+                        'getTxReceiptStatus'
+                    ]
+                }
+               
             },
         ] as INodeParams[];
     }
@@ -131,6 +173,7 @@ class Etherscan implements INode {
     
         // GET address
         const address = inputParametersData.address as string;
+        const txhash = inputParametersData.txhash as string;
         const returnData: ICommonObject[] = [];
         let responseData: any;
         if (api === 'getEtherBalance') {
@@ -207,6 +250,138 @@ class Etherscan implements INode {
                     module: 'contract',
                     action: 'getabi',
                     address,
+                    apikey: apiKey,
+                }
+                let url = '';
+                // Change url depending on network. See https://docs.etherscan.io/getting-started/endpoint-urls
+                if (network === NETWORK.MAINNET) {
+                    url = 'https://api.etherscan.io/api';
+                }
+                else if(network === NETWORK.GÖRLI){
+                    url = 'https://api-goerli.etherscan.io/api';
+                }
+                const axiosConfig: AxiosRequestConfig = {
+                    method: 'GET' as Method,
+                    url,
+                    params: queryParameters,
+                    paramsSerializer: params => serializeQueryParams(params),
+                    headers: { 'Content-Type': 'application/json' }
+                }
+                const response = await axios(axiosConfig);
+                responseData = response.data;
+            }
+            catch (error) {
+                throw handleErrorMessage(error);
+            }
+            if (Array.isArray(responseData)) returnData.push(...responseData);
+            else returnData.push(responseData);
+    
+            return returnNodeExecutionData(returnData);
+        } else if(api==='getContractSourceCode'){
+            try {
+                const queryParameters = {
+                    module: 'contract',
+                    action: 'getsourcecode',
+                    address,
+                    apikey: apiKey,
+                }
+                let url = '';
+                // Change url depending on network. See https://docs.etherscan.io/getting-started/endpoint-urls
+                if (network === NETWORK.MAINNET) {
+                    url = 'https://api.etherscan.io/api';
+                }
+                else if(network === NETWORK.GÖRLI){
+                    url = 'https://api-goerli.etherscan.io/api';
+                }
+                const axiosConfig: AxiosRequestConfig = {
+                    method: 'GET' as Method,
+                    url,
+                    params: queryParameters,
+                    paramsSerializer: params => serializeQueryParams(params),
+                    headers: { 'Content-Type': 'application/json' }
+                }
+                const response = await axios(axiosConfig);
+                responseData = response.data;
+            }
+            catch (error) {
+                throw handleErrorMessage(error);
+            }
+            if (Array.isArray(responseData)) returnData.push(...responseData);
+            else returnData.push(responseData);
+    
+            return returnNodeExecutionData(returnData);
+        }else if(api==='getContractCreatorTxHash'){
+            try {
+                const queryParameters = {
+                    module: 'contract',
+                    action: 'getcontractcreation',
+                    contractaddresses: address,
+                    apikey: apiKey,
+                }
+                let url = '';
+                // Change url depending on network. See https://docs.etherscan.io/getting-started/endpoint-urls
+                if (network === NETWORK.MAINNET) {
+                    url = 'https://api.etherscan.io/api';
+                }
+                else if(network === NETWORK.GÖRLI){
+                    url = 'https://api-goerli.etherscan.io/api';
+                }
+                const axiosConfig: AxiosRequestConfig = {
+                    method: 'GET' as Method,
+                    url,
+                    params: queryParameters,
+                    paramsSerializer: params => serializeQueryParams(params),
+                    headers: { 'Content-Type': 'application/json' }
+                }
+                const response = await axios(axiosConfig);
+                responseData = response.data;
+            }
+            catch (error) {
+                throw handleErrorMessage(error);
+            }
+            if (Array.isArray(responseData)) returnData.push(...responseData);
+            else returnData.push(responseData);
+    
+            return returnNodeExecutionData(returnData);
+        }else if(api==='getContractExecStatus'){
+            try {
+                const queryParameters = {
+                    module: 'transaction',
+                    action: 'getstatus',
+                    txhash,
+                    apikey: apiKey,
+                }
+                let url = '';
+                // Change url depending on network. See https://docs.etherscan.io/getting-started/endpoint-urls
+                if (network === NETWORK.MAINNET) {
+                    url = 'https://api.etherscan.io/api';
+                }
+                else if(network === NETWORK.GÖRLI){
+                    url = 'https://api-goerli.etherscan.io/api';
+                }
+                const axiosConfig: AxiosRequestConfig = {
+                    method: 'GET' as Method,
+                    url,
+                    params: queryParameters,
+                    paramsSerializer: params => serializeQueryParams(params),
+                    headers: { 'Content-Type': 'application/json' }
+                }
+                const response = await axios(axiosConfig);
+                responseData = response.data;
+            }
+            catch (error) {
+                throw handleErrorMessage(error);
+            }
+            if (Array.isArray(responseData)) returnData.push(...responseData);
+            else returnData.push(responseData);
+    
+            return returnNodeExecutionData(returnData);
+        }else if(api==='getTxReceiptStatus'){
+            try {
+                const queryParameters = {
+                    module: 'transaction',
+                    action: 'gettxreceiptstatus',
+                    txhash,
                     apikey: apiKey,
                 }
                 let url = '';
