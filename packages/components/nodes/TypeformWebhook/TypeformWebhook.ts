@@ -100,42 +100,41 @@ class TypeformWebhook implements INode {
 
             const axiosConfig: AxiosRequestConfig = {
                 method: 'GET' as Method,
-                url: `https://api.typeform.com/forms/${formId}/webhooks/${tag}
+                url: `https://api.typeform.com/forms/${formId}/webhooks
                 `,
                 headers: { Authorization: `Bearer ${accesToken}` }
             }
             try {
                 const res = await axios(axiosConfig)
-                if (Object.keys(res).length) {
-                    webhookId = res?.data?.id
+                if (res?.data?.length) {
                     webhookExist = true
                 }
-            }catch(err){
-                console.log(err);
+            } catch (err) {
+                throw new Error(err)
             }
-                if (!webhookExist) {
-                    const axiosConfig: AxiosRequestConfig = {
-                        method: 'PUT' as Method,
-                        url: `https://api.typeform.com/forms/${formId}/webhooks/${tag}
+
+            if (!webhookExist) {
+                const axiosConfig: AxiosRequestConfig = {
+                    method: 'PUT' as Method,
+                    url: `https://api.typeform.com/forms/${formId}/webhooks/${tag}
                         `,
-                        headers: { Authorization: `Bearer ${accesToken}` },
-                        data: {
-                            enabled: true,
-                            url: webhookFullUrl
-                        }
-                    }
-                    try {
-                        const res = await axios(axiosConfig)
-                        webhookId = res?.data?.id
-                    } catch (err) {
-                        return
-                        // throw handleErrorMessage(err)
+                    headers: { Authorization: `Bearer ${accesToken}` },
+                    data: {
+                        enabled: true,
+                        url: webhookFullUrl
                     }
                 }
-                
+                try {
+                    const res = await axios(axiosConfig)
+                    webhookId = res?.data?.id
+                } catch (err) {
+                    return
+                }
+            }
+
             return webhookId
         },
-        async deleteWebhook(nodeData: INodeData, webhookId: string): Promise<boolean> {
+        async deleteWebhook(nodeData: INodeData): Promise<boolean> {
             // delete webhook
             const credentials = nodeData.credentials
             const inputParametersData = nodeData.inputParameters
@@ -156,10 +155,10 @@ class TypeformWebhook implements INode {
                 `,
                 headers: { Authorization: `Bearer ${accesToken}` }
             }
-            try{
-                await axios(axiosConfig);
-            }catch(err){
-                    return false;
+            try {
+                await axios(axiosConfig)
+            } catch (err) {
+                return false
             }
             return true
         }
@@ -170,10 +169,10 @@ class TypeformWebhook implements INode {
         const req = nodeData.req
 
         if (inputParametersData === undefined) {
-            throw new Error('Required data missing');
+            throw new Error('Required data missing')
         }
         if (req === undefined) {
-            throw new Error('Missing request');
+            throw new Error('Missing request')
         }
 
         const returnData: ICommonObject[] = []
@@ -184,7 +183,7 @@ class TypeformWebhook implements INode {
             body: req?.body,
             rawBody: (req as any).rawBody,
             url: req?.url
-        });
+        })
         return returnWebhookNodeExecutionData(returnData)
     }
 }
