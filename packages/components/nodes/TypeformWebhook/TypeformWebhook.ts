@@ -106,7 +106,7 @@ class TypeformWebhook implements INode {
             }
             try {
                 const res = await axios(axiosConfig)
-                if (res?.data?.length) {
+                if (res?.data?.items?.length) {
                     webhookExist = true
                 }
             } catch (err) {
