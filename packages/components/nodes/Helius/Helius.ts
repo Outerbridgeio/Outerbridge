@@ -1,45 +1,34 @@
-import {
-    ICommonObject,
-    INode, 
-    INodeData, 
-    INodeExecutionData, 
-    INodeParams, 
-    NodeType,
-} from '../../src/Interface';
-import {
-    handleErrorMessage,
-    returnNodeExecutionData,
-    serializeQueryParams
-} from '../../src/utils';
-import axios, { AxiosRequestConfig, Method } from 'axios';
+import { ICommonObject, INode, INodeData, INodeExecutionData, INodeParams, NodeType } from '../../src/Interface'
+import { handleErrorMessage, returnNodeExecutionData } from '../../src/utils'
+import axios, { AxiosRequestConfig, Method } from 'axios'
 
 class Helius implements INode {
     // properties
-    label: string;
-    name: string;
-    type: NodeType;
-    description: string;
-    version: number;
-    icon: string;
-    incoming: number;
-    outgoing: number;
-    
+    label: string
+    name: string
+    type: NodeType
+    description: string
+    version: number
+    icon: string
+    incoming: number
+    outgoing: number
+
     // parameters
-    actions: INodeParams[];
-    credentials?: INodeParams[];
-    networks?: INodeParams[];
-    inputParameters?: INodeParams[];
- 
+    actions: INodeParams[]
+    credentials?: INodeParams[]
+    networks?: INodeParams[]
+    inputParameters?: INodeParams[]
+
     constructor() {
         // properties
-        this.label = 'Helius';
-        this.name = 'helius';
-        this.icon = 'helius.png';
-        this.type = 'action';
-        this.version = 1.0;
-        this.description = 'Perform Helius operations';
-        this.incoming = 1;
-        this.outgoing = 1;
+        this.label = 'Helius'
+        this.name = 'helius'
+        this.icon = 'helius.png'
+        this.type = 'action'
+        this.version = 1.0
+        this.description = 'Perform Helius operations'
+        this.incoming = 1
+        this.outgoing = 1
 
         // parameter
         this.actions = [
@@ -67,11 +56,11 @@ class Helius implements INode {
                         label: 'Get Token Balances',
                         name: 'balances',
                         description: 'Returns the native Solana balance (in lamports) and all token balances for a given address.'
-                    },
+                    }
                 ],
                 default: 'balances'
-            },
-        ] as INodeParams[];
+            }
+        ] as INodeParams[]
         this.credentials = [
             // credentialMethod is mandatory field
             {
@@ -81,39 +70,39 @@ class Helius implements INode {
                 options: [
                     {
                         label: 'Helius API Key',
-                        name: 'heliusApi',
-                    },
+                        name: 'heliusApi'
+                    }
                 ],
-                default: 'heliusApi',
-            },
-        ] as INodeParams[];
+                default: 'heliusApi'
+            }
+        ] as INodeParams[]
         this.inputParameters = [
             {
                 label: 'Address',
                 name: 'address',
                 type: 'string',
                 optional: false
-            },
-        ] as INodeParams[];
+            }
+        ] as INodeParams[]
     }
-    
+
     async run(nodeData: INodeData): Promise<INodeExecutionData[] | null> {
-        const { actions, inputParameters, credentials } = nodeData;
+        const { actions, inputParameters, credentials } = nodeData
 
         if (actions === undefined || inputParameters === undefined || credentials === undefined) {
-            throw new Error('Required data missing');
+            throw new Error('Required data missing')
         }
 
-        const api = actions.api as string;
-        const apiKey = credentials.apiKey as string;
+        const api = actions.api as string
+        const apiKey = credentials.apiKey as string
 
-        const address = inputParameters.address as string;
-        
-        const apiURL = "https://api.helius.xyz/v0/addresses";
-        const resource = `${api}`;
-        const options = `api-key=${apiKey}`;
+        const address = inputParameters.address as string
 
-        const url = `${apiURL}/${address}/${resource}?${options}`;
+        const apiURL = 'https://api.helius.xyz/v0/addresses'
+        const resource = `${api}`
+        const options = `api-key=${apiKey}`
+
+        const url = `${apiURL}/${address}/${resource}?${options}`
 
         const returnData: ICommonObject[] = []
         let responseData: any
