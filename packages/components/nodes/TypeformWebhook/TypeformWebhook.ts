@@ -106,40 +106,65 @@ class TypeformWebhook implements INode {
             }
             try {
                 const res = await axios(axiosConfig)
-                // console.log(res)
+                console.log(res,'webhook already present')
                 if (Object.keys(res).length) {
                     webhookId = res?.data?.id
                     webhookExist = true
                 }
-            } catch (err) {
-                throw handleErrorMessage(err)
+            }catch(err){
+                console.log(err);
             }
-
-            if (!webhookExist) {
-                const axiosConfig: AxiosRequestConfig = {
-                    method: 'PUT' as Method,
-                    url: `https://api.typeform.com/forms/${formId}/webhooks/${tag}
-                    `,
-                    headers: { Authorization: `Bearer ${accesToken}` },
-                    data: {
-                        enabled: true,
-                        url: webhookFullUrl
+                if (!webhookExist) {
+                    const axiosConfig: AxiosRequestConfig = {
+                        method: 'PUT' as Method,
+                        url: `https://api.typeform.com/forms/${formId}/webhooks/${tag}
+                        `,
+                        headers: { Authorization: `Bearer ${accesToken}` },
+                        data: {
+                            enabled: true,
+                            url: webhookFullUrl
+                        }
+                    }
+                    try {
+                        const res = await axios(axiosConfig)
+                        console.log(res,'after creating webhook')
+                        webhookId = res?.data?.id
+                    } catch (err) {
+                        console.log(err);
+                        return
+                        // throw handleErrorMessage(err)
                     }
                 }
-                try {
-                    const res = await axios(axiosConfig)
-                    // console.log(res)
-                    webhookId = res?.data?.id
-                } catch (err) {
-                    throw handleErrorMessage(err)
-                }
-            }
-
+                
             return webhookId
         },
         async deleteWebhook(nodeData: INodeData, webhookId: string): Promise<boolean> {
             // delete webhook
-            // console.log(nodeData, webhookId)
+            console.log(webhookId,'delete webhook')
+            const credentials = nodeData.credentials
+            const inputParametersData = nodeData.inputParameters
+            const actionsData = nodeData.actions
+
+            if (inputParametersData === undefined || actionsData === undefined) {
+                throw handleErrorMessage({ message: 'Required data missing' })
+            }
+            if (credentials === undefined) {
+                throw handleErrorMessage({ message: 'Missing credentials' })
+            }
+            const accesToken = credentials.accessToken as string
+            const tag = inputParametersData?.tag
+            const formId = inputParametersData?.formId
+            const axiosConfig: AxiosRequestConfig = {
+                method: 'DELETE' as Method,
+                url: `https://api.typeform.com/forms/${formId}/webhooks/${tag}
+                `,
+                headers: { Authorization: `Bearer ${accesToken}` }
+            }
+            try{
+                await axios(axiosConfig);
+            }catch(err){
+                    return false;
+            }
             return true
         }
     }
@@ -147,7 +172,7 @@ class TypeformWebhook implements INode {
     async runWebhook(nodeData: INodeData): Promise<IWebhookNodeExecutionData[] | null> {
         const inputParametersData = nodeData.inputParameters
         const req = nodeData.req
-        // console.log(req, inputParametersData, 'this is from runWebhook')
+        console.log(req,inputParametersData, 'this is from runWebhook')
         // if (inputParametersData === undefined) {
         //     throw new Error('Required data missing');
         // }
