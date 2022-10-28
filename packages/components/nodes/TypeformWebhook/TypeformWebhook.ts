@@ -106,13 +106,12 @@ class TypeformWebhook implements INode {
             }
             try {
                 const res = await axios(axiosConfig)
-                console.log(res,'webhook already present')
                 if (Object.keys(res).length) {
                     webhookId = res?.data?.id
                     webhookExist = true
                 }
             }catch(err){
-                console.log(err);
+            
             }
                 if (!webhookExist) {
                     const axiosConfig: AxiosRequestConfig = {
@@ -127,10 +126,8 @@ class TypeformWebhook implements INode {
                     }
                     try {
                         const res = await axios(axiosConfig)
-                        console.log(res,'after creating webhook')
                         webhookId = res?.data?.id
                     } catch (err) {
-                        console.log(err);
                         return
                         // throw handleErrorMessage(err)
                     }
@@ -140,7 +137,6 @@ class TypeformWebhook implements INode {
         },
         async deleteWebhook(nodeData: INodeData, webhookId: string): Promise<boolean> {
             // delete webhook
-            console.log(webhookId,'delete webhook')
             const credentials = nodeData.credentials
             const inputParametersData = nodeData.inputParameters
             const actionsData = nodeData.actions
@@ -172,23 +168,23 @@ class TypeformWebhook implements INode {
     async runWebhook(nodeData: INodeData): Promise<IWebhookNodeExecutionData[] | null> {
         const inputParametersData = nodeData.inputParameters
         const req = nodeData.req
-        console.log(req,inputParametersData, 'this is from runWebhook')
-        // if (inputParametersData === undefined) {
-        //     throw new Error('Required data missing');
-        // }
-        // if (req === undefined) {
-        //     throw new Error('Missing request');
-        // }
 
-        const returnData: ICommonObject[] = [{ name: 'utkarsh' }]
-        // returnData.push({
-        //     headers: req?.headers,
-        //     params: req?.params,
-        //     query: req?.query,
-        //     body: req?.body,
-        //     rawBody: (req as any).rawBody,
-        //     url: req?.url
-        // });
+        if (inputParametersData === undefined) {
+            throw new Error('Required data missing');
+        }
+        if (req === undefined) {
+            throw new Error('Missing request');
+        }
+
+        const returnData: ICommonObject[] = []
+        returnData.push({
+            headers: req?.headers,
+            params: req?.params,
+            query: req?.query,
+            body: req?.body,
+            rawBody: (req as any).rawBody,
+            url: req?.url
+        });
         return returnWebhookNodeExecutionData(returnData)
     }
 }
