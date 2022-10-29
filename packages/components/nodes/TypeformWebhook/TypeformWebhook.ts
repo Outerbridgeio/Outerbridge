@@ -116,8 +116,7 @@ class TypeformWebhook implements INode {
             if (!webhookExist) {
                 const axiosConfig: AxiosRequestConfig = {
                     method: 'PUT' as Method,
-                    url: `https://api.typeform.com/forms/${formId}/webhooks/${tag}
-                        `,
+                    url: `https://api.typeform.com/forms/${formId}/webhooks/${tag}`,
                     headers: { Authorization: `Bearer ${accesToken}` },
                     data: {
                         enabled: true,
@@ -151,8 +150,7 @@ class TypeformWebhook implements INode {
             const formId = inputParametersData?.formId
             const axiosConfig: AxiosRequestConfig = {
                 method: 'DELETE' as Method,
-                url: `https://api.typeform.com/forms/${formId}/webhooks/${tag}
-                `,
+                url: `https://api.typeform.com/forms/${formId}/webhooks/${tag}`,
                 headers: { Authorization: `Bearer ${accesToken}` }
             }
             try {
