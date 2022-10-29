@@ -1,7 +1,8 @@
 import { ICommonObject, INode, INodeData, INodeExecutionData, INodeParams, NodeType } from '../../src/Interface'
 import { handleErrorMessage, returnNodeExecutionData, serializeQueryParams } from '../../src/utils'
-import { NETWORK, NETWORK_LABEL } from '../../src/ChainNetwork'
+import { NETWORK, NETWORK_LABEL,etherscanAPIs } from '../../src/ChainNetwork'
 import axios, { AxiosRequestConfig, Method } from 'axios'
+
 class Etherscan implements INode {
     label: string
     name: string
@@ -161,13 +162,9 @@ class Etherscan implements INode {
                     tag: 'latest',
                     apikey: apiKey
                 }
-                let url = ''
-                // Change url depending on network. See https://docs.etherscan.io/getting-started/endpoint-urls
-                if (network === NETWORK.MAINNET) {
-                    url = 'https://api.etherscan.io/api'
-                } else if (network === NETWORK.GÖRLI) {
-                    url = 'https://api-goerli.etherscan.io/api'
-                }
+                let url = `${etherscanAPIs[network]}`;
+               
+              
                 const axiosConfig: AxiosRequestConfig = {
                     method: 'GET' as Method,
                     url,
@@ -193,13 +190,7 @@ class Etherscan implements INode {
                     tag: 'latest',
                     apikey: apiKey
                 }
-                let url = ''
-                // Change url depending on network. See https://docs.etherscan.io/getting-started/endpoint-urls
-                if (network === NETWORK.MAINNET) {
-                    url = 'https://api.etherscan.io/api'
-                } else if (network === NETWORK.GÖRLI) {
-                    url = 'https://api-goerli.etherscan.io/api'
-                }
+                let url = `${etherscanAPIs[network]}`;
                 const axiosConfig: AxiosRequestConfig = {
                     method: 'GET' as Method,
                     url,
@@ -224,13 +215,7 @@ class Etherscan implements INode {
                     address,
                     apikey: apiKey
                 }
-                let url = ''
-                // Change url depending on network. See https://docs.etherscan.io/getting-started/endpoint-urls
-                if (network === NETWORK.MAINNET) {
-                    url = 'https://api.etherscan.io/api'
-                } else if (network === NETWORK.GÖRLI) {
-                    url = 'https://api-goerli.etherscan.io/api'
-                }
+                let url = `${etherscanAPIs[network]}`;
                 const axiosConfig: AxiosRequestConfig = {
                     method: 'GET' as Method,
                     url,
@@ -255,13 +240,7 @@ class Etherscan implements INode {
                     address,
                     apikey: apiKey
                 }
-                let url = ''
-                // Change url depending on network. See https://docs.etherscan.io/getting-started/endpoint-urls
-                if (network === NETWORK.MAINNET) {
-                    url = 'https://api.etherscan.io/api'
-                } else if (network === NETWORK.GÖRLI) {
-                    url = 'https://api-goerli.etherscan.io/api'
-                }
+                let url = `${etherscanAPIs[network]}`;
                 const axiosConfig: AxiosRequestConfig = {
                     method: 'GET' as Method,
                     url,
@@ -286,13 +265,7 @@ class Etherscan implements INode {
                     contractaddresses: address,
                     apikey: apiKey
                 }
-                let url = ''
-                // Change url depending on network. See https://docs.etherscan.io/getting-started/endpoint-urls
-                if (network === NETWORK.MAINNET) {
-                    url = 'https://api.etherscan.io/api'
-                } else if (network === NETWORK.GÖRLI) {
-                    url = 'https://api-goerli.etherscan.io/api'
-                }
+                let url = `${etherscanAPIs[network]}`;
                 const axiosConfig: AxiosRequestConfig = {
                     method: 'GET' as Method,
                     url,
@@ -317,13 +290,7 @@ class Etherscan implements INode {
                     txhash,
                     apikey: apiKey
                 }
-                let url = ''
-                // Change url depending on network. See https://docs.etherscan.io/getting-started/endpoint-urls
-                if (network === NETWORK.MAINNET) {
-                    url = 'https://api.etherscan.io/api'
-                } else if (network === NETWORK.GÖRLI) {
-                    url = 'https://api-goerli.etherscan.io/api'
-                }
+                let url = `${etherscanAPIs[network]}`;
                 const axiosConfig: AxiosRequestConfig = {
                     method: 'GET' as Method,
                     url,
@@ -348,13 +315,7 @@ class Etherscan implements INode {
                     txhash,
                     apikey: apiKey
                 }
-                let url = ''
-                // Change url depending on network. See https://docs.etherscan.io/getting-started/endpoint-urls
-                if (network === NETWORK.MAINNET) {
-                    url = 'https://api.etherscan.io/api'
-                } else if (network === NETWORK.GÖRLI) {
-                    url = 'https://api-goerli.etherscan.io/api'
-                }
+                let url = `${etherscanAPIs[network]}`;
                 const axiosConfig: AxiosRequestConfig = {
                     method: 'GET' as Method,
                     url,
