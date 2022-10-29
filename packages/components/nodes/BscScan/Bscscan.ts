@@ -2,7 +2,7 @@ import { ICommonObject, INode, INodeData, INodeExecutionData, INodeParams, NodeT
 import { handleErrorMessage, returnNodeExecutionData, serializeQueryParams } from '../../src/utils'
 import { NETWORK, NETWORK_LABEL } from '../../src/ChainNetwork'
 import axios, { AxiosRequestConfig, Method } from 'axios'
-class Etherscan implements INode {
+class Bscscan implements INode {
     label: string
     name: string
     type: NodeType
@@ -17,12 +17,12 @@ class Etherscan implements INode {
     inputParameters?: INodeParams[]
 
     constructor() {
-        this.label = 'Etherscan'
-        this.name = 'etherscan'
-        this.icon = 'etherscan.svg'
+        this.label = 'Bscscan'
+        this.name = 'bscscan'
+        this.icon = 'bscscan-logo-circle.svg'
         this.type = 'action'
         this.version = 1.0
-        this.description = 'Perform Etherscan operations'
+        this.description = 'Perform Bscscan operations'
         this.incoming = 1
         this.outgoing = 1
         this.actions = [
@@ -32,14 +32,14 @@ class Etherscan implements INode {
                 type: 'options',
                 options: [
                     {
-                        label: 'Get Ether Balance for a Single Address',
-                        name: 'getEtherBalance',
-                        description: 'Returns the Ether balance of a given address.'
+                        label: 'Get BNB Balance for a Single Address',
+                        name: 'getBNBBalance',
+                        description: 'Returns the BNB balance of a given address.'
                     },
                     {
-                        label: 'Get Ether Balance for Multiple Addresses(separated by a comma)',
-                        name: 'getEtherBalanceMulti',
-                        description: 'Returns the Ether balance of the addresses(each address separated by a comma) entered.'
+                        label: 'Get BNB Balance for Multiple Addresses in a Single Call(separated by a comma)',
+                        name: 'getBNBBalanceMulti',
+                        description: 'Returns the balance of the accounts from a list of addresses.'
                     },
                     {
                         label: 'Get Contract ABI for Verified Contract Source Codes',
@@ -57,11 +57,7 @@ class Etherscan implements INode {
                         description:
                             "Returns a contract's deployer address and transaction hash it was created, up to 5 at a time(addresses entered in one line , each separated by a comma)."
                     },
-                    {
-                        label: 'Check Contract Execution Status',
-                        name: 'getContractExecStatus',
-                        description: 'Returns the status code of a contract execution.'
-                    },
+
                     {
                         label: 'Check Transaction Receipt Status',
                         name: 'getTxReceiptStatus',
@@ -69,7 +65,7 @@ class Etherscan implements INode {
                     }
                 ],
 
-                default: 'getEtherBalance'
+                default: 'getBNBBalance'
             }
         ] as INodeParams[]
         this.networks = [
@@ -79,12 +75,12 @@ class Etherscan implements INode {
                 type: 'options',
                 options: [
                     {
-                        label: NETWORK_LABEL.MAINNET,
-                        name: NETWORK.MAINNET
+                        label: NETWORK_LABEL.BSC,
+                        name: NETWORK.BSC
                     },
                     {
-                        label: NETWORK_LABEL.GÖRLI,
-                        name: NETWORK.GÖRLI
+                        label: NETWORK_LABEL.BSC_TESTNET,
+                        name: NETWORK.BSC_TESTNET
                     }
                 ],
                 default: 'homestead'
@@ -97,11 +93,11 @@ class Etherscan implements INode {
                 type: 'options',
                 options: [
                     {
-                        label: 'Etherscan API Key',
-                        name: 'etherscanApi'
+                        label: 'BscScan API Key',
+                        name: 'bscscanApi'
                     }
                 ],
-                default: 'etherscanApi'
+                default: 'bscscanApi'
             }
         ] as INodeParams[]
         this.inputParameters = [
@@ -112,8 +108,8 @@ class Etherscan implements INode {
                 description: 'The address parameter(s) required',
                 show: {
                     'actions.api': [
-                        'getEtherBalance',
-                        'getEtherBalanceMulti',
+                        'getBNBBalance',
+                        'getBNBBalanceMulti',
                         'getContractCreatorTxHash',
                         'getContractABI',
                         'getContractSourceCode'
@@ -126,7 +122,7 @@ class Etherscan implements INode {
                 type: 'string',
                 description: 'The txhash required',
                 show: {
-                    'actions.api': ['getContractExecStatus', 'getTxReceiptStatus']
+                    'actions.api': ['getTxReceiptStatus']
                 }
             }
         ] as INodeParams[]
@@ -152,7 +148,7 @@ class Etherscan implements INode {
         const txhash = inputParametersData.txhash as string
         const returnData: ICommonObject[] = []
         let responseData: any
-        if (api === 'getEtherBalance') {
+        if (api === 'getBNBBalance') {
             try {
                 const queryParameters = {
                     module: 'account',
@@ -163,10 +159,10 @@ class Etherscan implements INode {
                 }
                 let url = ''
                 // Change url depending on network. See https://docs.etherscan.io/getting-started/endpoint-urls
-                if (network === NETWORK.MAINNET) {
-                    url = 'https://api.etherscan.io/api'
-                } else if (network === NETWORK.GÖRLI) {
-                    url = 'https://api-goerli.etherscan.io/api'
+                if (network === NETWORK.BSC) {
+                    url = 'https://api.bscscan.com/api'
+                } else if (network === NETWORK.BSC_TESTNET) {
+                    url = 'https://api-testnet.bscscan.com/api'
                 }
                 const axiosConfig: AxiosRequestConfig = {
                     method: 'GET' as Method,
@@ -184,7 +180,7 @@ class Etherscan implements INode {
             else returnData.push(responseData)
 
             return returnNodeExecutionData(returnData)
-        } else if (api === 'getEtherBalanceMulti') {
+        } else if (api === 'getBNBBalanceMulti') {
             try {
                 const queryParameters = {
                     module: 'account',
@@ -194,11 +190,10 @@ class Etherscan implements INode {
                     apikey: apiKey
                 }
                 let url = ''
-                // Change url depending on network. See https://docs.etherscan.io/getting-started/endpoint-urls
-                if (network === NETWORK.MAINNET) {
-                    url = 'https://api.etherscan.io/api'
-                } else if (network === NETWORK.GÖRLI) {
-                    url = 'https://api-goerli.etherscan.io/api'
+                if (network === NETWORK.BSC) {
+                    url = 'https://api.bscscan.com/api'
+                } else if (network === NETWORK.BSC_TESTNET) {
+                    url = 'https://api-testnet.bscscan.com/api'
                 }
                 const axiosConfig: AxiosRequestConfig = {
                     method: 'GET' as Method,
@@ -225,11 +220,10 @@ class Etherscan implements INode {
                     apikey: apiKey
                 }
                 let url = ''
-                // Change url depending on network. See https://docs.etherscan.io/getting-started/endpoint-urls
-                if (network === NETWORK.MAINNET) {
-                    url = 'https://api.etherscan.io/api'
-                } else if (network === NETWORK.GÖRLI) {
-                    url = 'https://api-goerli.etherscan.io/api'
+                if (network === NETWORK.BSC) {
+                    url = 'https://api.bscscan.com/api'
+                } else if (network === NETWORK.BSC_TESTNET) {
+                    url = 'https://api-testnet.bscscan.com/api'
                 }
                 const axiosConfig: AxiosRequestConfig = {
                     method: 'GET' as Method,
@@ -256,11 +250,11 @@ class Etherscan implements INode {
                     apikey: apiKey
                 }
                 let url = ''
-                // Change url depending on network. See https://docs.etherscan.io/getting-started/endpoint-urls
-                if (network === NETWORK.MAINNET) {
-                    url = 'https://api.etherscan.io/api'
-                } else if (network === NETWORK.GÖRLI) {
-                    url = 'https://api-goerli.etherscan.io/api'
+
+                if (network === NETWORK.BSC) {
+                    url = 'https://api.bscscan.com/api'
+                } else if (network === NETWORK.BSC_TESTNET) {
+                    url = 'https://api-testnet.bscscan.com/api'
                 }
                 const axiosConfig: AxiosRequestConfig = {
                     method: 'GET' as Method,
@@ -287,42 +281,10 @@ class Etherscan implements INode {
                     apikey: apiKey
                 }
                 let url = ''
-                // Change url depending on network. See https://docs.etherscan.io/getting-started/endpoint-urls
-                if (network === NETWORK.MAINNET) {
-                    url = 'https://api.etherscan.io/api'
-                } else if (network === NETWORK.GÖRLI) {
-                    url = 'https://api-goerli.etherscan.io/api'
-                }
-                const axiosConfig: AxiosRequestConfig = {
-                    method: 'GET' as Method,
-                    url,
-                    params: queryParameters,
-                    paramsSerializer: (params) => serializeQueryParams(params),
-                    headers: { 'Content-Type': 'application/json' }
-                }
-                const response = await axios(axiosConfig)
-                responseData = response.data
-            } catch (error) {
-                throw handleErrorMessage(error)
-            }
-            if (Array.isArray(responseData)) returnData.push(...responseData)
-            else returnData.push(responseData)
-
-            return returnNodeExecutionData(returnData)
-        } else if (api === 'getContractExecStatus') {
-            try {
-                const queryParameters = {
-                    module: 'transaction',
-                    action: 'getstatus',
-                    txhash,
-                    apikey: apiKey
-                }
-                let url = ''
-                // Change url depending on network. See https://docs.etherscan.io/getting-started/endpoint-urls
-                if (network === NETWORK.MAINNET) {
-                    url = 'https://api.etherscan.io/api'
-                } else if (network === NETWORK.GÖRLI) {
-                    url = 'https://api-goerli.etherscan.io/api'
+                if (network === NETWORK.BSC) {
+                    url = 'https://api.bscscan.com/api'
+                } else if (network === NETWORK.BSC_TESTNET) {
+                    url = 'https://api-testnet.bscscan.com/api'
                 }
                 const axiosConfig: AxiosRequestConfig = {
                     method: 'GET' as Method,
@@ -349,11 +311,10 @@ class Etherscan implements INode {
                     apikey: apiKey
                 }
                 let url = ''
-                // Change url depending on network. See https://docs.etherscan.io/getting-started/endpoint-urls
-                if (network === NETWORK.MAINNET) {
-                    url = 'https://api.etherscan.io/api'
-                } else if (network === NETWORK.GÖRLI) {
-                    url = 'https://api-goerli.etherscan.io/api'
+                if (network === NETWORK.BSC) {
+                    url = 'https://api.bscscan.com/api'
+                } else if (network === NETWORK.BSC_TESTNET) {
+                    url = 'https://api-testnet.bscscan.com/api'
                 }
                 const axiosConfig: AxiosRequestConfig = {
                     method: 'GET' as Method,
@@ -375,4 +336,4 @@ class Etherscan implements INode {
         return returnNodeExecutionData(returnData)
     }
 }
-module.exports = { nodeClass: Etherscan }
+module.exports = { nodeClass: Bscscan }
