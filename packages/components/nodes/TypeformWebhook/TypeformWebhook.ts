@@ -20,7 +20,7 @@ class TypeformWebhook implements INode {
         this.icon = 'typeform-webhook.svg'
         this.type = 'webhook'
         this.version = 1.0
-        this.description = 'Once workflow deployed then when user submit form then webhooks triggred and send response'
+        this.description = 'Start workflow whenever Typeform webhook event happened'
         this.incoming = 0
         this.outgoing = 1
         this.actions = [
@@ -58,7 +58,8 @@ class TypeformWebhook implements INode {
                 label: 'Form Id',
                 name: 'formId',
                 type: 'string',
-                description: 'The form id to retrieve all the webhooks of typeform',
+                description:
+                    'Unique ID for the form. Find in your form URL. For example, in the URL "https://mysite.typeform.com/to/u6nXL7" the form_id is u6nXL7',
                 show: {
                     'actions.webhook_type': ['typeformSubmission']
                 }
@@ -67,6 +68,7 @@ class TypeformWebhook implements INode {
                 label: 'Webhook Tag',
                 name: 'tag',
                 type: 'string',
+                placeholder: 'mywebhook',
                 description: 'The name you want to use for your webhook',
                 show: {
                     'actions.webhook_type': ['typeformSubmission']
@@ -100,17 +102,15 @@ class TypeformWebhook implements INode {
 
             const axiosConfig: AxiosRequestConfig = {
                 method: 'GET' as Method,
-                url: `https://api.typeform.com/forms/${formId}/webhooks
-                `,
+                url: `https://api.typeform.com/forms/${formId}/webhooks/${tag}`,
                 headers: { Authorization: `Bearer ${accesToken}` }
             }
             try {
                 const res = await axios(axiosConfig)
-                if (res?.data?.items?.length) {
-                    webhookExist = true
-                }
+                webhookId = res?.data?.id
+                webhookExist = true
             } catch (err) {
-                throw new Error(err)
+                if (err.response.status !== 404) throw new Error(err)
             }
 
             if (!webhookExist) {
