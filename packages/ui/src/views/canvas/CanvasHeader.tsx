@@ -21,8 +21,7 @@ import {
 } from '@tabler/icons'
 
 // project imports
-import Executions from 'views/executions'
-import Settings from 'views/settings'
+import { Executions, Settings } from 'views'
 import { SaveWorkflowDialog } from 'ui-component/'
 
 // API
@@ -32,7 +31,7 @@ import { workflowsApi } from 'api'
 import { useApi } from 'hooks'
 
 // utils
-import { generateExportFlowData } from 'utils/genericHelper'
+import { generateExportFlowData } from 'utils'
 
 // ==============================|| CANVAS HEADER ||============================== //
 
@@ -94,7 +93,7 @@ const CanvasHeader = ({ workflow, handleSaveFlow, handleDeployWorkflow, handleSt
         else setWorkfowDialogOpen(true)
     }
 
-    const onConfirmSaveName = (workflowName) => {
+    const onConfirmSaveName = (workflowName: string) => {
         setWorkfowDialogOpen(false)
         handleSaveFlow(workflowName)
     }

@@ -1,33 +1,8 @@
 import { useState } from 'react'
 import { AxiosResponse } from 'axios'
 
-export type WorkFlowData = {
-    shortId: string
-    address?: string
-    network?:
-        | 'homestead'
-        | 'rinkeby'
-        | 'kovan'
-        | 'ropsten'
-        | 'goerli'
-        | 'matic'
-        | 'maticmum'
-        | 'bsc'
-        | 'bsc-testnet'
-        | 'optimism'
-        | 'optimism-kovan'
-        | 'arbitrum'
-        | 'arbitrum-rinkeby'
-        | undefined
-    deployed?: boolean
-    executionCount?: number
-    flowData: string
-    name: string
-    _id: string
-}
-
-export const useApi = (apiFunc: (...args: any) => Promise<AxiosResponse<any, any>>) => {
-    const [data, setData] = useState<WorkFlowData[] | null>(null)
+export const useApi = <T extends (...args: any) => Promise<AxiosResponse<any, any>>>(apiFunc: T) => {
+    const [data, setData] = useState<(ReturnType<T> extends Promise<AxiosResponse<infer S, any>> ? S : never) | null>(null)
     const [error, setError] = useState<unknown>(null)
     const [loading, setLoading] = useState(false)
 

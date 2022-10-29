@@ -3,13 +3,19 @@ import moment from 'moment'
 import { INode, INodeParams, INodeData, ICommonObject } from 'outerbridge-components'
 import { MarkOptional, StrictOmit, StrictExclude, StrictExtract } from 'ts-essentials'
 
-export type NodeData = MarkOptional<StrictOmit<INodeData, 'outputResponses'>, 'version' | 'outgoing' | 'incoming'> & {
+export type NodeData = MarkOptional<StrictOmit<INodeData, 'outputResponses' | 'credentials'>, 'version' | 'outgoing' | 'incoming'> & {
     outputResponses?: { output: Record<string, unknown>; submit?: boolean; needRetest?: boolean }
-} & {
     inputAnchors: { id: string }[]
     outputAnchors: { id: string }[]
     selected: boolean
     submit?: boolean
+    credentials?: {
+        credentialMethod?: string
+        submit?: boolean | null
+        wallet?: unknown
+        registeredCredential?: { name: '+ Add New Credential'; _id: string }
+        name?: string
+    } & Record<string, unknown>
 }
 export type Node = INode & {
     id: string
@@ -17,6 +23,7 @@ export type Node = INode & {
     selected: boolean
 }
 export type Nodes = Node[]
+export type ParamsType = 'actions' | 'networks' | 'credentials' | 'inputParameters' | 'outputResponses'
 type NodeDependencies = Record<string, number>
 type Graph = Record<string, string[]>
 export type Edges = { source: string; target: string; targetHandle: '-input-'[] }[]

@@ -1,7 +1,7 @@
 import { useSelector } from 'store'
 import { forwardRef, ComponentProps } from 'react'
 import { useTheme } from 'themes'
-import { NodeParams } from 'utils'
+import { NodeParams, ParamsType } from 'utils'
 import { ElementOf } from 'ts-essentials'
 // material-ui
 import { Box, Switch, Fab, FormControl, OutlinedInput, Popper, TextField, Typography, Stack, Button } from '@mui/material'
@@ -91,7 +91,7 @@ export const ArrayInputParameters = ({
 }: {
     initialValues: Values[]
     arrayParams: NodeParams[][]
-    paramsType: 'actions' | 'networks' | 'credentials' | 'inputParameters' | 'outputResponses'
+    paramsType: ParamsType
     arrayGroupName: string
     errors?: Record<string, string>[]
     onArrayInputChange: (values: Values[]) => void
@@ -103,7 +103,7 @@ export const ArrayInputParameters = ({
             textBeforeCursorPosition: string
             textAfterCursorPosition: string
             path: string
-            paramsType: 'actions' | 'networks' | 'credentials' | 'inputParameters' | 'outputResponses'
+            paramsType: ParamsType
         }
     ) => void
     onEditVariableDialogOpen: (input: NodeParams, values: Values, index: number) => void
@@ -362,7 +362,7 @@ export const ArrayInputParameters = ({
                                                 onValueChange={(code) => onInputChange(code, inputName, values, index)}
                                                 onMouseUp={(e) =>
                                                     onMouseUp(
-                                                        // @ts-expect-error TODO
+                                                        // @ts-expect-error incorrect vendor type
                                                         e,
                                                         inputName,
                                                         index
@@ -460,7 +460,7 @@ export const ArrayInputParameters = ({
                                             }}
                                             onMouseUp={(e) =>
                                                 onMouseUp(
-                                                    // @ts-expect-error TODO
+                                                    // @ts-expect-error incorrect vendor type
                                                     e,
                                                     inputName,
                                                     index
