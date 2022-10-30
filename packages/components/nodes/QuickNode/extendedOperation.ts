@@ -1,13 +1,7 @@
-import { NETWORK, NETWORK_PROVIDER } from "../../src/ChainNetwork";
-import { IETHOperation, infuraSupportedNetworks } from "../../src/ETHOperations";
+import { NETWORK, NETWORK_PROVIDER } from '../../src/ChainNetwork'
+import { IETHOperation, infuraSupportedNetworks } from '../../src/ETHOperations'
 
-export const debugOperationsNetworks = [
-    ...infuraSupportedNetworks,
-    NETWORK.ARBITRUM_NOVA,
-    NETWORK.BSC,
-    NETWORK.BSC_TESTNET,
-    NETWORK.CELO,
-];
+export const debugOperationsNetworks = [...infuraSupportedNetworks, NETWORK.ARBITRUM_NOVA, NETWORK.BSC, NETWORK.BSC_TESTNET, NETWORK.CELO]
 
 export const debugOperations = [
     {
@@ -20,10 +14,10 @@ export const debugOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"debug_traceBlockByHash",
-            "params":[{"tracer": "callTracer"}],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'debug_traceBlockByHash',
+            params: [{ tracer: 'callTracer' }],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -31,7 +25,7 @@ export const debugOperations = [
 		</ul>`,
         exampleParameters: `[
   "0x97b49e43632ac70c46b4003434058b18db0ad809617bd29f3448d46ca9085576"
-]`,
+]`
     },
     {
         name: 'Debug Trace Block By Number (debug_traceBlockByNumber)',
@@ -43,10 +37,10 @@ export const debugOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"debug_traceBlockByNumber",
-            "params":[{"tracer": "callTracer"}],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'debug_traceBlockByNumber',
+            params: [{ tracer: 'callTracer' }],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -54,7 +48,7 @@ export const debugOperations = [
 		</ul>`,
         exampleParameters: `[
   "0xccde12"
-]`,
+]`
     },
     {
         name: 'Debug Trace Call (debug_traceCall)',
@@ -66,10 +60,10 @@ export const debugOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"debug_traceCall",
-            "params":[{"tracer": "callTracer"}],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'debug_traceCall',
+            params: [{ tracer: 'callTracer' }],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -94,7 +88,7 @@ export const debugOperations = [
     "data": "0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675"
   }, 
   "latest"
-]`,
+]`
     },
     {
         name: 'Debug Trace Transaction (debug_traceTransaction)',
@@ -106,10 +100,10 @@ export const debugOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"debug_traceBlockByHash",
-            "params":[{"tracer": "callTracer"}],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'debug_traceBlockByHash',
+            params: [{ tracer: 'callTracer' }],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -117,16 +111,11 @@ export const debugOperations = [
 		</ul>`,
         exampleParameters: `[
   "0x97b49e43632ac70c46b4003434058b18db0ad809617bd29f3448d46ca9085576"
-]`,
-    },
-] as IETHOperation[];
+]`
+    }
+] as IETHOperation[]
 
-
-export const arbTraceOperationsNetworks = [
-    NETWORK.ARBITRUM,
-    NETWORK.ARBITRUM_GOERLI,
-    NETWORK.ARBITRUM_RINKEBY
-];
+export const arbTraceOperationsNetworks = [NETWORK.ARBITRUM, NETWORK.ARBITRUM_GOERLI, NETWORK.ARBITRUM_RINKEBY]
 export const arbTraceOperations = [
     {
         name: 'Arbtrace Block (arbtrace_block )',
@@ -138,10 +127,10 @@ export const arbTraceOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"arbtrace_block ",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'arbtrace_block ',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -149,22 +138,23 @@ export const arbTraceOperations = [
 		</ul>`,
         exampleParameters: `[
   "0xccb93d"
-]`,
+]`
     },
     {
         name: 'Arbtrace Call (arbtrace_call)',
         value: 'arbtrace_call',
         parentGroup: 'Traces',
-        description: 'Executes a new message call and returns a number of possible traces (Trace Mode required, and supported only on OpenEthereum & Erigon).',
+        description:
+            'Executes a new message call and returns a number of possible traces (Trace Mode required, and supported only on OpenEthereum & Erigon).',
         providerNetworks: {
             [NETWORK_PROVIDER.QUICKNODE]: arbTraceOperationsNetworks
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"arbtrace_call",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'arbtrace_call',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -193,22 +183,23 @@ export const arbTraceOperations = [
   },
   ["trace"],
   "latest"
-]`,
+]`
     },
     {
         name: 'Arbtrace Call Many (arbtrace_callMany)',
         value: 'arbtrace_callMany',
         parentGroup: 'Traces',
-        description: 'Performs multiple call traces on top of the same block. i.e. transaction n will be executed on top of a pending block with all n-1 transactions applied (traced) first. Allows to trace dependent transactions. (Trace Mode required, and supported only on OpenEthereum & Erigon).',
+        description:
+            'Performs multiple call traces on top of the same block. i.e. transaction n will be executed on top of a pending block with all n-1 transactions applied (traced) first. Allows to trace dependent transactions. (Trace Mode required, and supported only on OpenEthereum & Erigon).',
         providerNetworks: {
             [NETWORK_PROVIDER.QUICKNODE]: arbTraceOperationsNetworks
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"arbtrace_callMany",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'arbtrace_callMany',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -252,7 +243,7 @@ export const arbTraceOperations = [
     ]
   ],
   "latest"
-]`,
+]`
     },
     {
         name: 'Arbtrace Filter (arbtrace_filter)',
@@ -264,10 +255,10 @@ export const arbTraceOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"arbtrace_filter",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'arbtrace_filter',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -287,22 +278,23 @@ export const arbTraceOperations = [
     "toBlock":"latest",
     "fromAddress":["0xEdC763b3e418cD14767b3Be02b667619a6374076"]
   }
-]`,
+]`
     },
     {
         name: 'Arbtrace Raw Transaction (arbtrace_rawTransaction)',
         value: 'arbtrace_rawTransaction',
         parentGroup: 'Traces',
-        description: 'Traces a call to eth_sendRawTransaction without making the call, returning the traces(Trace Mode required, and supported only on OpenEthereum & Erigon).',
+        description:
+            'Traces a call to eth_sendRawTransaction without making the call, returning the traces(Trace Mode required, and supported only on OpenEthereum & Erigon).',
         providerNetworks: {
             [NETWORK_PROVIDER.QUICKNODE]: arbTraceOperationsNetworks
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"arbtrace_rawTransaction",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'arbtrace_rawTransaction',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -317,22 +309,23 @@ export const arbTraceOperations = [
         exampleParameters: `[
   "0x02f8740181948459682f0085275c2c9f8b82520894885885521990b53fd00556c143ea056dd2f62a128808cc0c47d9477f9080c080a037437ba52140dbac1d7dc65cdb58531e038930c82314817f91cb8d8ea36a2bd0a001e134479d567b8595d77f61106cad34e62ed356d6971bc08fe0363a0696dd94",
   ["trace"]
-]`,
+]`
     },
     {
         name: 'Arbtrace Replay Block Transactions (arbtrace_replayBlockTransactions)',
         value: 'arbtrace_replayBlockTransactions',
         parentGroup: 'Traces',
-        description: 'Replays all transactions in a block returning the requested traces for each transaction (Trace Mode required, and supported only on OpenEthereum & Erigon).',
+        description:
+            'Replays all transactions in a block returning the requested traces for each transaction (Trace Mode required, and supported only on OpenEthereum & Erigon).',
         providerNetworks: {
             [NETWORK_PROVIDER.QUICKNODE]: arbTraceOperationsNetworks
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"arbtrace_replayBlockTransactions",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'arbtrace_replayBlockTransactions',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -347,7 +340,7 @@ export const arbTraceOperations = [
         exampleParameters: `[
   "0xccb93d",
   ["trace"]
-]`,
+]`
     },
     {
         name: 'Arbtrace Replay Transaction (arbtrace_replayTransaction)',
@@ -359,10 +352,10 @@ export const arbTraceOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"arbtrace_replayTransaction",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'arbtrace_replayTransaction',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -377,7 +370,7 @@ export const arbTraceOperations = [
         exampleParameters: `[
   "0x3277c743c14e482243862c03a70e83ccb52e25cb9e54378b20a8303f15cb985d",
   ["trace"]
-]`,
+]`
     },
     {
         name: 'Arbtrace Transaction (arbtrace_transaction)',
@@ -389,10 +382,10 @@ export const arbTraceOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"arbtrace_transaction",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'arbtrace_transaction',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -400,10 +393,9 @@ export const arbTraceOperations = [
 		</ul>`,
         exampleParameters: `[
   "0x3277c743c14e482243862c03a70e83ccb52e25cb9e54378b20a8303f15cb985d"
-]`,
-    },
-] as IETHOperation[];
-
+]`
+    }
+] as IETHOperation[]
 
 export const traceOperationsNetworks = [
     NETWORK.MAINNET,
@@ -415,7 +407,7 @@ export const traceOperationsNetworks = [
     NETWORK.BSC,
     NETWORK.BSC_TESTNET,
     NETWORK.FANTOM
-];
+]
 export const traceOperations = [
     {
         name: 'Trace Block (trace_block)',
@@ -427,10 +419,10 @@ export const traceOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"trace_block",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'trace_block',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -438,22 +430,23 @@ export const traceOperations = [
 		</ul>`,
         exampleParameters: `[
   "0xccb93d"
-]`,
+]`
     },
     {
         name: 'Trace Call (trace_call)',
         value: 'trace_call',
         parentGroup: 'Traces',
-        description: 'Executes a new message call and returns a number of possible traces (Trace Mode required, and supported only on OpenEthereum & Erigon).',
+        description:
+            'Executes a new message call and returns a number of possible traces (Trace Mode required, and supported only on OpenEthereum & Erigon).',
         providerNetworks: {
             [NETWORK_PROVIDER.QUICKNODE]: traceOperationsNetworks
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"trace_call",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'trace_call',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -482,22 +475,23 @@ export const traceOperations = [
   },
   ["trace"],
   "latest"
-]`,
+]`
     },
     {
         name: 'Trace Call Many (trace_callMany)',
         value: 'trace_callMany',
         parentGroup: 'Traces',
-        description: 'Performs multiple call traces on top of the same block. i.e. transaction n will be executed on top of a pending block with all n-1 transactions applied (traced) first. Allows to trace dependent transactions. (Trace Mode required, and supported only on OpenEthereum & Erigon).',
+        description:
+            'Performs multiple call traces on top of the same block. i.e. transaction n will be executed on top of a pending block with all n-1 transactions applied (traced) first. Allows to trace dependent transactions. (Trace Mode required, and supported only on OpenEthereum & Erigon).',
         providerNetworks: {
             [NETWORK_PROVIDER.QUICKNODE]: traceOperationsNetworks
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"trace_callMany",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'trace_callMany',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -541,7 +535,7 @@ export const traceOperations = [
     ]
   ],
   "latest"
-]`,
+]`
     },
     {
         name: 'Trace Filter (trace_filter)',
@@ -553,10 +547,10 @@ export const traceOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"trace_filter",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'trace_filter',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -576,22 +570,23 @@ export const traceOperations = [
     "toBlock":"latest",
     "fromAddress":["0xEdC763b3e418cD14767b3Be02b667619a6374076"]
   }
-]`,
+]`
     },
     {
         name: 'Trace Raw Transaction (trace_rawTransaction)',
         value: 'trace_rawTransaction',
         parentGroup: 'Traces',
-        description: 'Traces a call to eth_sendRawTransaction without making the call, returning the traces(Trace Mode required, and supported only on OpenEthereum & Erigon).',
+        description:
+            'Traces a call to eth_sendRawTransaction without making the call, returning the traces(Trace Mode required, and supported only on OpenEthereum & Erigon).',
         providerNetworks: {
             [NETWORK_PROVIDER.QUICKNODE]: traceOperationsNetworks
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"trace_rawTransaction",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'trace_rawTransaction',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -606,22 +601,23 @@ export const traceOperations = [
         exampleParameters: `[
   "0x02f8740181948459682f0085275c2c9f8b82520894885885521990b53fd00556c143ea056dd2f62a128808cc0c47d9477f9080c080a037437ba52140dbac1d7dc65cdb58531e038930c82314817f91cb8d8ea36a2bd0a001e134479d567b8595d77f61106cad34e62ed356d6971bc08fe0363a0696dd94",
   ["trace"]
-]`,
+]`
     },
     {
         name: 'Trace Replay Block Transactions (trace_replayBlockTransactions)',
         value: 'trace_replayBlockTransactions',
         parentGroup: 'Traces',
-        description: 'Replays all transactions in a block returning the requested traces for each transaction (Trace Mode required, and supported only on OpenEthereum & Erigon).',
+        description:
+            'Replays all transactions in a block returning the requested traces for each transaction (Trace Mode required, and supported only on OpenEthereum & Erigon).',
         providerNetworks: {
             [NETWORK_PROVIDER.QUICKNODE]: traceOperationsNetworks
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"trace_replayBlockTransactions",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'trace_replayBlockTransactions',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -636,7 +632,7 @@ export const traceOperations = [
         exampleParameters: `[
   "0xccb93d",
   ["trace"]
-]`,
+]`
     },
     {
         name: 'Trace Replay Transaction (trace_replayTransaction)',
@@ -648,10 +644,10 @@ export const traceOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"trace_replayTransaction",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'trace_replayTransaction',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -666,7 +662,7 @@ export const traceOperations = [
         exampleParameters: `[
   "0x3277c743c14e482243862c03a70e83ccb52e25cb9e54378b20a8303f15cb985d",
   ["trace"]
-]`,
+]`
     },
     {
         name: 'Trace Transaction (trace_transaction)',
@@ -678,10 +674,10 @@ export const traceOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"trace_transaction",
-            "params":[],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'trace_transaction',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -689,10 +685,10 @@ export const traceOperations = [
 		</ul>`,
         exampleParameters: `[
   "0x3277c743c14e482243862c03a70e83ccb52e25cb9e54378b20a8303f15cb985d"
-]`,
+]`
     },
-    ...arbTraceOperations,
-] as IETHOperation[];
+    ...arbTraceOperations
+] as IETHOperation[]
 
 export const nftOperationsNetworks = [
     NETWORK.MAINNET,
@@ -701,13 +697,9 @@ export const nftOperationsNetworks = [
     NETWORK.ROPSTEN,
     NETWORK.KOVAN,
     NETWORK.BSC,
-    NETWORK.BSC_TESTNET,
-];
-export const solanaNetworks = [
-    NETWORK.SOLANA,
-    NETWORK.SOLANA_DEVNET,
-    NETWORK.SOLANA_TESTNET,
-];
+    NETWORK.BSC_TESTNET
+]
+export const solanaNetworks = [NETWORK.SOLANA, NETWORK.SOLANA_DEVNET, NETWORK.SOLANA_TESTNET]
 export const nftOperations = [
     {
         name: 'Fetch NFT Collection Details (qn_fetchNFTCollectionDetails)',
@@ -719,10 +711,10 @@ export const nftOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"qn_fetchNFTCollectionDetails",
-            "params":{},
-            "id":1
+            jsonrpc: '2.0',
+            method: 'qn_fetchNFTCollectionDetails',
+            params: {},
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -736,7 +728,7 @@ export const nftOperations = [
     "0x60E4d786628Fea6478F785A6d7e704777c86a7c6",
     "0x7Bd29408f11D2bFC23c34f18275bBf23bB716Bc7"
   ]
-}`,
+}`
     },
     {
         name: 'Fetch NFTs (qn_fetchNFTs)',
@@ -744,17 +736,14 @@ export const nftOperations = [
         parentGroup: 'NFT',
         description: 'Returns aggregated data on NFTs for a given wallet.',
         providerNetworks: {
-            [NETWORK_PROVIDER.QUICKNODE]: [
-                ...nftOperationsNetworks,
-                ...solanaNetworks,
-            ]
+            [NETWORK_PROVIDER.QUICKNODE]: [...nftOperationsNetworks, ...solanaNetworks]
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"qn_fetchNFTs",
-            "params":{},
-            "id":67
+            jsonrpc: '2.0',
+            method: 'qn_fetchNFTs',
+            params: {},
+            id: 67
         },
         inputParameters: `
         <ul>
@@ -779,7 +768,7 @@ export const nftOperations = [
     "0x2106c00ac7da0a3430ae667879139e832307aeaa",
     "0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D"
   ]
-}`,
+}`
     },
     {
         name: 'Fetch NFTs By Creator (qn_fetchNFTsByCreator)',
@@ -787,14 +776,14 @@ export const nftOperations = [
         parentGroup: 'NFT',
         description: 'Returns aggregated data on NFTs that have been created by an address.',
         providerNetworks: {
-            [NETWORK_PROVIDER.QUICKNODE]:  solanaNetworks,
+            [NETWORK_PROVIDER.QUICKNODE]: solanaNetworks
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"qn_fetchNFTsByCreator",
-            "params":{},
-            "id":12
+            jsonrpc: '2.0',
+            method: 'qn_fetchNFTsByCreator',
+            params: {},
+            id: 12
         },
         inputParameters: `
         <ul>
@@ -811,7 +800,7 @@ export const nftOperations = [
     "page": 1,
     "perPage": 3
   }
-]`,
+]`
     },
     {
         name: 'Request Airdrop (requestAirdrop)',
@@ -819,14 +808,14 @@ export const nftOperations = [
         parentGroup: 'NFT',
         description: 'Requests an airdrop of lamports to a Pubkey (does not work on mainnet-beta).',
         providerNetworks: {
-            [NETWORK_PROVIDER.QUICKNODE]:  solanaNetworks,
+            [NETWORK_PROVIDER.QUICKNODE]: solanaNetworks
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"requestAirdrop",
-            "params":{},
-            "id":1
+            jsonrpc: '2.0',
+            method: 'requestAirdrop',
+            params: {},
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -842,7 +831,7 @@ export const nftOperations = [
         exampleParameters: `[
   "YOUR_WALLET_ADDRESS",
   1000000000
-]`,
+]`
     },
     {
         name: 'Fetch NFT Tokens by Collection (qn_fetchNFTsByCollection)',
@@ -850,14 +839,14 @@ export const nftOperations = [
         parentGroup: 'NFT',
         description: 'Returns aggregated data on NFTs within a given collection.',
         providerNetworks: {
-            [NETWORK_PROVIDER.QUICKNODE]: nftOperationsNetworks,
+            [NETWORK_PROVIDER.QUICKNODE]: nftOperationsNetworks
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"qn_fetchNFTsByCollection",
-            "params":{},
-            "id":67
+            jsonrpc: '2.0',
+            method: 'qn_fetchNFTsByCollection',
+            params: {},
+            id: 67
         },
         inputParameters: `
         <ul>
@@ -878,7 +867,7 @@ export const nftOperations = [
   ],
   "page": 1,
   "perPage": 10
-}`,
+}`
     },
     {
         name: 'Fetch transfers by NFT (qn_getTransfersByNFT)',
@@ -886,14 +875,14 @@ export const nftOperations = [
         parentGroup: 'NFT',
         description: 'Returns transfers by given NFT.',
         providerNetworks: {
-            [NETWORK_PROVIDER.QUICKNODE]: nftOperationsNetworks,
+            [NETWORK_PROVIDER.QUICKNODE]: nftOperationsNetworks
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"qn_getTransfersByNFT",
-            "params":{},
-            "id":67
+            jsonrpc: '2.0',
+            method: 'qn_getTransfersByNFT',
+            params: {},
+            id: 67
         },
         inputParameters: `
         <ul>
@@ -910,7 +899,7 @@ export const nftOperations = [
   "collectionTokenId": "1",
   "page": 1,
   "perPage": 10
-}`,
+}`
     },
     {
         name: 'Verify NFTs Owner (qn_verifyNFTsOwner)',
@@ -918,14 +907,14 @@ export const nftOperations = [
         parentGroup: 'NFT',
         description: 'Confirms ownership of specified NFTs for a given wallet.',
         providerNetworks: {
-            [NETWORK_PROVIDER.QUICKNODE]: nftOperationsNetworks,
+            [NETWORK_PROVIDER.QUICKNODE]: nftOperationsNetworks
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"qn_verifyNFTsOwner",
-            "params":{},
-            "id":67
+            jsonrpc: '2.0',
+            method: 'qn_verifyNFTsOwner',
+            params: {},
+            id: 67
         },
         inputParameters: `
         <ul>
@@ -938,10 +927,9 @@ export const nftOperations = [
     "0x2106c00ac7da0a3430ae667879139e832307aeaa:3643",
     "0xd07dc4262bcdbf85190c01c996b4c06a461d2430:133803"
   ]
-]`,
-    },
-] as IETHOperation[];
-
+]`
+    }
+] as IETHOperation[]
 
 export const tokenOperationsNetworks = [
     NETWORK.MAINNET,
@@ -950,8 +938,8 @@ export const tokenOperationsNetworks = [
     NETWORK.ROPSTEN,
     NETWORK.KOVAN,
     NETWORK.BSC,
-    NETWORK.BSC_TESTNET,
-];
+    NETWORK.BSC_TESTNET
+]
 export const tokenOperations = [
     {
         name: 'Fetch Fungible Token Metadata by Contract Address (qn_getTokenMetadataByContractAddress)',
@@ -959,14 +947,14 @@ export const tokenOperations = [
         parentGroup: 'Token',
         description: 'Returns token details for specified contract.',
         providerNetworks: {
-            [NETWORK_PROVIDER.QUICKNODE]: tokenOperationsNetworks,
+            [NETWORK_PROVIDER.QUICKNODE]: tokenOperationsNetworks
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"qn_getTokenMetadataByContractAddress",
-            "params":{},
-            "id":67
+            jsonrpc: '2.0',
+            method: 'qn_getTokenMetadataByContractAddress',
+            params: {},
+            id: 67
         },
         inputParameters: `
         <ul>
@@ -977,7 +965,7 @@ export const tokenOperations = [
 		</ul>`,
         exampleParameters: `{
   "contract": "0x4d224452801ACEd8B2F0aebE155379bb5D594381"
-}`,
+}`
     },
     {
         name: 'Fetch Fungible Token Metadata by Symbol (qn_getTokenMetadataBySymbol)',
@@ -985,14 +973,14 @@ export const tokenOperations = [
         parentGroup: 'Token',
         description: 'Returns token details for specified token symbol.',
         providerNetworks: {
-            [NETWORK_PROVIDER.QUICKNODE]: tokenOperationsNetworks,
+            [NETWORK_PROVIDER.QUICKNODE]: tokenOperationsNetworks
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"qn_getTokenMetadataBySymbol",
-            "params":{},
-            "id":67
+            jsonrpc: '2.0',
+            method: 'qn_getTokenMetadataBySymbol',
+            params: {},
+            id: 67
         },
         inputParameters: `
         <ul>
@@ -1005,7 +993,7 @@ export const tokenOperations = [
 		</ul>`,
         exampleParameters: `{
   "symbol": "USDC"
-}`,
+}`
     },
     {
         name: 'Fetch Fungible Tokens and Balances by Wallet (qn_getWalletTokenBalance)',
@@ -1013,14 +1001,14 @@ export const tokenOperations = [
         parentGroup: 'Token',
         description: 'Returns ERC-20 tokens and token balances within a wallet.',
         providerNetworks: {
-            [NETWORK_PROVIDER.QUICKNODE]: tokenOperationsNetworks,
+            [NETWORK_PROVIDER.QUICKNODE]: tokenOperationsNetworks
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"qn_getWalletTokenBalance",
-            "params":{},
-            "id":67
+            jsonrpc: '2.0',
+            method: 'qn_getWalletTokenBalance',
+            params: {},
+            id: 67
         },
         inputParameters: `
         <ul>
@@ -1032,7 +1020,7 @@ export const tokenOperations = [
 		</ul>`,
         exampleParameters: `{
   "wallet": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045"
-}`,
+}`
     },
     {
         name: 'Fetch Wallet Transactions by Fungible Token (qn_getWalletTokenTransactions)',
@@ -1040,14 +1028,14 @@ export const tokenOperations = [
         parentGroup: 'Token',
         description: 'Returns transfers of a specified token within a specified wallet address.',
         providerNetworks: {
-            [NETWORK_PROVIDER.QUICKNODE]: tokenOperationsNetworks,
+            [NETWORK_PROVIDER.QUICKNODE]: tokenOperationsNetworks
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"qn_getWalletTokenTransactions",
-            "params":{},
-            "id":67
+            jsonrpc: '2.0',
+            method: 'qn_getWalletTokenTransactions',
+            params: {},
+            id: 67
         },
         inputParameters: `
         <ul>
@@ -1066,15 +1054,11 @@ export const tokenOperations = [
   "contract": "0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE",
   "page": 1,
   "perPage": 10
-}`,
-    },
-] as IETHOperation[];
+}`
+    }
+] as IETHOperation[]
 
-
-export const avaxOperationsNetworks = [
-    NETWORK.AVALANCHE,
-    NETWORK.AVALANCHE_TESTNET,
-];
+export const avaxOperationsNetworks = [NETWORK.AVALANCHE, NETWORK.AVALANCHE_TESTNET]
 
 export const avaxOperations = [
     {
@@ -1087,10 +1071,10 @@ export const avaxOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"avax.getAtomicTx",
-            "params": {},
-            "id":1
+            jsonrpc: '2.0',
+            method: 'avax.getAtomicTx',
+            params: {},
+            id: 1
         },
         overrideUrl: 'http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/C/avax',
         inputParameters: `
@@ -1101,7 +1085,7 @@ export const avaxOperations = [
         exampleParameters: `{
   "txID":"217PBxjVznQaoPuQT8zEB86FnwoDsq6jeb2yfBgtjwYHD1RPC3",
   "encoding": "cb58"
-}`,
+}`
     },
     {
         name: 'Avax Get Atomic Tx Status (avax.getAtomicTxStatus)',
@@ -1113,10 +1097,10 @@ export const avaxOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"avax.getAtomicTxStatus",
-            "params": {},
-            "id":1
+            jsonrpc: '2.0',
+            method: 'avax.getAtomicTxStatus',
+            params: {},
+            id: 1
         },
         overrideUrl: 'http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/C/avax',
         inputParameters: `
@@ -1125,7 +1109,7 @@ export const avaxOperations = [
         </ul>`,
         exampleParameters: `{
   "txID":"217PBxjVznQaoPuQT8zEB86FnwoDsq6jeb2yfBgtjwYHD1RPC3"
-}`,
+}`
     },
     {
         name: 'Avax Get Utx Os (avax.getUTXOs)',
@@ -1137,10 +1121,10 @@ export const avaxOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"avax.getUTXOs",
-            "params": {},
-            "id":1
+            jsonrpc: '2.0',
+            method: 'avax.getUTXOs',
+            params: {},
+            id: 1
         },
         overrideUrl: 'http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/C/avax',
         inputParameters: `
@@ -1162,7 +1146,7 @@ export const avaxOperations = [
   "sourceChain": "X",
   "limit": 5,
   "encoding": "cb58"
-}`,
+}`
     },
     {
         name: 'Avax Issue Tx (avax.issueTx)',
@@ -1174,10 +1158,10 @@ export const avaxOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"avax.issueTx",
-            "params": {},
-            "id":1
+            jsonrpc: '2.0',
+            method: 'avax.issueTx',
+            params: {},
+            id: 1
         },
         overrideUrl: 'http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/C/avax',
         inputParameters: `
@@ -1188,7 +1172,7 @@ export const avaxOperations = [
         exampleParameters: `{
   "tx":"0x00",
   "encoding": "hex"
-}`,
+}`
     },
     {
         name: 'Avm Build Genesis (avm.buildGenesis)',
@@ -1200,12 +1184,12 @@ export const avaxOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"avm.buildGenesis",
-            "params": {},
-            "id":1
+            jsonrpc: '2.0',
+            method: 'avm.buildGenesis',
+            params: {},
+            id: 1
         },
-        overrideUrl: "http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/vm/avm",
+        overrideUrl: 'http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/vm/avm',
         inputParameters: `
         <ul>
             <li><code class="inline">genesisData</code>: <code class="inline">JSON</code> - A JSON representing the genesis data.</li>
@@ -1245,7 +1229,7 @@ export const avaxOperations = [
   },
   "networkId": 12345,
   "encoding":"cb58"
-}`,
+}`
     },
     {
         name: 'Avm Get Address Txs (avm.getAddressTxs)',
@@ -1257,12 +1241,12 @@ export const avaxOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"avm.getAddressTxs",
-            "params": {},
-            "id":1
+            jsonrpc: '2.0',
+            method: 'avm.getAddressTxs',
+            params: {},
+            id: 1
         },
-        overrideUrl: "http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/X",
+        overrideUrl: 'http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/X',
         inputParameters: `
         <ul>
             <li><code class="inline">address</code>: <code class="inline">String</code> - The address for which we're fetching related transactions</li>
@@ -1274,7 +1258,7 @@ export const avaxOperations = [
   "address":"X-avax19pm62y5n0yt76wgp8pd7jdhepmppc67y7yg0cq",
   "assetID":"AVAX",
   "pageSize":20
-}`,
+}`
     },
     {
         name: 'Avm Get All Balances (avm.getAllBalances)',
@@ -1286,19 +1270,19 @@ export const avaxOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"avm.getAllBalances",
-            "params": {},
-            "id":1
+            jsonrpc: '2.0',
+            method: 'avm.getAllBalances',
+            params: {},
+            id: 1
         },
-        overrideUrl: "http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/X",
+        overrideUrl: 'http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/X',
         inputParameters: `
         <ul>
             <li><code class="inline">address</code>: <code class="inline">String</code> - Address you want to fetch balances for.</li>
         </ul>`,
         exampleParameters: `{
   "address":"X-avax16902ur8dhlyxpaa0rva5fx48fhptx6ryh3dv7q"
-}`,
+}`
     },
     {
         name: 'Avm Get Asset Description (avm.getAssetDescription)',
@@ -1310,19 +1294,19 @@ export const avaxOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"avm.getAssetDescription",
-            "params": {},
-            "id":1
+            jsonrpc: '2.0',
+            method: 'avm.getAssetDescription',
+            params: {},
+            id: 1
         },
-        overrideUrl: "http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/X",
+        overrideUrl: 'http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/X',
         inputParameters: `
         <ul>
             <li><code class="inline">assetid</code>: <code class="inline">String</code> - The id of the asset for which the information is requested.</li>
         </ul>`,
         exampleParameters: `{
   "assetID" :"AVAX"
-}`,
+}`
     },
     {
         name: 'Avm Get Balance (avm.getBalance)',
@@ -1334,12 +1318,12 @@ export const avaxOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"avm.getBalance",
-            "params": {},
-            "id":1
+            jsonrpc: '2.0',
+            method: 'avm.getBalance',
+            params: {},
+            id: 1
         },
-        overrideUrl: "http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/X",
+        overrideUrl: 'http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/X',
         inputParameters: `
         <ul>
             <li><code class="inline">address</code>: <code class="inline">String</code> - The owner of the asset.</li>
@@ -1348,7 +1332,7 @@ export const avaxOperations = [
         exampleParameters: `{
   "address":"X-avax16902ur8dhlyxpaa0rva5fx48fhptx6ryh3dv7q",
   "assetID": "AVAX"
-}`,
+}`
     },
     {
         name: 'Avm Get Tx (avm.getTx)',
@@ -1360,12 +1344,12 @@ export const avaxOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"avm.getTx",
-            "params": {},
-            "id":1
+            jsonrpc: '2.0',
+            method: 'avm.getTx',
+            params: {},
+            id: 1
         },
-        overrideUrl: "http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/X",
+        overrideUrl: 'http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/X',
         inputParameters: `
         <ul>
             <li><code class="inline">txID</code>: <code class="inline">String</code> - A specific transaction ID.</li>
@@ -1374,7 +1358,7 @@ export const avaxOperations = [
         exampleParameters: `{
   "txID":"9VBHzPDFeDBJGyhBbzakzXMHJnsYhyLEiSS6ee5AczR2oJcns",
   "encoding": "hex"
-}`,
+}`
     },
     {
         name: 'Avm Get Tx (avm.getTxStatus)',
@@ -1386,19 +1370,19 @@ export const avaxOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"avm.getTxStatus",
-            "params": {},
-            "id":1
+            jsonrpc: '2.0',
+            method: 'avm.getTxStatus',
+            params: {},
+            id: 1
         },
-        overrideUrl: "http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/X",
+        overrideUrl: 'http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/X',
         inputParameters: `
         <ul>
             <li><code class="inline">txID</code>: <code class="inline">String</code> - A specific transaction ID.</li>
         </ul>`,
         exampleParameters: `{
   "txID": "2HHr7xUJgWiLESV7g8T3oWfWvdpWJXd4Hctj6U3KhzUN6EsgBG"
-}`,
+}`
     },
     {
         name: 'Avm Get Utx Os (avm.getUtxOs)',
@@ -1410,12 +1394,12 @@ export const avaxOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"avm.getUtxOs",
-            "params": {},
-            "id":1
+            jsonrpc: '2.0',
+            method: 'avm.getUtxOs',
+            params: {},
+            id: 1
         },
-        overrideUrl: "http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/X",
+        overrideUrl: 'http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/X',
         inputParameters: `
         <ul>
 			<li><code class="inline">addresses</code>: <code class="inline">Array of Strings</code> - A list of UTXOs such that each UTXO references at least one address in addresses.</li>
@@ -1435,7 +1419,7 @@ export const avaxOperations = [
   "limit": 5,
   "sourceChain": "X",
   "encoding": "hex"
-}`,
+}`
     },
     {
         name: 'Avm Issue Tx (avm.issueTx)',
@@ -1447,12 +1431,12 @@ export const avaxOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"avm.issueTx",
-            "params": {},
-            "id":1
+            jsonrpc: '2.0',
+            method: 'avm.issueTx',
+            params: {},
+            id: 1
         },
-        overrideUrl: "http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/X",
+        overrideUrl: 'http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/X',
         inputParameters: `
         <ul>
 			<li><code class="inline">tx</code>: <code class="inline">String</code> - The signed transaction (typically signed with a library, using your private key).</li>
@@ -1461,13 +1445,11 @@ export const avaxOperations = [
         exampleParameters: `{
   "tx":"6sTENqXfk3gahxkJbEPsmX9eJTEFZRSRw83cRJqoHWBiaeAhVbz9QV4i6SLd6Dek4eLsojeR8FbT3arFtsGz9ycpHFaWHLX69edJPEmj2tPApsEqsFd7wDVp7fFxkG6HmySR",
   "encoding": "cb58"
-}`,
-    },
-] as IETHOperation[];
+}`
+    }
+] as IETHOperation[]
 
-export const fantomOperationsNetworks = [
-    NETWORK.FANTOM,
-];
+export const fantomOperationsNetworks = [NETWORK.FANTOM]
 
 export const fantomOperations = [
     {
@@ -1480,10 +1462,10 @@ export const fantomOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"dag_getEvent",
-            "params": [],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'dag_getEvent',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -1491,7 +1473,7 @@ export const fantomOperations = [
         </ul>`,
         exampleParameters: `[
   "0x00000001000000039bcda184cc9e2b20386dcee5f39fe3c4f36f7b47c297ff2b"
-]`,
+]`
     },
     {
         name: 'Dag Get Event Payload (dag_getEventPayload)',
@@ -1503,10 +1485,10 @@ export const fantomOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"dag_getEventPayload",
-            "params": [],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'dag_getEventPayload',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -1516,7 +1498,7 @@ export const fantomOperations = [
         exampleParameters: `[
   "1:3:a2395846", 
   true
-]`,
+]`
     },
     {
         name: 'Dag Get Heads (dag_getHeads)',
@@ -1528,10 +1510,10 @@ export const fantomOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"dag_getHeads",
-            "params": [],
-            "id":1
+            jsonrpc: '2.0',
+            method: 'dag_getHeads',
+            params: [],
+            id: 1
         },
         inputParameters: `
         <ul>
@@ -1539,9 +1521,9 @@ export const fantomOperations = [
         </ul>`,
         exampleParameters: `[
   "pending"
-]`,
-    },
-] as IETHOperation[];
+]`
+    }
+] as IETHOperation[]
 
 export const platformOperations = [
     {
@@ -1554,19 +1536,19 @@ export const platformOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"platform.getBalance",
-            "params": {},
-            "id":1
+            jsonrpc: '2.0',
+            method: 'platform.getBalance',
+            params: {},
+            id: 1
         },
-        overrideUrl: "http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P",
+        overrideUrl: 'http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P',
         inputParameters: `
         <ul>
 			<li><code class="inline">address</code>: <code class="inline">String</code> - The address to get the balance of.</li>
         </ul>`,
         exampleParameters: `{
   "address":"P-avax1tnuesf6cqwnjw7fxjyk7lhch0vhf0v95wj5jvy"    
-}`,
+}`
     },
     {
         name: 'Platform Get Blockchain Status (platform.getBlockchainStatus)',
@@ -1578,19 +1560,19 @@ export const platformOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"platform.getBlockchainStatus",
-            "params": {},
-            "id":1
+            jsonrpc: '2.0',
+            method: 'platform.getBlockchainStatus',
+            params: {},
+            id: 1
         },
-        overrideUrl: "http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P",
+        overrideUrl: 'http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P',
         inputParameters: `
         <ul>
 			<li><code class="inline">blockchainID</code>: <code class="inline">String</code> - The id of the blockchain.</li>
         </ul>`,
         exampleParameters: `{
   "blockchainID":"2NbS4dwGaf2p1MaXb65PrkZdXRwmSX4ZzGnUu7jm3aykgThuZE"
-}`,
+}`
     },
     {
         name: 'Platform Get Blockchains (platform.getBlockchains)',
@@ -1602,29 +1584,30 @@ export const platformOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"platform.getBlockchains",
-            "params": {},
-            "id":1
+            jsonrpc: '2.0',
+            method: 'platform.getBlockchains',
+            params: {},
+            id: 1
         },
-        overrideUrl: "http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P",
+        overrideUrl: 'http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P'
     },
     {
         name: 'Platform Get Current Supply (platform.getCurrentSupply)',
         value: 'platform.getCurrentSupply',
         parentGroup: 'Platform',
-        description: 'Returns an upper bound on the number of AVAX that exist. This is an upper bound because it does not account for burnt tokens, including transaction fees.',
+        description:
+            'Returns an upper bound on the number of AVAX that exist. This is an upper bound because it does not account for burnt tokens, including transaction fees.',
         providerNetworks: {
             [NETWORK_PROVIDER.QUICKNODE]: avaxOperationsNetworks
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"platform.getCurrentSupply",
-            "params": {},
-            "id":1
+            jsonrpc: '2.0',
+            method: 'platform.getCurrentSupply',
+            params: {},
+            id: 1
         },
-        overrideUrl: "http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P",
+        overrideUrl: 'http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P'
     },
     {
         name: 'Platform Get Current Validators (platform.getCurrentValidators)',
@@ -1636,34 +1619,35 @@ export const platformOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"platform.getCurrentValidators",
-            "params": {},
-            "id":1
+            jsonrpc: '2.0',
+            method: 'platform.getCurrentValidators',
+            params: {},
+            id: 1
         },
-        overrideUrl: "http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P",
+        overrideUrl: 'http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P',
         inputParameters: `
         <ul>
 			<li><code class="inline">subnetID</code>: <code class="inline">String</code> - (optional) The subnet whose current validators are returned. If omitted, returns the current validators of the Primary Network.</li>
             <li><code class="inline">nodeIDs</code>: <code class="inline">Array of Strings</code> - (optional) a list of the nodeIDs of pending validators to request. If omitted, all pending validators are returned. If a specified nodeID is not in the set of pending validators, it will not be included in the response.</li>
-        </ul>`,
+        </ul>`
     },
     {
         name: 'Platform Get Pending Validators (platform.getPendingValidators)',
         value: 'platform.getPendingValidators',
         parentGroup: 'Platform',
-        description: 'List the validators in the pending validator set of the specified Subnet. Each validator is not currently validating the Subnet but will in the future.',
+        description:
+            'List the validators in the pending validator set of the specified Subnet. Each validator is not currently validating the Subnet but will in the future.',
         providerNetworks: {
             [NETWORK_PROVIDER.QUICKNODE]: avaxOperationsNetworks
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"platform.getPendingValidators",
-            "params": {},
-            "id":1
+            jsonrpc: '2.0',
+            method: 'platform.getPendingValidators',
+            params: {},
+            id: 1
         },
-        overrideUrl: "http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P",
+        overrideUrl: 'http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P',
         inputParameters: `
         <ul>
 			<li><code class="inline">subnetID</code>: <code class="inline">String</code> - (optional) The subnet whose current validators are returned. If omitted, returns the current validators of the Primary Network.</li>
@@ -1684,29 +1668,30 @@ export const platformOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"platform.getHeight",
-            "params": {},
-            "id":1
+            jsonrpc: '2.0',
+            method: 'platform.getHeight',
+            params: {},
+            id: 1
         },
-        overrideUrl: "http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P",
+        overrideUrl: 'http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P'
     },
     {
         name: 'Platform Get Max Stake Amount (platform.getMaxStakeAmount)',
         value: 'platform.getMaxStakeAmount',
         parentGroup: 'Platform',
-        description: 'Get the maximum amount of AVAX required to validate the Primary Network and the maximum amount of AVAX that can be delegated.',
+        description:
+            'Get the maximum amount of AVAX required to validate the Primary Network and the maximum amount of AVAX that can be delegated.',
         providerNetworks: {
             [NETWORK_PROVIDER.QUICKNODE]: avaxOperationsNetworks
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"platform.getMaxStakeAmount",
-            "params": {},
-            "id":1
+            jsonrpc: '2.0',
+            method: 'platform.getMaxStakeAmount',
+            params: {},
+            id: 1
         },
-        overrideUrl: "http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P",
+        overrideUrl: 'http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P',
         inputParameters: `
         <ul>
 			<li><code class="inline">subnetID</code>: <code class="inline">String</code> - A Buffer or cb58 string representing a subnet.</li>
@@ -1725,18 +1710,19 @@ export const platformOperations = [
         name: 'Platform Get Min Stake (platform.getMinStake)',
         value: 'platform.getMinStake',
         parentGroup: 'Platform',
-        description: 'Get the minimum amount of AVAX required to validate the Primary Network and the minimum amount of AVAX that can be delegated.',
+        description:
+            'Get the minimum amount of AVAX required to validate the Primary Network and the minimum amount of AVAX that can be delegated.',
         providerNetworks: {
             [NETWORK_PROVIDER.QUICKNODE]: avaxOperationsNetworks
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"platform.getMinStake",
-            "params": {},
-            "id":1
+            jsonrpc: '2.0',
+            method: 'platform.getMinStake',
+            params: {},
+            id: 1
         },
-        overrideUrl: "http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P",
+        overrideUrl: 'http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P'
     },
     {
         name: 'Platform Get Reward Utx Os (platform.getRewardUtxOs)',
@@ -1748,12 +1734,12 @@ export const platformOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"platform.getRewardUtxOs",
-            "params": {},
-            "id":1
+            jsonrpc: '2.0',
+            method: 'platform.getRewardUtxOs',
+            params: {},
+            id: 1
         },
-        overrideUrl: "http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P",
+        overrideUrl: 'http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P',
         inputParameters: `
         <ul>
 			<li><code class="inline">txID</code>: <code class="inline">String</code> - The ID of the staking or delegating transaction.</li>
@@ -1774,12 +1760,12 @@ export const platformOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"platform.getStake",
-            "params": {},
-            "id":1
+            jsonrpc: '2.0',
+            method: 'platform.getStake',
+            params: {},
+            id: 1
         },
-        overrideUrl: "http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P",
+        overrideUrl: 'http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P',
         inputParameters: `
         <ul>
 			<li><code class="inline">addresses</code>: <code class="inline">Array of Strings</code> - An array of address strings.</li>
@@ -1798,16 +1784,16 @@ export const platformOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"platform.getStakingAssetId",
-            "params": {},
-            "id":1
+            jsonrpc: '2.0',
+            method: 'platform.getStakingAssetId',
+            params: {},
+            id: 1
         },
-        overrideUrl: "http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P",
+        overrideUrl: 'http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P',
         inputParameters: `
         <ul>
 			<li><code class="inline">subnetID</code>: <code class="inline">String</code> - (optional) the subnet whose assetID is requested.</li>
-        </ul>`,
+        </ul>`
     },
     {
         name: 'Platform Get Subnets (platform.getSubnets)',
@@ -1819,12 +1805,12 @@ export const platformOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"platform.getSubnets",
-            "params": {},
-            "id":1
+            jsonrpc: '2.0',
+            method: 'platform.getSubnets',
+            params: {},
+            id: 1
         },
-        overrideUrl: "http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P",
+        overrideUrl: 'http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P',
         inputParameters: `
         <ul>
 			<li><code class="inline">ids</code>: <code class="inline">Array of Strings</code> - The ids of the subnets to get information about.</li>
@@ -1843,12 +1829,12 @@ export const platformOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"platform.getTimestamp",
-            "params": {},
-            "id":1
+            jsonrpc: '2.0',
+            method: 'platform.getTimestamp',
+            params: {},
+            id: 1
         },
-        overrideUrl: "http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P",
+        overrideUrl: 'http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P'
     },
     {
         name: 'Platform Get Total Stake (platform.getTotalStake)',
@@ -1860,12 +1846,12 @@ export const platformOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"platform.getTotalStake",
-            "params": {},
-            "id":1
+            jsonrpc: '2.0',
+            method: 'platform.getTotalStake',
+            params: {},
+            id: 1
         },
-        overrideUrl: "http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P",
+        overrideUrl: 'http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P'
     },
     {
         name: 'Platform Get Tx (platform.getTx)',
@@ -1877,12 +1863,12 @@ export const platformOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"platform.getTx",
-            "params": {},
-            "id":1
+            jsonrpc: '2.0',
+            method: 'platform.getTx',
+            params: {},
+            id: 1
         },
-        overrideUrl: "http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P",
+        overrideUrl: 'http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P',
         inputParameters: `
         <ul>
 			<li><code class="inline">txID</code>: <code class="inline">String</code> - The transaction ID. It should be in cb58 format.</li>
@@ -1903,12 +1889,12 @@ export const platformOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"platform.getTxStatus",
-            "params": {},
-            "id":1
+            jsonrpc: '2.0',
+            method: 'platform.getTxStatus',
+            params: {},
+            id: 1
         },
-        overrideUrl: "http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P",
+        overrideUrl: 'http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P',
         inputParameters: `
         <ul>
 			<li><code class="inline">txID</code>: <code class="inline">String</code> - The transaction ID. It should be in cb58 format.</li>
@@ -1927,12 +1913,12 @@ export const platformOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"platform.getUtxOs",
-            "params": {},
-            "id":1
+            jsonrpc: '2.0',
+            method: 'platform.getUtxOs',
+            params: {},
+            id: 1
         },
-        overrideUrl: "http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P",
+        overrideUrl: 'http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P',
         inputParameters: `
         <ul>
 			<li><code class="inline">addresses</code>: <code class="inline">Array of Strings</code> - the addresses from which we want to retrieve the UTXOs.</li>
@@ -1962,12 +1948,12 @@ export const platformOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"platform.getValidatorsAt",
-            "params": {},
-            "id":1
+            jsonrpc: '2.0',
+            method: 'platform.getValidatorsAt',
+            params: {},
+            id: 1
         },
-        overrideUrl: "http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P",
+        overrideUrl: 'http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P',
         inputParameters: `
         <ul>
 			<li><code class="inline">height</code>: <code class="inline">Integer</code> - the numerical value representing the P-Chain height to get the validator set at.</li>
@@ -1988,12 +1974,12 @@ export const platformOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"platform.issueTx",
-            "params": {},
-            "id":1
+            jsonrpc: '2.0',
+            method: 'platform.issueTx',
+            params: {},
+            id: 1
         },
-        overrideUrl: "http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P",
+        overrideUrl: 'http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P',
         inputParameters: `
         <ul>
 			<li><code class="inline">tx</code>: <code class="inline">String</code> - the byte representation of a transaction.</li>
@@ -2014,12 +2000,12 @@ export const platformOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"platform.sampleValidators",
-            "params": {},
-            "id":1
+            jsonrpc: '2.0',
+            method: 'platform.sampleValidators',
+            params: {},
+            id: 1
         },
-        overrideUrl: "http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P",
+        overrideUrl: 'http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P',
         inputParameters: `
         <ul>
 			<li><code class="inline">size</code>: <code class="inline">Integer</code> - the number of validators to sample.</li>
@@ -2039,12 +2025,12 @@ export const platformOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"platform.validatedBy",
-            "params": {},
-            "id":1
+            jsonrpc: '2.0',
+            method: 'platform.validatedBy',
+            params: {},
+            id: 1
         },
-        overrideUrl: "http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P",
+        overrideUrl: 'http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P',
         inputParameters: `
         <ul>
 			<li><code class="inline">blockchainID</code>: <code class="inline">String</code> - the blockchain’s ID.</li>
@@ -2063,12 +2049,12 @@ export const platformOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "method":"platform.validates",
-            "params": {},
-            "id":1
+            jsonrpc: '2.0',
+            method: 'platform.validates',
+            params: {},
+            id: 1
         },
-        overrideUrl: "http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P",
+        overrideUrl: 'http://sample-endpoint-name.network.quiknode.pro/token-goes-here/ext/bc/P',
         inputParameters: `
         <ul>
 			<li><code class="inline">subnetID</code>: <code class="inline">String</code> - the subnet ID.</li>
@@ -2076,5 +2062,5 @@ export const platformOperations = [
         exampleParameters: `{
   "subnetID":"BE5Nv8objSftNwxzcxkZGwCfVs3FPdJBio4DBwCF2A5i7RasU"
 }`
-    },
-] as IETHOperation[];
+    }
+] as IETHOperation[]

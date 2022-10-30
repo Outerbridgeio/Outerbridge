@@ -1,49 +1,36 @@
-import { 
-    Entity, 
-    Column, 
-    ObjectIdColumn, 
-    Index, 
-    BeforeInsert,
-    CreateDateColumn,
-} from "typeorm"
-import { ObjectId } from 'mongodb';
+import { Entity, Column, ObjectIdColumn, Index, BeforeInsert, CreateDateColumn } from 'typeorm'
+import { ObjectId } from 'mongodb'
 
-import {
-	shortId,
-} from '../utils';
+import { shortId } from '../utils'
 
-import {
-	IExecution,
-    ExecutionState,
-} from '../Interface';
+import { IExecution, ExecutionState } from '../Interface'
 
 @Entity()
 export class Execution implements IExecution {
-
     @ObjectIdColumn()
-    _id: ObjectId;
+    _id: ObjectId
 
     @Index()
     @Column()
-   	shortId: string;
+    shortId: string
 
-	@BeforeInsert()
-	beforeInsert() {
-		this.shortId = shortId('E', new Date());
-	}
-
-    @Column()
-	executionData: string;
+    @BeforeInsert()
+    beforeInsert() {
+        this.shortId = shortId('E', new Date())
+    }
 
     @Column()
-	state: ExecutionState;
+    executionData: string
 
     @Column()
-	workflowShortId: string;
+    state: ExecutionState
+
+    @Column()
+    workflowShortId: string
 
     @CreateDateColumn()
-    createdDate: Date;
+    createdDate: Date
 
     @Column({ nullable: true })
-    stoppedDate: Date;
+    stoppedDate: Date
 }

@@ -1,8 +1,8 @@
-import { ENQUEUE_SNACKBAR, CLOSE_SNACKBAR, REMOVE_SNACKBAR } from '../actions';
+import { ENQUEUE_SNACKBAR, CLOSE_SNACKBAR, REMOVE_SNACKBAR } from '../actions'
 
 export const initialState = {
-    notifications: [],
-};
+    notifications: []
+}
 
 const notifierReducer = (state = initialState, action) => {
     switch (action.type) {
@@ -13,32 +13,28 @@ const notifierReducer = (state = initialState, action) => {
                     ...state.notifications,
                     {
                         key: action.key,
-                        ...action.notification,
-                    },
-                ],
-            };
+                        ...action.notification
+                    }
+                ]
+            }
 
         case CLOSE_SNACKBAR:
             return {
                 ...state,
-                notifications: state.notifications.map(notification => (
-                    (action.dismissAll || notification.key === action.key)
-                        ? { ...notification, dismissed: true }
-                        : { ...notification }
-                )),
-            };
+                notifications: state.notifications.map((notification) =>
+                    action.dismissAll || notification.key === action.key ? { ...notification, dismissed: true } : { ...notification }
+                )
+            }
 
         case REMOVE_SNACKBAR:
             return {
                 ...state,
-                notifications: state.notifications.filter(
-                    notification => notification.key !== action.key,
-                ),
-            };
+                notifications: state.notifications.filter((notification) => notification.key !== action.key)
+            }
 
         default:
-            return state;
+            return state
     }
-};
+}
 
-export default notifierReducer;
+export default notifierReducer

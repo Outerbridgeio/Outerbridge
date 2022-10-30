@@ -1,87 +1,87 @@
-import { INodeOptionsValue, INodeParams } from '../../src';
+import { INodeOptionsValue, INodeParams } from '../../src'
 
 export const IPFSOperationsOptions = [
     {
         label: 'add',
         name: 'add',
-        description: 'Add a file or directory to IPFS.',
+        description: 'Add a file or directory to IPFS.'
     },
     {
         label: 'get',
         name: 'get',
-        description: 'Get IPFS objects.',
+        description: 'Get IPFS objects.'
     },
     {
         label: 'block_get',
         name: 'block_get',
-        description: 'Get a raw IPFS block.',
+        description: 'Get a raw IPFS block.'
     },
     {
         label: 'block_put',
         name: 'block_put',
-        description: 'Store input as an IPFS block.',
+        description: 'Store input as an IPFS block.'
     },
     {
         label: 'block_stat',
         name: 'block_stat',
-        description: 'Print information of a raw IPFS block.',
+        description: 'Print information of a raw IPFS block.'
     },
     {
         label: 'cat',
         name: 'cat',
-        description: 'Show IPFS object data. Same as get.',
+        description: 'Show IPFS object data. Same as get.'
     },
     {
         label: 'dag_get',
         name: 'dag_get',
-        description: 'Get a dag node from IPFS.',
+        description: 'Get a dag node from IPFS.'
     },
     {
         label: 'dag_put',
         name: 'dag_put',
-        description: 'Add a dag node to IPFS.',
+        description: 'Add a dag node to IPFS.'
     },
     {
         label: 'dag_resolve',
         name: 'dag_resolve',
-        description: 'Resolve IPLD block.',
+        description: 'Resolve IPLD block.'
     },
     {
         label: 'object_data',
         name: 'object_data',
-        description: 'Output the raw bytes of an IPFS object.',
+        description: 'Output the raw bytes of an IPFS object.'
     },
     {
         label: 'object_get',
         name: 'object_get',
-        description: 'Get and serialize the DAG node named by key.',
+        description: 'Get and serialize the DAG node named by key.'
     },
     {
         label: 'object_put',
         name: 'object_put',
-        description: 'Store input as a DAG object, print its key.',
+        description: 'Store input as a DAG object, print its key.'
     },
     {
         label: 'object_stat',
         name: 'object_stat',
-        description: 'Get stats for the DAG node named by key.',
+        description: 'Get stats for the DAG node named by key.'
     },
     {
         label: 'pin_add',
         name: 'pin_add',
-        description: 'Pin objects to local storage.',
+        description: 'Pin objects to local storage.'
     },
     {
         label: 'pin_ls',
         name: 'pin_ls',
-        description: 'Lists objects pinned to local storage.',
+        description: 'Lists objects pinned to local storage.'
     },
     {
         label: 'pin_rm',
         name: 'pin_rm',
-        description: 'Remove pinned objects from local storage.',
-    },
-] as INodeOptionsValue[];
+        description: 'Remove pinned objects from local storage.'
+    }
+] as INodeOptionsValue[]
 
 export const fileParams = [
     {
@@ -90,15 +90,10 @@ export const fileParams = [
         type: 'file',
         description: 'The path to a file to be added to IPFS.',
         show: {
-            'inputParameters.operation': [
-                'add',
-                'block_put',
-                'dag_put',
-                'pin_add'
-            ]
+            'inputParameters.operation': ['add', 'block_put', 'dag_put', 'pin_add']
         }
-    },
-] as INodeParams[];
+    }
+] as INodeParams[]
 
 export const argParams = [
     {
@@ -108,13 +103,10 @@ export const argParams = [
         description: 'The base58 multihash of an existing block to get.',
         default: '',
         show: {
-            'inputParameters.operation': [
-                'block_get',
-                'block_stat',
-            ]
+            'inputParameters.operation': ['block_get', 'block_stat']
         }
     }
-] as INodeParams[];
+] as INodeParams[]
 
 export const catParams = [
     {
@@ -124,12 +116,10 @@ export const catParams = [
         description: 'The IPFS object hash.',
         default: '',
         show: {
-            'inputParameters.operation': [
-                'cat',
-            ]
+            'inputParameters.operation': ['cat']
         }
     }
-] as INodeParams[];
+] as INodeParams[]
 
 export const dagParams = [
     {
@@ -139,10 +129,7 @@ export const dagParams = [
         description: 'The DAG object to get/resolve.',
         default: '',
         show: {
-            'inputParameters.operation': [
-                'dag_get',
-                'dag_resolve',
-            ]
+            'inputParameters.operation': ['dag_get', 'dag_resolve']
         }
     },
     {
@@ -153,9 +140,7 @@ export const dagParams = [
         optional: true,
         default: '',
         show: {
-            'inputParameters.operation': [
-                'dag_get',
-            ]
+            'inputParameters.operation': ['dag_get']
         }
     },
     {
@@ -166,9 +151,7 @@ export const dagParams = [
         optional: true,
         default: '',
         show: {
-            'inputParameters.operation': [
-                'dag_put',
-            ]
+            'inputParameters.operation': ['dag_put']
         }
     },
     {
@@ -179,9 +162,7 @@ export const dagParams = [
         optional: true,
         default: '',
         show: {
-            'inputParameters.operation': [
-                'dag_put',
-            ]
+            'inputParameters.operation': ['dag_put']
         }
     },
     {
@@ -192,10 +173,7 @@ export const dagParams = [
         optional: true,
         default: true,
         show: {
-            'inputParameters.operation': [
-                'dag_put',
-                'object_put'
-            ]
+            'inputParameters.operation': ['dag_put', 'object_put']
         }
     },
     {
@@ -206,12 +184,10 @@ export const dagParams = [
         optional: true,
         default: '',
         show: {
-            'inputParameters.operation': [
-                'dag_put',
-            ]
+            'inputParameters.operation': ['dag_put']
         }
-    },
-] as INodeParams[];
+    }
+] as INodeParams[]
 
 export const getParams = [
     {
@@ -221,11 +197,9 @@ export const getParams = [
         description: 'The IPFS object hash.',
         default: '',
         show: {
-            'inputParameters.operation': [
-                'get',
-            ]
+            'inputParameters.operation': ['get']
         }
-    },
+    }
     /*
     {
         label: 'Output',
@@ -280,7 +254,7 @@ export const getParams = [
         }
     }
     */
-] as INodeParams[];
+] as INodeParams[]
 
 export const objectParams = [
     {
@@ -290,11 +264,7 @@ export const objectParams = [
         description: 'Key of the object to retrieve, in base58-encoded multihash format.',
         default: '',
         show: {
-            'inputParameters.operation': [
-                'object_data',
-                'object_get',
-                'object_stat',
-            ]
+            'inputParameters.operation': ['object_data', 'object_get', 'object_stat']
         }
     },
     {
@@ -303,9 +273,7 @@ export const objectParams = [
         type: 'file',
         description: 'The file to be stored as a DAG object.',
         show: {
-            'inputParameters.operation': [
-                'object_put',
-            ]
+            'inputParameters.operation': ['object_put']
         }
     },
     {
@@ -321,13 +289,11 @@ export const objectParams = [
             {
                 label: 'Json',
                 name: 'json'
-            },
+            }
         ],
         default: 'json',
         show: {
-            'inputParameters.operation': [
-                'object_put',
-            ]
+            'inputParameters.operation': ['object_put']
         }
     },
     {
@@ -343,16 +309,14 @@ export const objectParams = [
             {
                 label: 'Base64',
                 name: 'base64'
-            },
+            }
         ],
         default: 'text',
         show: {
-            'inputParameters.operation': [
-                'object_put',
-            ]
+            'inputParameters.operation': ['object_put']
         }
-    },
-] as INodeParams[];
+    }
+] as INodeParams[]
 
 export const pinParams = [
     {
@@ -362,9 +326,7 @@ export const pinParams = [
         description: 'Path to object(s) to be listed.',
         default: '',
         show: {
-            'inputParameters.operation': [
-                'pin_ls',
-            ]
+            'inputParameters.operation': ['pin_ls']
         }
     },
     {
@@ -374,9 +336,7 @@ export const pinParams = [
         description: 'Path to object(s) to be unpinned.',
         default: '',
         show: {
-            'inputParameters.operation': [
-                'pin_rm'
-            ]
+            'inputParameters.operation': ['pin_rm']
         }
     },
     {
@@ -386,9 +346,7 @@ export const pinParams = [
         description: 'Path to object(s) to be pinned.',
         default: '',
         show: {
-            'inputParameters.operation': [
-                'pin_add'
-            ]
+            'inputParameters.operation': ['pin_add']
         }
     },
     {
@@ -412,14 +370,11 @@ export const pinParams = [
             {
                 label: 'All',
                 name: 'all'
-            },
+            }
         ],
         default: 'all',
         show: {
-            'inputParameters.operation': [
-                'pin_ls',
-            ]
+            'inputParameters.operation': ['pin_ls']
         }
-    },
-    
-] as INodeParams[];
+    }
+] as INodeParams[]

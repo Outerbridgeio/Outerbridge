@@ -1,36 +1,36 @@
 // constant
-export const gridSpacing = 3;
-export const drawerWidth = 260;
-export const appDrawerWidth = 320;
-export const baseURL = process.NODE_ENV === 'production' ? window.location.origin : window.location.origin.replace(":8080", ":3000");
+export const gridSpacing = 3
+export const drawerWidth = 260
+export const appDrawerWidth = 320
+export const baseURL = process.env.NODE_ENV === 'production' ? window.location.origin : window.location.origin.replace(':8080', ':3000')
 export const networkExplorers = {
-    'homestead': 'https://etherscan.io',
-    'rinkeby': 'https://rinkeby.etherscan.io',
-    'ropsten': 'https://ropsten.etherscan.io',
-    'kovan': 'https://kovan.etherscan.io',
-    'goerli': 'https://goerli.etherscan.io',
-    'matic': 'https://polygonscan.com',
-    'maticmum': 'https://mumbai.polygonscan.com',
-    'optimism': 'https://optimistic.etherscan.io',
+    homestead: 'https://etherscan.io',
+    rinkeby: 'https://rinkeby.etherscan.io',
+    ropsten: 'https://ropsten.etherscan.io',
+    kovan: 'https://kovan.etherscan.io',
+    goerli: 'https://goerli.etherscan.io',
+    matic: 'https://polygonscan.com',
+    maticmum: 'https://mumbai.polygonscan.com',
+    optimism: 'https://optimistic.etherscan.io',
     'optimism-kovan': 'https://kovan-optimistic.etherscan.io',
-    'arbitrum': 'https://arbiscan.io',
+    arbitrum: 'https://arbiscan.io',
     'arbitrum-rinkeby': 'https://rinkeby-explorer.arbitrum.io',
-    'bsc': 'https://bscscan.com',
+    bsc: 'https://bscscan.com',
     'bsc-testnet': 'https://testnet.bscscan.com',
-    'localhost': '',
-};
+    localhost: ''
+}
 export const networks = [
     {
         label: 'Ethereum Mainnet',
         name: 'homestead',
         uri: 'https://api.etherscan.io/api',
-        color: '#3c3c3d',
+        color: '#3c3c3d'
     },
     {
         label: 'Ethereum Rinkeby',
         name: 'rinkeby',
         uri: 'https://api-rinkeby.etherscan.io/api',
-        color: '#ffbe0b',
+        color: '#ffbe0b'
     },
     {
         label: 'Ethereum Kovan',
@@ -97,8 +97,8 @@ export const networks = [
         name: 'arbitrum-rinkeby',
         uri: 'https://api-testnet.arbiscan.io/api',
         color: '#023e8a'
-    },
-];
+    }
+]
 
 export const network_details = {
     networks: [
@@ -107,8 +107,8 @@ export const network_details = {
             name: 'network',
             type: 'options',
             options: networks,
-            default: 'homestead',
-        },
+            default: 'homestead'
+        }
     ],
     credentials: [
         {
@@ -162,11 +162,11 @@ export const network_details = {
                         'networks.network': ['arbitrum', 'arbitrum-rinkeby']
                     },
                     description: 'Register for a Free API Key from: https://arbiscan.io/apis'
-                },
+                }
             ],
-            default: 'noAuth',
+            default: 'noAuth'
         }
-    ],
+    ]
 }
 
 export const contract_details = {
@@ -191,8 +191,8 @@ export const contract_details = {
             type: 'json',
             default: '',
             description: 'ABI will be fetched automatically if address is valid'
-        },
-    ],
+        }
+    ]
 }
 
 export const wallet_details = {
@@ -204,8 +204,8 @@ export const wallet_details = {
             type: 'string',
             description: 'Name the wallet to make it easier to identify it in Outerbridge',
             default: ''
-        },
-    ],
+        }
+    ]
 }
 
 export const privateKeyField = [
@@ -216,4 +216,4 @@ export const privateKeyField = [
         description: 'Private key of wallet to be imported',
         default: ''
     }
-];
+]

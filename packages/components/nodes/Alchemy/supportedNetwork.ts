@@ -1,22 +1,22 @@
-import { INodeOptionsValue } from '../../src';
-import { NETWORK, NETWORK_LABEL } from "../../src/ChainNetwork";
+import { INodeOptionsValue } from '../../src'
+import { NETWORK, NETWORK_LABEL } from '../../src/ChainNetwork'
 
 export const AlchemySupportedNetworks = [
     {
         label: NETWORK_LABEL.MAINNET,
-        name:  NETWORK.MAINNET,
+        name: NETWORK.MAINNET
     },
     {
         label: NETWORK_LABEL.ROPSTEN,
-        name: NETWORK.ROPSTEN,
+        name: NETWORK.ROPSTEN
     },
     {
         label: NETWORK_LABEL.RINKEBY,
-        name: NETWORK.RINKEBY,
+        name: NETWORK.RINKEBY
     },
     {
         label: NETWORK_LABEL.GÖRLI,
-        name: NETWORK.GÖRLI,
+        name: NETWORK.GÖRLI
     },
     {
         label: NETWORK_LABEL.KOVAN,
@@ -61,7 +61,7 @@ export const AlchemySupportedNetworks = [
     {
         label: NETWORK_LABEL.SOLANA_DEVNET,
         name: NETWORK.SOLANA_DEVNET
-    },
-] as INodeOptionsValue[];
+    }
+] as INodeOptionsValue[]
 
 //REMAINING: ALGORAND, HARMONY, STACKS

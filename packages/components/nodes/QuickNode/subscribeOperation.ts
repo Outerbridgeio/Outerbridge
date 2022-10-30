@@ -1,6 +1,6 @@
-import { NETWORK, NETWORK_PROVIDER } from "../../src/ChainNetwork";
-import { IETHOperation, infuraSupportedNetworks } from "../../src/ETHOperations";
-import { solanaOperationsNetworks } from "./solanaOperation";
+import { NETWORK, NETWORK_PROVIDER } from '../../src/ChainNetwork'
+import { IETHOperation, infuraSupportedNetworks } from '../../src/ETHOperations'
+import { solanaOperationsNetworks } from './solanaOperation'
 
 export const subsOperationsNetworks = [
     ...infuraSupportedNetworks,
@@ -10,7 +10,7 @@ export const subsOperationsNetworks = [
     NETWORK.CELO,
     NETWORK.GNOSIS,
     NETWORK.FANTOM
-];
+]
 
 export const subscribeOperations = [
     {
@@ -23,10 +23,10 @@ export const subscribeOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "id": 1, 
-            "method": "eth_subscribe",
-            "params":[],
+            jsonrpc: '2.0',
+            id: 1,
+            method: 'eth_subscribe',
+            params: []
         },
         inputParameters: `
         <ul>
@@ -39,22 +39,23 @@ export const subscribeOperations = [
             </ul>
             <li><code class="inline">data</code>: <code class="inline">object</code> - (Optional) - Arguments such as an address, multiple addresses, and topics. Note, only logs that are created from these addresses or match the specified topics will return logs.</li>
         </ul>`,
-        exampleParameters: `["newHeads"]`,
+        exampleParameters: `["newHeads"]`
     },
     {
         name: 'Account Subscribe (accountSubscribe)',
         value: 'accountSubscribe',
         parentGroup: 'Subscribe',
-        description: '(Subscription Websocket) Subscribe to an account to receive notifications when the lamports or data for a given account public key changes.',
+        description:
+            '(Subscription Websocket) Subscribe to an account to receive notifications when the lamports or data for a given account public key changes.',
         providerNetworks: {
             [NETWORK_PROVIDER.QUICKNODE]: solanaOperationsNetworks
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "id": 1, 
-            "method": "accountSubscribe",
-            "params":[],
+            jsonrpc: '2.0',
+            id: 1,
+            method: 'accountSubscribe',
+            params: []
         },
         inputParameters: `
         <ul>
@@ -76,7 +77,7 @@ export const subscribeOperations = [
     "encoding": "base64",
     "commitment": "finalized"
   }
-]`,
+]`
     },
     {
         name: 'Log Subscribe (logSubscribe)',
@@ -88,10 +89,10 @@ export const subscribeOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "id": 1, 
-            "method": "logSubscribe",
-            "params":[],
+            jsonrpc: '2.0',
+            id: 1,
+            method: 'logSubscribe',
+            params: []
         },
         inputParameters: `
         <ul>
@@ -118,22 +119,23 @@ export const subscribeOperations = [
     "encoding": "base64",
     "commitment": "finalized"
   }
-]`,
+]`
     },
     {
         name: 'Program Subscribe (programSubscribe)',
         value: 'programSubscribe',
         parentGroup: 'Subscribe',
-        description: '(Subscription Websocket) Subscribe to a program to receive notifications when the lamports or data for a given account owned by the program changes.',
+        description:
+            '(Subscription Websocket) Subscribe to a program to receive notifications when the lamports or data for a given account owned by the program changes.',
         providerNetworks: {
             [NETWORK_PROVIDER.QUICKNODE]: solanaOperationsNetworks
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "id": 1, 
-            "method": "programSubscribe",
-            "params":[],
+            jsonrpc: '2.0',
+            id: 1,
+            method: 'programSubscribe',
+            params: []
         },
         inputParameters: `
         <ul>
@@ -156,7 +158,7 @@ export const subscribeOperations = [
     "encoding": "base64",
     "commitment": "finalized"
   }
-]`,
+]`
     },
     {
         name: 'Root Subscribe (rootSubscribe)',
@@ -168,26 +170,27 @@ export const subscribeOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "id": 1, 
-            "method": "rootSubscribe",
-            "params":[],
-        },
+            jsonrpc: '2.0',
+            id: 1,
+            method: 'rootSubscribe',
+            params: []
+        }
     },
     {
         name: 'Signature Subscribe (signatureSubscribe)',
         value: 'signatureSubscribe',
         parentGroup: 'Subscribe',
-        description: '(Subscription Websocket) Subscribe to a transaction signature to receive notification when the transaction is confirmed On signatureNotification, the subscription is automatically cancelled.',
+        description:
+            '(Subscription Websocket) Subscribe to a transaction signature to receive notification when the transaction is confirmed On signatureNotification, the subscription is automatically cancelled.',
         providerNetworks: {
             [NETWORK_PROVIDER.QUICKNODE]: solanaOperationsNetworks
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "id": 1, 
-            "method": "signatureSubscribe",
-            "params":[],
+            jsonrpc: '2.0',
+            id: 1,
+            method: 'signatureSubscribe',
+            params: []
         },
         inputParameters: `
         <ul>
@@ -207,7 +210,7 @@ export const subscribeOperations = [
   {
     "commitment": "finalized"
   }
-]`,
+]`
     },
     {
         name: 'Slot Subscribe (slotSubscribe)',
@@ -219,14 +222,13 @@ export const subscribeOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "id": 1, 
-            "method": "slotSubscribe",
-            "params":[],
-        },
-    },
-] as IETHOperation[];
-
+            jsonrpc: '2.0',
+            id: 1,
+            method: 'slotSubscribe',
+            params: []
+        }
+    }
+] as IETHOperation[]
 
 export const unsubscribeOperations = [
     {
@@ -239,11 +241,11 @@ export const unsubscribeOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "id": 1, 
-            "method": "eth_unsubscribe",
-            "params":[],
-        },
+            jsonrpc: '2.0',
+            id: 1,
+            method: 'eth_unsubscribe',
+            params: []
+        }
     },
     {
         name: 'Account Unsubscribe (accountUnsubscribe)',
@@ -255,11 +257,11 @@ export const unsubscribeOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "id": 1, 
-            "method": "accountUnsubscribe",
-            "params":[],
-        },
+            jsonrpc: '2.0',
+            id: 1,
+            method: 'accountUnsubscribe',
+            params: []
+        }
     },
     {
         name: 'Log Unsubscribe (logUnsubscribe)',
@@ -271,11 +273,11 @@ export const unsubscribeOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "id": 1, 
-            "method": "logUnsubscribe",
-            "params":[],
-        },
+            jsonrpc: '2.0',
+            id: 1,
+            method: 'logUnsubscribe',
+            params: []
+        }
     },
     {
         name: 'Program Unsubscribe (programUnsubscribe)',
@@ -287,11 +289,11 @@ export const unsubscribeOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "id": 1, 
-            "method": "programUnsubscribe",
-            "params":[],
-        },
+            jsonrpc: '2.0',
+            id: 1,
+            method: 'programUnsubscribe',
+            params: []
+        }
     },
     {
         name: 'Root Unsubscribe (rootUnsubscribe)',
@@ -303,11 +305,11 @@ export const unsubscribeOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "id": 1, 
-            "method": "rootUnsubscribe",
-            "params":[],
-        },
+            jsonrpc: '2.0',
+            id: 1,
+            method: 'rootUnsubscribe',
+            params: []
+        }
     },
     {
         name: 'Signature Unsubscribe (signatureUnsubscribe)',
@@ -319,11 +321,11 @@ export const unsubscribeOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "id": 1, 
-            "method": "signatureUnsubscribe",
-            "params":[],
-        },
+            jsonrpc: '2.0',
+            id: 1,
+            method: 'signatureUnsubscribe',
+            params: []
+        }
     },
     {
         name: 'Slot Unsubscribe (slotUnsubscribe)',
@@ -335,10 +337,10 @@ export const unsubscribeOperations = [
         },
         method: 'POST',
         body: {
-            "jsonrpc":"2.0",
-            "id": 1, 
-            "method": "slotUnsubscribe",
-            "params":[],
-        },
-    },
-] as IETHOperation[];
+            jsonrpc: '2.0',
+            id: 1,
+            method: 'slotUnsubscribe',
+            params: []
+        }
+    }
+] as IETHOperation[]

@@ -1,11 +1,8 @@
-import { createPortal } from 'react-dom';
-import PropTypes from 'prop-types';
-import { useState, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
-import { 
-    enqueueSnackbar as enqueueSnackbarAction,
-    closeSnackbar as closeSnackbarAction,
-} from 'store/actions';
+import { createPortal } from 'react-dom'
+import PropTypes from 'prop-types'
+import { useState, useEffect } from 'react'
+import { useDispatch } from 'react-redux'
+import { enqueueSnackbar as enqueueSnackbarAction, closeSnackbar as closeSnackbarAction } from 'store/actions'
 
 import {
     Avatar,
@@ -16,101 +13,95 @@ import {
     Divider,
     Chip,
     Typography,
-    Button, 
-    Dialog, 
+    Button,
+    Dialog,
     DialogActions,
-    DialogContent, 
+    DialogContent,
     DialogTitle,
     Stack,
-    IconButton,
-} from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { useTheme } from '@mui/material/styles';
+    IconButton
+} from '@mui/material'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import { useTheme } from '@mui/material/styles'
 
 // third-party
-import * as Yup from 'yup';
-import lodash from 'lodash';
-import { ethers } from 'ethers';
+import * as Yup from 'yup'
+import lodash from 'lodash'
+import { ethers } from 'ethers'
 
 // project imports
-import InputParameters from 'views/inputs/InputParameters';
-import CredentialInput from 'views/inputs/CredentialInput';
-import EditVariableDialog from 'ui-component/dialog/EditVariableDialog';
+import InputParameters from 'views/inputs/InputParameters'
+import CredentialInput from 'views/inputs/CredentialInput'
+import EditVariableDialog from 'ui-component/dialog/EditVariableDialog'
 
 // Icons
-import { IconExclamationMark, IconCheck, IconX, IconArrowUpRightCircle, IconCopy } from '@tabler/icons';
+import { IconExclamationMark, IconCheck, IconX, IconArrowUpRightCircle, IconCopy } from '@tabler/icons'
 
 // API
-import contractsApi from "api/contracts";
+import contractsApi from 'api/contracts'
 
 // Hooks
-import useApi from "hooks/useApi";
+import useApi from 'hooks/useApi'
 
 // Const
-import { contract_details, networks, networkExplorers } from "store/constant";
+import { contract_details, networks, networkExplorers } from 'store/constant'
 
 // utils
-import { handleCredentialParams, initializeNodeData } from 'utils/genericHelper';
-import useNotifier from 'utils/useNotifier';
+import { handleCredentialParams, initializeNodeData } from 'utils/genericHelper'
+import useNotifier from 'utils/useNotifier'
 
-const ContractDialog = ({
-    show,
-    dialogProps,
-    onCancel,
-    onConfirm
-}) => {
+const ContractDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
+    const portalElement = document.getElementById('portal')
 
-    const portalElement = document.getElementById('portal');
-
-    const theme = useTheme();
-    const dispatch = useDispatch();
+    const theme = useTheme()
+    const dispatch = useDispatch()
 
     // ==============================|| Snackbar ||============================== //
 
-    useNotifier();
-    const enqueueSnackbar = (...args) => dispatch(enqueueSnackbarAction(...args));
-    const closeSnackbar = (...args) => dispatch(closeSnackbarAction(...args));
+    useNotifier()
+    const enqueueSnackbar = (...args) => dispatch(enqueueSnackbarAction(...args))
+    const closeSnackbar = (...args) => dispatch(closeSnackbarAction(...args))
 
-    const [contractDetails, setContractDetails] = useState(contract_details);
-    const [contractData, setContractData] = useState({});
-    const [contractParams, setContractParams] = useState([]);
-    const [contractValues, setContractValues] = useState({});
-    const [contractValidation, setContractValidation] = useState({});
-    const [expanded, setExpanded] = useState(false);
-    const [invalidAddress, setInvalidAddress] = useState(false);
-    const [invalidABI, setInvalidABI] = useState('');
-    const [isReadyToAdd, setIsReadyToAdd] = useState(false);
-    const [isEditVariableDialogOpen, setEditVariableDialog] = useState(false);
-    const [editVariableDialogProps, setEditVariableDialogProps] = useState({});
-    const contractParamsType = ['networks', 'credentials', 'contractInfo'];
+    const [contractDetails, setContractDetails] = useState(contract_details)
+    const [contractData, setContractData] = useState({})
+    const [contractParams, setContractParams] = useState([])
+    const [contractValues, setContractValues] = useState({})
+    const [contractValidation, setContractValidation] = useState({})
+    const [expanded, setExpanded] = useState(false)
+    const [invalidAddress, setInvalidAddress] = useState(false)
+    const [invalidABI, setInvalidABI] = useState('')
+    const [isReadyToAdd, setIsReadyToAdd] = useState(false)
+    const [isEditVariableDialogOpen, setEditVariableDialog] = useState(false)
+    const [editVariableDialogProps, setEditVariableDialogProps] = useState({})
+    const contractParamsType = ['networks', 'credentials', 'contractInfo']
 
-    const getSpecificContractApi = useApi(contractsApi.getSpecificContract);
-    
+    const getSpecificContractApi = useApi(contractsApi.getSpecificContract)
+
     const handleAccordionChange = (expanded) => (event, isExpanded) => {
-        setExpanded(isExpanded ? expanded : false);
-    };
+        setExpanded(isExpanded ? expanded : false)
+    }
 
     const reset = () => {
-        setContractData({});
-        setContractParams([]);
-        setContractValues({});
-        setContractValidation({});
-        setInvalidAddress(false);
-        setInvalidABI('');
-        setIsReadyToAdd(false);
-        setExpanded(false);
+        setContractData({})
+        setContractParams([])
+        setContractValues({})
+        setContractValidation({})
+        setInvalidAddress(false)
+        setInvalidABI('')
+        setIsReadyToAdd(false)
+        setExpanded(false)
     }
 
     const checkIsReadyToAdd = () => {
-        for (let i = 0; i < contractParamsType.length; i+= 1) {
-            const paramType = contractParamsType[i];
+        for (let i = 0; i < contractParamsType.length; i += 1) {
+            const paramType = contractParamsType[i]
             if (!contractData[paramType] || !contractData[paramType].submit) {
-                setIsReadyToAdd(false);
-                return;
+                setIsReadyToAdd(false)
+                return
             }
         }
-        setIsReadyToAdd(true);
-    };
+        setIsReadyToAdd(true)
+    }
 
     const onEditVariableDialogOpen = (input, values, arrayItemBody) => {
         const dialogProps = {
@@ -122,11 +113,11 @@ const ContractDialog = ({
             hideVariables: true
         }
 
-        setEditVariableDialogProps(dialogProps);
-        setEditVariableDialog(true);
+        setEditVariableDialogProps(dialogProps)
+        setEditVariableDialog(true)
     }
 
-    const addNewContract = async() => {
+    const addNewContract = async () => {
         const createNewContractBody = {
             network: contractData.networks.network,
             name: contractData.contractInfo.name,
@@ -134,21 +125,21 @@ const ContractDialog = ({
             address: contractData.contractInfo.address,
             providerCredential: JSON.stringify(contractData.credentials)
         }
-        const createResp = await contractsApi.createNewContract(createNewContractBody);
+        const createResp = await contractsApi.createNewContract(createNewContractBody)
         if (createResp.data) {
             enqueueSnackbar({
                 message: 'New contract added',
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'success',
-                    action: key => (
-                        <Button style={{color: 'white'}} onClick={() => closeSnackbar(key)}>
+                    action: (key) => (
+                        <Button style={{ color: 'white' }} onClick={() => closeSnackbar(key)}>
                             <IconX />
                         </Button>
-                    ),
-                },
-            });
-            onConfirm();
+                    )
+                }
+            })
+            onConfirm()
         } else {
             enqueueSnackbar({
                 message: 'Failed to add new contract',
@@ -156,18 +147,18 @@ const ContractDialog = ({
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
                     persist: true,
-                    action: key => (
-                        <Button style={{color: 'white'}} onClick={() => closeSnackbar(key)}>
+                    action: (key) => (
+                        <Button style={{ color: 'white' }} onClick={() => closeSnackbar(key)}>
                             <IconX />
                         </Button>
-                    ),
-                },
-            });
-            onCancel();
+                    )
+                }
+            })
+            onCancel()
         }
     }
 
-    const saveContract = async() => {
+    const saveContract = async () => {
         const saveContractBody = {
             network: contractData.networks.network,
             name: contractData.contractInfo.name,
@@ -175,21 +166,21 @@ const ContractDialog = ({
             address: contractData.contractInfo.address,
             providerCredential: JSON.stringify(contractData.credentials)
         }
-        const saveResp = await contractsApi.updateContract(dialogProps.id, saveContractBody);
+        const saveResp = await contractsApi.updateContract(dialogProps.id, saveContractBody)
         if (saveResp.data) {
             enqueueSnackbar({
                 message: 'Contract saved',
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'success',
-                    action: key => (
-                        <Button style={{color: 'white'}} onClick={() => closeSnackbar(key)}>
+                    action: (key) => (
+                        <Button style={{ color: 'white' }} onClick={() => closeSnackbar(key)}>
                             <IconX />
                         </Button>
-                    ),
-                },
-            });
-            onConfirm();
+                    )
+                }
+            })
+            onConfirm()
         } else {
             enqueueSnackbar({
                 message: 'Failed to save contract',
@@ -197,33 +188,33 @@ const ContractDialog = ({
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
                     persist: true,
-                    action: key => (
-                        <Button style={{color: 'white'}} onClick={() => closeSnackbar(key)}>
+                    action: (key) => (
+                        <Button style={{ color: 'white' }} onClick={() => closeSnackbar(key)}>
                             <IconX />
                         </Button>
-                    ),
-                },
-            });
-            onCancel();
+                    )
+                }
+            })
+            onCancel()
         }
     }
 
-    const deleteContract = async() => {
-        const deleteResp = await contractsApi.deleteContract(dialogProps.id);
+    const deleteContract = async () => {
+        const deleteResp = await contractsApi.deleteContract(dialogProps.id)
         if (deleteResp.data) {
             enqueueSnackbar({
                 message: 'Contract deleted',
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'success',
-                    action: key => (
-                        <Button style={{color: 'white'}} onClick={() => closeSnackbar(key)}>
+                    action: (key) => (
+                        <Button style={{ color: 'white' }} onClick={() => closeSnackbar(key)}>
                             <IconX />
                         </Button>
-                    ),
-                },
-            });
-            onConfirm();
+                    )
+                }
+            })
+            onConfirm()
         } else {
             enqueueSnackbar({
                 message: 'Failed to delete contract',
@@ -231,20 +222,20 @@ const ContractDialog = ({
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
                     persist: true,
-                    action: key => (
-                        <Button style={{color: 'white'}} onClick={() => closeSnackbar(key)}>
+                    action: (key) => (
+                        <Button style={{ color: 'white' }} onClick={() => closeSnackbar(key)}>
                             <IconX />
                         </Button>
-                    ),
-                },
-            });
-            onCancel();
+                    )
+                }
+            })
+            onCancel()
         }
     }
 
-    const fetchABI = async(formValues, paramsType) => {
-        const selectedNetwork = networks.find((network) => network.name === contractData.networks.network);
-        if (!selectedNetwork) return;
+    const fetchABI = async (formValues, paramsType) => {
+        const selectedNetwork = networks.find((network) => network.name === contractData.networks.network)
+        if (!selectedNetwork) return
 
         const body = {
             ...contractData,
@@ -254,204 +245,199 @@ const ContractDialog = ({
             }
         }
 
-        const resp = await contractsApi.getContractABI(body);
+        const resp = await contractsApi.getContractABI(body)
         if (!resp.data) {
             const updateContractData = {
                 ...contractData,
-                [paramsType]: {...formValues, submit: null}
-            };
-            setContractData(updateContractData);
-            setInvalidABI('Unable to fetch ABI');
-            return;
-        } else {
-            const status = resp.data.status;
-            if (status === '0') {
-                setInvalidABI('Unable to fetch ABI');
-                return;
+                [paramsType]: { ...formValues, submit: null }
             }
-            const abi = resp.data.result;
-            setInvalidABI('');
-            return abi === 'Invalid API Key' ? undefined : abi;
+            setContractData(updateContractData)
+            setInvalidABI('Unable to fetch ABI')
+            return
+        } else {
+            const status = resp.data.status
+            if (status === '0') {
+                setInvalidABI('Unable to fetch ABI')
+                return
+            }
+            const abi = resp.data.result
+            setInvalidABI('')
+            return abi === 'Invalid API Key' ? undefined : abi
         }
     }
-    
+
     const valueChanged = (formValues, paramsType) => {
         const updateContractData = {
             ...contractData,
             [paramsType]: formValues
-        };
+        }
 
-        const index = contractParamsType.indexOf(paramsType);
+        const index = contractParamsType.indexOf(paramsType)
         if (index >= 0 && index !== contractParamsType.length - 1) {
-            for (let i = index+1; i < contractParamsType.length; i+= 1) {
-                const paramType = contractParamsType[i];
-                if (updateContractData[paramType]) updateContractData[paramType].submit = null;
+            for (let i = index + 1; i < contractParamsType.length; i += 1) {
+                const paramType = contractParamsType[i]
+                if (updateContractData[paramType]) updateContractData[paramType].submit = null
             }
         }
-        
-        setContractData(updateContractData);
-    };
+
+        setContractData(updateContractData)
+    }
 
     const paramsChanged = (formParams, paramsType) => {
-
-        // Because formParams options can be changed due to show hide options, 
+        // Because formParams options can be changed due to show hide options,
         // To avoid that, replace with original details options
 
-        const credentialMethodParam = formParams.find((param) => param.name === 'credentialMethod');
-        const credentialMethodParamIndex = formParams.findIndex((param) => param.name === 'credentialMethod');
-        
+        const credentialMethodParam = formParams.find((param) => param.name === 'credentialMethod')
+        const credentialMethodParamIndex = formParams.findIndex((param) => param.name === 'credentialMethod')
+
         if (credentialMethodParam !== undefined) {
-            const originalParam = contractDetails[paramsType].find((param) => param.name === 'credentialMethod');
+            const originalParam = contractDetails[paramsType].find((param) => param.name === 'credentialMethod')
             if (originalParam !== undefined) {
-                formParams[credentialMethodParamIndex]['options'] = originalParam.options;
+                formParams[credentialMethodParamIndex]['options'] = originalParam.options
             }
         }
 
         const updateContractDetails = {
             ...contractDetails,
             [paramsType]: formParams
-        };
-        setContractDetails(updateContractDetails);
-    };
+        }
+        setContractDetails(updateContractDetails)
+    }
 
-    const onSubmit = async(formValues, paramsType) => {
+    const onSubmit = async (formValues, paramsType) => {
         if (formValues.address) {
             if (ethers.utils.isAddress(formValues.address)) {
-                setInvalidAddress(false);
-                const abi = await fetchABI(formValues, paramsType);
+                setInvalidAddress(false)
+                const abi = await fetchABI(formValues, paramsType)
                 if (abi) {
                     const updateFormValues = {
                         submit: true,
                         ...formValues
-                    };
-                    updateFormValues.abi = abi;
+                    }
+                    updateFormValues.abi = abi
                     const updateContractData = {
                         ...contractData,
                         [paramsType]: updateFormValues
-                    };
-                    setContractData(updateContractData);
+                    }
+                    setContractData(updateContractData)
                 } else {
                     const updateContractData = {
                         ...contractData,
-                        [paramsType]: {...formValues, submit: null}
-                    };
-                    setContractData(updateContractData);
+                        [paramsType]: { ...formValues, submit: null }
+                    }
+                    setContractData(updateContractData)
                 }
-            }
-            else {
-                setInvalidAddress(true);
+            } else {
+                setInvalidAddress(true)
                 const updateContractData = {
                     ...contractData,
-                    [paramsType]: {...formValues, submit: null}
-                };
-                setContractData(updateContractData);
+                    [paramsType]: { ...formValues, submit: null }
+                }
+                setContractData(updateContractData)
             }
         } else {
             const updateContractData = {
                 ...contractData,
                 [paramsType]: formValues
-            };
-            setContractData(updateContractData);
+            }
+            setContractData(updateContractData)
         }
 
-        const index = contractParamsType.indexOf(paramsType);
+        const index = contractParamsType.indexOf(paramsType)
         if (index >= 0 && index !== contractParamsType.length - 1) {
-            setExpanded(contractParamsType[index+1]);
+            setExpanded(contractParamsType[index + 1])
         }
-    };
+    }
 
     const showHideOptions = (displayType, options) => {
-       
-        let returnOptions = options;
-        const toBeDeleteOptions = [];
+        let returnOptions = options
+        const toBeDeleteOptions = []
 
-        for (let i = 0; i < returnOptions.length; i+= 1) {
-            const option = returnOptions[i];
-            const displayOptions = option[displayType];
+        for (let i = 0; i < returnOptions.length; i += 1) {
+            const option = returnOptions[i]
+            const displayOptions = option[displayType]
 
             if (displayOptions) {
                 Object.keys(displayOptions).forEach((path) => {
-                    const comparisonValue = displayOptions[path];
-                    const groundValue = lodash.get(contractData, path, '');
+                    const comparisonValue = displayOptions[path]
+                    const groundValue = lodash.get(contractData, path, '')
                     if (Array.isArray(comparisonValue)) {
                         if (displayType === 'show' && !comparisonValue.includes(groundValue)) {
-                            toBeDeleteOptions.push(option);
+                            toBeDeleteOptions.push(option)
                         }
                         if (displayType === 'hide' && comparisonValue.includes(groundValue)) {
-                            toBeDeleteOptions.push(option);
+                            toBeDeleteOptions.push(option)
                         }
                     }
-                });
+                })
             }
         }
 
-        for (let i = 0; i < toBeDeleteOptions.length; i+= 1) {
-            returnOptions = returnOptions.filter((opt) => JSON.stringify(opt) !== JSON.stringify(toBeDeleteOptions[i]));
+        for (let i = 0; i < toBeDeleteOptions.length; i += 1) {
+            returnOptions = returnOptions.filter((opt) => JSON.stringify(opt) !== JSON.stringify(toBeDeleteOptions[i]))
         }
 
-        return returnOptions;
+        return returnOptions
     }
 
     const displayOptions = (params) => {
-      
-        let clonedParams = params;
+        let clonedParams = params
 
-        for (let i = 0; i < clonedParams.length; i+= 1) {
-            const input = clonedParams[i];
+        for (let i = 0; i < clonedParams.length; i += 1) {
+            const input = clonedParams[i]
             if (input.type === 'options') {
-                input.options = showHideOptions('show', input.options);
-                input.options = showHideOptions('hide', input.options);
+                input.options = showHideOptions('show', input.options)
+                input.options = showHideOptions('hide', input.options)
             }
         }
-      
-        return clonedParams;
-    };
+
+        return clonedParams
+    }
 
     const setYupValidation = (params) => {
-        const validationSchema = {};
-        for (let i = 0; i < params.length; i+= 1) {
-            const input = params[i];
+        const validationSchema = {}
+        for (let i = 0; i < params.length; i += 1) {
+            const input = params[i]
             if (input.type === 'string' && !input.optional) {
-                validationSchema[input.name] = Yup.string().required(`${input.label} is required. Type: ${input.type}`);
+                validationSchema[input.name] = Yup.string().required(`${input.label} is required. Type: ${input.type}`)
             } else if (input.type === 'number' && !input.optional) {
-                validationSchema[input.name] = Yup.number().required(`${input.label} is required. Type: ${input.type}`);
+                validationSchema[input.name] = Yup.number().required(`${input.label} is required. Type: ${input.type}`)
             } else if ((input.type === 'options' || input.type === 'asyncOptions') && !input.optional) {
-                validationSchema[input.name] = Yup.string().required(`${input.label} is required. Type: ${input.type}`);
+                validationSchema[input.name] = Yup.string().required(`${input.label} is required. Type: ${input.type}`)
             }
         }
-        return validationSchema;
-    };
+        return validationSchema
+    }
 
     const initializeFormValuesAndParams = (paramsType) => {
+        const initialValues = {}
+        let contractParams = displayOptions(lodash.cloneDeep(contractDetails[paramsType] || []))
+        contractParams = handleCredentialParams(contractParams, paramsType, contractDetails[paramsType], contractData)
 
-        const initialValues = {};
-        let contractParams = displayOptions(lodash.cloneDeep(contractDetails[paramsType] || []));
-        contractParams = handleCredentialParams(contractParams, paramsType, contractDetails[paramsType], contractData);
-       
-        for (let i = 0; i < contractParams.length; i+= 1) {
-            const input = contractParams[i];
+        for (let i = 0; i < contractParams.length; i += 1) {
+            const input = contractParams[i]
 
             // Load from contractData values
             if (paramsType in contractData && input.name in contractData[paramsType]) {
-                initialValues[input.name] = contractData[paramsType][input.name];
-         
+                initialValues[input.name] = contractData[paramsType][input.name]
+
                 // Check if option value is still available from the list of options
                 if (input.type === 'options') {
-                    const optionVal = input.options.find((option) => option.name === initialValues[input.name]);
-                    if (!optionVal) delete initialValues[input.name];
+                    const optionVal = input.options.find((option) => option.name === initialValues[input.name])
+                    if (!optionVal) delete initialValues[input.name]
                 }
             } else {
                 // Load from contractParams default values
-                initialValues[input.name] = input.default || '';
+                initialValues[input.name] = input.default || ''
             }
         }
-        
-        initialValues.submit = null;
-        
-        setContractValues(initialValues);
-        setContractValidation(setYupValidation(contractParams));
-        setContractParams(contractParams);
-    };
+
+        initialValues.submit = null
+
+        setContractValues(initialValues)
+        setContractValidation(setYupValidation(contractParams))
+        setContractParams(contractParams)
+    }
 
     const transformContractResponse = (contractResponseData, contractDetails) => {
         const contractData = {
@@ -461,119 +447,137 @@ const ContractDialog = ({
         }
 
         if (contractResponseData) {
-            contractData.networks = { network: contractResponseData.network, submit: true };
-            contractData.contractInfo = { ...contractResponseData, submit: true };
+            contractData.networks = { network: contractResponseData.network, submit: true }
+            contractData.contractInfo = { ...contractResponseData, submit: true }
             if (contractResponseData.providerCredential) {
                 try {
-                    contractData.credentials = JSON.parse(contractResponseData.providerCredential);
-                } catch(e) { 
-                    console.error(e); 
+                    contractData.credentials = JSON.parse(contractResponseData.providerCredential)
+                } catch (e) {
+                    console.error(e)
                 }
             }
         } else {
-            contractData.networks = initializeNodeData(contractDetails.networks);
-            contractData.credentials = initializeNodeData(contractDetails.credentials);
-            contractData.contractInfo = initializeNodeData(contractDetails.contractInfo);
+            contractData.networks = initializeNodeData(contractDetails.networks)
+            contractData.credentials = initializeNodeData(contractDetails.credentials)
+            contractData.contractInfo = initializeNodeData(contractDetails.contractInfo)
         }
-        return contractData;
+        return contractData
     }
 
     // Get Contract Details from API
     useEffect(() => {
         if (getSpecificContractApi.data) {
-            const contractResponseData = getSpecificContractApi.data;
-            setContractData(transformContractResponse(contractResponseData));
-            setExpanded('networks');
+            const contractResponseData = getSpecificContractApi.data
+            setContractData(transformContractResponse(contractResponseData))
+            setExpanded('networks')
         }
-
-    }, [getSpecificContractApi.data]); 
-
+    }, [getSpecificContractApi.data])
 
     // Initialization
     useEffect(() => {
         if (show && dialogProps.type === 'ADD') {
-            reset();
-            setContractData(transformContractResponse(null, contractDetails));
-            setExpanded('networks');
-
+            reset()
+            setContractData(transformContractResponse(null, contractDetails))
+            setExpanded('networks')
         } else if (show && dialogProps.type === 'EDIT' && dialogProps.id) {
-            reset();
-            getSpecificContractApi.request(dialogProps.id);
+            reset()
+            getSpecificContractApi.request(dialogProps.id)
         }
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [show, dialogProps]); 
+    }, [show, dialogProps])
 
-    
     // Initialize Parameters Initial Values & Validation
     useEffect(() => {
         if (contractDetails && contractData && expanded) {
-            initializeFormValuesAndParams(expanded);
-            checkIsReadyToAdd();
+            initializeFormValuesAndParams(expanded)
+            checkIsReadyToAdd()
         }
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [contractDetails, contractData, expanded]);
-
+    }, [contractDetails, contractData, expanded])
 
     const component = show ? (
-        <Dialog
-            open={show}
-            onClose={onCancel}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-        >
-            <DialogTitle sx={{ fontSize: '1rem' }} id="alert-dialog-title">
+        <Dialog open={show} onClose={onCancel} aria-labelledby='alert-dialog-title' aria-describedby='alert-dialog-description'>
+            <DialogTitle sx={{ fontSize: '1rem' }} id='alert-dialog-title'>
                 {dialogProps.title}
             </DialogTitle>
             <DialogContent>
+                {dialogProps.type === 'ADD' && (
+                    <Chip
+                        sx={{ mb: 1 }}
+                        icon={<IconExclamationMark />}
+                        label='You can only add contract which has been publicly verified'
+                        color='warning'
+                    />
+                )}
 
-                {dialogProps.type === 'ADD' && <Chip sx={{mb: 1}} icon={<IconExclamationMark />} label="You can only add contract which has been publicly verified" color="warning" />}
-                
-                {contractData && contractData.contractInfo && contractData.contractInfo.address && dialogProps.type === 'EDIT' && 
-                <Box sx={{ p: 2 }}>
-                    <Typography sx={{ p: 1 }} variant="overline">ADDRESS</Typography>
-                    <Stack direction="row" sx={{ p: 1 }}>
-                        <Typography sx={{ p: 1, borderRadius: 10, backgroundColor: theme.palette.primary.light, width: 'max-content', height: 'max-content' }} variant="h5">{contractData.contractInfo.address}</Typography>
-                        <IconButton title="Copy Address" color="primary" onClick={() => navigator.clipboard.writeText(contractData.contractInfo.address)}>
-                            <IconCopy />
-                        </IconButton>
-                        <IconButton title="Open in Block Explorer" color="primary" onClick={() => window.open(`${networkExplorers[contractData.networks.network]}/address/${contractData.contractInfo.address}`, "_blank")}>
-                            <IconArrowUpRightCircle />
-                        </IconButton>
-                    </Stack>
-                </Box>}
+                {contractData && contractData.contractInfo && contractData.contractInfo.address && dialogProps.type === 'EDIT' && (
+                    <Box sx={{ p: 2 }}>
+                        <Typography sx={{ p: 1 }} variant='overline'>
+                            ADDRESS
+                        </Typography>
+                        <Stack direction='row' sx={{ p: 1 }}>
+                            <Typography
+                                sx={{
+                                    p: 1,
+                                    borderRadius: 10,
+                                    backgroundColor: theme.palette.primary.light,
+                                    width: 'max-content',
+                                    height: 'max-content'
+                                }}
+                                variant='h5'
+                            >
+                                {contractData.contractInfo.address}
+                            </Typography>
+                            <IconButton
+                                title='Copy Address'
+                                color='primary'
+                                onClick={() => navigator.clipboard.writeText(contractData.contractInfo.address)}
+                            >
+                                <IconCopy />
+                            </IconButton>
+                            <IconButton
+                                title='Open in Block Explorer'
+                                color='primary'
+                                onClick={() =>
+                                    window.open(
+                                        `${networkExplorers[contractData.networks.network]}/address/${contractData.contractInfo.address}`,
+                                        '_blank'
+                                    )
+                                }
+                            >
+                                <IconArrowUpRightCircle />
+                            </IconButton>
+                        </Stack>
+                    </Box>
+                )}
 
                 {/* networks */}
                 <Box sx={{ p: 2 }}>
                     <Accordion expanded={expanded === 'networks'} onChange={handleAccordionChange('networks')}>
-                        <AccordionSummary
-                            expandIcon={<ExpandMoreIcon />}
-                            aria-controls="networks-content"
-                            id="networks-header" 
-                        >
-                            <Typography variant="h4">
-                                Networks
-                            </Typography>
-                            {contractData && contractData.networks && contractData.networks.submit &&
-                            (<Avatar
-                                variant="rounded"
-                                sx={{
-                                    ...theme.typography.smallAvatar,
-                                    borderRadius: '50%',
-                                    background: theme.palette.success.dark,
-                                    color: 'white',
-                                    ml: 2
-                                }}
-                            >
-                                <IconCheck />
-                            </Avatar>)}
+                        <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls='networks-content' id='networks-header'>
+                            <Typography variant='h4'>Networks</Typography>
+                            {contractData && contractData.networks && contractData.networks.submit && (
+                                <Avatar
+                                    variant='rounded'
+                                    sx={{
+                                        ...theme.typography.smallAvatar,
+                                        borderRadius: '50%',
+                                        background: theme.palette.success.dark,
+                                        color: 'white',
+                                        ml: 2
+                                    }}
+                                >
+                                    <IconCheck />
+                                </Avatar>
+                            )}
                         </AccordionSummary>
                         <AccordionDetails>
-                            <InputParameters 
-                                paramsType="networks"
-                                params={contractParams} 
-                                initialValues={contractValues} 
+                            <InputParameters
+                                paramsType='networks'
+                                params={contractParams}
+                                initialValues={contractValues}
                                 nodeParamsValidation={contractValidation}
                                 valueChanged={valueChanged}
                                 onSubmit={onSubmit}
@@ -588,33 +592,28 @@ const ContractDialog = ({
                 {/* credentials */}
                 <Box sx={{ p: 2 }}>
                     <Accordion expanded={expanded === 'credentials'} onChange={handleAccordionChange('credentials')}>
-                        <AccordionSummary
-                            expandIcon={<ExpandMoreIcon />}
-                            aria-controls="credentials-content"
-                            id="credentials-header" 
-                        >
-                            <Typography variant="h4">
-                                Credentials
-                            </Typography>
-                            {contractData && contractData.credentials && contractData.credentials.submit &&
-                            (<Avatar
-                                variant="rounded"
-                                sx={{
-                                    ...theme.typography.smallAvatar,
-                                    borderRadius: '50%',
-                                    background: theme.palette.success.dark,
-                                    color: 'white',
-                                    ml: 2
-                                }}
-                            >
-                                <IconCheck />
-                            </Avatar>)}
+                        <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls='credentials-content' id='credentials-header'>
+                            <Typography variant='h4'>Credentials</Typography>
+                            {contractData && contractData.credentials && contractData.credentials.submit && (
+                                <Avatar
+                                    variant='rounded'
+                                    sx={{
+                                        ...theme.typography.smallAvatar,
+                                        borderRadius: '50%',
+                                        background: theme.palette.success.dark,
+                                        color: 'white',
+                                        ml: 2
+                                    }}
+                                >
+                                    <IconCheck />
+                                </Avatar>
+                            )}
                         </AccordionSummary>
                         <AccordionDetails>
-                            <CredentialInput 
-                                paramsType="credentials"
-                                initialParams={contractParams} 
-                                initialValues={contractValues} 
+                            <CredentialInput
+                                paramsType='credentials'
+                                initialParams={contractParams}
+                                initialValues={contractValues}
                                 initialValidation={contractValidation}
                                 valueChanged={valueChanged}
                                 paramsChanged={paramsChanged}
@@ -628,32 +627,27 @@ const ContractDialog = ({
                 {/* contractInfo */}
                 <Box sx={{ p: 2 }}>
                     <Accordion expanded={expanded === 'contractInfo'} onChange={handleAccordionChange('contractInfo')}>
-                        <AccordionSummary
-                            expandIcon={<ExpandMoreIcon />}
-                            aria-controls="contractInfo-content"
-                            id="contractInfo-header" 
-                        >
-                            <Typography variant="h4">
-                                Contract Details
-                            </Typography>
-                            {contractData && contractData.contractInfo && contractData.contractInfo.submit &&
-                            (<Avatar
-                                variant="rounded"
-                                sx={{
-                                    ...theme.typography.smallAvatar,
-                                    borderRadius: '50%',
-                                    background: theme.palette.success.dark,
-                                    color: 'white',
-                                    ml: 2
-                                }}
-                            >
-                                <IconCheck />
-                            </Avatar>)}
+                        <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls='contractInfo-content' id='contractInfo-header'>
+                            <Typography variant='h4'>Contract Details</Typography>
+                            {contractData && contractData.contractInfo && contractData.contractInfo.submit && (
+                                <Avatar
+                                    variant='rounded'
+                                    sx={{
+                                        ...theme.typography.smallAvatar,
+                                        borderRadius: '50%',
+                                        background: theme.palette.success.dark,
+                                        color: 'white',
+                                        ml: 2
+                                    }}
+                                >
+                                    <IconCheck />
+                                </Avatar>
+                            )}
                         </AccordionSummary>
                         <AccordionDetails>
-                            <InputParameters 
-                                paramsType="contractInfo"
-                                params={contractParams} 
+                            <InputParameters
+                                paramsType='contractInfo'
+                                params={contractParams}
                                 initialValues={contractValues}
                                 nodeParamsValidation={contractValidation}
                                 valueChanged={valueChanged}
@@ -661,54 +655,53 @@ const ContractDialog = ({
                                 setVariableSelectorState={() => null}
                                 onEditVariableDialogOpen={onEditVariableDialogOpen}
                             />
-                            {invalidAddress && <Chip sx={{mt: 2, mb: 1}} icon={<IconX />} label="Invalid Contract Address" color="error" />}
-                            {invalidABI && <Chip sx={{mt: 2, mb: 1, ml: invalidAddress ? 2 : 0}} icon={<IconX />} label={invalidABI} color="error" />}
+                            {invalidAddress && (
+                                <Chip sx={{ mt: 2, mb: 1 }} icon={<IconX />} label='Invalid Contract Address' color='error' />
+                            )}
+                            {invalidABI && (
+                                <Chip sx={{ mt: 2, mb: 1, ml: invalidAddress ? 2 : 0 }} icon={<IconX />} label={invalidABI} color='error' />
+                            )}
                         </AccordionDetails>
                     </Accordion>
                     <Divider />
                 </Box>
-                <EditVariableDialog 
-                    key={JSON.stringify(editVariableDialogProps)} 
+                <EditVariableDialog
+                    key={JSON.stringify(editVariableDialogProps)}
                     show={isEditVariableDialogOpen}
                     dialogProps={editVariableDialogProps}
                     onCancel={() => setEditVariableDialog(false)}
                     onConfirm={(updateValues) => {
-                        valueChanged(updateValues, expanded);
-                        setEditVariableDialog(false);
+                        valueChanged(updateValues, expanded)
+                        setEditVariableDialog(false)
                     }}
                 />
             </DialogContent>
             <DialogActions>
-                <Button onClick={onCancel}>
-                    {dialogProps.cancelButtonName}
-                </Button>
-                {dialogProps.type === 'EDIT' && <Button 
-                    variant="contained"
-                    color="error"
-                    onClick={() => deleteContract()}
-                >
-                    Delete
-                </Button>}
-                <Button 
-                    variant="contained" 
-                    disabled={!isReadyToAdd} 
-                    onClick={() => dialogProps.type === 'ADD' ? addNewContract() : saveContract()}
+                <Button onClick={onCancel}>{dialogProps.cancelButtonName}</Button>
+                {dialogProps.type === 'EDIT' && (
+                    <Button variant='contained' color='error' onClick={() => deleteContract()}>
+                        Delete
+                    </Button>
+                )}
+                <Button
+                    variant='contained'
+                    disabled={!isReadyToAdd}
+                    onClick={() => (dialogProps.type === 'ADD' ? addNewContract() : saveContract())}
                 >
                     {dialogProps.confirmButtonName}
                 </Button>
             </DialogActions>
         </Dialog>
-    ) : null;
+    ) : null
 
-    return createPortal(component, portalElement);
+    return createPortal(component, portalElement)
 }
 
 ContractDialog.propTypes = {
-    show: PropTypes.bool, 
+    show: PropTypes.bool,
     dialogProps: PropTypes.object,
     onCancel: PropTypes.func,
-    onConfirm: PropTypes.func,
-};
+    onConfirm: PropTypes.func
+}
 
-export default ContractDialog;
-
+export default ContractDialog

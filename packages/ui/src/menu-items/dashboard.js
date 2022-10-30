@@ -1,8 +1,8 @@
 // assets
-import { IconHierarchy, IconEditCircle, IconWallet } from '@tabler/icons';
+import { IconHierarchy, IconEditCircle, IconWallet } from '@tabler/icons'
 
 // constant
-const icons = { IconHierarchy, IconEditCircle, IconWallet };
+const icons = { IconHierarchy, IconEditCircle, IconWallet }
 
 // ==============================|| DASHBOARD MENU ITEMS ||============================== //
 
@@ -35,7 +35,7 @@ const dashboard = {
             icon: icons.IconWallet,
             breadcrumbs: true
         }
-    ],
-};
+    ]
+}
 
-export default dashboard;
+export default dashboard

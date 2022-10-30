@@ -1,32 +1,31 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react'
 
 // material-ui
-import { Grid, Button, Box, Stack } from '@mui/material';
+import { Grid, Button, Box, Stack } from '@mui/material'
 
 // project imports
-import MainCard from 'ui-component/cards/MainCard';
-import ItemCard from 'ui-component/cards/ItemCard';
-import ContractDialog from './ContractDialog';
-import ContractEmptySVG from 'assets/images/contract_empty.svg';
+import MainCard from 'ui-component/cards/MainCard'
+import ItemCard from 'ui-component/cards/ItemCard'
+import ContractDialog from './ContractDialog'
+import ContractEmptySVG from 'assets/images/contract_empty.svg'
 
 // const
-import { gridSpacing } from 'store/constant';
+import { gridSpacing } from 'store/constant'
 
 // API
-import contractsApi from "api/contracts";
+import contractsApi from 'api/contracts'
 
 // Hooks
-import useApi from "hooks/useApi";
+import useApi from 'hooks/useApi'
 
 // ==============================|| CONTRACTS ||============================== //
 
 const Contracts = () => {
+    const [isLoading, setLoading] = useState(true)
+    const [showDialog, setShowDialog] = useState(false)
+    const [dialogProps, setDialogProps] = useState({})
 
-    const [isLoading, setLoading] = useState(true);
-    const [showDialog, setShowDialog] = useState(false);
-    const [dialogProps, setDialogProps] = useState({});
-
-    const getAllContractsApi = useApi(contractsApi.getAllContracts);
+    const getAllContractsApi = useApi(contractsApi.getAllContracts)
 
     const addNew = () => {
         const dialogProp = {
@@ -34,10 +33,10 @@ const Contracts = () => {
             type: 'ADD',
             cancelButtonName: 'Cancel',
             confirmButtonName: 'Add'
-        };
-        setDialogProps(dialogProp);
-        setShowDialog(true);
-    };
+        }
+        setDialogProps(dialogProp)
+        setShowDialog(true)
+    }
 
     const edit = (id) => {
         const dialogProp = {
@@ -46,70 +45,70 @@ const Contracts = () => {
             cancelButtonName: 'Cancel',
             confirmButtonName: 'Save',
             id
-        };
-        setDialogProps(dialogProp);
-        setShowDialog(true);
-    };
-    
+        }
+        setDialogProps(dialogProp)
+        setShowDialog(true)
+    }
+
     const onConfirm = () => {
-        setShowDialog(false);
-        getAllContractsApi.request();
+        setShowDialog(false)
+        getAllContractsApi.request()
     }
 
     useEffect(() => {
-        getAllContractsApi.request();
+        getAllContractsApi.request()
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [])
 
     useEffect(() => {
-        setLoading(getAllContractsApi.loading);
-    }, [getAllContractsApi.loading]);
-
+        setLoading(getAllContractsApi.loading)
+    }, [getAllContractsApi.loading])
 
     return (
         <>
-        <MainCard>
-            <Stack flexDirection="row">
-                <h1>Contracts</h1>
-                <Grid sx={{ mb: 1.25 }} container direction="row">
-                    <Box sx={{ flexGrow: 1 }} />
-                    <Grid item>
-                        <Button variant="contained" sx={{ color: 'white' }} onClick={addNew}>
-                            Add New
-                        </Button>
+            <MainCard>
+                <Stack flexDirection='row'>
+                    <h1>Contracts</h1>
+                    <Grid sx={{ mb: 1.25 }} container direction='row'>
+                        <Box sx={{ flexGrow: 1 }} />
+                        <Grid item>
+                            <Button variant='contained' sx={{ color: 'white' }} onClick={addNew}>
+                                Add New
+                            </Button>
+                        </Grid>
                     </Grid>
-                </Grid>
-            </Stack>
-            <Grid container spacing={gridSpacing}>
-                {!isLoading && getAllContractsApi.data && getAllContractsApi.data.map((data, index) => (
-                    <Grid key={index} item lg={4} md={6} sm={6} xs={12}>
-                        <ItemCard 
-                            isLoading={isLoading}
-                            onClick={() => edit(data._id)} 
-                            data={data}
-                        />
-                    </Grid>
-                ))}
-            </Grid>
-            {!isLoading && (!getAllContractsApi.data || getAllContractsApi.data.length === 0) && (
-                <Stack sx={{ alignItems: 'center', justifyContent: 'center' }} flexDirection="column">
-                    <Box sx={{ p: 2, height: 'auto' }}>
-                        <img style={{ objectFit: 'cover', height: '30vh', width: 'auto' }} src={ContractEmptySVG} alt="ContractEmptySVG" />
-                    </Box>
-                    <div>No Contracts Yet</div>
                 </Stack>
-            )}
-        </MainCard>
-        <ContractDialog
-            show={showDialog}
-            dialogProps={dialogProps}
-            onCancel={() => setShowDialog(false)}
-            onConfirm={onConfirm}
-        >
-        </ContractDialog>
+                <Grid container spacing={gridSpacing}>
+                    {!isLoading &&
+                        getAllContractsApi.data &&
+                        getAllContractsApi.data.map((data, index) => (
+                            <Grid key={index} item lg={4} md={6} sm={6} xs={12}>
+                                <ItemCard isLoading={isLoading} onClick={() => edit(data._id)} data={data} />
+                            </Grid>
+                        ))}
+                </Grid>
+                {!isLoading && (!getAllContractsApi.data || getAllContractsApi.data.length === 0) && (
+                    <Stack sx={{ alignItems: 'center', justifyContent: 'center' }} flexDirection='column'>
+                        <Box sx={{ p: 2, height: 'auto' }}>
+                            <img
+                                style={{ objectFit: 'cover', height: '30vh', width: 'auto' }}
+                                src={ContractEmptySVG}
+                                alt='ContractEmptySVG'
+                            />
+                        </Box>
+                        <div>No Contracts Yet</div>
+                    </Stack>
+                )}
+            </MainCard>
+            <ContractDialog
+                show={showDialog}
+                dialogProps={dialogProps}
+                onCancel={() => setShowDialog(false)}
+                onConfirm={onConfirm}
+            ></ContractDialog>
         </>
-    );
-};
+    )
+}
 
-export default Contracts;
+export default Contracts

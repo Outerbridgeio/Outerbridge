@@ -1,8 +1,8 @@
 // assets
-import { IconTrash, IconFileUpload, IconFileExport } from '@tabler/icons';
+import { IconTrash, IconFileUpload, IconFileExport } from '@tabler/icons'
 
 // constant
-const icons = { IconTrash, IconFileUpload, IconFileExport };
+const icons = { IconTrash, IconFileUpload, IconFileExport }
 
 // ==============================|| SETTINGS MENU ITEMS ||============================== //
 
@@ -16,23 +16,23 @@ const settings = {
             title: 'Load Workflow',
             type: 'item',
             url: '',
-            icon: icons.IconFileUpload,
+            icon: icons.IconFileUpload
         },
         {
             id: 'exportWorkflow',
             title: 'Export Workflow',
             type: 'item',
             url: '',
-            icon: icons.IconFileExport,
+            icon: icons.IconFileExport
         },
         {
             id: 'deleteWorkflow',
             title: 'Delete Workflow',
             type: 'item',
             url: '',
-            icon: icons.IconTrash,
+            icon: icons.IconTrash
         }
-    ],
-};
+    ]
+}
 
-export default settings;
+export default settings
