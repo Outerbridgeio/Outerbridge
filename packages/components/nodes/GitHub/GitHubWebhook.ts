@@ -128,7 +128,7 @@ class GitHubWebhook implements INode {
                     },
                     {
                         label: 'Issues',
-                        name: 'Issues',
+                        name: 'issues',
                         description: 'Activity related to an issue.'
                     },
                     {
@@ -240,7 +240,7 @@ class GitHubWebhook implements INode {
                     {
                         label: 'Push',
                         name: 'push',
-                        description: 'Triggered anytime a transaction sent through your API key gets successfully mined.'
+                        description: 'Activity related to one or more commits pushed to a repository branch or tag.'
                     },
                     {
                         label: 'Release',
@@ -384,12 +384,12 @@ class GitHubWebhook implements INode {
                 headers
             }
 
+            let webhookExist = false
+            const webhook_events = []
             try {
                 const responseListWebhooks = await axios(axiosConfig)
                 const responseWebhooks = responseListWebhooks.data
-                const webhook_events = []
                 webhook_events.push(actionsData.events as string)
-                let webhookExist = false
 
                 for (const webhook of responseWebhooks) {
                     if (webhook.events === webhook_events && webhook.config.url === webhookFullUrl) {
@@ -397,8 +397,12 @@ class GitHubWebhook implements INode {
                         break
                     }
                 }
+            } catch (err) {
+                if (err.response.status !== 404) throw new Error(err)
+            }
 
-                if (!webhookExist) {
+            if (!webhookExist) {
+                try {
                     const data: ICommonObject = {
                         name: 'web',
                         config: {
@@ -422,9 +426,9 @@ class GitHubWebhook implements INode {
                         return createResponseData.id
                     }
                     return
+                } catch (error) {
+                    return
                 }
-            } catch (error) {
-                return
             }
         },
 
@@ -475,7 +479,8 @@ class GitHubWebhook implements INode {
             throw new Error('Missing request')
         }
 
-        //TODO: Verify webhook via signing key
+        // Check if it is a ping event, if yes return null
+        if (req.headers && req.headers['x-github-event'] === 'ping') return null
 
         const returnData: ICommonObject[] = []
 
@@ -487,7 +492,6 @@ class GitHubWebhook implements INode {
             rawBody: (req as any).rawBody,
             url: req?.url
         })
-
         return returnWebhookNodeExecutionData(returnData)
     }
 }
