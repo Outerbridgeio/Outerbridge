@@ -699,7 +699,9 @@ export const etherscanAPIs = {
     [NETWORK.ARBITRUM]: 'https://api.arbiscan.io/api',
     [NETWORK.ARBITRUM_RINKEBY]: 'https://api-testnet.arbiscan.io/api',
     [NETWORK.BSC]: 'https://api.bscscan.com/api',
-    [NETWORK.BSC_TESTNET]: 'https://api-testnet.bscscan.com/api'
+    [NETWORK.BSC_TESTNET]: 'https://api-testnet.bscscan.com/api',
+    [NETWORK.AVALANCHE]: 'https://api.snowtrace.io/api',
+    [NETWORK.AVALANCHE_TESTNET]: 'https://api-testnet.snowtrace.io/api'
 } as INetworkMapping
 
 export const infuraHTTPAPIs = {
