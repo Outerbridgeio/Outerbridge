@@ -459,6 +459,8 @@ export const processWebhook = async (
                 nodeData.req = req
                 const result = await webhookNodeInstance.runWebhook!.call(webhookNodeInstance, nodeData)
 
+                if (result === null) return res.status(200).send('OK!')
+
                 // Emit webhook result
                 io.to(clientId).emit('testWebhookNodeResponse', result)
 
@@ -471,6 +473,8 @@ export const processWebhook = async (
             } else {
                 nodeData.req = req
                 const result = await webhookNodeInstance.runWebhook!.call(webhookNodeInstance, nodeData)
+
+                if (result === null) return res.status(200).send('OK!')
 
                 const newWorkflowExecutedData = {
                     nodeId: webhookNodeId,
@@ -549,6 +553,8 @@ export const processWebhook = async (
             const webhookNode = nodeInstance as IWebhookNode
             nodeData.req = req
             const result = (await webhookNode.runWebhook!.call(webhookNode, nodeData)) || []
+
+            if (result === null) return res.status(200).send('OK!')
 
             await deployedWorkflowsPool.startWorkflow(
                 workflowShortId,
