@@ -148,7 +148,7 @@ export class ChildProcess {
 async function initDB() {
     const childAppDataSource = new DataSource({
         type: 'mongodb',
-        url: `mongodb://${process.env.MONGO_HOST || 'localhost'}:27017/outerbridge`,
+        url: process.env.MONGO_URL || `mongodb://${process.env.MONGO_HOST || 'localhost'}:27017/outerbridge`,
         useNewUrlParser: true,
         synchronize: true,
         logging: false,
