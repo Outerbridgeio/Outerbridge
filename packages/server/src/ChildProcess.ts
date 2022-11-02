@@ -196,7 +196,7 @@ function getVariableValue(paramValue: string, workflowExecutedData: IWorkflowExe
             const executedNode = workflowExecutedData.find((exec) => exec.nodeId === variableNodeId)
             if (executedNode) {
                 const variableValue = lodash.get(executedNode, variablePath, '')
-                variableDict[`{{${variableFullPath}}}`] = variableValue
+                variableDict[`{{${variableFullPath}}}`] = variableValue || ''
             }
             variableStack.pop()
         }

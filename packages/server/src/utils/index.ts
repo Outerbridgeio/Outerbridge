@@ -302,7 +302,7 @@ export const getVariableValue = (paramValue: string, reactFlowNodes: IReactFlowN
         if (substr === '}}' && variableStack.length > 0 && variableStack[variableStack.length - 1].substr === '{{') {
             const variableStartIdx = variableStack[variableStack.length - 1].startIdx
             const variableEndIdx = startIdx
-            const variableFullPath = returnVal.substring(variableStartIdx, variableEndIdx) || ''
+            const variableFullPath = returnVal.substring(variableStartIdx, variableEndIdx)
 
             // Split by first occurence of '[' to get just nodeId
             const [variableNodeId, ...rest] = variableFullPath.split('[')
@@ -312,7 +312,7 @@ export const getVariableValue = (paramValue: string, reactFlowNodes: IReactFlowN
             if (executedNode) {
                 const resolvedVariablePath = getVariableValue(variablePath, reactFlowNodes)
                 const variableValue = lodash.get(executedNode.data, resolvedVariablePath, '')
-                variableDict[`{{${variableFullPath}}}`] = variableValue
+                variableDict[`{{${variableFullPath}}}`] = variableValue || ''
             }
             variableStack.pop()
         }
