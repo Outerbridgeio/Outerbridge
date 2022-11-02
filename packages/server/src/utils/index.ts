@@ -312,7 +312,7 @@ export const getVariableValue = (paramValue: string, reactFlowNodes: IReactFlowN
             if (executedNode) {
                 const resolvedVariablePath = getVariableValue(variablePath, reactFlowNodes)
                 const variableValue = lodash.get(executedNode.data, resolvedVariablePath, '')
-                variableDict[`{{${variableFullPath}}}`] = variableValue
+                variableDict[`{{${variableFullPath}}}`] = variableValue || ''
             }
             variableStack.pop()
         }

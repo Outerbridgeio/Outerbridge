@@ -148,7 +148,7 @@ export class ChildProcess {
 async function initDB() {
     const childAppDataSource = new DataSource({
         type: 'mongodb',
-        url: `mongodb://${process.env.MONGO_HOST || 'localhost'}:27017/outerbridge`,
+        url: process.env.MONGO_URL || `mongodb://${process.env.MONGO_HOST || 'localhost'}:27017/outerbridge`,
         useNewUrlParser: true,
         synchronize: true,
         logging: false,
@@ -196,7 +196,7 @@ function getVariableValue(paramValue: string, workflowExecutedData: IWorkflowExe
             const executedNode = workflowExecutedData.find((exec) => exec.nodeId === variableNodeId)
             if (executedNode) {
                 const variableValue = lodash.get(executedNode, variablePath, '')
-                variableDict[`{{${variableFullPath}}}`] = variableValue
+                variableDict[`{{${variableFullPath}}}`] = variableValue || ''
             }
             variableStack.pop()
         }
