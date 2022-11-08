@@ -231,15 +231,20 @@ export class DeployedWorkflowPool {
             } as IRunWorkflowMessageValue
             childProcess.send({ key: 'start', value } as IChildProcessMessage)
 
+            let childProcessTimeout: NodeJS.Timeout
+
             childProcess.on('message', async (message: IChildProcessMessage) => {
                 if (message.key === 'finish') {
                     let updatedWorkflowExecutedData = message.value as IWorkflowExecutedData[]
                     updatedWorkflowExecutedData = updatedWorkflowExecutedData.filter((execData) => execData.nodeId !== startingNodeId)
                     await this.updateExecution(workflowShortId, updatedWorkflowExecutedData, newExecutionShortId, 'FINISHED')
+                    if (childProcessTimeout) {
+                        clearTimeout(childProcessTimeout)
+                    }
                 }
                 if (message.key === 'start') {
                     if (process.env.EXECUTION_TIMEOUT) {
-                        setTimeout(async () => {
+                        childProcessTimeout = setTimeout(async () => {
                             childProcess.kill()
                             await this.terminateSpecificExecutionAfterTimeout(newExecutionShortId)
                         }, parseInt(process.env.EXECUTION_TIMEOUT, 10))
@@ -249,6 +254,9 @@ export class DeployedWorkflowPool {
                     let updatedWorkflowExecutedData = message.value as IWorkflowExecutedData[]
                     updatedWorkflowExecutedData = updatedWorkflowExecutedData.filter((execData) => execData.nodeId !== startingNodeId)
                     await this.updateExecution(workflowShortId, updatedWorkflowExecutedData, newExecutionShortId, 'ERROR')
+                    if (childProcessTimeout) {
+                        clearTimeout(childProcessTimeout)
+                    }
                 }
             })
         } catch (err) {
