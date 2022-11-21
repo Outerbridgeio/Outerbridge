@@ -1294,7 +1294,7 @@ export class App {
                 return res.status(500).send(e)
             }
             const serializedScope = scopeArray.join(' ')
-            const redirectUrl = `${req.protocol}://${baseURL}/api/v1/oauth2/callback`
+            const redirectUrl = `${req.secure ? 'https' : req.protocol}://${baseURL}/api/v1/oauth2/callback`
 
             const returnURL = `${authUrl}?${authorizationURLParameters}&client_id=${clientID}&scope=${serializedScope}&redirect_uri=${redirectUrl}&state=${credentialId}`
 
@@ -1332,7 +1332,7 @@ export class App {
             }
 
             const baseURL = req.get('host')
-            const redirect_uri = `${req.protocol}://${baseURL}/api/v1/oauth2/callback`
+            const redirect_uri = `${req.secure ? 'https' : req.protocol}://${baseURL}/api/v1/oauth2/callback`
 
             const oAuth2Parameters = {
                 clientId: client_id,
@@ -1373,7 +1373,7 @@ export class App {
 
         this.app.get('/api/v1/oauth2-redirecturl', async (req: Request, res: Response) => {
             const baseURL = req.get('host')
-            res.send(`${req.protocol}://${baseURL}/api/v1/oauth2/callback`)
+            res.send(`${req.secure ? 'https' : req.protocol}://${baseURL}/api/v1/oauth2/callback`)
         })
 
         // ----------------------------------------
