@@ -1,6 +1,6 @@
-import PropTypes from 'prop-types'
-import { forwardRef } from 'react'
+import { forwardRef, ComponentProps } from 'react'
 import { useTheme } from 'themes'
+import { NodeParams, ParamsType, NodeData } from 'utils'
 // material-ui
 import { Box, Button, Stack, FormControl, OutlinedInput, Popper, TextField, Typography, Switch } from '@mui/material'
 import Autocomplete, { autocompleteClasses } from '@mui/material/Autocomplete'
@@ -12,6 +12,7 @@ import * as Yup from 'yup'
 import { Formik } from 'formik'
 import PerfectScrollbar from 'react-perfect-scrollbar'
 import Editor from 'react-simple-code-editor'
+// @ts-expect-error no type declaration
 import { highlight, languages } from 'prismjs/components/prism-core'
 import 'prismjs/components/prism-clike'
 import 'prismjs/components/prism-javascript'
@@ -26,9 +27,9 @@ import { TooltipWithParser } from '../../ui-component/TooltipWithParser'
 // project imports
 import { useScriptRef } from 'hooks'
 import { AnimateButton } from 'ui-component/'
-import ArrayInputParameters from './ArrayInputParameters'
+import { ArrayInputParameters } from './ArrayInputParameters'
 import { OptionParamsResponse } from './OptionParamsResponse'
-import AsyncSelectWrapper from './AsyncSelectWrapper'
+import { AsyncSelectWrapper } from './AsyncSelectWrapper'
 
 // icons
 import { IconPlus, IconUpload } from '@tabler/icons'
@@ -51,42 +52,40 @@ const StyledPopper = styled(Popper)({
     }
 })
 
-const DateCustomInput = forwardRef(function DateCustomInput({ value, onClick }, ref) {
-    return (
-        <button
-            style={{
-                backgroundColor: '#fafafa',
-                paddingTop: 8,
-                paddingBottom: 8,
-                paddingRight: 12,
-                paddingLeft: 12,
-                borderRadius: 12,
-                width: '100%',
-                height: 50,
-                border: `1px solid #BDBDBD`,
-                cursor: 'pointer',
-                fontWeight: 'bold',
-                textAlign: 'start',
-                color: '#212121',
-                opacity: 0.9
-            }}
-            type='button'
-            onClick={onClick}
-            ref={ref}
-        >
-            {value}
-        </button>
-    )
-})
-
-DateCustomInput.propTypes = {
-    value: PropTypes.string,
-    onClick: PropTypes.func
-}
+const DateCustomInput = forwardRef<HTMLButtonElement, { value?: string; onClick?: ComponentProps<'button'>['onClick'] }>(
+    function DateCustomInput({ value, onClick }, ref) {
+        return (
+            <button
+                style={{
+                    backgroundColor: '#fafafa',
+                    paddingTop: 8,
+                    paddingBottom: 8,
+                    paddingRight: 12,
+                    paddingLeft: 12,
+                    borderRadius: 12,
+                    width: '100%',
+                    height: 50,
+                    border: `1px solid #BDBDBD`,
+                    cursor: 'pointer',
+                    fontWeight: 'bold',
+                    textAlign: 'start',
+                    color: '#212121',
+                    opacity: 0.9
+                }}
+                type='button'
+                onClick={onClick}
+                ref={ref}
+            >
+                {value}
+            </button>
+        )
+    }
+)
 
 // ==============================|| INPUT PARAMETERS ||============================== //
+type Values = Record<string, unknown> & { submit?: unknown }
 
-const InputParameters = ({
+export const InputParameters = ({
     params,
     paramsType,
     initialValues,
@@ -97,21 +96,54 @@ const InputParameters = ({
     setVariableSelectorState,
     onEditVariableDialogOpen,
     ...others
+}: {
+    params: NodeParams[]
+    initialValues: Values
+    arrayParams: NodeParams[][]
+    paramsType: ParamsType
+    arrayGroupName: string
+    errors?: Record<string, string>[]
+    nodeFlowData: NodeData
+    nodeParamsValidation: Record<string, Yup.AnySchema<any, any, any>>
+    valueChanged: (values: Values, paramsType: ParamsType) => void
+    onSubmit: (values: Values, paramsType: ParamsType) => void | Promise<any>
+    onEditVariableDialogOpen: (
+        input: NodeParams,
+        values: Values,
+        body?: { arrayItemInput: NodeParams; arrayItemValues: Values; arrayItemIndex: number; initialValues: Values[] }
+    ) => void
+    setVariableSelectorState: (
+        state: boolean,
+        body?: {
+            textBeforeCursorPosition: string
+            textAfterCursorPosition: string
+            path: string
+            paramsType: ParamsType
+        }
+    ) => void
 }) => {
     const theme = useTheme()
 
     const scriptedRef = useScriptRef()
 
-    const onChanged = (values) => {
+    const onChanged = (values: Values) => {
         const updateValues = values
         updateValues.submit = null
         valueChanged(updateValues, paramsType)
     }
 
-    const onMouseUp = (e, inputName) => {
-        const cursorPosition = e.target.selectionEnd
-        const textBeforeCursorPosition = e.target.value.substring(0, cursorPosition)
-        const textAfterCursorPosition = e.target.value.substring(cursorPosition, e.target.value.length)
+    const onMouseUp = (
+        e:
+            | React.FocusEvent<HTMLDivElement, Element>
+            | React.FocusEvent<HTMLTextAreaElement, Element>
+            | React.MouseEvent<HTMLDivElement, MouseEvent>
+            | React.FocusEvent<HTMLInputElement | HTMLTextAreaElement, Element>,
+        inputName: string
+    ) => {
+        const e_ = e as React.FocusEvent<HTMLTextAreaElement, Element>
+        const cursorPosition = e_.target.selectionEnd
+        const textBeforeCursorPosition = e_.target.value.substring(0, cursorPosition)
+        const textAfterCursorPosition = e_.target.value.substring(cursorPosition, e_.target.value.length)
         const path = `${paramsType}.${inputName}`
         const body = {
             textBeforeCursorPosition,
@@ -122,7 +154,7 @@ const InputParameters = ({
         setVariableSelectorState(true, body)
     }
 
-    const onAddArrayItem = (values, arrayItems, arrayName) => {
+    const onAddArrayItem = (values: Values, arrayItems: Record<string, unknown>[], arrayName: string) => {
         const updateValues = {
             ...values,
             [arrayName]: arrayItems
@@ -130,13 +162,18 @@ const InputParameters = ({
         valueChanged(updateValues, paramsType)
     }
 
-    const handleFolderUpload = (e, setFieldValue, values, inputName) => {
+    const handleFolderUpload = (
+        e: React.ChangeEvent<HTMLInputElement>,
+        setFieldValue: (field: string, value: any) => void,
+        values: Values,
+        inputName: string
+    ) => {
         setVariableSelectorState(false)
         if (!e.target.files) return
         const files = e.target.files
         const reader = new FileReader()
 
-        function readFile(fileIndex, base64Array) {
+        function readFile(fileIndex: number, base64Array: string[]) {
             if (fileIndex >= files.length) {
                 setFieldValue(inputName, JSON.stringify(base64Array))
                 const overwriteValues = {
@@ -147,46 +184,58 @@ const InputParameters = ({
                 return
             }
             const file = files[fileIndex]
+            // ! logic changed
+            if (file) {
+                reader.onload = (evt) => {
+                    if (!evt?.target?.result) {
+                        return
+                    }
+                    const { result } = evt.target
+                    const value = result + `,filepath:${file.webkitRelativePath}`
+                    base64Array.push(value)
+                    readFile(fileIndex + 1, lodash.cloneDeep(base64Array))
+                }
+                reader.readAsDataURL(file)
+            }
+        }
+        readFile(0, [])
+    }
+
+    const handleFileUpload = (
+        e: React.ChangeEvent<HTMLInputElement>,
+        setFieldValue: (field: string, value: any) => void,
+        values: Values,
+        inputName: string
+    ) => {
+        setVariableSelectorState(false)
+        if (!e.target.files) return
+
+        const file = e.target.files[0]
+        if (file) {
+            // ! logic changed
+            const { name } = file
+
+            const reader = new FileReader()
             reader.onload = (evt) => {
                 if (!evt?.target?.result) {
                     return
                 }
                 const { result } = evt.target
-                const value = result + `,filepath:${file.webkitRelativePath}`
-                base64Array.push(value)
-                readFile(fileIndex + 1, lodash.cloneDeep(base64Array))
+
+                const value = result + `,filename:${name}`
+                setFieldValue(inputName, value)
+                const overwriteValues = {
+                    ...values,
+                    [inputName]: value
+                }
+                onChanged(overwriteValues)
             }
             reader.readAsDataURL(file)
         }
-        readFile(0, [])
     }
 
-    const handleFileUpload = (e, setFieldValue, values, inputName) => {
-        setVariableSelectorState(false)
-        if (!e.target.files) return
-
-        const file = e.target.files[0]
-        const { name } = file
-
-        const reader = new FileReader()
-        reader.onload = (evt) => {
-            if (!evt?.target?.result) {
-                return
-            }
-            const { result } = evt.target
-
-            const value = result + `,filename:${name}`
-            setFieldValue(inputName, value)
-            const overwriteValues = {
-                ...values,
-                [inputName]: value
-            }
-            onChanged(overwriteValues)
-        }
-        reader.readAsDataURL(file)
-    }
-
-    const findMatchingOptions = (options = [], value) => options.find((option) => option.name === value)
+    const findMatchingOptions = (options: NonNullable<NodeParams['options']> = [], value: string) =>
+        options.find((option) => option.name === value)
 
     const getDefaultOptionValue = () => ''
 
@@ -210,7 +259,7 @@ const InputParameters = ({
                             console.error(err)
                             if (scriptedRef.current) {
                                 setStatus({ success: false })
-                                setErrors({ submit: err.message })
+                                setErrors({ submit: (err as any).message })
                                 setSubmitting(false)
                             }
                         }
@@ -237,7 +286,9 @@ const InputParameters = ({
                                                         marginBottom: '1rem'
                                                     }}
                                                 >
-                                                    {values[inputName] ? getFileName(values[inputName]) : 'Choose a file to upload'}
+                                                    {values[inputName]
+                                                        ? getFileName(values[inputName] as string)
+                                                        : 'Choose a file to upload'}
                                                 </span>
                                             )}
 
@@ -249,7 +300,9 @@ const InputParameters = ({
                                                         marginBottom: '1rem'
                                                     }}
                                                 >
-                                                    {values[inputName] ? getFolderName(values[inputName]) : 'Choose a folder to upload'}
+                                                    {values[inputName]
+                                                        ? getFolderName(values[inputName] as string)
+                                                        : 'Choose a folder to upload'}
                                                 </span>
                                             )}
 
@@ -272,10 +325,11 @@ const InputParameters = ({
                                                     <input
                                                         type='file'
                                                         // https://github.com/jsx-eslint/eslint-plugin-react/issues/3454
-                                                        // eslint-disable-next-line react/no-unknown-property
+                                                        /* eslint-disable react/no-unknown-property */
+                                                        // @ts-expect-error check this later
                                                         directory=''
-                                                        // eslint-disable-next-line react/no-unknown-property
                                                         webkitdirectory=''
+                                                        /* eslint-enable react/no-unknown-property */
                                                         hidden
                                                         onChange={(e) => handleFolderUpload(e, setFieldValue, values, inputName)}
                                                     />
@@ -327,11 +381,11 @@ const InputParameters = ({
                                             >
                                                 <Editor
                                                     placeholder={input.placeholder}
-                                                    value={values[inputName] || ''}
+                                                    value={(values[inputName] as string) || ''}
                                                     onBlur={(e) => {
                                                         const overwriteValues = {
                                                             ...values,
-                                                            [inputName]: e.target.value
+                                                            [inputName]: (e as React.FocusEvent<HTMLTextAreaElement, Element>).target.value
                                                         }
                                                         onChanged(overwriteValues)
                                                         onMouseUp(e, inputName)
@@ -372,7 +426,7 @@ const InputParameters = ({
                                             </Stack>
                                             <DatePicker
                                                 customInput={<DateCustomInput />}
-                                                selected={convertDateStringToDateObject(values[inputName]) || null}
+                                                selected={convertDateStringToDateObject(values[inputName] as string) || null}
                                                 showTimeSelect
                                                 isClearable
                                                 timeInputLabel='Time:'
@@ -479,10 +533,10 @@ const InputParameters = ({
                                     return (
                                         <FormControl key={inputName} fullWidth sx={{ mb: 1, mt: 1 }}>
                                             <AsyncSelectWrapper
-                                                title={input.label}
-                                                description={input.description}
-                                                value={values[inputName]}
-                                                loadMethod={input.loadMethod}
+                                                title={input.label!}
+                                                description={input.description!}
+                                                value={values[inputName] as string}
+                                                loadMethod={input.loadMethod!}
                                                 loadFromDbCollections={input.loadFromDbCollections || []}
                                                 nodeFlowData={nodeFlowData}
                                                 error={JSON.stringify(errors[inputName])}
@@ -518,9 +572,12 @@ const InputParameters = ({
                                                 freeSolo
                                                 onOpen={() => setVariableSelectorState(false)}
                                                 options={input.options || []}
-                                                value={findMatchingOptions(input.options, values[inputName]) || getDefaultOptionValue()}
+                                                value={
+                                                    findMatchingOptions(input.options, values[inputName] as string) ||
+                                                    getDefaultOptionValue()
+                                                }
                                                 onChange={(e, selection) => {
-                                                    const value = selection ? selection.name : ''
+                                                    const value = selection ? (selection as { name: string }).name : ''
                                                     setFieldValue(inputName, value)
                                                     const overwriteValues = {
                                                         ...values,
@@ -554,7 +611,7 @@ const InputParameters = ({
                                                     *{errors[inputName]}
                                                 </span>
                                             )}
-                                            <OptionParamsResponse value={values[inputName]} options={input.options || []} />
+                                            <OptionParamsResponse value={values[inputName] as string} options={input.options || []} />
                                         </FormControl>
                                     )
                                 }
@@ -563,7 +620,7 @@ const InputParameters = ({
                                     const arrayParamItems = input.arrayParams
                                     const templateArray = input.array
                                     const inputName = input.name
-                                    const arrayItemsValues = values[inputName] || []
+                                    const arrayItemsValues = (values[inputName] as Values[]) || []
 
                                     return (
                                         <Stack sx={{ mt: 1 }} key={inputName}>
@@ -576,6 +633,7 @@ const InputParameters = ({
                                                 arrayParams={arrayParamItems}
                                                 paramsType={paramsType}
                                                 arrayGroupName={inputName}
+                                                // @ts-expect-error  this type does not make sense at all
                                                 errors={errors[inputName] ? errors[inputName] : []}
                                                 onArrayInputChange={(updateInitialValues) => {
                                                     setFieldValue(inputName, updateInitialValues)
@@ -621,12 +679,13 @@ const InputParameters = ({
                                                         startIcon={<IconPlus />}
                                                         onClick={() => {
                                                             setVariableSelectorState(false)
-                                                            let newObj = {}
-                                                            if (input.default && input.default.length) {
-                                                                newObj = input.default[0]
+                                                            let newObj: Record<string, unknown> = {}
+                                                            // ! logic changed
+                                                            if (input.default && Array.isArray(input.default) && input.default.length) {
+                                                                newObj = input.default[0]!
                                                             } else {
-                                                                for (let i = 0; i < templateArray.length; i += 1) {
-                                                                    newObj[templateArray[i].name] = templateArray[i].default || ''
+                                                                for (let i = 0; i < templateArray.length; i++) {
+                                                                    newObj[templateArray[i]!.name] = templateArray[i]?.default || ''
                                                                 }
                                                             }
                                                             arrayItemsValues.push(newObj)
@@ -665,17 +724,3 @@ const InputParameters = ({
         </>
     )
 }
-
-InputParameters.propTypes = {
-    params: PropTypes.array,
-    paramsType: PropTypes.string,
-    initialValues: PropTypes.object,
-    nodeParamsValidation: PropTypes.object,
-    nodeFlowData: PropTypes.object,
-    valueChanged: PropTypes.func,
-    onSubmit: PropTypes.func,
-    setVariableSelectorState: PropTypes.func,
-    onEditVariableDialogOpen: PropTypes.func
-}
-
-export default InputParameters

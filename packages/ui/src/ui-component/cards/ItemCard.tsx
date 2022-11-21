@@ -1,6 +1,6 @@
 import { useTheme, AppTheme } from 'themes'
 import { ComponentProps } from 'react'
-import { WorkFlowData } from 'hooks'
+import { reducer } from 'store'
 // material-ui
 import { styled } from '@mui/material/styles'
 import { Box, Grid, Chip, Typography } from '@mui/material'
@@ -39,7 +39,7 @@ export const ItemCard = ({
     onClick
 }: {
     isLoading?: boolean
-    data: WorkFlowData
+    data: reducer.canvas.WorkFlow
     images?: string[]
     onClick: ComponentProps<typeof CardWrapper>['onClick']
 }) => {

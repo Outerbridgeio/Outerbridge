@@ -1,6 +1,7 @@
+import { useTheme } from 'themes'
+import { NodeParams } from 'utils'
 // material-ui
 import { Box, Typography } from '@mui/material'
-import { useTheme } from '@mui/material/styles'
 
 // third party
 import ReactJson from 'react-json-view'
@@ -13,13 +14,7 @@ import './OptionParamsResponse.css'
 
 // ==============================|| OPTION PARAMS RESPONSE ||============================== //
 
-export const OptionParamsResponse = ({
-    value,
-    options
-}: {
-    value: string
-    options: { name: string; inputParameters: string; exampleParameters: string; exampleResponse: string }[]
-}) => {
+export const OptionParamsResponse = ({ value, options }: { value: string; options: NonNullable<NodeParams['options']> }) => {
     const theme = useTheme()
 
     const getSelectedValue = (value: string) => options.find((option) => option.name === value)

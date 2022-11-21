@@ -1,5 +1,6 @@
 // action - state management
 import { REMOVE_EDGE, SET_DIRTY, REMOVE_DIRTY, SET_WORKFLOW } from '../actions'
+import { NetWorkName } from '../constant'
 
 export const initialState = {
     removeEdgeId: '',
@@ -30,6 +31,8 @@ export type WorkFlow = {
     deployed?: boolean
     executionCount?: number
     execution: Execution[]
+    address?: string
+    network?: NetWorkName
 }
 
 // ==============================|| CANVAS REDUCER ||============================== //

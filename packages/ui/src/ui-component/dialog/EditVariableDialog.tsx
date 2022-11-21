@@ -75,7 +75,7 @@ export const EditVariableDialog = ({
         setExpanded(isExpanded ? nodeLabel : false)
     }
 
-    const onExpandDialogClicked = (data: Record<string, unknown>, node: Node) => {
+    const onExpandDialogClicked = (data: ExpandDialogProps['data'], node: Node) => {
         const dialogProp = {
             title: `Variable Data: ${node.data.label}`,
             data,
@@ -277,8 +277,12 @@ export const EditVariableDialog = ({
                                                                     }}
                                                                     title='Expand Variable'
                                                                     color='primary'
-                                                                    onClick={() =>
-                                                                        onExpandDialogClicked(node.data.outputResponses?.output || {}, node)
+                                                                    onClick={
+                                                                        () =>
+                                                                            onExpandDialogClicked(
+                                                                                node.data.outputResponses?.output || [],
+                                                                                node
+                                                                            ) //! logic changed
                                                                     }
                                                                 >
                                                                     <IconArrowsMaximize />

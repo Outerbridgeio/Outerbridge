@@ -2,9 +2,10 @@ import lodash from 'lodash'
 import moment from 'moment'
 import { INode, INodeParams, INodeData, ICommonObject } from 'outerbridge-components'
 import { MarkOptional, StrictOmit, StrictExclude, StrictExtract } from 'ts-essentials'
+import { reducer } from 'store'
 
 export type NodeData = MarkOptional<StrictOmit<INodeData, 'outputResponses' | 'credentials'>, 'version' | 'outgoing' | 'incoming'> & {
-    outputResponses?: { output: Record<string, unknown>; submit?: boolean; needRetest?: boolean }
+    outputResponses?: { output?: reducer.canvas.ExecutionData['data']; submit?: boolean; needRetest?: boolean }
     inputAnchors: { id: string }[]
     outputAnchors: { id: string }[]
     selected: boolean
@@ -32,6 +33,7 @@ export type NodeParams = StrictOmit<MarkOptional<INodeParams, 'label'>, 'type' |
         | {
               type: StrictExtract<INodeParams['type'], 'array'>
               array: NonNullable<INodeParams['array']>
+              arrayParams: NodeParams[][]
           }
         | { type?: StrictExclude<INodeParams['type'], 'array' | 'options'> }
         | {
@@ -359,7 +361,7 @@ const isHideRegisteredCredential = (params: NodeParams[], paramsType: 'actions' 
     if (!nodeFlowData[paramsType] || !nodeFlowData[paramsType]?.['credentialMethod']) {
         return undefined
     }
-    let clonedParams = params
+    const clonedParams = params
 
     for (let i = 0; i < clonedParams.length; i++) {
         const input = clonedParams[i]!

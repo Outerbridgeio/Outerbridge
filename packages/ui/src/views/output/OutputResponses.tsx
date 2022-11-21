@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import PropTypes from 'prop-types'
 import { NodeType, NodeParamsType } from 'outerbridge-components'
 import { useTheme } from 'themes'
 
@@ -32,7 +31,7 @@ import { copyToClipboard, Nodes, Edges, NodeData } from 'utils'
 
 // ==============================|| OUTPUT RESPONSES ||============================== //
 
-const OutputResponses = ({
+export const OutputResponses = ({
     nodeId,
     nodeParamsType,
     nodeFlowData,
@@ -382,15 +381,3 @@ const OutputResponses = ({
         </>
     )
 }
-
-OutputResponses.propTypes = {
-    nodeId: PropTypes.string,
-    nodeParamsType: PropTypes.array,
-    nodeFlowData: PropTypes.object,
-    nodes: PropTypes.array,
-    edges: PropTypes.array,
-    workflow: PropTypes.object,
-    onSubmit: PropTypes.func
-}
-
-export default OutputResponses

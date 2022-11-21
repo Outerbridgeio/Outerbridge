@@ -218,3 +218,5 @@ export const privateKeyField = [
         default: ''
     }
 ] as const
+
+export type NetWorkName = typeof networks[number]['name']

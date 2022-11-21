@@ -164,11 +164,14 @@ export const CredentialInput = ({
         valueChanged(updateValues, paramsType)
     }
 
-    const onDeleteCredential = async (credentialId: string) => {
-        const response = await credentialApi.deleteCredential(credentialId)
-        if (response.data) {
-            clearCredentialParams()
-            clearCredentialParamsValues('')
+    const onDeleteCredential = async (credentialId: string | undefined) => {
+        // ! logic changed
+        if (credentialId) {
+            const response = await credentialApi.deleteCredential(credentialId)
+            if (response.data) {
+                clearCredentialParams()
+                clearCredentialParamsValues('')
+            }
         }
     }
 
@@ -505,7 +508,7 @@ export const CredentialInput = ({
                                         size='small'
                                         variant='outlined'
                                         startIcon={<IconTrash size={15} />}
-                                        onClick={() => onDeleteCredential(values.registeredCredential?._id!)}
+                                        onClick={() => onDeleteCredential(values.registeredCredential?._id)}
                                     >
                                         Delete Credential
                                     </Button>
