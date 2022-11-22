@@ -5,16 +5,13 @@ export const appDrawerWidth = 320
 export const baseURL = process.env.NODE_ENV === 'production' ? window.location.origin : window.location.origin.replace(':8080', ':3000')
 export const networkExplorers = {
     homestead: 'https://etherscan.io',
-    rinkeby: 'https://rinkeby.etherscan.io',
-    ropsten: 'https://ropsten.etherscan.io',
-    kovan: 'https://kovan.etherscan.io',
     goerli: 'https://goerli.etherscan.io',
     matic: 'https://polygonscan.com',
     maticmum: 'https://mumbai.polygonscan.com',
     optimism: 'https://optimistic.etherscan.io',
-    'optimism-kovan': 'https://kovan-optimistic.etherscan.io',
+    'optimism-goerli': 'https://goerli-optimistic.etherscan.io',
     arbitrum: 'https://arbiscan.io',
-    'arbitrum-rinkeby': 'https://rinkeby-explorer.arbitrum.io',
+    'arbitrum-goerli': 'https://goerli-explorer.arbitrum.io',
     bsc: 'https://bscscan.com',
     'bsc-testnet': 'https://testnet.bscscan.com',
     localhost: ''
@@ -25,24 +22,6 @@ export const networks = [
         name: 'homestead',
         uri: 'https://api.etherscan.io/api',
         color: '#3c3c3d'
-    },
-    {
-        label: 'Ethereum Rinkeby',
-        name: 'rinkeby',
-        uri: 'https://api-rinkeby.etherscan.io/api',
-        color: '#ffbe0b'
-    },
-    {
-        label: 'Ethereum Kovan',
-        name: 'kovan',
-        uri: 'https://api-kovan.etherscan.io/api',
-        color: '#8338ec'
-    },
-    {
-        label: 'Ethereum Ropsten',
-        name: 'ropsten',
-        uri: 'https://api-kovan.etherscan.io/api',
-        color: '#ff006e'
     },
     {
         label: 'Ethereum Goerli',
@@ -81,9 +60,9 @@ export const networks = [
         color: '#ef233c'
     },
     {
-        label: 'Optimism Kovan',
-        name: 'optimism-kovan',
-        uri: 'https://api-kovan-optimistic.etherscan.io/api',
+        label: 'Optimism Goerli',
+        name: 'optimism-goerli',
+        uri: 'https://api-goerli-optimistic.etherscan.io/api',
         color: '#ef233c'
     },
     {
@@ -93,9 +72,9 @@ export const networks = [
         color: '#023e8a'
     },
     {
-        label: 'Arbitrum Rinkeby',
-        name: 'arbitrum-rinkeby',
-        uri: 'https://api-testnet.arbiscan.io/api',
+        label: 'Arbitrum Goerli',
+        name: 'arbitrum-goerli',
+        uri: 'https://api-goerli.arbiscan.io/api',
         color: '#023e8a'
     }
 ]
@@ -127,7 +106,7 @@ export const network_details = {
                     label: 'Etherscan API',
                     name: 'etherscanApi',
                     show: {
-                        'networks.network': ['homestead', 'rinkeby', 'kovan', 'ropsten', 'goerli']
+                        'networks.network': ['homestead', 'goerli']
                     },
                     description: 'Register for a Free API Key from: https://etherscan.io/apis'
                 },
@@ -151,7 +130,7 @@ export const network_details = {
                     label: 'Optimism Etherscan API',
                     name: 'optimisticEtherscanApi',
                     show: {
-                        'networks.network': ['optimism', 'optimism-kovan']
+                        'networks.network': ['optimism', 'optimism-goerli']
                     },
                     description: 'Register for a Free API Key from: https://optimistic.etherscan.io/apis'
                 },
@@ -159,7 +138,7 @@ export const network_details = {
                     label: 'Arbiscan API',
                     name: 'arbiscanApi',
                     show: {
-                        'networks.network': ['arbitrum', 'arbitrum-rinkeby']
+                        'networks.network': ['arbitrum', 'arbitrum-goerli']
                     },
                     description: 'Register for a Free API Key from: https://arbiscan.io/apis'
                 }
