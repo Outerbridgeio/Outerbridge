@@ -88,15 +88,7 @@ class Alchemy implements INode {
                         name: 'nftAPI',
                         description: 'API for fetching NFT data, including ownership, metadata attributes, and more.',
                         show: {
-                            'networks.network': [
-                                NETWORK.MAINNET,
-                                NETWORK.RINKEBY,
-                                NETWORK.GÖRLI,
-                                NETWORK.ROPSTEN,
-                                NETWORK.KOVAN,
-                                NETWORK.MATIC,
-                                NETWORK.MATIC_MUMBAI
-                            ]
+                            'networks.network': [NETWORK.MAINNET, NETWORK.GÖRLI, NETWORK.MATIC, NETWORK.MATIC_MUMBAI]
                         }
                     },
                     {
@@ -106,14 +98,10 @@ class Alchemy implements INode {
                         show: {
                             'networks.network': [
                                 NETWORK.MAINNET,
-                                NETWORK.RINKEBY,
                                 NETWORK.GÖRLI,
-                                NETWORK.ROPSTEN,
-                                NETWORK.KOVAN,
                                 NETWORK.MATIC,
                                 NETWORK.MATIC_MUMBAI,
                                 NETWORK.ARBITRUM,
-                                NETWORK.ARBITRUM_RINKEBY,
                                 NETWORK.ARBITRUM_GOERLI
                             ]
                         }

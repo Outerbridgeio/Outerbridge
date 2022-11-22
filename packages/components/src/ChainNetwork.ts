@@ -6,17 +6,12 @@ import { ethers } from 'ethers'
  */
 export enum NETWORK {
     MAINNET = 'homestead',
-    RINKEBY = 'rinkeby',
     GÖRLI = 'goerli',
-    ROPSTEN = 'ropsten',
-    KOVAN = 'kovan',
     MATIC_MUMBAI = 'maticmum',
     MATIC = 'matic',
     OPTIMISM = 'optimism',
-    OPTIMISM_KOVAN = 'optimism-kovan',
     OPTIMISM_GOERLI = 'optimism-goerli',
     ARBITRUM = 'arbitrum',
-    ARBITRUM_RINKEBY = 'arbitrum-rinkeby',
     ARBITRUM_GOERLI = 'arbitrum-goerli',
     ARBITRUM_NOVA = 'arbitrum-nova',
     BSC = 'bsc',
@@ -42,17 +37,12 @@ export enum NETWORK {
 
 export enum NETWORK_LABEL {
     MAINNET = 'Mainnet',
-    RINKEBY = 'Rinkeby',
     GÖRLI = 'Goerli',
-    ROPSTEN = 'Ropsten',
-    KOVAN = 'Kovan',
     MATIC_MUMBAI = 'Polygon Mumbai',
     MATIC = 'Polygon Mainnet',
     OPTIMISM = 'Optimism Mainnet',
-    OPTIMISM_KOVAN = 'Optimism Kovan',
     OPTIMISM_GOERLI = 'Optimism Goerli',
     ARBITRUM = 'Arbitrum Mainnet',
-    ARBITRUM_RINKEBY = 'Arbitrum Rinkeby',
     ARBITRUM_GOERLI = 'Arbitrum Goerli',
     ARBITRUM_NOVA = 'Arbitrum Nova',
     BSC = 'Binance Smart Chain Mainnet',
@@ -99,20 +89,15 @@ export enum NETWORK_PROVIDER {
 
 export enum CHAIN_ID {
     MAINNET = 1,
-    ROPSTEN = 3,
-    RINKEBY = 4,
     GÖRLI = 5,
-    KOVAN = 42,
     BINANCE_MAINNET = 56,
     BINANCE_TESTNET = 97,
     MATIC = 137,
     MATIC_MUMBAI = 80001,
     ARB_MAINNET = 42161,
-    ARB_TESTNET_RINKEBY = 421611,
     ARB_TESTNET_GOERLI = 421613,
     ARB_NOVA = 42170,
     OPT_MAINNET = 10,
-    OPT_TESTNET_KOVAN = 69,
     OPT_TESTNET_GOERLI = 420,
     CRONOS_MAINNET = 25,
     CRONOS_TESTNET = 338,
@@ -131,7 +116,6 @@ export enum CHAIN_ID {
 
 export enum DOMAIN_ID {
     MAINNET = 6648936,
-    RINKEBY = 1111,
     GÖRLI = 3331,
     MATIC_MUMBAI = 9991
 }
@@ -146,23 +130,8 @@ export const ETHNetworks = [
         parentGroup: 'Ethereum'
     },
     {
-        label: NETWORK_LABEL.RINKEBY,
-        name: NETWORK.RINKEBY,
-        parentGroup: 'Ethereum'
-    },
-    {
         label: NETWORK_LABEL.GÖRLI,
         name: NETWORK.GÖRLI,
-        parentGroup: 'Ethereum'
-    },
-    {
-        label: NETWORK_LABEL.ROPSTEN,
-        name: NETWORK.ROPSTEN,
-        parentGroup: 'Ethereum'
-    },
-    {
-        label: NETWORK_LABEL.KOVAN,
-        name: NETWORK.KOVAN,
         parentGroup: 'Ethereum'
     }
 ] as INodeOptionsValue[]
@@ -200,11 +169,6 @@ export const ArbitrumNetworks = [
         parentGroup: 'Arbitrum'
     },
     {
-        label: NETWORK_LABEL.ARBITRUM_RINKEBY,
-        name: NETWORK.ARBITRUM_RINKEBY,
-        parentGroup: 'Arbitrum'
-    },
-    {
         label: NETWORK_LABEL.ARBITRUM_GOERLI,
         name: NETWORK.ARBITRUM_GOERLI,
         parentGroup: 'Arbitrum'
@@ -215,11 +179,6 @@ export const OptimismNetworks = [
     {
         label: NETWORK_LABEL.OPTIMISM,
         name: NETWORK.OPTIMISM,
-        parentGroup: 'Optimism'
-    },
-    {
-        label: NETWORK_LABEL.OPTIMISM_KOVAN,
-        name: NETWORK.OPTIMISM_KOVAN,
         parentGroup: 'Optimism'
     },
     {
@@ -541,7 +500,12 @@ export async function getNetworkProvider(
     jsonRPC?: string,
     websocketRPC?: string
 ) {
-    if (credentials === undefined && (networkProvider === NETWORK_PROVIDER.INFURA || networkProvider === NETWORK_PROVIDER.ALCHEMY)) {
+    if (
+        credentials === undefined &&
+        (networkProvider === NETWORK_PROVIDER.INFURA ||
+            networkProvider === NETWORK_PROVIDER.ALCHEMY ||
+            networkProvider === NETWORK_PROVIDER.QUICKNODE)
+    ) {
         throw new Error('Missing credentials')
     }
 
@@ -600,20 +564,15 @@ export function getNetworkProvidersList(network: NETWORK): INodeOptionsValue[] {
     switch (network) {
         case NETWORK.MAINNET:
             return ethNetworkProviders
-        case NETWORK.RINKEBY:
         case NETWORK.GÖRLI:
-        case NETWORK.KOVAN:
-        case NETWORK.ROPSTEN:
             return ethTestNetworkProviders
         case NETWORK.MATIC:
         case NETWORK.MATIC_MUMBAI:
             return polygonNetworkProviders
         case NETWORK.OPTIMISM:
-        case NETWORK.OPTIMISM_KOVAN:
         case NETWORK.OPTIMISM_GOERLI:
             return ethTestNetworkProviders
         case NETWORK.ARBITRUM:
-        case NETWORK.ARBITRUM_RINKEBY:
         case NETWORK.ARBITRUM_GOERLI:
             return ethTestNetworkProviders
         case NETWORK.AVALANCHE:
@@ -687,17 +646,13 @@ export const networkProviderCredentials = [
  */
 export const etherscanAPIs = {
     [NETWORK.MAINNET]: 'https://api.etherscan.io/api',
-    [NETWORK.RINKEBY]: 'https://api-rinkeby.etherscan.io/api',
-    [NETWORK.ROPSTEN]: 'https://api-kovan.etherscan.io/api',
-    [NETWORK.KOVAN]: 'https://api-kovan.etherscan.io/api',
     [NETWORK.GÖRLI]: 'https://api-goerli.etherscan.io/api',
     [NETWORK.MATIC]: 'https://api.polygonscan.com/api',
     [NETWORK.MATIC_MUMBAI]: 'https://api-testnet.polygonscan.com/api',
     [NETWORK.OPTIMISM]: 'https://api-optimistic.etherscan.io/api',
-    [NETWORK.OPTIMISM_KOVAN]: 'https://api-kovan-optimistic.etherscan.io/api',
     [NETWORK.OPTIMISM_GOERLI]: 'https://api-goerli-optimistic.etherscan.io/api',
     [NETWORK.ARBITRUM]: 'https://api.arbiscan.io/api',
-    [NETWORK.ARBITRUM_RINKEBY]: 'https://api-testnet.arbiscan.io/api',
+    [NETWORK.ARBITRUM_GOERLI]: 'https://api-goerli.arbiscan.io/api',
     [NETWORK.BSC]: 'https://api.bscscan.com/api',
     [NETWORK.BSC_TESTNET]: 'https://api-testnet.bscscan.com/api',
     [NETWORK.AVALANCHE]: 'https://api.snowtrace.io/api',
@@ -706,49 +661,34 @@ export const etherscanAPIs = {
 
 export const infuraHTTPAPIs = {
     [NETWORK.MAINNET]: 'https://mainnet.infura.io/v3/',
-    [NETWORK.RINKEBY]: 'https://rinkeby.infura.io/v3/',
-    [NETWORK.ROPSTEN]: 'https://ropsten.infura.io/v3/',
-    [NETWORK.KOVAN]: 'https://kovan.infura.io/v3/',
     [NETWORK.GÖRLI]: 'https://goerli.infura.io/v3/',
     [NETWORK.MATIC]: 'https://polygon-mainnet.infura.io/v3/',
     [NETWORK.MATIC_MUMBAI]: 'https://polygon-mumbai.infura.io/v3/',
     [NETWORK.OPTIMISM]: 'https://optimism-mainnet.infura.io/v3/',
-    [NETWORK.OPTIMISM_KOVAN]: 'https://optimism-kovan.infura.io/v3/',
     [NETWORK.OPTIMISM_GOERLI]: 'https://optimism-goerli.infura.io/v3/',
     [NETWORK.ARBITRUM]: 'https://arbitrum-mainnet.infura.io/v3/',
-    [NETWORK.ARBITRUM_RINKEBY]: 'https://arbitrum-rinkeby.infura.io/v3/',
     [NETWORK.ARBITRUM_GOERLI]: 'https://arbitrum-goerli.infura.io/v3/'
 } as INetworkMapping
 
 export const infuraWSSAPIs = {
     [NETWORK.MAINNET]: 'wss://mainnet.infura.io/ws/v3/',
-    [NETWORK.RINKEBY]: 'wss://rinkeby.infura.io/ws/v3/',
-    [NETWORK.ROPSTEN]: 'wss://ropsten.infura.io/ws/v3/',
-    [NETWORK.KOVAN]: 'wss://kovan.infura.io/ws/v3/',
     [NETWORK.GÖRLI]: 'wss://goerli.infura.io/ws/v3/',
     [NETWORK.MATIC]: 'wss://polygon-mainnet.infura.io/ws/v3/',
     [NETWORK.MATIC_MUMBAI]: 'wss://polygon-mumbai.infura.io/ws/v3/',
     [NETWORK.OPTIMISM]: 'wss://optimism-mainnet.infura.io/ws/v3/',
-    [NETWORK.OPTIMISM_KOVAN]: 'wss://optimism-kovan.infura.io/ws/v3/',
     [NETWORK.OPTIMISM_GOERLI]: 'wss://optimism-goerli.infura.io/ws/v3/',
     [NETWORK.ARBITRUM]: 'wss://arbitrum-mainnet.infura.io/ws/v3/',
-    [NETWORK.ARBITRUM_RINKEBY]: 'wss://arbitrum-rinkeby.infura.io/ws/v3/',
     [NETWORK.ARBITRUM_GOERLI]: 'wss://arbitrum-goerli.infura.io/ws/v3/'
 } as INetworkMapping
 
 export const alchemyHTTPAPIs = {
     [NETWORK.MAINNET]: 'https://eth-mainnet.alchemyapi.io/v2/',
-    [NETWORK.RINKEBY]: 'https://eth-rinkeby.alchemyapi.io/v2/',
-    [NETWORK.ROPSTEN]: 'https://eth-ropsten.alchemyapi.io/v2/',
-    [NETWORK.KOVAN]: 'https://eth-kovan.alchemyapi.io/v2/',
     [NETWORK.GÖRLI]: 'https://eth-goerli.alchemyapi.io/v2/',
     [NETWORK.MATIC]: 'https://polygon-mainnet.g.alchemy.com/v2/',
     [NETWORK.MATIC_MUMBAI]: 'https://polygon-mumbai.g.alchemy.com/v2/',
     [NETWORK.OPTIMISM]: 'https://opt-mainnet.g.alchemy.com/v2/',
-    [NETWORK.OPTIMISM_KOVAN]: 'https://opt-kovan.g.alchemy.com/v2/',
     [NETWORK.OPTIMISM_GOERLI]: 'https://opt-goerli.g.alchemy.com/v2/',
     [NETWORK.ARBITRUM]: 'https://arb-mainnet.g.alchemy.com/v2/',
-    [NETWORK.ARBITRUM_RINKEBY]: 'https://arb-rinkeby.g.alchemy.com/v2/',
     [NETWORK.ARBITRUM_GOERLI]: 'https://arb-goerli.g.alchemy.com/v2/',
     [NETWORK.SOLANA]: 'https://solana-mainnet.g.alchemy.com/v2/',
     [NETWORK.SOLANA_DEVNET]: 'https://solana-devnet.g.alchemy.com/v2/'
@@ -756,17 +696,12 @@ export const alchemyHTTPAPIs = {
 
 export const alchemyWSSAPIs = {
     [NETWORK.MAINNET]: 'wss://eth-mainnet.alchemyapi.io/v2/',
-    [NETWORK.RINKEBY]: 'wss://eth-rinkeby.alchemyapi.io/v2/',
-    [NETWORK.ROPSTEN]: 'wss://eth-ropsten.alchemyapi.io/v2/',
-    [NETWORK.KOVAN]: 'wss://eth-kovan.alchemyapi.io/v2/',
     [NETWORK.GÖRLI]: 'wss://eth-goerli.alchemyapi.io/v2/',
     [NETWORK.MATIC]: 'wss://polygon-mainnet.g.alchemy.com/v2/',
     [NETWORK.MATIC_MUMBAI]: 'wss://polygon-mumbai.g.alchemy.com/v2/',
     [NETWORK.OPTIMISM]: 'wss://opt-mainnet.g.alchemy.com/v2/',
-    [NETWORK.OPTIMISM_KOVAN]: 'wss://opt-kovan.g.alchemy.com/v2/',
     [NETWORK.OPTIMISM_GOERLI]: 'wss://opt-goerli.g.alchemy.com/v2/',
     [NETWORK.ARBITRUM]: 'wss://arb-mainnet.g.alchemy.com/v2/',
-    [NETWORK.ARBITRUM_RINKEBY]: 'wss://arb-rinkeby.g.alchemy.com/v2/',
     [NETWORK.ARBITRUM_GOERLI]: 'wss://arb-goerli.g.alchemy.com/v2/',
     [NETWORK.SOLANA]: 'wss://solana-mainnet.g.alchemy.com/v2/',
     [NETWORK.SOLANA_DEVNET]: 'wss://solana-devnet.g.alchemy.com/v2/'
@@ -774,17 +709,12 @@ export const alchemyWSSAPIs = {
 
 export const networkExplorers = {
     [NETWORK.MAINNET]: 'https://etherscan.io',
-    [NETWORK.RINKEBY]: 'https://rinkeby.etherscan.io',
-    [NETWORK.ROPSTEN]: 'https://ropsten.etherscan.io',
-    [NETWORK.KOVAN]: 'https://kovan.etherscan.io',
     [NETWORK.GÖRLI]: 'https://goerli.etherscan.io',
     [NETWORK.MATIC]: 'https://polygonscan.com',
     [NETWORK.MATIC_MUMBAI]: 'https://mumbai.polygonscan.com',
     [NETWORK.OPTIMISM]: 'https://optimistic.etherscan.io',
-    [NETWORK.OPTIMISM_KOVAN]: 'https://kovan-optimistic.etherscan.io',
     [NETWORK.OPTIMISM_GOERLI]: 'https://goerli-optimistic.etherscan.io',
     [NETWORK.ARBITRUM]: 'https://arbiscan.io',
-    [NETWORK.ARBITRUM_RINKEBY]: 'https://rinkeby-explorer.arbitrum.io',
     [NETWORK.ARBITRUM_GOERLI]: 'https://goerli-explorer.arbitrum.io',
     [NETWORK.BSC]: 'https://bscscan.com',
     [NETWORK.BSC_TESTNET]: 'https://testnet.bscscan.com'
@@ -792,9 +722,6 @@ export const networkExplorers = {
 
 export const openseaExplorers = {
     [NETWORK.MAINNET]: 'https://opensea.io',
-    [NETWORK.RINKEBY]: 'https://testnets.opensea.io',
-    [NETWORK.ROPSTEN]: 'https://testnets.opensea.io',
-    [NETWORK.KOVAN]: 'https://testnets.opensea.io',
     [NETWORK.GÖRLI]: 'https://testnets.opensea.io',
     [NETWORK.MATIC]: 'https://opensea.io/assets/matic',
     [NETWORK.MATIC_MUMBAI]: 'https://testnets.opensea.io/assets/mumbai'
@@ -852,17 +779,12 @@ export const klaytnTestnetRPC = ['https://api.baobab.klaytn.net:8651	'] as strin
 
 export const chainIdLookup = {
     [NETWORK.MAINNET]: CHAIN_ID.MAINNET,
-    [NETWORK.RINKEBY]: CHAIN_ID.RINKEBY,
-    [NETWORK.ROPSTEN]: CHAIN_ID.ROPSTEN,
-    [NETWORK.KOVAN]: CHAIN_ID.KOVAN,
     [NETWORK.GÖRLI]: CHAIN_ID.GÖRLI,
     [NETWORK.MATIC]: CHAIN_ID.MATIC,
     [NETWORK.MATIC_MUMBAI]: CHAIN_ID.MATIC_MUMBAI,
     [NETWORK.OPTIMISM]: CHAIN_ID.OPT_MAINNET,
-    [NETWORK.OPTIMISM_KOVAN]: CHAIN_ID.OPT_TESTNET_KOVAN,
     [NETWORK.OPTIMISM_GOERLI]: CHAIN_ID.OPT_TESTNET_GOERLI,
     [NETWORK.ARBITRUM]: CHAIN_ID.ARB_MAINNET,
-    [NETWORK.ARBITRUM_RINKEBY]: CHAIN_ID.ARB_TESTNET_RINKEBY,
     [NETWORK.ARBITRUM_GOERLI]: CHAIN_ID.ARB_TESTNET_GOERLI,
     [NETWORK.ARBITRUM_NOVA]: CHAIN_ID.ARB_NOVA,
     [NETWORK.BSC]: CHAIN_ID.BINANCE_MAINNET,
@@ -884,24 +806,18 @@ export const chainIdLookup = {
 
 export const domainIdLookup = {
     [NETWORK.MAINNET]: DOMAIN_ID.MAINNET,
-    [NETWORK.RINKEBY]: DOMAIN_ID.RINKEBY,
     [NETWORK.GÖRLI]: DOMAIN_ID.GÖRLI,
     [NETWORK.MATIC_MUMBAI]: DOMAIN_ID.MATIC_MUMBAI
 } as INetworkMapping
 
 export const nativeCurrency = {
     [NETWORK.MAINNET]: 'ETH',
-    [NETWORK.RINKEBY]: 'ETH',
-    [NETWORK.ROPSTEN]: 'ETH',
-    [NETWORK.KOVAN]: 'ETH',
     [NETWORK.GÖRLI]: 'ETH',
     [NETWORK.MATIC]: 'MATIC',
     [NETWORK.MATIC_MUMBAI]: 'MATIC',
     [NETWORK.OPTIMISM]: 'ETH',
-    [NETWORK.OPTIMISM_KOVAN]: 'ETH',
     [NETWORK.OPTIMISM_GOERLI]: 'ETH',
     [NETWORK.ARBITRUM]: 'ETH',
-    [NETWORK.ARBITRUM_RINKEBY]: 'ETH',
     [NETWORK.ARBITRUM_GOERLI]: 'ETH',
     [NETWORK.BSC]: 'BNB',
     [NETWORK.BSC_TESTNET]: 'BNB'

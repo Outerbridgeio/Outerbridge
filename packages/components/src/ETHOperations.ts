@@ -39,17 +39,12 @@ export const operationCategoryMapping = {
 
 export const alchemySupportedNetworks = [
     NETWORK.MAINNET,
-    NETWORK.RINKEBY,
     NETWORK.GÖRLI,
-    NETWORK.ROPSTEN,
-    NETWORK.KOVAN,
     NETWORK.MATIC,
     NETWORK.MATIC_MUMBAI,
     NETWORK.OPTIMISM,
-    NETWORK.OPTIMISM_KOVAN,
     NETWORK.OPTIMISM_GOERLI,
     NETWORK.ARBITRUM,
-    NETWORK.ARBITRUM_RINKEBY,
     NETWORK.ARBITRUM_GOERLI
 ]
 
@@ -880,16 +875,7 @@ export const ethOperations = [
         parentGroup: 'Chain Information',
         description: 'Returns the current ethereum protocol version.',
         providerNetworks: {
-            [NETWORK_PROVIDER.ALCHEMY]: [
-                NETWORK.MAINNET,
-                NETWORK.RINKEBY,
-                NETWORK.GÖRLI,
-                NETWORK.ROPSTEN,
-                NETWORK.KOVAN,
-                NETWORK.OPTIMISM,
-                NETWORK.OPTIMISM_GOERLI,
-                NETWORK.OPTIMISM_KOVAN
-            ],
+            [NETWORK_PROVIDER.ALCHEMY]: [NETWORK.MAINNET, NETWORK.GÖRLI, NETWORK.OPTIMISM, NETWORK.OPTIMISM_GOERLI],
             [NETWORK_PROVIDER.INFURA]: infuraSupportedNetworks
         },
         method: 'POST',
@@ -934,7 +920,7 @@ export const ethOperations = [
         parentGroup: 'Chain Information',
         description: 'Returns the L1 and L2 gas prices that are being used by the Sequencer to calculate fees.',
         providerNetworks: {
-            [NETWORK_PROVIDER.QUICKNODE]: [NETWORK.OPTIMISM, NETWORK.OPTIMISM_KOVAN, NETWORK.OPTIMISM_GOERLI]
+            [NETWORK_PROVIDER.QUICKNODE]: [NETWORK.OPTIMISM, NETWORK.OPTIMISM_GOERLI]
         },
         method: 'POST',
         body: {
@@ -958,7 +944,7 @@ export const ethOperations = [
         parentGroup: 'Chain Information',
         description: 'Returns useful L2-specific information about the current node.',
         providerNetworks: {
-            [NETWORK_PROVIDER.QUICKNODE]: [NETWORK.OPTIMISM, NETWORK.OPTIMISM_KOVAN, NETWORK.OPTIMISM_GOERLI]
+            [NETWORK_PROVIDER.QUICKNODE]: [NETWORK.OPTIMISM, NETWORK.OPTIMISM_GOERLI]
         },
         method: 'POST',
         body: {
@@ -987,7 +973,7 @@ export const ethOperations = [
         parentGroup: 'Chain Information',
         description: 'Returns an estimation of gas for a given transaction.',
         providerNetworks: {
-            [NETWORK_PROVIDER.QUICKNODE]: [NETWORK.OPTIMISM, NETWORK.OPTIMISM_KOVAN, NETWORK.OPTIMISM_GOERLI]
+            [NETWORK_PROVIDER.QUICKNODE]: [NETWORK.OPTIMISM, NETWORK.OPTIMISM_GOERLI]
         },
         method: 'POST',
         body: {
@@ -1125,7 +1111,7 @@ export const ethOperations = [
         parentGroup: 'Chain Information',
         description: 'Returns a collection of historical gas information',
         providerNetworks: {
-            [NETWORK_PROVIDER.ALCHEMY]: [NETWORK.MAINNET, NETWORK.RINKEBY, NETWORK.GÖRLI, NETWORK.ROPSTEN, NETWORK.KOVAN],
+            [NETWORK_PROVIDER.ALCHEMY]: [NETWORK.MAINNET, NETWORK.GÖRLI],
             [NETWORK_PROVIDER.INFURA]: infuraSupportedNetworks
         },
         method: 'POST',
@@ -1173,7 +1159,7 @@ export const ethOperations = [
         description:
             'Returns a fee per gas that is an estimate of how much you can pay as a priority fee, or "tip", to get a transaction included in the current block.',
         providerNetworks: {
-            [NETWORK_PROVIDER.ALCHEMY]: [NETWORK.MAINNET, NETWORK.RINKEBY, NETWORK.GÖRLI, NETWORK.ROPSTEN, NETWORK.KOVAN],
+            [NETWORK_PROVIDER.ALCHEMY]: [NETWORK.MAINNET, NETWORK.GÖRLI],
             [NETWORK_PROVIDER.INFURA]: infuraSupportedNetworks
         },
         method: 'POST',

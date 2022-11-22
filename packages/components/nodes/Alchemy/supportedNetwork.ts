@@ -7,20 +7,8 @@ export const AlchemySupportedNetworks = [
         name: NETWORK.MAINNET
     },
     {
-        label: NETWORK_LABEL.ROPSTEN,
-        name: NETWORK.ROPSTEN
-    },
-    {
-        label: NETWORK_LABEL.RINKEBY,
-        name: NETWORK.RINKEBY
-    },
-    {
         label: NETWORK_LABEL.GÖRLI,
         name: NETWORK.GÖRLI
-    },
-    {
-        label: NETWORK_LABEL.KOVAN,
-        name: NETWORK.KOVAN
     },
     {
         label: NETWORK_LABEL.MATIC,
@@ -39,20 +27,12 @@ export const AlchemySupportedNetworks = [
         name: NETWORK.ARBITRUM_GOERLI
     },
     {
-        label: NETWORK_LABEL.ARBITRUM_RINKEBY,
-        name: NETWORK.ARBITRUM_RINKEBY
-    },
-    {
         label: NETWORK_LABEL.OPTIMISM,
         name: NETWORK.OPTIMISM
     },
     {
         label: NETWORK_LABEL.OPTIMISM_GOERLI,
         name: NETWORK.OPTIMISM_GOERLI
-    },
-    {
-        label: NETWORK_LABEL.OPTIMISM_KOVAN,
-        name: NETWORK.OPTIMISM_KOVAN
     },
     {
         label: NETWORK_LABEL.SOLANA,
@@ -63,5 +43,3 @@ export const AlchemySupportedNetworks = [
         name: NETWORK.SOLANA_DEVNET
     }
 ] as INodeOptionsValue[]
-
-//REMAINING: ALGORAND, HARMONY, STACKS
