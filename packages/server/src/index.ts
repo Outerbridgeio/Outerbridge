@@ -69,7 +69,8 @@ import { Contract } from './entity/Contract'
 import { Wallet } from './entity/Wallet'
 import { getDataSource } from './DataSource'
 
-export { IContractRequestBody, ITestNodeBody, ITestWorkflowBody }
+export * from './Interface'
+
 export class App {
     app: express.Application
     componentNodes: IComponentNodesPool = {}

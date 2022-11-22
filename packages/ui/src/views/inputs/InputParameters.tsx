@@ -633,7 +633,7 @@ export const InputParameters = ({
                                                 arrayParams={arrayParamItems}
                                                 paramsType={paramsType}
                                                 arrayGroupName={inputName}
-                                                // @ts-expect-error  this type does not make sense at all
+                                                // @ts-expect-error  come back to this later
                                                 errors={errors[inputName] ? errors[inputName] : []}
                                                 onArrayInputChange={(updateInitialValues) => {
                                                     setFieldValue(inputName, updateInitialValues)

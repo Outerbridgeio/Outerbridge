@@ -6,7 +6,7 @@
     "scripts": {
         "setup": "npm i -D lerna rimraf && (npx -y husky install || npx husky install)",
         "bootstrap": "rimraf **/package-lock.json && lerna bootstrap --hoist",
-        "build": "yarn clean && lerna exec yarn build",
+        "build": "yarn clean && lerna exec yarn build && lerna add outerbridge --scope outerbridge-ui",
         "start": "yarn --cwd packages/server start",
         "dev": "lerna exec yarn dev --parallel",
         "clean": "lerna exec -- rimraf dist build",

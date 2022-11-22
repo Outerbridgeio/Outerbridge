@@ -1,6 +1,7 @@
 import lodash from 'lodash'
 import moment from 'moment'
 import { INode, INodeParams, INodeData, ICommonObject } from 'outerbridge-components'
+import { IReactFlowNode, IReactFlowEdge } from 'outerbridge'
 import { MarkOptional, StrictOmit, StrictExclude, StrictExtract } from 'ts-essentials'
 import { reducer } from 'store'
 
@@ -16,18 +17,17 @@ export type NodeData = MarkOptional<StrictOmit<INodeData, 'outputResponses' | 'c
         wallet?: unknown
         registeredCredential?: { name: '+ Add New Credential'; _id: string }
         name?: string
-    } & Record<string, unknown>
+    } & Record<string, unknown> // ! see if we can remove Record<string,unknown>
 }
-export type Node = INode & {
-    id: string
-    data: NodeData
-    selected: boolean
-}
+export type Node = StrictOmit<IReactFlowNode, 'data'> &
+    INode & {
+        data: NodeData
+    }
 export type Nodes = Node[]
 export type ParamsType = 'actions' | 'networks' | 'credentials' | 'inputParameters' | 'outputResponses'
 type NodeDependencies = Record<string, number>
 type Graph = Record<string, string[]>
-export type Edges = { source: string; target: string; targetHandle: '-input-'[] }[]
+export type Edges = IReactFlowEdge[]
 export type NodeParams = StrictOmit<MarkOptional<INodeParams, 'label'>, 'type' | 'array'> &
     (
         | {
@@ -333,15 +333,15 @@ export const generateExportFlowData = (flowData: FlowData) => {
         }
         if (node.data.inputParameters) {
             newNodeData.inputParameters = { ...node.data.inputParameters, submit: null }
-            if (node.data.inputParameters.wallet) delete newNodeData.inputParameters.wallet
+            if (node.data.inputParameters.wallet) delete newNodeData.inputParameters?.wallet
         }
         if (node.data.actions) {
             newNodeData.actions = { ...node.data.actions, submit: null }
-            if (node.data.actions.wallet) delete newNodeData.actions.wallet
+            if (node.data.actions.wallet) delete newNodeData.actions?.wallet
         }
         if (node.data.networks) {
             newNodeData.networks = { ...node.data.networks, submit: null }
-            if (node.data.networks.wallet) delete newNodeData.networks.wallet
+            if (node.data.networks.wallet) delete newNodeData.networks?.wallet
         }
         if (node.data.credentials && node.data.credentials.credentialMethod) {
             newNodeData.credentials = { credentialMethod: node.data.credentials.credentialMethod, submit: null }

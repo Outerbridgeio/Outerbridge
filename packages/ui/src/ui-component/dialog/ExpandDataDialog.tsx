@@ -3,8 +3,6 @@ import { createPortal } from 'react-dom'
 import { Dialog, DialogContent, DialogTitle, DialogProps } from '@mui/material'
 import ReactJson, { OnCopyProps } from 'react-json-view'
 
-import { reducer } from 'store'
-
 // utils
 import { copyToClipboard, Node } from 'utils'
 
@@ -12,7 +10,7 @@ export type Input = { name: string; type: 'json' | 'string' | 'number' | 'code';
 
 export type ExpandDialogProps = {
     title: string
-    data: reducer.canvas.ExecutionData['data']
+    data: object
     node?: Node
 }
 

@@ -10,7 +10,7 @@ export const initialState = {
 
 export type ExecutionData = {
     nodeLabel: string
-    data: { html: string; attachments?: { filename: string; contentType: string; content: string; size?: number }[] }[]
+    data: { html?: string; attachments?: { filename: string; contentType: string; content: string; size?: number }[] }[]
 }
 
 export type State = 'INPROGRESS' | 'FINISHED' | 'ERROR' | 'TERMINATED' | 'TIMEOUT'

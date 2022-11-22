@@ -1,4 +1,5 @@
 import { createPortal } from 'react-dom'
+import { useTheme } from 'themes'
 import PropTypes from 'prop-types'
 import { useState, useEffect } from 'react'
 import { useDispatch } from 'react-redux'
@@ -22,7 +23,6 @@ import {
     IconButton
 } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import { useTheme } from '@mui/material/styles'
 
 // third-party
 import * as Yup from 'yup'
@@ -48,9 +48,9 @@ import { contract_details, networks, networkExplorers } from 'store/constant'
 
 // utils
 import { handleCredentialParams, initializeNodeData } from 'utils/genericHelper'
-import useNotifier from 'utils/useNotifier'
+import { useNotifier } from 'utils'
 
-const ContractDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
+export const ContractDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
     const portalElement = document.getElementById('portal')
 
     const theme = useTheme()
