@@ -6,20 +6,8 @@ export const MoralisSupportedNetworks = [
         name: 'eth'
     },
     {
-        label: NETWORK_LABEL.ROPSTEN,
-        name: 'ropsten'
-    },
-    {
-        label: NETWORK_LABEL.RINKEBY,
-        name: 'rinkeby'
-    },
-    {
         label: NETWORK_LABEL.GÖRLI,
         name: 'goerli'
-    },
-    {
-        label: NETWORK_LABEL.KOVAN,
-        name: 'kovan'
     },
     {
         label: NETWORK_LABEL.MATIC,

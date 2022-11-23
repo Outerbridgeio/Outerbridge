@@ -99,8 +99,12 @@ const ItemCard = ({ isLoading, data, images, onClick }) => {
                             {data.network && (
                                 <Grid item>
                                     <Chip
-                                        label={getNetworkItem(data.network).label}
-                                        sx={{ ...chipSX, backgroundColor: getNetworkItem(data.network).color, color: 'white' }}
+                                        label={getNetworkItem(data.network)?.label || `${data.network} (DEPRECATED)`}
+                                        sx={{
+                                            ...chipSX,
+                                            backgroundColor: getNetworkItem(data.network)?.color || '#666666',
+                                            color: 'white'
+                                        }}
                                     />
                                 </Grid>
                             )}
