@@ -19,7 +19,8 @@ class BEP20TransferTrigger extends EventEmitter implements INode {
     type: NodeType
     description?: string
     version: number
-    icon?: string
+    icon: string
+    category: string
     incoming: number
     outgoing: number
     networks?: INodeParams[]
@@ -33,6 +34,7 @@ class BEP20TransferTrigger extends EventEmitter implements INode {
         this.name = 'BEP20TransferTrigger'
         this.icon = 'bnb.svg'
         this.type = 'trigger'
+        this.category = 'Cryptocurrency'
         this.version = 1.0
         this.description = 'Triggers whenever a BEP20 transfer event happened'
         this.incoming = 0

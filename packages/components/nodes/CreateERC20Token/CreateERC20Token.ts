@@ -42,6 +42,7 @@ class CreateERC20Token implements INode {
     description: string
     version: number
     icon: string
+    category: string
     incoming: number
     outgoing: number
     actions?: INodeParams[]
@@ -54,6 +55,7 @@ class CreateERC20Token implements INode {
         this.name = 'createToken'
         this.icon = 'createERC20.svg'
         this.type = 'action'
+        this.category = 'Cryptocurrency'
         this.version = 1.0
         this.description = 'Create new cryptocurrency token (ERC20)'
         this.incoming = 1

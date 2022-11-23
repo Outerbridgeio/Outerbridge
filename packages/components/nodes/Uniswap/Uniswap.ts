@@ -33,7 +33,8 @@ class Uniswap implements INode {
     type: NodeType
     description?: string
     version: number
-    icon?: string
+    icon: string
+    category: string
     incoming: number
     outgoing: number
     networks?: INodeParams[]
@@ -46,6 +47,7 @@ class Uniswap implements INode {
         this.name = 'uniswap'
         this.icon = 'uniswap.png'
         this.type = 'action'
+        this.category = 'Decentralized Finance'
         this.version = 1.0
         this.description = 'Execute Uniswap operations'
         this.incoming = 1

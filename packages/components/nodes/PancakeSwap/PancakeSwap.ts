@@ -23,7 +23,8 @@ class PancakeSwap implements INode {
     type: NodeType
     description?: string
     version: number
-    icon?: string
+    icon: string
+    category: string
     incoming: number
     outgoing: number
     networks?: INodeParams[]
@@ -36,6 +37,7 @@ class PancakeSwap implements INode {
         this.name = 'pancakeSwap'
         this.icon = 'pancakeswap.png'
         this.type = 'action'
+        this.category = 'Decentralized Finance'
         this.version = 1.0
         this.description = 'Execute PancakeSwap operations'
         this.incoming = 1

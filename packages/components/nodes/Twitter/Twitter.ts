@@ -9,6 +9,7 @@ class Twitter implements INode {
     type: NodeType
     description: string
     version: number
+    category: string
     incoming: number
     outgoing: number
     inputParameters?: INodeParams[]
@@ -19,6 +20,7 @@ class Twitter implements INode {
         this.name = 'twitter'
         this.icon = 'Twitter-Logo.png'
         this.type = 'action'
+        this.category = 'Communication'
         this.description = "Search Twitter User's tweets by keyword"
         this.version = 1.0
         this.incoming = 1

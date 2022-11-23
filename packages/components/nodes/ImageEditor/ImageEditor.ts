@@ -10,6 +10,7 @@ class ImageEditor implements INode {
     description: string
     version: number
     icon: string
+    category: string
     incoming: number
     outgoing: number
     actions?: INodeParams[]
@@ -20,6 +21,7 @@ class ImageEditor implements INode {
         this.name = 'imageEditor'
         this.icon = 'image-editor.svg'
         this.type = 'action'
+        this.category = 'Utilities'
         this.version = 1.0
         this.description = 'Edit image with different manipulation methods'
         this.incoming = 1

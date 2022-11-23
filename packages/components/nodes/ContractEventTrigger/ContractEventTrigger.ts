@@ -17,7 +17,8 @@ class ContractEventTrigger extends EventEmitter implements INode {
     type: NodeType
     description?: string
     version: number
-    icon?: string
+    icon: string
+    category: string
     incoming: number
     outgoing: number
     networks?: INodeParams[]
@@ -31,6 +32,7 @@ class ContractEventTrigger extends EventEmitter implements INode {
         this.name = 'ContractEventTrigger'
         this.icon = 'contract-event-trigger.svg'
         this.type = 'trigger'
+        this.category = 'Smart Contract'
         this.version = 1.0
         this.description = 'Start workflow whenever the specified contract event happened'
         this.incoming = 0

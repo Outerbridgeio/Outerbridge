@@ -11,7 +11,8 @@ class OpenSeaEventTrigger extends EventEmitter implements INode {
     type: NodeType
     description?: string
     version: number
-    icon?: string
+    icon: string
+    category: string
     incoming: number
     outgoing: number
     actions?: INodeParams[]
@@ -25,6 +26,7 @@ class OpenSeaEventTrigger extends EventEmitter implements INode {
         this.name = 'openSeaEventTrigger'
         this.icon = 'opensea.svg'
         this.type = 'trigger'
+        this.category = 'NFT'
         this.version = 1.0
         this.description = 'Start workflow whenever OpenSea event occurs'
         this.incoming = 0

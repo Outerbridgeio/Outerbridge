@@ -9,6 +9,7 @@ class DallE implements INode {
     description: string
     version: number
     icon: string
+    category: string
     incoming: number
     outgoing: number
     credentials?: INodeParams[]
@@ -19,6 +20,7 @@ class DallE implements INode {
         this.name = 'dallE'
         this.icon = 'dalle.png'
         this.type = 'action'
+        this.category = 'Artificial Intelligence'
         this.version = 1.0
         this.description = 'Generate image via Dall-E'
         this.incoming = 1

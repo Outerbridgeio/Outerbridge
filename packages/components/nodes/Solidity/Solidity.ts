@@ -41,6 +41,7 @@ class Solidity implements INode {
     description: string
     version: number
     icon: string
+    category: string
     incoming: number
     outgoing: number
     actions?: INodeParams[]
@@ -53,6 +54,7 @@ class Solidity implements INode {
         this.name = 'solidity'
         this.icon = 'solidity.svg'
         this.type = 'action'
+        this.category = 'Smart Contract'
         this.version = 1.0
         this.description = 'Compile and Deploy Solidity Code'
         this.incoming = 1

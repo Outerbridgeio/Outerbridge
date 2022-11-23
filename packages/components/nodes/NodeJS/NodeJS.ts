@@ -8,7 +8,8 @@ class NodeJS implements INode {
     type: NodeType
     description?: string
     version: number
-    icon?: string
+    icon: string
+    category: string
     incoming: number
     outgoing: number
     inputParameters?: INodeParams[]
@@ -18,6 +19,7 @@ class NodeJS implements INode {
         this.name = 'nodeJS'
         this.icon = 'nodejs.png'
         this.type = 'action'
+        this.category = 'Development'
         this.version = 1.0
         this.description = 'Execute code within NodeVM sandbox'
         this.incoming = 1

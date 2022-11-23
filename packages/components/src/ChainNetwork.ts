@@ -260,6 +260,75 @@ export const SolanaNetworks = [
     }
 ] as INodeOptionsValue[]
 
+export const FantomNetworks = [
+    {
+        label: NETWORK_LABEL.FANTOM,
+        name: NETWORK.FANTOM,
+        parentGroup: 'Fantom'
+    },
+    {
+        label: NETWORK_LABEL.FANTOM_TESTNET,
+        name: NETWORK.FANTOM_TESTNET,
+        parentGroup: 'Fantom'
+    }
+] as INodeOptionsValue[]
+
+export const GnosisNetworks = [
+    {
+        label: NETWORK_LABEL.GNOSIS,
+        name: NETWORK.GNOSIS,
+        parentGroup: 'Gnosis'
+    }
+] as INodeOptionsValue[]
+
+export const HecoNetworks = [
+    {
+        label: NETWORK_LABEL.HECO,
+        name: NETWORK.HECO,
+        parentGroup: 'Heco'
+    }
+] as INodeOptionsValue[]
+
+export const HarmonyNetworks = [
+    {
+        label: NETWORK_LABEL.HARMONY,
+        name: NETWORK.HARMONY,
+        parentGroup: 'Harmony'
+    }
+] as INodeOptionsValue[]
+
+export const MoonRiverNetworks = [
+    {
+        label: NETWORK_LABEL.MOONRIVER,
+        name: NETWORK.MOONRIVER,
+        parentGroup: 'MoonRiver'
+    }
+] as INodeOptionsValue[]
+
+export const MoonBeamNetworks = [
+    {
+        label: NETWORK_LABEL.MOONBEAM,
+        name: NETWORK.MOONBEAM,
+        parentGroup: 'MoonBeam'
+    }
+] as INodeOptionsValue[]
+
+export const MetisNetworks = [
+    {
+        label: NETWORK_LABEL.METIS,
+        name: NETWORK.METIS,
+        parentGroup: 'Metis'
+    }
+] as INodeOptionsValue[]
+
+export const KlatynNetworks = [
+    {
+        label: NETWORK_LABEL.KLATYN_TESTNET,
+        name: NETWORK.KLATYN_TESTNET,
+        parentGroup: 'Klatyn'
+    }
+] as INodeOptionsValue[]
+
 /**
  * Network Providers
  */
@@ -539,22 +608,29 @@ export async function getNetworkProvider(
     network: NETWORK,
     credentials: ICommonObject | undefined,
     jsonRPC?: string,
-    websocketRPC?: string
-) {
+    websocketRPC?: string,
+    isWebSocket?: boolean
+): Promise<ethers.providers.JsonRpcProvider | ethers.providers.FallbackProvider | ethers.providers.WebSocketProvider | null> {
     if (credentials === undefined && (networkProvider === NETWORK_PROVIDER.INFURA || networkProvider === NETWORK_PROVIDER.ALCHEMY)) {
         throw new Error('Missing credentials')
     }
 
     switch (networkProvider) {
         case NETWORK_PROVIDER.ALCHEMY:
-            return new ethers.providers.AlchemyProvider(network, credentials!.apiKey)
+            return isWebSocket
+                ? new ethers.providers.WebSocketProvider(`${alchemyWSSAPIs[network]}${credentials!.apiKey}`)
+                : new ethers.providers.AlchemyProvider(network, credentials!.apiKey)
         case NETWORK_PROVIDER.INFURA:
-            return new ethers.providers.InfuraProvider(network, {
-                apiKey: credentials!.apiKey,
-                secretKey: credentials!.secretKey
-            })
+            return isWebSocket
+                ? new ethers.providers.WebSocketProvider(`${infuraWSSAPIs[network]}${credentials!.apiKey}`)
+                : new ethers.providers.InfuraProvider(network, {
+                      apiKey: credentials!.apiKey,
+                      secretKey: credentials!.secretKey
+                  })
         case NETWORK_PROVIDER.QUICKNODE:
-            return new ethers.providers.JsonRpcProvider(credentials!.httpProvider as string)
+            return isWebSocket
+                ? new ethers.providers.WebSocketProvider(credentials!.wssProvider as string)
+                : new ethers.providers.JsonRpcProvider(credentials!.httpProvider as string)
         case NETWORK_PROVIDER.CLOUDFARE:
             return new ethers.providers.CloudflareProvider()
         case NETWORK_PROVIDER.BINANCE:

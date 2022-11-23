@@ -14,6 +14,7 @@ class Mailchimp implements INode {
     description: string
     version: number
     icon: string
+    category: string
     incoming: number
     outgoing: number
     actions: INodeParams[]
@@ -26,6 +27,7 @@ class Mailchimp implements INode {
         this.name = 'mailchimp'
         this.icon = 'mailchimp.svg'
         this.type = 'action'
+        this.category = 'Communication'
         this.version = 1.0
         this.description = 'Mailchimp market api integration'
         this.incoming = 1

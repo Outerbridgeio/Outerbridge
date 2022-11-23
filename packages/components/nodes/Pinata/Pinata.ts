@@ -10,6 +10,7 @@ class Pinata implements INode {
     description: string
     version: number
     icon: string
+    category: string
     incoming: number
     outgoing: number
     actions?: INodeParams[]
@@ -21,6 +22,7 @@ class Pinata implements INode {
         this.name = 'pinata'
         this.icon = 'pinata.svg'
         this.type = 'action'
+        this.category = 'InterPlanetary File System'
         this.version = 1.0
         this.description = 'Pin your content to IPFS with Pinata'
         this.incoming = 1

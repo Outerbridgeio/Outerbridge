@@ -31,6 +31,7 @@ class PolygonScan implements INode {
     description?: string
     version: number
     icon: string
+    category: string
     incoming: number
     outgoing: number
 
@@ -46,6 +47,7 @@ class PolygonScan implements INode {
         this.name = 'polygonscan'
         this.icon = 'polygonscan.png'
         this.type = 'action'
+        this.category = 'Block Explorer'
         this.version = 1.0
         this.description = 'PolygonScan Public API'
         this.incoming = 1

@@ -11,7 +11,8 @@ class ChainLink implements INode {
     type: NodeType
     description?: string
     version: number
-    icon?: string
+    icon: string
+    category: string
     incoming: number
     outgoing: number
     networks?: INodeParams[]
@@ -24,6 +25,7 @@ class ChainLink implements INode {
         this.name = 'chainLink'
         this.icon = 'chainlink.svg'
         this.type = 'action'
+        this.category = 'Decentralized Oracle Network'
         this.version = 1.0
         this.description = 'Execute ChainLink operations such as Data Feeds, Randomness, Oracles.'
         this.incoming = 1

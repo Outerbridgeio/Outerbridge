@@ -20,7 +20,8 @@ class AlchemyTrigger extends EventEmitter implements INode {
     type: NodeType
     description?: string
     version: number
-    icon?: string
+    icon: string
+    category: string
     incoming: number
     outgoing: number
     networks?: INodeParams[]
@@ -34,6 +35,7 @@ class AlchemyTrigger extends EventEmitter implements INode {
         this.name = 'alchemyTrigger'
         this.icon = 'alchemy.svg'
         this.type = 'trigger'
+        this.category = 'Network Provider'
         this.version = 1.0
         this.description = 'Start workflow whenever subscribed event happened'
         this.incoming = 0

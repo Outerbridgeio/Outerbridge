@@ -7,7 +7,8 @@ class Wait implements INode {
     type: NodeType
     description?: string
     version: number
-    icon?: string
+    icon: string
+    category: string
     incoming: number
     outgoing: number
     inputParameters?: INodeParams[]
@@ -17,6 +18,7 @@ class Wait implements INode {
         this.name = 'wait'
         this.icon = 'wait.svg'
         this.type = 'action'
+        this.category = 'Utilities'
         this.version = 1.0
         this.description = 'Wait before continuing with the execution'
         this.incoming = 1

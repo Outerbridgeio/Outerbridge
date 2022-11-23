@@ -10,6 +10,7 @@ class AlchemyWebhook implements INode {
     description: string
     version: number
     icon: string
+    category: string
     incoming: number
     outgoing: number
     actions: INodeParams[]
@@ -22,6 +23,7 @@ class AlchemyWebhook implements INode {
         this.name = 'AlchemyWebhook'
         this.icon = 'alchemy.svg'
         this.type = 'webhook'
+        this.category = 'Network Provider'
         this.version = 1.0
         this.description = 'Start workflow whenever Alchemy webhook event happened'
         this.incoming = 0

@@ -26,7 +26,8 @@ class ExecuteContractFunction implements INode {
     type: NodeType
     description?: string
     version: number
-    icon?: string
+    icon: string
+    category: string
     incoming: number
     outgoing: number
     networks?: INodeParams[]
@@ -38,6 +39,7 @@ class ExecuteContractFunction implements INode {
         this.name = 'executeContractFunction'
         this.icon = 'execute-contract-function.svg'
         this.type = 'action'
+        this.category = 'Smart Contract'
         this.version = 1.0
         this.description = 'Execute smart contract function.'
         this.incoming = 1

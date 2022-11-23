@@ -23,7 +23,8 @@ class ERC20TransferTrigger extends EventEmitter implements INode {
     type: NodeType
     description?: string
     version: number
-    icon?: string
+    icon: string
+    category: string
     incoming: number
     outgoing: number
     networks?: INodeParams[]
@@ -37,6 +38,7 @@ class ERC20TransferTrigger extends EventEmitter implements INode {
         this.name = 'ERC20TransferTrigger'
         this.icon = 'ethereum.svg'
         this.type = 'trigger'
+        this.category = 'Cryptocurrency'
         this.version = 1.0
         this.description = 'Start workflow whenever an ERC20 transfer event happened'
         this.incoming = 0

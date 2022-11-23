@@ -18,6 +18,7 @@ class OpenSea implements INode {
     description: string
     version: number
     icon: string
+    category: string
     incoming: number
     outgoing: number
     actions?: INodeParams[]
@@ -29,6 +30,7 @@ class OpenSea implements INode {
         this.name = 'opensea'
         this.icon = 'opensea.svg'
         this.type = 'action'
+        this.category = 'NFT'
         this.version = 1.0
         this.description = 'Query OpenSea information'
         this.incoming = 1
