@@ -570,7 +570,12 @@ export async function getNetworkProvider(
     websocketRPC?: string,
     isWebSocket?: boolean
 ): Promise<ethers.providers.JsonRpcProvider | ethers.providers.FallbackProvider | ethers.providers.WebSocketProvider | null> {
-    if (credentials === undefined && (networkProvider === NETWORK_PROVIDER.INFURA || networkProvider === NETWORK_PROVIDER.ALCHEMY)) {
+    if (
+        credentials === undefined &&
+        (networkProvider === NETWORK_PROVIDER.INFURA ||
+            networkProvider === NETWORK_PROVIDER.ALCHEMY ||
+            networkProvider === NETWORK_PROVIDER.QUICKNODE)
+    ) {
         throw new Error('Missing credentials')
     }
 
