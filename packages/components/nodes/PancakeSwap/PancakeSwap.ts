@@ -412,8 +412,9 @@ class PancakeSwap implements INode {
                     if (approveReceipt.status === 0) throw new Error(`Failed to swap BNB to WBNB`)
 
                     const returnItem = {
-                        transactionHash: approveReceipt,
-                        link: `${networkExplorers[network]}/tx/${approveReceipt.transactionHash}`
+                        transactionHash: tx.hash,
+                        transactionReceipt: approveReceipt as any,
+                        link: `${networkExplorers[network]}/tx/${tx.hash}`
                     }
                     return returnNodeExecutionData(returnItem)
                 } else if (toTokenContractAddress.includes(`_ETH`) && fromTokenSymbol === 'WBNB') {
@@ -426,8 +427,9 @@ class PancakeSwap implements INode {
                     if (approveReceipt.status === 0) throw new Error(`Failed to swap WBNB to BNB`)
 
                     const returnItem = {
-                        transactionHash: approveReceipt,
-                        link: `${networkExplorers[network]}/tx/${approveReceipt.transactionHash}`
+                        transactionHash: tx.hash,
+                        transactionReceipt: approveReceipt as any,
+                        link: `${networkExplorers[network]}/tx/${tx.hash}`
                     }
                     return returnNodeExecutionData(returnItem)
                 } else {

@@ -53,7 +53,7 @@ class CreateERC20Token implements INode {
     constructor() {
         this.label = 'Create Token'
         this.name = 'createToken'
-        this.icon = 'createERC20.svg'
+        this.icon = 'erc20.svg'
         this.type = 'action'
         this.category = 'Cryptocurrency'
         this.version = 1.0

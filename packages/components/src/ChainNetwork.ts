@@ -487,7 +487,7 @@ export async function getBscMainnetProvider() {
 }
 
 export async function getBscTestnetProvider() {
-    return await getFallbackProvider(binanceTestnetRPC, 'binance', CHAIN_ID.BINANCE_TESTNET)
+    return await new ethers.providers.JsonRpcProvider(binanceTestnetRPC[0])
 }
 
 export async function getPolygonMainnetProvider() {
@@ -894,52 +894,10 @@ export const nativeCurrency = {
     [NETWORK.BSC_TESTNET]: 'BNB'
 } as INetworkMapping
 
-export const tokenAbi = [
-    {
-        constant: true,
-        inputs: [],
-        name: 'symbol',
-        outputs: [
-            {
-                name: '',
-                type: 'string'
-            }
-        ],
-        payable: false,
-        stateMutability: 'view',
-        type: 'function'
-    },
-    {
-        constant: true,
-        inputs: [],
-        name: 'name',
-        outputs: [
-            {
-                name: '',
-                type: 'string'
-            }
-        ],
-        payable: false,
-        stateMutability: 'view',
-        type: 'function'
-    },
-    {
-        constant: true,
-        inputs: [],
-        name: 'decimals',
-        outputs: [
-            {
-                name: '',
-                type: 'uint8'
-            }
-        ],
-        payable: false,
-        stateMutability: 'view',
-        type: 'function'
-    }
-]
-
 export const eventTransferAbi = ['event Transfer(address indexed from, address indexed to, uint value)']
+
+export const functionTransferAbi = ['function transfer(address to, uint256 amount) external returns (boolean)']
+
 export const erc1155SingleTransferAbi = [
     'event TransferSingle(address indexed operator, address indexed from, address indexed to, uint id, uint value)'
 ]

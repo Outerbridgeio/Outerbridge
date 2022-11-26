@@ -391,8 +391,9 @@ class Uniswap implements INode {
                     if (approveReceipt.status === 0) throw new Error(`Failed to swap ETH to WETH`)
 
                     const returnItem = {
-                        transactionHash: approveReceipt,
-                        link: `${networkExplorers[network]}/tx/${approveReceipt.transactionHash}`
+                        transactionHash: tx.hash,
+                        transactionReceipt: approveReceipt as any,
+                        link: `${networkExplorers[network]}/tx/${tx.hash}`
                     }
                     return returnNodeExecutionData(returnItem)
                 } else if (toTokenContractAddress.includes(`_${nativeCurrency[network]}`) && fromTokenSymbol === 'WETH') {
@@ -405,8 +406,9 @@ class Uniswap implements INode {
                     if (approveReceipt.status === 0) throw new Error(`Failed to swap WETH to ETH`)
 
                     const returnItem = {
-                        transactionHash: approveReceipt,
-                        link: `${networkExplorers[network]}/tx/${approveReceipt.transactionHash}`
+                        transactionHash: tx.hash,
+                        transactionReceipt: approveReceipt as any,
+                        link: `${networkExplorers[network]}/tx/${tx.hash}`
                     }
                     return returnNodeExecutionData(returnItem)
                 } else {

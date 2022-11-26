@@ -32,6 +32,7 @@ class ExecuteContractFunction implements INode {
     outgoing: number
     networks?: INodeParams[]
     credentials?: INodeParams[]
+    inputParameters?: INodeParams[]
     actions?: INodeParams[]
 
     constructor() {
@@ -40,7 +41,7 @@ class ExecuteContractFunction implements INode {
         this.icon = 'execute-contract-function.svg'
         this.type = 'action'
         this.category = 'Smart Contract'
-        this.version = 1.0
+        this.version = 1.1
         this.description = 'Execute smart contract function.'
         this.incoming = 1
         this.outgoing = 1
@@ -106,6 +107,34 @@ class ExecuteContractFunction implements INode {
             }
         ] as INodeParams[]
         this.credentials = [...networkProviderCredentials] as INodeParams[]
+        this.inputParameters = [
+            {
+                label: 'Gas Limit',
+                name: 'gasLimit',
+                type: 'number',
+                optional: true,
+                placeholder: '100000',
+                description: 'Maximum price you are willing to pay when sending a transaction'
+            },
+            {
+                label: 'Max Fee per Gas',
+                name: 'maxFeePerGas',
+                type: 'number',
+                optional: true,
+                placeholder: '200',
+                description:
+                    'The maximum price (in wei) per unit of gas for transaction. See <a target="_blank" href="https://docs.alchemy.com/docs/maxpriorityfeepergas-vs-maxfeepergas">more</a>'
+            },
+            {
+                label: 'Max Priority Fee per Gas',
+                name: 'maxPriorityFeePerGas',
+                type: 'number',
+                optional: true,
+                placeholder: '5',
+                description:
+                    'The priority fee price (in wei) per unit of gas for transaction. See <a target="_blank" href="https://docs.alchemy.com/docs/maxpriorityfeepergas-vs-maxfeepergas">more</a>'
+            }
+        ] as INodeParams[]
     }
 
     loadMethods = {
@@ -250,6 +279,7 @@ class ExecuteContractFunction implements INode {
         const networksData = nodeData.networks
         const actionsData = nodeData.actions
         const credentials = nodeData.credentials
+        const inputParametersData = nodeData.inputParameters
 
         if (networksData === undefined || actionsData === undefined) {
             throw new Error('Required data missing')
@@ -296,15 +326,20 @@ class ExecuteContractFunction implements INode {
                 const wallet = new ethers.Wallet(walletCredential.privateKey as string, provider)
                 contractInstance = new ethers.Contract(address, abi, wallet)
 
+                const gasLimit = (inputParametersData?.gasLimit as number) || 3000000
+                const maxFeePerGas = (inputParametersData?.maxFeePerGas as number) || undefined
+                const maxPriorityFeePerGas = (inputParametersData?.maxPriorityFeePerGas as number) || undefined
                 const gasPrice = await provider.getGasPrice()
-                const gasLimit = 3000000
                 const nonce = await provider.getTransactionCount(walletDetails.address)
 
                 const txOption = {
                     gasPrice,
                     gasLimit,
                     nonce
-                }
+                } as any
+
+                if (maxFeePerGas) txOption.maxFeePerGas = maxFeePerGas
+                if (maxPriorityFeePerGas) txOption.maxPriorityFeePerGas = maxPriorityFeePerGas
 
                 functionName = functionName.split(' ')[0]
                 const tx = await contractInstance[functionName].apply(null, contractParameters.length ? contractParameters : null, txOption)
@@ -314,8 +349,9 @@ class ExecuteContractFunction implements INode {
                 if (approveReceipt.status === 0) throw new Error(`Function ${functionName} failed to send transaction`)
                 const returnItem = {
                     function: functionName,
-                    transactionHash: approveReceipt,
-                    link: `${networkExplorers[network]}/tx/${approveReceipt.transactionHash}`
+                    transactionHash: tx.hash,
+                    transactionReceipt: approveReceipt,
+                    link: `${networkExplorers[network]}/tx/${tx.hash}`
                 }
                 return returnNodeExecutionData(returnItem)
             } else {

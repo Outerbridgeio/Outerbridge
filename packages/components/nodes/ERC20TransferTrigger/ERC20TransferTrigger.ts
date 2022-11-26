@@ -12,10 +12,13 @@ import {
     NETWORK,
     getNetworkProvider,
     NETWORK_PROVIDER,
-    tokenAbi,
     eventTransferAbi,
-    networkProviderCredentials
+    networkProviderCredentials,
+    chainIdLookup
 } from '../../src/ChainNetwork'
+import IERC20 from '../../src/abis/WETH.json'
+import axios, { AxiosRequestConfig, Method } from 'axios'
+import { IToken } from '../PancakeSwap/extendedTokens'
 
 class ERC20TransferTrigger extends EventEmitter implements INode {
     label: string
@@ -36,10 +39,10 @@ class ERC20TransferTrigger extends EventEmitter implements INode {
         super()
         this.label = 'ERC20 Transfer Trigger'
         this.name = 'ERC20TransferTrigger'
-        this.icon = 'ethereum.svg'
+        this.icon = 'erc20.svg'
         this.type = 'trigger'
         this.category = 'Cryptocurrency'
-        this.version = 1.0
+        this.version = 1.1
         this.description = 'Start workflow whenever an ERC20 transfer event happened'
         this.incoming = 0
         this.outgoing = 1
@@ -80,11 +83,21 @@ class ERC20TransferTrigger extends EventEmitter implements INode {
         this.credentials = [...networkProviderCredentials] as INodeParams[]
         this.inputParameters = [
             {
-                label: 'ERC20 Address',
-                name: 'erc20Address',
+                label: 'ERC20 Token',
+                name: 'erc20Token',
+                type: 'asyncOptions',
+                description: 'ERC20 Token to send/transfer',
+                loadMethod: 'getTokens',
+                default: 'anyERC20Address'
+            },
+            {
+                label: 'Custom ERC20 Address',
+                name: 'customERC20TokenAddress',
                 type: 'string',
-                default: '',
-                optional: true
+                description: 'ERC20 Token Address',
+                show: {
+                    'inputParameters.erc20Token': ['customERC20Address']
+                }
             },
             {
                 label: 'Direction',
@@ -139,6 +152,54 @@ class ERC20TransferTrigger extends EventEmitter implements INode {
 
             const network = networksData.network as NETWORK
             return getNetworkProvidersList(network)
+        },
+
+        async getTokens(nodeData: INodeData): Promise<INodeOptionsValue[]> {
+            const returnData: INodeOptionsValue[] = []
+
+            const networksData = nodeData.networks
+            if (networksData === undefined) return returnData
+
+            const network = networksData.network as NETWORK
+
+            try {
+                const axiosConfig: AxiosRequestConfig = {
+                    method: 'GET' as Method,
+                    url: `https://tokens.uniswap.org`
+                }
+
+                const response = await axios(axiosConfig)
+                const responseData = response.data
+                let tokens: IToken[] = responseData.tokens
+
+                // Add any token
+                const anyData = {
+                    label: `- Any ERC20 Token -`,
+                    name: `anyERC20Address`
+                } as INodeOptionsValue
+                returnData.push(anyData)
+
+                // Add custom token
+                const data = {
+                    label: `- Custom ERC20 Address -`,
+                    name: `customERC20Address`
+                } as INodeOptionsValue
+                returnData.push(data)
+
+                // Add other tokens
+                tokens = tokens.filter((tkn) => tkn.chainId === chainIdLookup[network])
+                for (let i = 0; i < tokens.length; i += 1) {
+                    const token = tokens[i]
+                    const data = {
+                        label: `${token.name} (${token.symbol})`,
+                        name: `${token.address};${token.decimals}`
+                    } as INodeOptionsValue
+                    returnData.push(data)
+                }
+                return returnData
+            } catch (e) {
+                return returnData
+            }
         }
     }
 
@@ -164,9 +225,10 @@ class ERC20TransferTrigger extends EventEmitter implements INode {
         if (!provider) throw new Error('Invalid Network Provider')
 
         const emitEventKey = nodeData.emitEventKey as string
-        const erc20Address = (inputParametersData.erc20Address as string) || null
         const fromAddress = (inputParametersData.fromAddress as string) || null
         const toAddress = (inputParametersData.toAddress as string) || null
+        const erc20Token = inputParametersData.erc20Token as string
+        const customERC20TokenAddress = inputParametersData.customERC20TokenAddress as string
 
         const filter = {
             topics: [
@@ -174,12 +236,15 @@ class ERC20TransferTrigger extends EventEmitter implements INode {
                 fromAddress ? utils.hexZeroPad(fromAddress, 32) : null,
                 toAddress ? utils.hexZeroPad(toAddress, 32) : null
             ]
+        } as any
+
+        if (erc20Token !== 'anyERC20Address') {
+            filter['address'] = erc20Token === 'customERC20Address' ? customERC20TokenAddress : erc20Token.split(';')[0]
         }
-        if (erc20Address) (filter as any)['address'] = erc20Address
 
         provider.on(filter, async (log: any) => {
             const txHash = log.transactionHash
-            const contractInstance = new ethers.Contract(log.address, tokenAbi, provider)
+            const contractInstance = new ethers.Contract(log.address, IERC20, provider)
             const iface = new ethers.utils.Interface(eventTransferAbi)
             const logs = await provider.getLogs(filter)
             const events = logs.map((log) => iface.parseLog(log))

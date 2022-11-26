@@ -1,0 +1,242 @@
+[
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "owner",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "spender",
+                "type": "address"
+            }
+        ],
+        "inputParameters": [
+            {
+                "label": "Owner Address",
+                "name": "owner",
+                "type": "string",
+                "show": {
+                    "actions.function": ["allowance"]
+                }
+            },
+            {
+                "label": "Spender Address",
+                "name": "spender",
+                "type": "string",
+                "show": {
+                    "actions.function": ["allowance"]
+                }
+            }
+        ],
+        "name": "allowance",
+        "label": "Get Allowance",
+        "description": "Returns the remaining number of tokens that spender will be allowed to spend on behalf of owner through transferFrom. This is zero by default.",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "spender",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "inputParameters": [
+            {
+                "label": "Spender Address",
+                "name": "spender",
+                "type": "string",
+                "show": {
+                    "actions.function": ["approve"]
+                }
+            },
+            {
+                "label": "Amount",
+                "name": "amount",
+                "type": "number",
+                "show": {
+                    "actions.function": ["approve"]
+                }
+            }
+        ],
+        "name": "approve",
+        "label": "Approve",
+        "description": "Sets amount as the allowance of spender over the caller’s tokens.",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "account",
+                "type": "address"
+            }
+        ],
+        "inputParameters": [
+            {
+                "label": "Account Address",
+                "name": "account",
+                "type": "string",
+                "description": "Account address to check for remaining amount",
+                "show": {
+                    "actions.function": ["balanceOf"]
+                }
+            }
+        ],
+        "name": "balanceOf",
+        "label": "Get Balance",
+        "description": "Returns the amount of tokens owned by account",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "decimals",
+        "label": "Get ERC20 Decimals",
+        "description": "Returns the decimals of ERC20",
+        "outputs": [
+            {
+                "internalType": "uint8",
+                "name": "",
+                "type": "uint8"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "name",
+        "label": "Get ERC20 Name",
+        "description": "Returns the name of ERC20",
+        "outputs": [
+            {
+                "internalType": "string",
+                "name": "",
+                "type": "string"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "symbol",
+        "label": "Get ERC20 Symbol",
+        "description": "Returns the symbol of ERC20",
+        "outputs": [
+            {
+                "internalType": "string",
+                "name": "",
+                "type": "string"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "totalSupply",
+        "label": "Get ERC20 Total Supply",
+        "description": "Returns the total supply of ERC20",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "from",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "inputParameters": [
+            {
+                "label": "From Address",
+                "name": "from",
+                "type": "string",
+                "description": "Account address to transfer the token",
+                "show": {
+                    "actions.function": ["transferFrom"]
+                }
+            },
+            {
+                "label": "To Address",
+                "name": "to",
+                "type": "string",
+                "description": "Account address to receive the token",
+                "show": {
+                    "actions.function": ["transferFrom"]
+                }
+            },
+            {
+                "label": "Amount",
+                "name": "amount",
+                "type": "number",
+                "description": "Amount of token transfer",
+                "show": {
+                    "actions.function": ["transferFrom"]
+                }
+            }
+        ],
+        "name": "transferFrom",
+        "label": "Transfer From",
+        "description": "Moves amount tokens from sender to recipient using the allowance mechanism. Amount is then deducted from the caller’s allowance.",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }
+]
