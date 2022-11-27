@@ -10,6 +10,7 @@ class SnowTrace implements INode {
     description: string
     version: number
     icon: string
+    category: string
     incoming: number
     outgoing: number
 
@@ -23,6 +24,7 @@ class SnowTrace implements INode {
         this.name = 'snowtrace'
         this.icon = 'snowtrace.svg'
         this.type = 'action'
+        this.category = 'Block Explorer'
         this.version = 1.0
         this.description = 'Perform SnowTrace operations'
         this.incoming = 1

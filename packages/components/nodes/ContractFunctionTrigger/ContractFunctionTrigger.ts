@@ -11,7 +11,8 @@ class ContractFunctionTrigger extends EventEmitter implements INode {
     type: NodeType
     description?: string
     version: number
-    icon?: string
+    icon: string
+    category: string
     incoming: number
     outgoing: number
     networks?: INodeParams[]
@@ -25,6 +26,7 @@ class ContractFunctionTrigger extends EventEmitter implements INode {
         this.name = 'ContractFunctionTrigger'
         this.icon = 'contract-function-trigger.svg'
         this.type = 'trigger'
+        this.category = 'Smart Contract'
         this.version = 1.0
         this.description = 'Triggers whenever the specified view function return value changes'
         this.incoming = 0

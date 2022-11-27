@@ -20,7 +20,8 @@ class Scheduler extends EventEmitter implements INode {
     type: NodeType
     description?: string
     version: number
-    icon?: string
+    icon: string
+    category: string
     incoming: number
     outgoing: number
     inputParameters?: INodeParams[]
@@ -32,6 +33,7 @@ class Scheduler extends EventEmitter implements INode {
         this.name = 'scheduler'
         this.icon = 'scheduler.svg'
         this.type = 'trigger'
+        this.category = 'Utilities'
         this.version = 1.0
         this.description = 'Start workflow at scheduled times'
         this.incoming = 0

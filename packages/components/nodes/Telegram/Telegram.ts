@@ -9,15 +9,18 @@ class Telegram implements INode {
     description: string
     version: number
     icon: string
+    category: string
     incoming: number
     outgoing: number
     inputParameters: INodeParams[]
     credentials: INodeParams[]
+
     constructor() {
         this.label = 'Telegram'
         this.name = 'telegram'
         this.icon = 'telegram.svg'
         this.type = 'action'
+        this.category = 'Communication'
         this.version = 1.0
         this.description = 'Perform Telegram operations'
         this.incoming = 1

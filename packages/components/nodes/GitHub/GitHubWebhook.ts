@@ -8,7 +8,8 @@ class GitHubWebhook implements INode {
     type: NodeType
     description?: string
     version: number
-    icon?: string
+    icon: string
+    category: string
     incoming: number
     outgoing: number
     actions?: INodeParams[]
@@ -20,6 +21,7 @@ class GitHubWebhook implements INode {
         this.name = 'GitHubWebhook'
         this.icon = 'GitHub-Logo.png'
         this.type = 'webhook'
+        this.category = 'Development'
         this.version = 1.0
         this.description = 'Start workflow whenever GitHub webhook event happened'
         this.incoming = 0

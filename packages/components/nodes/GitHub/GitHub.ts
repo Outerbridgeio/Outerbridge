@@ -8,7 +8,8 @@ class GitHub implements INode {
     type: NodeType
     description?: string
     version: number
-    icon?: string
+    icon: string
+    category: string
     incoming: number
     outgoing: number
     actions?: INodeParams[]
@@ -20,6 +21,7 @@ class GitHub implements INode {
         this.name = 'GitHub'
         this.icon = 'GitHub-Logo.png'
         this.type = 'action'
+        this.category = 'Development'
         this.version = 1.0
         this.description = 'GitHub API'
         this.incoming = 1

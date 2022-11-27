@@ -23,7 +23,8 @@ class NFTMintTrigger extends EventEmitter implements INode {
     type: NodeType
     description?: string
     version: number
-    icon?: string
+    icon: string
+    category: string
     incoming: number
     outgoing: number
     networks?: INodeParams[]
@@ -37,6 +38,7 @@ class NFTMintTrigger extends EventEmitter implements INode {
         this.name = 'NFTMintTrigger'
         this.icon = 'nftmint.png'
         this.type = 'trigger'
+        this.category = 'NFT'
         this.version = 1.0
         this.description = 'Start workflow whenever a NFT is minted'
         this.incoming = 0

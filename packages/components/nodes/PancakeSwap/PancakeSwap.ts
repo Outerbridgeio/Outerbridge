@@ -23,7 +23,8 @@ class PancakeSwap implements INode {
     type: NodeType
     description?: string
     version: number
-    icon?: string
+    icon: string
+    category: string
     incoming: number
     outgoing: number
     networks?: INodeParams[]
@@ -36,6 +37,7 @@ class PancakeSwap implements INode {
         this.name = 'pancakeSwap'
         this.icon = 'pancakeswap.png'
         this.type = 'action'
+        this.category = 'Decentralized Finance'
         this.version = 1.0
         this.description = 'Execute PancakeSwap operations'
         this.incoming = 1
@@ -410,8 +412,9 @@ class PancakeSwap implements INode {
                     if (approveReceipt.status === 0) throw new Error(`Failed to swap BNB to WBNB`)
 
                     const returnItem = {
-                        transactionHash: approveReceipt,
-                        link: `${networkExplorers[network]}/tx/${approveReceipt.transactionHash}`
+                        transactionHash: tx.hash,
+                        transactionReceipt: approveReceipt as any,
+                        link: `${networkExplorers[network]}/tx/${tx.hash}`
                     }
                     return returnNodeExecutionData(returnItem)
                 } else if (toTokenContractAddress.includes(`_ETH`) && fromTokenSymbol === 'WBNB') {
@@ -424,8 +427,9 @@ class PancakeSwap implements INode {
                     if (approveReceipt.status === 0) throw new Error(`Failed to swap WBNB to BNB`)
 
                     const returnItem = {
-                        transactionHash: approveReceipt,
-                        link: `${networkExplorers[network]}/tx/${approveReceipt.transactionHash}`
+                        transactionHash: tx.hash,
+                        transactionReceipt: approveReceipt as any,
+                        link: `${networkExplorers[network]}/tx/${tx.hash}`
                     }
                     return returnNodeExecutionData(returnItem)
                 } else {

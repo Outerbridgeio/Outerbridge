@@ -9,9 +9,9 @@ class Xero implements INode {
     description: string
     version: number
     icon: string
+    category: string
     incoming: number
     outgoing: number
-
     actions: INodeParams[]
     credentials?: INodeParams[]
     networks?: INodeParams[]
@@ -22,6 +22,7 @@ class Xero implements INode {
         this.name = 'xero'
         this.icon = 'xero.svg'
         this.type = 'action'
+        this.category = 'Accounting'
         this.version = 1.0
         this.description = 'Perform Xero operations'
         this.incoming = 1

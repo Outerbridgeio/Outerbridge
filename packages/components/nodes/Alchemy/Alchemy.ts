@@ -32,6 +32,7 @@ class Alchemy implements INode {
     description: string
     version: number
     icon: string
+    category: string
     incoming: number
     outgoing: number
     credentials?: INodeParams[]
@@ -43,8 +44,9 @@ class Alchemy implements INode {
         this.name = 'alchemy'
         this.icon = 'alchemy.svg'
         this.type = 'action'
+        this.category = 'Network Provider'
         this.version = 1.1
-        this.description = 'Perform Alchemy onchain operations'
+        this.description = 'Perform Alchemy on-chain operations'
         this.incoming = 1
         this.outgoing = 1
         this.networks = [

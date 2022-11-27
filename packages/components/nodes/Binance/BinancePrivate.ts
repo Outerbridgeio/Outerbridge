@@ -10,7 +10,8 @@ class BinancePrivate implements INode {
     type: NodeType
     description?: string
     version: number
-    icon?: string
+    icon: string
+    category: string
     incoming: number
     outgoing: number
     actions?: INodeParams[]
@@ -22,6 +23,7 @@ class BinancePrivate implements INode {
         this.name = 'binancePrivate'
         this.icon = 'binance-logo.svg'
         this.type = 'action'
+        this.category = 'Centralized Exchange'
         this.version = 1.0
         this.description = 'Binance Private APIs that require API and Secret keys'
         this.incoming = 1

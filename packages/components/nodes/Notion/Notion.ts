@@ -9,16 +9,19 @@ class Notion implements INode {
     description?: string
     version: number
     icon: string
+    category: string
     incoming: number
     outgoing: number
     actions?: INodeParams[]
     credentials?: INodeParams[]
     inputParameters?: INodeParams[]
+
     constructor() {
         this.label = 'Notion'
         this.name = 'notion'
         this.icon = 'notion.svg'
         this.type = 'action'
+        this.category = 'Productivity'
         this.version = 1.0
         this.description = 'Work with Notion page, database or block'
         this.incoming = 1

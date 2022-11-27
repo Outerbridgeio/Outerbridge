@@ -1,5 +1,5 @@
 import { ethers, utils } from 'ethers'
-import { ICommonObject, INode, INodeData, INodeParams, IProviders, NodeType } from '../../src/Interface'
+import { ICommonObject, INode, INodeData, INodeOptionsValue, INodeParams, IProviders, NodeType } from '../../src/Interface'
 import { returnNodeExecutionData } from '../../src/utils'
 import EventEmitter from 'events'
 import {
@@ -9,9 +9,12 @@ import {
     NETWORK_PROVIDER,
     NETWORK,
     getNetworkProvider,
-    tokenAbi,
-    networkProviderCredentials
+    networkProviderCredentials,
+    chainIdLookup
 } from '../../src/ChainNetwork'
+import axios, { AxiosRequestConfig, Method } from 'axios'
+import { IToken } from '../PancakeSwap/extendedTokens'
+import IBEP20 from '../../src/abis/WBNB.json'
 
 class BEP20TransferTrigger extends EventEmitter implements INode {
     label: string
@@ -19,7 +22,8 @@ class BEP20TransferTrigger extends EventEmitter implements INode {
     type: NodeType
     description?: string
     version: number
-    icon?: string
+    icon: string
+    category: string
     incoming: number
     outgoing: number
     networks?: INodeParams[]
@@ -31,9 +35,10 @@ class BEP20TransferTrigger extends EventEmitter implements INode {
         super()
         this.label = 'BEP20 Transfer Trigger'
         this.name = 'BEP20TransferTrigger'
-        this.icon = 'bnb.svg'
+        this.icon = 'bep20.png'
         this.type = 'trigger'
-        this.version = 1.0
+        this.category = 'Cryptocurrency'
+        this.version = 1.1
         this.description = 'Triggers whenever a BEP20 transfer event happened'
         this.incoming = 0
         this.outgoing = 1
@@ -75,11 +80,21 @@ class BEP20TransferTrigger extends EventEmitter implements INode {
         this.credentials = [...networkProviderCredentials] as INodeParams[]
         this.inputParameters = [
             {
-                label: 'BEP20 Address',
-                name: 'bep20Address',
+                label: 'BEP20 Token',
+                name: 'bep20Token',
+                type: 'asyncOptions',
+                description: 'BEP20 Token to send/transfer',
+                loadMethod: 'getTokens',
+                default: 'anyBEP20Address'
+            },
+            {
+                label: 'Custom BEP20 Address',
+                name: 'customBEP20TokenAddress',
                 type: 'string',
-                default: '',
-                optional: true
+                description: 'BEP20 Token Address',
+                show: {
+                    'inputParameters.bep20Token': ['customBEP20Address']
+                }
             },
             {
                 label: 'Direction',
@@ -125,6 +140,56 @@ class BEP20TransferTrigger extends EventEmitter implements INode {
         ] as INodeParams[]
     }
 
+    loadMethods = {
+        async getTokens(nodeData: INodeData): Promise<INodeOptionsValue[]> {
+            const returnData: INodeOptionsValue[] = []
+
+            const networksData = nodeData.networks
+            if (networksData === undefined) return returnData
+
+            const network = networksData.network as NETWORK
+
+            try {
+                const axiosConfig: AxiosRequestConfig = {
+                    method: 'GET' as Method,
+                    url: `https://tokens.pancakeswap.finance/pancakeswap-extended.json`
+                }
+
+                const response = await axios(axiosConfig)
+                const responseData = response.data
+                let tokens: IToken[] = responseData.tokens
+
+                // Add any token
+                const anyData = {
+                    label: `- Any BEP20 Token -`,
+                    name: `anyBEP20Address`
+                } as INodeOptionsValue
+                returnData.push(anyData)
+
+                // Add custom token
+                const data = {
+                    label: `- Custom BEP20 Address -`,
+                    name: `customBEP20Address`
+                } as INodeOptionsValue
+                returnData.push(data)
+
+                // Add other tokens
+                tokens = tokens.filter((tkn) => tkn.chainId === chainIdLookup[network])
+                for (let i = 0; i < tokens.length; i += 1) {
+                    const token = tokens[i]
+                    const data = {
+                        label: `${token.name} (${token.symbol})`,
+                        name: `${token.address};${token.decimals}`
+                    } as INodeOptionsValue
+                    returnData.push(data)
+                }
+                return returnData
+            } catch (e) {
+                return returnData
+            }
+        }
+    }
+
     async runTrigger(nodeData: INodeData): Promise<void> {
         const networksData = nodeData.networks
         const inputParametersData = nodeData.inputParameters
@@ -147,9 +212,10 @@ class BEP20TransferTrigger extends EventEmitter implements INode {
         if (!provider) throw new Error('Invalid Network Provider')
 
         const emitEventKey = nodeData.emitEventKey as string
-        const bep20Address = (inputParametersData.bep20Address as string) || null
         const fromAddress = (inputParametersData.fromAddress as string) || null
         const toAddress = (inputParametersData.toAddress as string) || null
+        const bep20Token = inputParametersData.bep20Token as string
+        const customBEP20TokenAddress = inputParametersData.customBEP20TokenAddress as string
 
         const filter = {
             topics: [
@@ -158,18 +224,20 @@ class BEP20TransferTrigger extends EventEmitter implements INode {
                 toAddress ? utils.hexZeroPad(toAddress, 32) : null
             ]
         } as any
-        if (bep20Address) filter['address'] = bep20Address
+
+        if (bep20Token !== 'anyBEP20Address') {
+            filter['address'] = bep20Token === 'customBEP20Address' ? customBEP20TokenAddress : bep20Token.split(';')[0]
+        }
 
         provider.on(filter, async (log: any) => {
             const txHash = log.transactionHash
-            const contractInstance = new ethers.Contract(log.address, tokenAbi, provider)
+            const contractInstance = new ethers.Contract(log.address, IBEP20, provider)
 
             /* events are empty at the moment
 			const iface = new ethers.utils.Interface(eventTransferAbi);
 			const logs = await provider.getLogs(filter);
 			const events = logs.map((log) => iface.parseLog(log));
-
-			const fromWallet = events.length ? events[0].args[0] : '';
+            const fromWallet = events.length ? events[0].args[0] : '';
 			const toWallet = events.length ? events[0].args[1] : '';
 			const value: BigNumber = events.length ? events[0].args[2] : '';
 			*/

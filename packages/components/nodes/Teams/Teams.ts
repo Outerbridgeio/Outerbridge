@@ -13,6 +13,7 @@ class Teams implements INode {
     description: string
     version: number
     icon: string
+    category: string
     incoming: number
     outgoing: number
     inputParameters?: INodeParams[]
@@ -22,6 +23,7 @@ class Teams implements INode {
         this.name = 'teams'
         this.icon = 'teams.svg'
         this.type = 'action'
+        this.category = 'Communication'
         this.version = 1.0
         this.description = 'Post message in Teams channel'
         this.incoming = 1

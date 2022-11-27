@@ -30,6 +30,7 @@ class Infura implements INode {
     description: string
     version: number
     icon: string
+    category: string
     incoming: number
     outgoing: number
     actions: INodeParams[]
@@ -42,6 +43,7 @@ class Infura implements INode {
         this.name = 'infura'
         this.icon = 'infura.svg'
         this.type = 'action'
+        this.category = 'Network Provider'
         this.version = 1.1
         this.description = 'Perform Infura onchain operations'
         this.incoming = 1

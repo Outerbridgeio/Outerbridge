@@ -8,7 +8,8 @@ class HTTP implements INode {
     type: NodeType
     description?: string
     version: number
-    icon?: string
+    icon: string
+    category: string
     incoming: number
     outgoing: number
     actions?: INodeParams[]
@@ -20,6 +21,7 @@ class HTTP implements INode {
         this.name = 'http'
         this.icon = 'http.svg'
         this.type = 'action'
+        this.category = 'Development'
         this.version = 1.0
         this.description = 'Execute HTTP request'
         this.incoming = 1
