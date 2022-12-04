@@ -32,7 +32,7 @@ export enum NETWORK {
     MOONRIVER = 'moonriver',
     MOONBEAM = 'moonbeam',
     METIS = 'metis',
-    KLATYN_TESTNET = 'klaytn'
+    KLATYN_TESTNET = 'klaytn-testnet'
 }
 
 export enum NETWORK_LABEL {
@@ -732,7 +732,15 @@ export const etherscanAPIs = {
     [NETWORK.BSC]: 'https://api.bscscan.com/api',
     [NETWORK.BSC_TESTNET]: 'https://api-testnet.bscscan.com/api',
     [NETWORK.AVALANCHE]: 'https://api.snowtrace.io/api',
-    [NETWORK.AVALANCHE_TESTNET]: 'https://api-testnet.snowtrace.io/api'
+    [NETWORK.AVALANCHE_TESTNET]: 'https://api-testnet.snowtrace.io/api',
+    [NETWORK.FANTOM]: 'https://api.ftmscan.com/api',
+    [NETWORK.FANTOM_TESTNET]: 'https://api-testnet.ftmscan.com/api',
+    [NETWORK.CRONOS]: 'https://api.cronoscan.com/api',
+    [NETWORK.CRONOS_TESTNET]: 'https://api-testnet.cronoscan.com/api',
+    [NETWORK.GNOSIS]: 'https://api.gnosisscan.io/api',
+    [NETWORK.CELO]: 'https://api.celoscan.io/api',
+    [NETWORK.MOONRIVER]: 'https://api-moonriver.moonscan.io/api',
+    [NETWORK.MOONBEAM]: 'https://api-moonbeam.moonscan.io/api'
 } as INetworkMapping
 
 export const infuraHTTPAPIs = {
@@ -793,7 +801,15 @@ export const networkExplorers = {
     [NETWORK.ARBITRUM]: 'https://arbiscan.io',
     [NETWORK.ARBITRUM_GOERLI]: 'https://goerli-explorer.arbitrum.io',
     [NETWORK.BSC]: 'https://bscscan.com',
-    [NETWORK.BSC_TESTNET]: 'https://testnet.bscscan.com'
+    [NETWORK.BSC_TESTNET]: 'https://testnet.bscscan.com',
+    [NETWORK.FANTOM]: 'https://ftmscan.com',
+    [NETWORK.FANTOM_TESTNET]: 'https://testnet.ftmscan.com',
+    [NETWORK.CRONOS]: 'https://cronoscan.com',
+    [NETWORK.CRONOS_TESTNET]: 'https://testnet.cronoscan.com',
+    [NETWORK.GNOSIS]: 'https://gnosisscan.io',
+    [NETWORK.CELO]: 'https://celoscan.io',
+    [NETWORK.MOONRIVER]: 'https://moonriver.moonscan.io',
+    [NETWORK.MOONBEAM]: 'https://moonscan.io'
 } as INetworkMapping
 
 export const openseaExplorers = {
@@ -895,8 +911,17 @@ export const nativeCurrency = {
     [NETWORK.OPTIMISM_GOERLI]: 'ETH',
     [NETWORK.ARBITRUM]: 'ETH',
     [NETWORK.ARBITRUM_GOERLI]: 'ETH',
+    [NETWORK.ARBITRUM_NOVA]: 'ETH',
     [NETWORK.BSC]: 'BNB',
-    [NETWORK.BSC_TESTNET]: 'BNB'
+    [NETWORK.BSC_TESTNET]: 'BNB',
+    [NETWORK.FANTOM]: 'FTM',
+    [NETWORK.FANTOM_TESTNET]: 'FTM',
+    [NETWORK.AVALANCHE]: 'AVAX',
+    [NETWORK.AVALANCHE_TESTNET]: 'AVAX',
+    [NETWORK.GNOSIS]: 'xDAI',
+    [NETWORK.CELO]: 'CELO',
+    [NETWORK.MOONRIVER]: 'MOVR',
+    [NETWORK.MOONBEAM]: 'GLMR'
 } as INetworkMapping
 
 export const eventTransferAbi = ['event Transfer(address indexed from, address indexed to, uint value)']
