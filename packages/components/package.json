@@ -17,6 +17,7 @@
     "license": "SEE LICENSE IN LICENSE.md",
     "dependencies": {
         "@openzeppelin/contracts": "^4.7.3",
+        "@thirdweb-dev/sdk": "^3.6.3",
         "@uniswap/v2-periphery": "^1.1.0-beta.0",
         "axios": "^0.27.2",
         "client-oauth2": "^4.3.3",
@@ -37,11 +38,11 @@
     },
     "devDependencies": {
         "@types/cron": "^1.7.3",
-        "@types/imap": "^0.8.35",
         "@types/gulp": "4.0.9",
+        "@types/imap": "^0.8.35",
         "@types/mailparser": "^3.4.0",
-        "@types/ws": "^8.5.3",
         "@types/nodemailer": "^6.4.4",
+        "@types/ws": "^8.5.3",
         "gulp": "^4.0.2",
         "typescript": "^4.8.4"
     }
