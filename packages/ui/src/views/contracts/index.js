@@ -8,6 +8,7 @@ import MainCard from 'ui-component/cards/MainCard'
 import ItemCard from 'ui-component/cards/ItemCard'
 import ContractDialog from './ContractDialog'
 import ContractEmptySVG from 'assets/images/contract_empty.svg'
+import { TooltipWithParser } from 'ui-component/TooltipWithParser'
 
 // const
 import { gridSpacing } from 'store/constant'
@@ -69,7 +70,8 @@ const Contracts = () => {
         <>
             <MainCard>
                 <Stack flexDirection='row'>
-                    <h1>Contracts</h1>
+                    <h1>Contracts&nbsp;</h1>
+                    <TooltipWithParser title='Verified smart contracts can be imported. Events and functions of smart contracts can be monitored and executed. Read <a target="_blank" href=https://docs.outerbridge.io/how-to-use/contracts>more</a>' />
                     <Grid sx={{ mb: 1.25 }} container direction='row'>
                         <Box sx={{ flexGrow: 1 }} />
                         <Grid item>
