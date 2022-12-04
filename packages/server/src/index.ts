@@ -1069,14 +1069,7 @@ export class App {
                 const network = wallet.network as NETWORK
 
                 // Get Balance
-                if (
-                    decryptedCredentialData.apiKey &&
-                    (credentialMethod === 'etherscanApi' ||
-                        credentialMethod === 'polygonscanApi' ||
-                        credentialMethod === 'bscscanApi' ||
-                        credentialMethod === 'optimisticEtherscanApi' ||
-                        credentialMethod === 'arbiscanApi')
-                ) {
+                if (decryptedCredentialData.apiKey && credentialMethod !== 'noAuth') {
                     url = `${etherscanAPIs[network]}?module=account&action=balance&address=${wallet.address}&tag=latest&apikey=${
                         decryptedCredentialData.apiKey as string
                     }`

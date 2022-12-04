@@ -6,9 +6,11 @@ import PropTypes from 'prop-types'
 export const TooltipWithParser = ({ title }) => {
     return (
         <Tooltip title={parser(title)} placement='right'>
-            <IconButton>
-                <Info style={{ height: 18, width: 18 }} />
-            </IconButton>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+                <IconButton sx={{ height: 25, width: 25 }}>
+                    <Info style={{ height: 18, width: 18 }} />
+                </IconButton>
+            </div>
         </Tooltip>
     )
 }
