@@ -366,7 +366,7 @@ const ArrayInputParameters = ({
                                         <DatePicker
                                             customInput={<DateCustomInput />}
                                             selected={convertDateStringToDateObject(values[inputName]) || null}
-                                            showTimeSelect
+                                            showTimeInput
                                             isClearable
                                             timeInputLabel='Time:'
                                             dateFormat='MM/dd/yyyy h:mm aa'
