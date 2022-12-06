@@ -31,7 +31,11 @@ Outerbridge is a low code/no code workflow automation application, focusing on i
 
 Official Outerbridge docs can be found under: [https://docs.outerbridge.io](https://docs.outerbridge.io)
 
-## 🌐 Host
+## 💻 Cloud Hosted
+
+-   [Cloud Hosted](https://app.outerbridge.io) version of Outerbridge.
+
+## 🌐 Self Host
 
 -   Digital Ocean Droplet: [Setup guide](https://gist.github.com/HenryHengZJ/93210d43d655b4172ee50794ce473b62)
 -   AWS EC2: [Setup guide](https://gist.github.com/HenryHengZJ/627cec19671664a88754c7e383232dc8)
