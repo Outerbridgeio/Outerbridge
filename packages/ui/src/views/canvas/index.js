@@ -687,6 +687,18 @@ const Canvas = () => {
         setCanvasDataStore(canvas)
     }, [canvas])
 
+    useEffect(() => {
+        window.addEventListener('paste', (e) => {
+            const pasteData = e.clipboardData.getData('text')
+            handleLoadWorkflow(pasteData)
+        })
+        return () => {
+            window.removeEventListener('paste')
+        }
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
     usePrompt('You have unsaved changes! Do you want to navigate away?', canvasDataStore.isDirty)
 
     return (
