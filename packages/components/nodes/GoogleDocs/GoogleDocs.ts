@@ -9,6 +9,7 @@ class GoogleDocs implements INode {
     description?: string
     version: number
     icon: string
+    category: string
     incoming: number
     outgoing: number
     actions?: INodeParams[]
@@ -20,6 +21,7 @@ class GoogleDocs implements INode {
         this.name = 'googleDocs'
         this.icon = 'gdocs.svg'
         this.type = 'action'
+        this.category = 'Productivity'
         this.version = 1.0
         this.description = 'Execute GoogleDocs operations'
         this.incoming = 1

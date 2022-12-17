@@ -24,6 +24,7 @@ class OptimismScan implements INode {
     description?: string
     version: number
     icon: string
+    category: string
     incoming: number
     outgoing: number
 
@@ -39,6 +40,7 @@ class OptimismScan implements INode {
         this.name = 'optimismscan'
         this.icon = 'optimismScan.svg'
         this.type = 'action'
+        this.category = 'Block Explorer'
         this.version = 1.0
         this.description = 'Optimism Public API'
         this.incoming = 1

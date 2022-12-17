@@ -9,6 +9,7 @@ class Typeform implements INode {
     description: string
     version: number
     icon: string
+    category: string
     incoming: number
     outgoing: number
 
@@ -21,6 +22,7 @@ class Typeform implements INode {
         this.name = 'typeform'
         this.icon = 'typeform-icon.svg'
         this.type = 'action'
+        this.category = 'Communication'
         this.version = 1.0
         this.description = 'Perform Typeform operations'
         this.incoming = 1

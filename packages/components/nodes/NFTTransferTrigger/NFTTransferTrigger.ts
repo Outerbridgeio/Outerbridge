@@ -25,7 +25,8 @@ class NFTTransferTrigger extends EventEmitter implements INode {
     type: NodeType
     description?: string
     version: number
-    icon?: string
+    icon: string
+    category: string
     incoming: number
     outgoing: number
     networks?: INodeParams[]
@@ -39,6 +40,7 @@ class NFTTransferTrigger extends EventEmitter implements INode {
         this.name = 'NFTTransferTrigger'
         this.icon = 'nfttransfer.png'
         this.type = 'trigger'
+        this.category = 'NFT'
         this.version = 1.0
         this.description = 'Start workflow whenever a NFT transfer event happened'
         this.incoming = 0

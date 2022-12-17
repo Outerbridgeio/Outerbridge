@@ -9,16 +9,19 @@ class TypeformWebhook implements INode {
     description: string
     version: number
     icon: string
+    category: string
     incoming: number
     outgoing: number
     actions: INodeParams[]
     credentials?: INodeParams[]
     inputParameters?: INodeParams[]
+
     constructor() {
         this.label = 'Typeform Webhook'
         this.name = 'typeformWebhook'
         this.icon = 'typeform-webhook.svg'
         this.type = 'webhook'
+        this.category = 'Communication'
         this.version = 1.0
         this.description = 'Start workflow whenever Typeform webhook event happened'
         this.incoming = 0

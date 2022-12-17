@@ -9,6 +9,7 @@ import MainCard from 'ui-component/cards/MainCard'
 import ItemCard from 'ui-component/cards/ItemCard'
 import WalletDialog from './WalletDialog'
 import WalletEmptySVG from 'assets/images/wallet_empty.svg'
+import { TooltipWithParser } from 'ui-component/TooltipWithParser'
 
 // const
 import { gridSpacing } from 'store/constant'
@@ -83,7 +84,8 @@ const Wallets = () => {
         <>
             <MainCard>
                 <Stack flexDirection='row'>
-                    <h1>Wallets</h1>
+                    <h1>Wallets&nbsp;</h1>
+                    <TooltipWithParser title='Wallet is used to execute transaction on blockchain. For instance: swapping token, execute smart contract function, etc. Read <a target="_blank" href=https://docs.outerbridge.io/how-to-use/wallets>more</a>' />
                     <Grid sx={{ mb: 1.25 }} container direction='row'>
                         <Box sx={{ flexGrow: 1 }} />
                         <Grid item>

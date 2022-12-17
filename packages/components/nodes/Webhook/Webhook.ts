@@ -7,7 +7,8 @@ class Webhook implements INode {
     type: NodeType
     description?: string
     version: number
-    icon?: string
+    icon: string
+    category: string
     incoming: number
     outgoing: number
     inputParameters?: INodeParams[]
@@ -17,6 +18,7 @@ class Webhook implements INode {
         this.icon = 'webhook.svg'
         this.name = 'webhook'
         this.type = 'webhook'
+        this.category = 'Utilities'
         this.version = 1.0
         this.description = 'Start workflow when webhook is called'
         this.incoming = 0

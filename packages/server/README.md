@@ -8,16 +8,34 @@ Outerbridge is a low code/no code workflow automation application, focusing on i
 
 ## ⚡Quick Start
 
-1. Install MongoDB from [here](https://www.mongodb.com/try/download/community?tck=docs_server).
-2. `npm install -g outerbridge`
-3. `npx outerbridge start`
+1. Install MongoDB [locally](https://www.mongodb.com/docs/manual/administration/install-community/) OR follow the guide of using MongoDB Atlas [here](https://docs.outerbridge.io/get-started#mongodb-atlas)
+2. Install Outerbridge
+    ```bash
+    npm install -g outerbridge
+    ```
+3. Start Outerbridge
+
+    ```bash
+    npx outerbridge start
+    ```
+
+    If using MongoDB Atlas
+
+    ```bash
+    npx outerbridge start --mongourl=mongodb+srv://<user>:<password>@<your-cluster>.mongodb.net/outerbridge?retryWrites=true&w=majority
+    ```
+
 4. Open [http://localhost:3000](http://localhost:3000)
 
 ## 📖 Documentation
 
 Official Outerbridge docs can be found under: [https://docs.outerbridge.io](https://docs.outerbridge.io)
 
-## 🌐 Host
+## 💻 Cloud Hosted
+
+-   [Cloud Hosted](https://app.outerbridge.io) version of Outerbridge.
+
+## 🌐 Self Host
 
 -   Digital Ocean Droplet: [Setup guide](https://gist.github.com/HenryHengZJ/93210d43d655b4172ee50794ce473b62)
 -   AWS EC2: [Setup guide](https://gist.github.com/HenryHengZJ/627cec19671664a88754c7e383232dc8)

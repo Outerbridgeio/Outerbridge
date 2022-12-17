@@ -9,7 +9,8 @@ class EmailSend implements INode {
     type: NodeType
     description?: string
     version: number
-    icon?: string
+    icon: string
+    category: string
     incoming: number
     outgoing: number
     credentials?: INodeParams[]
@@ -20,6 +21,7 @@ class EmailSend implements INode {
         this.name = 'emailSend'
         this.icon = 'emailsend.svg'
         this.type = 'action'
+        this.category = 'Communication'
         this.version = 1.0
         this.description = 'Send email to single or multiple receipients'
         this.incoming = 1

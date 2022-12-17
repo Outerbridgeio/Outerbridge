@@ -9,6 +9,7 @@ class GoogleSheet implements INode {
     description: string
     version: number
     icon: string
+    category: string
     incoming: number
     outgoing: number
     actions?: INodeParams[]
@@ -20,6 +21,7 @@ class GoogleSheet implements INode {
         this.name = 'googleSheet'
         this.icon = 'gsheet.svg'
         this.type = 'action'
+        this.category = 'Productivity'
         this.version = 1.0
         this.description = 'Execute GoogleSheet operations'
         this.incoming = 1

@@ -549,6 +549,22 @@ const Canvas = () => {
         })
     }
 
+    const errorFailed = (message) => {
+        enqueueSnackbar({
+            message,
+            options: {
+                key: new Date().getTime() + Math.random(),
+                variant: 'error',
+                persist: true,
+                action: (key) => (
+                    <Button style={{ color: 'white' }} onClick={() => closeSnackbar(key)}>
+                        <IconX />
+                    </Button>
+                )
+            }
+        })
+    }
+
     const setDirty = () => {
         dispatch({ type: SET_DIRTY })
     }
@@ -563,10 +579,14 @@ const Canvas = () => {
             setNodes(initialFlow.nodes || [])
             setEdges(initialFlow.edges || [])
             dispatch({ type: SET_WORKFLOW, workflow })
+        } else if (getSpecificWorkflowApi.error) {
+            const error = getSpecificWorkflowApi.error
+            const errorData = error.response.data || `${error.response.status}: ${error.response.statusText}`
+            errorFailed(`Failed to retrieve workflow: ${errorData}`)
         }
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [getSpecificWorkflowApi.data])
+    }, [getSpecificWorkflowApi.data, getSpecificWorkflowApi.error])
 
     // Create new workflow successful
     useEffect(() => {
@@ -575,20 +595,28 @@ const Canvas = () => {
             dispatch({ type: SET_WORKFLOW, workflow })
             saveWorkflowSuccess()
             window.history.replaceState(null, null, `/canvas/${workflow.shortId}`)
+        } else if (createNewWorkflowApi.error) {
+            const error = createNewWorkflowApi.error
+            const errorData = error.response.data || `${error.response.status}: ${error.response.statusText}`
+            errorFailed(`Failed to save workflow: ${errorData}`)
         }
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [createNewWorkflowApi.data])
+    }, [createNewWorkflowApi.data, createNewWorkflowApi.error])
 
     // Update workflow successful
     useEffect(() => {
         if (updateWorkflowApi.data) {
             dispatch({ type: SET_WORKFLOW, workflow: updateWorkflowApi.data })
             saveWorkflowSuccess()
+        } else if (updateWorkflowApi.error) {
+            const error = updateWorkflowApi.error
+            const errorData = error.response.data || `${error.response.status}: ${error.response.statusText}`
+            errorFailed(`Failed to save workflow: ${errorData}`)
         }
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [updateWorkflowApi.data])
+    }, [updateWorkflowApi.data, updateWorkflowApi.error])
 
     // Test workflow failed
     useEffect(() => {
@@ -658,6 +686,18 @@ const Canvas = () => {
     useEffect(() => {
         setCanvasDataStore(canvas)
     }, [canvas])
+
+    useEffect(() => {
+        window.addEventListener('paste', (e) => {
+            const pasteData = e.clipboardData.getData('text')
+            handleLoadWorkflow(pasteData)
+        })
+        return () => {
+            window.removeEventListener('paste')
+        }
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     usePrompt('You have unsaved changes! Do you want to navigate away?', canvasDataStore.isDirty)
 

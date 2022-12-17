@@ -10,6 +10,7 @@ class AlchemyWebhook implements INode {
     description: string
     version: number
     icon: string
+    category: string
     incoming: number
     outgoing: number
     actions: INodeParams[]
@@ -22,6 +23,7 @@ class AlchemyWebhook implements INode {
         this.name = 'AlchemyWebhook'
         this.icon = 'alchemy.svg'
         this.type = 'webhook'
+        this.category = 'Network Provider'
         this.version = 1.0
         this.description = 'Start workflow whenever Alchemy webhook event happened'
         this.incoming = 0
@@ -37,20 +39,8 @@ class AlchemyWebhook implements INode {
                         name: 'ETH_MAINNET'
                     },
                     {
-                        label: 'Rinkeby',
-                        name: 'ETH_RINKEBY'
-                    },
-                    {
                         label: 'Goerli',
                         name: 'ETH_GOERLI'
-                    },
-                    {
-                        label: 'Ropsten',
-                        name: 'ETH_ROPSTEN'
-                    },
-                    {
-                        label: 'Kovan',
-                        name: 'ETH_KOVAN'
                     },
                     {
                         label: 'Polygon Mainnet',
@@ -65,16 +55,16 @@ class AlchemyWebhook implements INode {
                         name: 'ARB_MAINNET'
                     },
                     {
-                        label: 'Arbitrum Rinkeby',
-                        name: 'ARB_RINKEBY'
+                        label: 'Arbitrum Goerli',
+                        name: 'ARB_GOERLI'
                     },
                     {
                         label: 'Optimism Mainnet',
                         name: 'OPT_MAINNET'
                     },
                     {
-                        label: 'Optimism Kovan',
-                        name: 'OPT_KOVAN'
+                        label: 'Optimism Goerli',
+                        name: 'OPT_GOERLI'
                     }
                 ],
                 default: 'ETH_MAINNET'

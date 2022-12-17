@@ -11,6 +11,7 @@ class Solscan implements INode {
     description?: string
     version: number
     icon: string
+    category: string
     incoming: number
     outgoing: number
 
@@ -26,6 +27,7 @@ class Solscan implements INode {
         this.name = 'solscan'
         this.icon = 'solscan.png'
         this.type = 'action'
+        this.category = 'Block Explorer'
         this.version = 1.0
         this.description = 'Solscan Public API'
         this.incoming = 1

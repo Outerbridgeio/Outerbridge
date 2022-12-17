@@ -8,7 +8,8 @@ class BinancePublic implements INode {
     type: NodeType
     description?: string
     version: number
-    icon?: string
+    icon: string
+    category: string
     incoming: number
     outgoing: number
     actions?: INodeParams[]
@@ -19,6 +20,7 @@ class BinancePublic implements INode {
         this.name = 'binancePublic'
         this.type = 'action'
         this.icon = 'binance-logo.svg'
+        this.category = 'Centralized Exchange'
         this.description = 'Binance Public API'
         this.version = 1.0
         this.incoming = 1

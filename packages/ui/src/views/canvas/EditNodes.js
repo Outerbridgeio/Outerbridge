@@ -404,7 +404,9 @@ const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValu
                 // Load from nodeParams default values
                 initialValues[input.name] = input.default || ''
 
-                // Special case for array, always initialize the item if default is not set
+                /**
+                 * Special case for array, always initialize the item if default is not set
+                 * Disabling for now
                 if (input.type === 'array' && !input.default) {
                     const newObj = {}
                     for (let j = 0; j < input.array.length; j += 1) {
@@ -412,6 +414,7 @@ const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValu
                     }
                     initialValues[input.name] = [newObj]
                 }
+                */
             }
         }
 

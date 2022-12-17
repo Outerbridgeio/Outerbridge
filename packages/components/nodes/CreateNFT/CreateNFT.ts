@@ -43,6 +43,7 @@ class CreateNFT implements INode {
     description: string
     version: number
     icon: string
+    category: string
     incoming: number
     outgoing: number
     actions?: INodeParams[]
@@ -55,6 +56,7 @@ class CreateNFT implements INode {
         this.name = 'createNFT'
         this.icon = 'createNFT.png'
         this.type = 'action'
+        this.category = 'NFT'
         this.version = 1.0
         this.description = 'Create new NFT (ERC1155)'
         this.incoming = 1

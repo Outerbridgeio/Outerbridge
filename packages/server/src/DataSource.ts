@@ -12,7 +12,7 @@ let appDataSource: DataSource
 export async function init(): Promise<void> {
     appDataSource = new DataSource({
         type: 'mongodb',
-        url: `mongodb://${process.env.MONGO_HOST || 'localhost'}:27017/outerbridge`,
+        url: process.env.MONGO_URL || `mongodb://${process.env.MONGO_HOST || 'localhost'}:27017/outerbridge`,
         useNewUrlParser: true,
         useUnifiedTopology: true,
         synchronize: true,

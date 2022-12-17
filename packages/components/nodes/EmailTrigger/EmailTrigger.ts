@@ -11,7 +11,8 @@ class EmailTrigger extends EventEmitter implements INode {
     type: NodeType
     description?: string
     version: number
-    icon?: string
+    icon: string
+    category: string
     incoming: number
     outgoing: number
     credentials?: INodeParams[]
@@ -23,6 +24,7 @@ class EmailTrigger extends EventEmitter implements INode {
         this.name = 'emailTrigger'
         this.icon = 'email-trigger.svg'
         this.type = 'trigger'
+        this.category = 'Communication'
         this.version = 1.0
         this.description = 'Start workflow whenever a new email is received'
         this.incoming = 0

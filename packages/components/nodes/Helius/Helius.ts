@@ -10,6 +10,7 @@ class Helius implements INode {
     description: string
     version: number
     icon: string
+    category: string
     incoming: number
     outgoing: number
 
@@ -25,8 +26,9 @@ class Helius implements INode {
         this.name = 'helius'
         this.icon = 'helius.png'
         this.type = 'action'
+        this.category = 'Network Provider'
         this.version = 1.0
-        this.description = 'Perform Helius operations'
+        this.description = 'Perform Helius on-chain operations on Solana'
         this.incoming = 1
         this.outgoing = 1
 

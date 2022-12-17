@@ -121,24 +121,27 @@ const WalletDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
             providerCredential: JSON.stringify(walletData.credentials)
         }
         if (type === 'IMPORT') createNewWalletBody.privateKey = walletData.walletInfo.privateKey
-        const createResp = await walletsApi.createNewWallet(createNewWalletBody)
-        if (createResp.data) {
+        try {
+            const createResp = await walletsApi.createNewWallet(createNewWalletBody)
+            if (createResp.data) {
+                enqueueSnackbar({
+                    message: 'New wallet added',
+                    options: {
+                        key: new Date().getTime() + Math.random(),
+                        variant: 'success',
+                        action: (key) => (
+                            <Button style={{ color: 'white' }} onClick={() => closeSnackbar(key)}>
+                                <IconX />
+                            </Button>
+                        )
+                    }
+                })
+                onConfirm()
+            }
+        } catch (error) {
+            const errorData = error.response.data || `${error.response.status}: ${error.response.statusText}`
             enqueueSnackbar({
-                message: 'New wallet added',
-                options: {
-                    key: new Date().getTime() + Math.random(),
-                    variant: 'success',
-                    action: (key) => (
-                        <Button style={{ color: 'white' }} onClick={() => closeSnackbar(key)}>
-                            <IconX />
-                        </Button>
-                    )
-                }
-            })
-            onConfirm()
-        } else {
-            enqueueSnackbar({
-                message: 'Failed to add new wallet',
+                message: `Failed to add new wallet: ${errorData}`,
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
@@ -160,24 +163,27 @@ const WalletDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
             name: walletData.walletInfo.name,
             providerCredential: JSON.stringify(walletData.credentials)
         }
-        const saveResp = await walletsApi.updateWallet(dialogProps.id, saveWalletBody)
-        if (saveResp.data) {
+        try {
+            const saveResp = await walletsApi.updateWallet(dialogProps.id, saveWalletBody)
+            if (saveResp.data) {
+                enqueueSnackbar({
+                    message: 'Wallet saved',
+                    options: {
+                        key: new Date().getTime() + Math.random(),
+                        variant: 'success',
+                        action: (key) => (
+                            <Button style={{ color: 'white' }} onClick={() => closeSnackbar(key)}>
+                                <IconX />
+                            </Button>
+                        )
+                    }
+                })
+                onConfirm()
+            }
+        } catch (error) {
+            const errorData = error.response.data || `${error.response.status}: ${error.response.statusText}`
             enqueueSnackbar({
-                message: 'Wallet saved',
-                options: {
-                    key: new Date().getTime() + Math.random(),
-                    variant: 'success',
-                    action: (key) => (
-                        <Button style={{ color: 'white' }} onClick={() => closeSnackbar(key)}>
-                            <IconX />
-                        </Button>
-                    )
-                }
-            })
-            onConfirm()
-        } else {
-            enqueueSnackbar({
-                message: 'Failed to save wallet',
+                message: `Failed to save wallet: ${errorData}`,
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
@@ -194,24 +200,27 @@ const WalletDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
     }
 
     const deleteWallet = async () => {
-        const deleteResp = await walletsApi.deleteWallet(dialogProps.id)
-        if (deleteResp.data) {
+        try {
+            const deleteResp = await walletsApi.deleteWallet(dialogProps.id)
+            if (deleteResp.data) {
+                enqueueSnackbar({
+                    message: 'Wallet deleted',
+                    options: {
+                        key: new Date().getTime() + Math.random(),
+                        variant: 'success',
+                        action: (key) => (
+                            <Button style={{ color: 'white' }} onClick={() => closeSnackbar(key)}>
+                                <IconX />
+                            </Button>
+                        )
+                    }
+                })
+                onConfirm()
+            }
+        } catch (error) {
+            const errorData = error.response.data || `${error.response.status}: ${error.response.statusText}`
             enqueueSnackbar({
-                message: 'Wallet deleted',
-                options: {
-                    key: new Date().getTime() + Math.random(),
-                    variant: 'success',
-                    action: (key) => (
-                        <Button style={{ color: 'white' }} onClick={() => closeSnackbar(key)}>
-                            <IconX />
-                        </Button>
-                    )
-                }
-            })
-            onConfirm()
-        } else {
-            enqueueSnackbar({
-                message: 'Failed to delete wallet',
+                message: `Failed to delete wallet: ${errorData}`,
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',

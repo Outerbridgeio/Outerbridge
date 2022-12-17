@@ -21,7 +21,8 @@ class ETHBalanceTrigger extends EventEmitter implements INode {
     type: NodeType
     description?: string
     version: number
-    icon?: string
+    icon: string
+    category: string
     incoming: number
     outgoing: number
     networks?: INodeParams[]
@@ -35,6 +36,7 @@ class ETHBalanceTrigger extends EventEmitter implements INode {
         this.name = 'ETHBalanceTrigger'
         this.icon = 'ethereum.svg'
         this.type = 'trigger'
+        this.category = 'Cryptocurrency'
         this.version = 1.0
         this.description = 'Start workflow whenever ETH balance in wallet changes'
         this.incoming = 0

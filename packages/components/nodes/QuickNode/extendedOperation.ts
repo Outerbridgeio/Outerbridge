@@ -115,7 +115,7 @@ export const debugOperations = [
     }
 ] as IETHOperation[]
 
-export const arbTraceOperationsNetworks = [NETWORK.ARBITRUM, NETWORK.ARBITRUM_GOERLI, NETWORK.ARBITRUM_RINKEBY]
+export const arbTraceOperationsNetworks = [NETWORK.ARBITRUM, NETWORK.ARBITRUM_GOERLI]
 export const arbTraceOperations = [
     {
         name: 'Arbtrace Block (arbtrace_block )',
@@ -397,17 +397,7 @@ export const arbTraceOperations = [
     }
 ] as IETHOperation[]
 
-export const traceOperationsNetworks = [
-    NETWORK.MAINNET,
-    NETWORK.RINKEBY,
-    NETWORK.GÖRLI,
-    NETWORK.ROPSTEN,
-    NETWORK.KOVAN,
-    NETWORK.GNOSIS,
-    NETWORK.BSC,
-    NETWORK.BSC_TESTNET,
-    NETWORK.FANTOM
-]
+export const traceOperationsNetworks = [NETWORK.MAINNET, NETWORK.GÖRLI, NETWORK.GNOSIS, NETWORK.BSC, NETWORK.BSC_TESTNET, NETWORK.FANTOM]
 export const traceOperations = [
     {
         name: 'Trace Block (trace_block)',
@@ -690,15 +680,7 @@ export const traceOperations = [
     ...arbTraceOperations
 ] as IETHOperation[]
 
-export const nftOperationsNetworks = [
-    NETWORK.MAINNET,
-    NETWORK.RINKEBY,
-    NETWORK.GÖRLI,
-    NETWORK.ROPSTEN,
-    NETWORK.KOVAN,
-    NETWORK.BSC,
-    NETWORK.BSC_TESTNET
-]
+export const nftOperationsNetworks = [NETWORK.MAINNET, NETWORK.GÖRLI, NETWORK.BSC, NETWORK.BSC_TESTNET]
 export const solanaNetworks = [NETWORK.SOLANA, NETWORK.SOLANA_DEVNET, NETWORK.SOLANA_TESTNET]
 export const nftOperations = [
     {
@@ -931,15 +913,7 @@ export const nftOperations = [
     }
 ] as IETHOperation[]
 
-export const tokenOperationsNetworks = [
-    NETWORK.MAINNET,
-    NETWORK.RINKEBY,
-    NETWORK.GÖRLI,
-    NETWORK.ROPSTEN,
-    NETWORK.KOVAN,
-    NETWORK.BSC,
-    NETWORK.BSC_TESTNET
-]
+export const tokenOperationsNetworks = [NETWORK.MAINNET, NETWORK.GÖRLI, NETWORK.BSC, NETWORK.BSC_TESTNET]
 export const tokenOperations = [
     {
         name: 'Fetch Fungible Token Metadata by Contract Address (qn_getTokenMetadataByContractAddress)',

@@ -553,18 +553,7 @@ export const transactionReceiptsOperations = [
         parentGroup: 'Transaction Receipt Information',
         description: 'Fetch all transaction receipts for a block number or a block hash in one API call ',
         providerNetworks: {
-            alchemy: [
-                NETWORK.MAINNET,
-                NETWORK.RINKEBY,
-                NETWORK.GÖRLI,
-                NETWORK.ROPSTEN,
-                NETWORK.KOVAN,
-                NETWORK.MATIC,
-                NETWORK.MATIC_MUMBAI,
-                NETWORK.ARBITRUM,
-                NETWORK.ARBITRUM_RINKEBY,
-                NETWORK.ARBITRUM_GOERLI
-            ]
+            alchemy: [NETWORK.MAINNET, NETWORK.GÖRLI, NETWORK.MATIC, NETWORK.MATIC_MUMBAI, NETWORK.ARBITRUM, NETWORK.ARBITRUM_GOERLI]
         },
         method: 'POST',
         body: {
@@ -636,18 +625,13 @@ export const tokenAPIOperations = [
         providerNetworks: {
             alchemy: [
                 NETWORK.MAINNET,
-                NETWORK.RINKEBY,
                 NETWORK.GÖRLI,
-                NETWORK.ROPSTEN,
-                NETWORK.KOVAN,
                 NETWORK.MATIC,
                 NETWORK.MATIC_MUMBAI,
                 NETWORK.ARBITRUM,
-                NETWORK.ARBITRUM_RINKEBY,
                 NETWORK.ARBITRUM_GOERLI,
                 NETWORK.OPTIMISM,
-                NETWORK.OPTIMISM_GOERLI,
-                NETWORK.OPTIMISM_KOVAN
+                NETWORK.OPTIMISM_GOERLI
             ]
         },
         method: 'POST',
@@ -687,18 +671,13 @@ export const tokenAPIOperations = [
         providerNetworks: {
             alchemy: [
                 NETWORK.MAINNET,
-                NETWORK.RINKEBY,
                 NETWORK.GÖRLI,
-                NETWORK.ROPSTEN,
-                NETWORK.KOVAN,
                 NETWORK.MATIC,
                 NETWORK.MATIC_MUMBAI,
                 NETWORK.ARBITRUM,
-                NETWORK.ARBITRUM_RINKEBY,
                 NETWORK.ARBITRUM_GOERLI,
                 NETWORK.OPTIMISM,
-                NETWORK.OPTIMISM_GOERLI,
-                NETWORK.OPTIMISM_KOVAN
+                NETWORK.OPTIMISM_GOERLI
             ]
         },
         method: 'POST',
@@ -750,18 +729,13 @@ export const tokenAPIOperations = [
         providerNetworks: {
             alchemy: [
                 NETWORK.MAINNET,
-                NETWORK.RINKEBY,
                 NETWORK.GÖRLI,
-                NETWORK.ROPSTEN,
-                NETWORK.KOVAN,
                 NETWORK.MATIC,
                 NETWORK.MATIC_MUMBAI,
                 NETWORK.ARBITRUM,
-                NETWORK.ARBITRUM_RINKEBY,
                 NETWORK.ARBITRUM_GOERLI,
                 NETWORK.OPTIMISM,
-                NETWORK.OPTIMISM_GOERLI,
-                NETWORK.OPTIMISM_KOVAN
+                NETWORK.OPTIMISM_GOERLI
             ]
         },
         method: 'POST',
