@@ -32,6 +32,7 @@ class Alchemy implements INode {
     description: string
     version: number
     icon: string
+    category: string
     incoming: number
     outgoing: number
     credentials?: INodeParams[]
@@ -43,8 +44,9 @@ class Alchemy implements INode {
         this.name = 'alchemy'
         this.icon = 'alchemy.svg'
         this.type = 'action'
+        this.category = 'Network Provider'
         this.version = 1.1
-        this.description = 'Perform Alchemy onchain operations'
+        this.description = 'Perform Alchemy on-chain operations'
         this.incoming = 1
         this.outgoing = 1
         this.networks = [
@@ -88,15 +90,7 @@ class Alchemy implements INode {
                         name: 'nftAPI',
                         description: 'API for fetching NFT data, including ownership, metadata attributes, and more.',
                         show: {
-                            'networks.network': [
-                                NETWORK.MAINNET,
-                                NETWORK.RINKEBY,
-                                NETWORK.GÖRLI,
-                                NETWORK.ROPSTEN,
-                                NETWORK.KOVAN,
-                                NETWORK.MATIC,
-                                NETWORK.MATIC_MUMBAI
-                            ]
+                            'networks.network': [NETWORK.MAINNET, NETWORK.GÖRLI, NETWORK.MATIC, NETWORK.MATIC_MUMBAI]
                         }
                     },
                     {
@@ -106,14 +100,10 @@ class Alchemy implements INode {
                         show: {
                             'networks.network': [
                                 NETWORK.MAINNET,
-                                NETWORK.RINKEBY,
                                 NETWORK.GÖRLI,
-                                NETWORK.ROPSTEN,
-                                NETWORK.KOVAN,
                                 NETWORK.MATIC,
                                 NETWORK.MATIC_MUMBAI,
                                 NETWORK.ARBITRUM,
-                                NETWORK.ARBITRUM_RINKEBY,
                                 NETWORK.ARBITRUM_GOERLI
                             ]
                         }

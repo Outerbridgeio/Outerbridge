@@ -7,20 +7,8 @@ export const QuickNodeSupportedNetworks = [
         name: NETWORK.MAINNET
     },
     {
-        label: NETWORK_LABEL.ROPSTEN,
-        name: NETWORK.ROPSTEN
-    },
-    {
-        label: NETWORK_LABEL.RINKEBY,
-        name: NETWORK.RINKEBY
-    },
-    {
         label: NETWORK_LABEL.GÖRLI,
         name: NETWORK.GÖRLI
-    },
-    {
-        label: NETWORK_LABEL.KOVAN,
-        name: NETWORK.KOVAN
     },
     {
         label: NETWORK_LABEL.MATIC,
@@ -47,10 +35,6 @@ export const QuickNodeSupportedNetworks = [
         name: NETWORK.ARBITRUM_GOERLI
     },
     {
-        label: NETWORK_LABEL.ARBITRUM_RINKEBY,
-        name: NETWORK.ARBITRUM_RINKEBY
-    },
-    {
         label: NETWORK_LABEL.ARBITRUM_NOVA,
         name: NETWORK.ARBITRUM_NOVA
     },
@@ -69,10 +53,6 @@ export const QuickNodeSupportedNetworks = [
     {
         label: NETWORK_LABEL.OPTIMISM_GOERLI,
         name: NETWORK.OPTIMISM_GOERLI
-    },
-    {
-        label: NETWORK_LABEL.OPTIMISM_KOVAN,
-        name: NETWORK.OPTIMISM_KOVAN
     },
     {
         label: NETWORK_LABEL.FANTOM,

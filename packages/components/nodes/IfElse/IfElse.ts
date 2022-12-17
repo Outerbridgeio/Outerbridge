@@ -14,7 +14,8 @@ class IfElse implements INode {
     type: NodeType
     description?: string
     version: number
-    icon?: string
+    icon: string
+    category: string
     incoming: number
     outgoing: number
     inputParameters?: INodeParams[]
@@ -25,6 +26,7 @@ class IfElse implements INode {
         this.icon = 'ifelse.svg'
         this.version = 1.0
         this.type = 'action'
+        this.category = 'Utilities'
         this.description = 'Split flows according to conditions set'
         this.incoming = 1
         this.outgoing = 2

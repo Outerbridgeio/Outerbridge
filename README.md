@@ -12,17 +12,27 @@ Outerbridge is a low code/no code workflow automation application, focusing on i
 
 There are many awesome automation tools out there, however there isn't one that has the built-in logic of interacting/consuming information from blockchains. Hence, Outerbridge is created to allow people building workflows involving on-chain and off-chain applications, with simple drag and drop interface.
 
-## 💻 Demo
-
--   [Public demo](https://demo.outerbridge.io) version of Outerbridge.
-
--   Watch [Outerbridge Quickstart Demo](https://www.youtube.com/watch?v=x-AfrkKvZ4M) on Youtube (4mins)
-
 ## ⚡Quick Start
 
-1. Install MongoDB from [here](https://www.mongodb.com/try/download/community?tck=docs_server).
-2. `npm install -g outerbridge`
-3. `npx outerbridge start`
+Watch [Outerbridge Quickstart Demo](https://www.youtube.com/watch?v=x-AfrkKvZ4M) on Youtube (4mins)
+
+1. Install MongoDB [locally](https://www.mongodb.com/docs/manual/administration/install-community/) OR follow the guide of using MongoDB Atlas [here](https://docs.outerbridge.io/get-started#mongodb-atlas)
+2. Install Outerbridge
+    ```bash
+    npm install -g outerbridge
+    ```
+3. Start Outerbridge
+
+    ```bash
+    npx outerbridge start
+    ```
+
+    If using MongoDB Atlas
+
+    ```bash
+    npx outerbridge start --mongourl=mongodb+srv://<user>:<password>@<your-cluster>.mongodb.net/outerbridge?retryWrites=true&w=majority
+    ```
+
 4. Open [http://localhost:3000](http://localhost:3000)
 
 ## 🐳 Docker
@@ -32,6 +42,7 @@ There are many awesome automation tools out there, however there isn't one that 
 3. This will automatically spins up mongodb and outerbridge containers
 4. Open [http://localhost:3000](http://localhost:3000)
 5. You can bring the containers down by `docker-compose stop`
+6. If using MongoDB Atlas, follow the guide [here](https://docs.outerbridge.io/get-started#-docker)
 
 ## 👨‍💻 Developers
 
@@ -43,17 +54,11 @@ Outerbridge has 3 different modules in a single mono repository.
 
 ### Prerequisite
 
-`MongoDB` and `Yarn` have to be installed before setting up the project.
-
-### MongoDB
-
-Outerbridge uses MongoDB as database. Download and install one [here](https://www.mongodb.com/try/download/community?tck=docs_server).
-
-### Yarn
-
-```bash
-npm i -g yarn
-```
+-   Install MongoDB [locally](https://www.mongodb.com/docs/manual/administration/install-community/) OR register a MongoDB Atlas [here](https://www.mongodb.com/atlas/database)
+-   Install Yarn
+    ```bash
+    npm i -g yarn
+    ```
 
 ### Setup
 
@@ -107,7 +112,11 @@ npm i -g yarn
 
 Official Outerbridge docs can be found under: [https://docs.outerbridge.io](https://docs.outerbridge.io)
 
-## 🌐 Host
+## 💻 Cloud Hosted
+
+-   [Cloud Hosted](https://app.outerbridge.io) version of Outerbridge.
+
+## 🌐 Self Host
 
 -   Digital Ocean Droplet: [Setup guide](https://gist.github.com/HenryHengZJ/93210d43d655b4172ee50794ce473b62)
 -   AWS EC2: [Setup guide](https://gist.github.com/HenryHengZJ/627cec19671664a88754c7e383232dc8)

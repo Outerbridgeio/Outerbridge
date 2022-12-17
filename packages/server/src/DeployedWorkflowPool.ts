@@ -20,6 +20,7 @@ import { fork } from 'child_process'
 import { AbortController } from 'node-abort-controller'
 import * as fs from 'fs'
 import lodash from 'lodash'
+import { ObjectId } from 'mongodb'
 
 import { constructGraphs, getStartingNode, decryptCredentials } from './utils'
 import { Webhook } from './entity/Webhook'
@@ -135,6 +136,32 @@ export class DeployedWorkflowPool {
 
                 const foundWebhook = await this.AppDataSource.getMongoRepository(Webhook).findOneBy(newBody)
 
+                // If third party webhook exists, delete and re-create with new tunnel
+                if (foundWebhook && foundWebhook.webhookId) {
+                    if (!process.env.TUNNEL_BASE_URL) {
+                        return
+                    }
+                    await this.AppDataSource.getMongoRepository(Webhook).deleteOne({
+                        _id: new ObjectId(foundWebhook._id)
+                    })
+                    await decryptCredentials(startNode.data)
+                    await webhookNodeInstance.webhookMethods?.deleteWebhook(startNode.data, foundWebhook.webhookId)
+                    const webhookFullUrl = `${process.env.TUNNEL_BASE_URL}api/v1/webhook/${startNode.data.webhookEndpoint}`
+                    const webhookId = await webhookNodeInstance.webhookMethods?.createWebhook.call(
+                        webhookNodeInstance,
+                        startNode.data,
+                        webhookFullUrl
+                    )
+                    if (webhookId !== undefined) {
+                        newBody.webhookId = webhookId
+                    }
+                    const newWebhook = new Webhook()
+                    Object.assign(newWebhook, newBody)
+
+                    const webhook = await this.AppDataSource.getMongoRepository(Webhook).create(newWebhook)
+                    await this.AppDataSource.getMongoRepository(Webhook).save(webhook)
+                }
+
                 if (!foundWebhook) {
                     if (webhookNodeInstance.webhookMethods?.createWebhook) {
                         if (!process.env.TUNNEL_BASE_URL) {
@@ -231,15 +258,20 @@ export class DeployedWorkflowPool {
             } as IRunWorkflowMessageValue
             childProcess.send({ key: 'start', value } as IChildProcessMessage)
 
+            let childProcessTimeout: NodeJS.Timeout
+
             childProcess.on('message', async (message: IChildProcessMessage) => {
                 if (message.key === 'finish') {
                     let updatedWorkflowExecutedData = message.value as IWorkflowExecutedData[]
                     updatedWorkflowExecutedData = updatedWorkflowExecutedData.filter((execData) => execData.nodeId !== startingNodeId)
                     await this.updateExecution(workflowShortId, updatedWorkflowExecutedData, newExecutionShortId, 'FINISHED')
+                    if (childProcessTimeout) {
+                        clearTimeout(childProcessTimeout)
+                    }
                 }
                 if (message.key === 'start') {
                     if (process.env.EXECUTION_TIMEOUT) {
-                        setTimeout(async () => {
+                        childProcessTimeout = setTimeout(async () => {
                             childProcess.kill()
                             await this.terminateSpecificExecutionAfterTimeout(newExecutionShortId)
                         }, parseInt(process.env.EXECUTION_TIMEOUT, 10))
@@ -249,6 +281,9 @@ export class DeployedWorkflowPool {
                     let updatedWorkflowExecutedData = message.value as IWorkflowExecutedData[]
                     updatedWorkflowExecutedData = updatedWorkflowExecutedData.filter((execData) => execData.nodeId !== startingNodeId)
                     await this.updateExecution(workflowShortId, updatedWorkflowExecutedData, newExecutionShortId, 'ERROR')
+                    if (childProcessTimeout) {
+                        clearTimeout(childProcessTimeout)
+                    }
                 }
             })
         } catch (err) {

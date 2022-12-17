@@ -172,6 +172,7 @@ export interface INodeProperties {
     description?: string
     version: number
     icon?: string
+    category: string
     incoming: number
     outgoing: number
 }

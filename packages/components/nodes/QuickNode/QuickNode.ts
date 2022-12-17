@@ -29,6 +29,7 @@ class QuickNode implements INode {
     description: string
     version: number
     icon: string
+    category: string
     incoming: number
     outgoing: number
     credentials?: INodeParams[]
@@ -40,6 +41,7 @@ class QuickNode implements INode {
         this.name = 'quickNode'
         this.icon = 'quicknode.svg'
         this.type = 'action'
+        this.category = 'Network Provider'
         this.version = 1.0
         this.description = 'Perform QuickNode onchain operations'
         this.incoming = 1

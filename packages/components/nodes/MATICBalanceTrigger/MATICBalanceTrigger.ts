@@ -19,7 +19,8 @@ class MATICBalanceTrigger extends EventEmitter implements INode {
     type: NodeType
     description?: string
     version: number
-    icon?: string
+    icon: string
+    category: string
     incoming: number
     outgoing: number
     networks?: INodeParams[]
@@ -33,6 +34,7 @@ class MATICBalanceTrigger extends EventEmitter implements INode {
         this.name = 'MATICBalanceTrigger'
         this.icon = 'polygon.svg'
         this.type = 'trigger'
+        this.category = 'Cryptocurrency'
         this.version = 1.0
         this.description = 'Start workflow whenever MATIC balance in wallet changes'
         this.incoming = 0

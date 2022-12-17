@@ -26,26 +26,5 @@ export const nativeTokens: INativeTokens = {
         name: 'ETH',
         decimals: 18,
         chainId: ChainId.GÖRLI
-    },
-    rinkeby: {
-        address: ETH.RINKEBY().contractAddress,
-        symbol: 'ETH',
-        name: 'ETH',
-        decimals: 18,
-        chainId: ChainId.RINKEBY
-    },
-    ropsten: {
-        address: ETH.ROPSTEN().contractAddress,
-        symbol: 'ETH',
-        name: 'ETH',
-        decimals: 18,
-        chainId: ChainId.ROPSTEN
-    },
-    kovan: {
-        address: ETH.KOVAN().contractAddress,
-        symbol: 'ETH',
-        name: 'ETH',
-        decimals: 18,
-        chainId: ChainId.KOVAN
     }
 }

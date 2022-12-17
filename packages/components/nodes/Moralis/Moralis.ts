@@ -35,6 +35,7 @@ class Moralis implements INode {
     description: string
     version: number
     icon: string
+    category: string
     incoming: number
     outgoing: number
     actions?: INodeParams[]
@@ -47,6 +48,7 @@ class Moralis implements INode {
         this.name = 'moralis'
         this.icon = 'moralis.svg'
         this.type = 'action'
+        this.category = 'Network Provider'
         this.version = 1.0
         this.description = 'Execute Moralis APIs'
         this.incoming = 1

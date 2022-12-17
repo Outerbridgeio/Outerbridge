@@ -8,7 +8,8 @@ class GraphQL implements INode {
     type: NodeType
     description?: string
     version: number
-    icon?: string
+    icon: string
+    category: string
     incoming: number
     outgoing: number
     credentials?: INodeParams[]
@@ -19,6 +20,7 @@ class GraphQL implements INode {
         this.name = 'graphQL'
         this.icon = 'graphql.svg'
         this.type = 'action'
+        this.category = 'Development'
         this.version = 1.0
         this.description = 'Execute GraphQL request'
         this.incoming = 1

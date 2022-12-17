@@ -13,7 +13,8 @@ class QuickNodeTrigger extends EventEmitter implements INode {
     type: NodeType
     description?: string
     version: number
-    icon?: string
+    icon: string
+    category: string
     incoming: number
     outgoing: number
     networks?: INodeParams[]
@@ -27,6 +28,7 @@ class QuickNodeTrigger extends EventEmitter implements INode {
         this.name = 'quickNodeTrigger'
         this.icon = 'quicknode.svg'
         this.type = 'trigger'
+        this.category = 'Network Provider'
         this.version = 1.0
         this.description = 'Start workflow whenever subscribed event happened'
         this.incoming = 0
