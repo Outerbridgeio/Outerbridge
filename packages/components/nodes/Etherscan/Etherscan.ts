@@ -31,6 +31,7 @@ class Etherscan implements INode {
     description: string
     version: number
     icon: string
+    category: string
     incoming: number
     outgoing: number
     actions: INodeParams[]
@@ -43,6 +44,7 @@ class Etherscan implements INode {
         this.name = 'etherscan'
         this.icon = 'etherscan.svg'
         this.type = 'action'
+        this.category = 'Block Explorer'
         this.version = 1.0
         this.description = 'Perform Etherscan operations'
         this.incoming = 1
