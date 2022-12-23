@@ -102,7 +102,7 @@ export const GET_TOKEN_INFO = {
 export const GET_ETHER_PRICE = {
     name: 'getEtherPrice',
     module: 'stats',
-    action: 'maticprice'
+    action: 'ethprice'
 }
 
 export const GET_HISTORICAL_ETHER_PRICE = {
