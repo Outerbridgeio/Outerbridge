@@ -468,8 +468,13 @@ export const processWebhook = async (
                 activeTestWebhooksPool.remove(testWebhookKey, componentNodes)
 
                 const webhookResponseCode = (nodeData.inputParameters?.responseCode as number) || 200
-                const webhookResponseData = (nodeData.inputParameters?.responseData as string) || `Webhook ${req.originalUrl} received!`
-                return res.status(webhookResponseCode).send(webhookResponseData)
+                if ((nodeData.inputParameters?.returnType as string) === 'lastNodeResponse') {
+                    const webhookResponseData = result || []
+                    return res.status(webhookResponseCode).json(webhookResponseData)
+                } else {
+                    const webhookResponseData = (nodeData.inputParameters?.responseData as string) || `Webhook ${req.originalUrl} received!`
+                    return res.status(webhookResponseCode).send(webhookResponseData)
+                }
             } else {
                 nodeData.req = req
                 const result = await webhookNodeInstance.runWebhook!.call(webhookNodeInstance, nodeData)
@@ -490,11 +495,16 @@ export const processWebhook = async (
 
                 const { graph } = constructGraphs(nodes, edges)
 
-                testWorkflow(webhookNodeId, nodes, edges, graph, componentNodes, clientId, io)
-
                 const webhookResponseCode = (nodeData.inputParameters?.responseCode as number) || 200
-                const webhookResponseData = (nodeData.inputParameters?.responseData as string) || `Webhook ${req.originalUrl} received!`
-                return res.status(webhookResponseCode).send(webhookResponseData)
+                if ((nodeData.inputParameters?.returnType as string) === 'lastNodeResponse') {
+                    const lastExecutedResult = await testWorkflow(webhookNodeId, nodes, edges, graph, componentNodes, clientId, io, true)
+                    const webhookResponseData = lastExecutedResult || []
+                    return res.status(webhookResponseCode).json(webhookResponseData)
+                } else {
+                    await testWorkflow(webhookNodeId, nodes, edges, graph, componentNodes, clientId, io)
+                    const webhookResponseData = (nodeData.inputParameters?.responseData as string) || `Webhook ${req.originalUrl} received!`
+                    return res.status(webhookResponseCode).send(webhookResponseData)
+                }
             }
         } else {
             const webhook = await AppDataSource.getMongoRepository(Webhook).findOneBy({
@@ -556,7 +566,8 @@ export const processWebhook = async (
 
             if (result === null) return res.status(200).send('OK!')
 
-            await deployedWorkflowsPool.startWorkflow(
+            const webhookResponseCode = (nodeData.inputParameters?.responseCode as number) || 200
+            const workflowExecutedData = (await deployedWorkflowsPool.startWorkflow(
                 workflowShortId,
                 reactFlowNode,
                 reactFlowNode.id,
@@ -564,11 +575,15 @@ export const processWebhook = async (
                 componentNodes,
                 startingNodeIds,
                 graph
-            )
-
-            const webhookResponseCode = (nodeData.inputParameters?.responseCode as number) || 200
-            const webhookResponseData = (nodeData.inputParameters?.responseData as string) || `Webhook ${req.originalUrl} received!`
-            return res.status(webhookResponseCode).send(webhookResponseData)
+            )) as unknown as IWorkflowExecutedData[]
+            if ((nodeData.inputParameters?.returnType as string) === 'lastNodeResponse') {
+                const lastExecutedResult = workflowExecutedData[workflowExecutedData.length - 1]
+                const webhookResponseData = lastExecutedResult.data || []
+                return res.status(webhookResponseCode).json(webhookResponseData)
+            } else {
+                const webhookResponseData = (nodeData.inputParameters?.responseData as string) || `Webhook ${req.originalUrl} received!`
+                return res.status(webhookResponseCode).send(webhookResponseData)
+            }
         }
     } catch (error) {
         res.status(500).send(`Webhook error: ${error}`)
@@ -667,7 +682,8 @@ export const testWorkflow = async (
     graph: INodeDirectedGraph,
     componentNodes: IComponentNodesPool,
     clientId: string,
-    io: any
+    io: any,
+    returnLastExecutedResult?: boolean
 ) => {
     // Create a Queue and add our initial node in it
     const startingNodeIds = [startingNodeId]
@@ -676,6 +692,9 @@ export const testWorkflow = async (
     const exploredNode = {} as IExploredNode
     // In the case of infinite loop, only max 3 loops will be executed
     const maxLoop = 3
+
+    // Keep track of last executed result
+    let lastExecutedResult: any
 
     for (let i = 0; i < startingNodeIds.length; i += 1) {
         nodeQueue.push({ nodeId: startingNodeIds[i], depth: 0 })
@@ -741,6 +760,8 @@ export const testWorkflow = async (
                     status: 'FINISHED'
                 } as IWorkflowExecutedData
 
+                lastExecutedResult = result
+
                 io.to(clientId).emit('testWorkflowNodeResponse', newWorkflowExecutedData)
             } catch (e: any) {
                 console.error(e)
@@ -750,6 +771,8 @@ export const testWorkflow = async (
                     data: [{ error: e.message }],
                     status: 'ERROR'
                 } as IWorkflowExecutedData
+
+                lastExecutedResult = [{ error: e.message }]
 
                 io.to(clientId).emit('testWorkflowNodeResponse', newWorkflowExecutedData)
                 return
@@ -783,4 +806,6 @@ export const testWorkflow = async (
         }
     }
     io.to(clientId).emit('testWorkflowNodeFinish')
+
+    if (returnLastExecutedResult) return lastExecutedResult
 }

@@ -268,10 +268,10 @@ class IfElse implements INode {
             endsWith: (value1: CommonType, value2: CommonType) => (value1 as string).endsWith(value2 as string),
             equal: (value1: CommonType, value2: CommonType) => value1 === value2,
             notEqual: (value1: CommonType, value2: CommonType) => value1 !== value2,
-            larger: (value1: CommonType, value2: CommonType) => (value1 || 0) > (value2 || 0),
-            largerEqual: (value1: CommonType, value2: CommonType) => (value1 || 0) >= (value2 || 0),
-            smaller: (value1: CommonType, value2: CommonType) => (value1 || 0) < (value2 || 0),
-            smallerEqual: (value1: CommonType, value2: CommonType) => (value1 || 0) <= (value2 || 0),
+            larger: (value1: CommonType, value2: CommonType) => (Number(value1) || 0) > (Number(value2) || 0),
+            largerEqual: (value1: CommonType, value2: CommonType) => (Number(value1) || 0) >= (Number(value2) || 0),
+            smaller: (value1: CommonType, value2: CommonType) => (Number(value1) || 0) < (Number(value2) || 0),
+            smallerEqual: (value1: CommonType, value2: CommonType) => (Number(value1) || 0) <= (Number(value2) || 0),
             startsWith: (value1: CommonType, value2: CommonType) => (value1 as string).startsWith(value2 as string),
             isEmpty: (value1: CommonType) => [undefined, null, ''].includes(value1 as string)
         }
