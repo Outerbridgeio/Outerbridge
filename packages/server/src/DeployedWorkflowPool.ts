@@ -260,31 +260,35 @@ export class DeployedWorkflowPool {
 
             let childProcessTimeout: NodeJS.Timeout
 
-            childProcess.on('message', async (message: IChildProcessMessage) => {
-                if (message.key === 'finish') {
-                    let updatedWorkflowExecutedData = message.value as IWorkflowExecutedData[]
-                    updatedWorkflowExecutedData = updatedWorkflowExecutedData.filter((execData) => execData.nodeId !== startingNodeId)
-                    await this.updateExecution(workflowShortId, updatedWorkflowExecutedData, newExecutionShortId, 'FINISHED')
-                    if (childProcessTimeout) {
-                        clearTimeout(childProcessTimeout)
+            return new Promise((resolve, _) => {
+                childProcess.on('message', async (message: IChildProcessMessage) => {
+                    if (message.key === 'finish') {
+                        let updatedWorkflowExecutedData = message.value as IWorkflowExecutedData[]
+                        updatedWorkflowExecutedData = updatedWorkflowExecutedData.filter((execData) => execData.nodeId !== startingNodeId)
+                        await this.updateExecution(workflowShortId, updatedWorkflowExecutedData, newExecutionShortId, 'FINISHED')
+                        if (childProcessTimeout) {
+                            clearTimeout(childProcessTimeout)
+                        }
+                        resolve(updatedWorkflowExecutedData)
                     }
-                }
-                if (message.key === 'start') {
-                    if (process.env.EXECUTION_TIMEOUT) {
-                        childProcessTimeout = setTimeout(async () => {
-                            childProcess.kill()
-                            await this.terminateSpecificExecutionAfterTimeout(newExecutionShortId)
-                        }, parseInt(process.env.EXECUTION_TIMEOUT, 10))
+                    if (message.key === 'start') {
+                        if (process.env.EXECUTION_TIMEOUT) {
+                            childProcessTimeout = setTimeout(async () => {
+                                childProcess.kill()
+                                await this.terminateSpecificExecutionAfterTimeout(newExecutionShortId)
+                            }, parseInt(process.env.EXECUTION_TIMEOUT, 10))
+                        }
                     }
-                }
-                if (message.key === 'error') {
-                    let updatedWorkflowExecutedData = message.value as IWorkflowExecutedData[]
-                    updatedWorkflowExecutedData = updatedWorkflowExecutedData.filter((execData) => execData.nodeId !== startingNodeId)
-                    await this.updateExecution(workflowShortId, updatedWorkflowExecutedData, newExecutionShortId, 'ERROR')
-                    if (childProcessTimeout) {
-                        clearTimeout(childProcessTimeout)
+                    if (message.key === 'error') {
+                        let updatedWorkflowExecutedData = message.value as IWorkflowExecutedData[]
+                        updatedWorkflowExecutedData = updatedWorkflowExecutedData.filter((execData) => execData.nodeId !== startingNodeId)
+                        await this.updateExecution(workflowShortId, updatedWorkflowExecutedData, newExecutionShortId, 'ERROR')
+                        if (childProcessTimeout) {
+                            clearTimeout(childProcessTimeout)
+                        }
+                        resolve(updatedWorkflowExecutedData)
                     }
-                }
+                })
             })
         } catch (err) {
             console.error(err)

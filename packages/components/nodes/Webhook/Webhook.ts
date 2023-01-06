@@ -19,7 +19,7 @@ class Webhook implements INode {
         this.name = 'webhook'
         this.type = 'webhook'
         this.category = 'Utilities'
-        this.version = 1.0
+        this.version = 1.1
         this.description = 'Start workflow when webhook is called'
         this.incoming = 0
         this.outgoing = 1
@@ -49,12 +49,35 @@ class Webhook implements INode {
                 description: 'The HTTP response code to return when a HTTP request is made to this endpoint URL. Valid range: 1XX - 5XX'
             },
             {
+                label: 'What/How to Return',
+                name: 'returnType',
+                type: 'options',
+                options: [
+                    {
+                        label: 'Immediate Reponse',
+                        name: 'immediateResponse',
+                        description: 'Returns response immediately once webhook is called'
+                    },
+                    {
+                        label: 'When Last Node Finishes',
+                        name: 'lastNodeResponse',
+                        description: 'Returns output response of the last executed node'
+                    }
+                ],
+                default: 'immediateResponse',
+                description: 'What data or message, and how should Webhook node return upon successful calling'
+            },
+            {
                 label: 'Response Data',
                 name: 'responseData',
                 type: 'string',
                 default: '',
-                description: 'Custom response data to return when a HTTP request is made to this endpoint URL',
-                optional: true
+                description:
+                    'Custom response data to return when a HTTP request is made to this webhook endpoint URL. If not provided, default to: Webhook received!',
+                optional: true,
+                show: {
+                    'inputParameters.returnType': ['immediateResponse']
+                }
             }
         ]
     }
