@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
 import { Handle, Position } from 'react-flow-renderer'
-
+import { useSelector } from 'react-redux'
 // material-ui
 import { styled, useTheme } from '@mui/material/styles'
 import { Avatar, Box, Typography } from '@mui/material'
@@ -33,7 +33,7 @@ const handlerPosition = [[['50%']], [['30%'], ['70%']]]
 
 const CanvasNode = ({ data }) => {
     const theme = useTheme()
-
+    const customization = useSelector((state) => state.customization)
     return (
         <>
             <CardWrapper
@@ -83,15 +83,16 @@ const CanvasNode = ({ data }) => {
                     {data.inputAnchors.map((inputAnchor, index) => (
                         <Handle
                             type='target'
-                            position={Position.Top}
+                            position={customization.isHorizontal ? Position.Top : Position.Left}
                             key={inputAnchor.id}
                             id={inputAnchor.id}
                             style={{
                                 height: 15,
                                 width: 15,
-                                top: -7.5,
+                                top: customization.isHorizontal ? -7.5 : null,
                                 backgroundColor: data.selected ? theme.palette.primary.main : theme.palette.text.secondary,
-                                left: handlerPosition[data.inputAnchors.length - 1][index]
+                                left: customization.isHorizontal ? handlerPosition[data.inputAnchors.length - 1][index] : null,
+                                bottom: !customization.isHorizontal ? handlerPosition[data.inputAnchors.length - 1][index] : null
                             }}
                         />
                     ))}
@@ -126,15 +127,16 @@ const CanvasNode = ({ data }) => {
                     {data.outputAnchors.map((outputAnchor, index) => (
                         <Handle
                             type='source'
-                            position={Position.Bottom}
+                            position={customization.isHorizontal ? Position.Bottom : Position.Right}
                             key={outputAnchor.id}
                             id={outputAnchor.id}
                             style={{
                                 height: 15,
                                 width: 15,
-                                bottom: -7.5,
+                                bottom: customization.isHorizontal ? -7.5 : null,
                                 backgroundColor: data.selected ? theme.palette.primary.main : theme.palette.text.secondary,
-                                left: handlerPosition[data.outputAnchors.length - 1][index]
+                                left: customization.isHorizontal ? handlerPosition[data.inputAnchors.length - 1][index] : null,
+                                top: !customization.isHorizontal ? handlerPosition[data.inputAnchors.length - 1][index] : null
                             }}
                         />
                     ))}
