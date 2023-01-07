@@ -46,7 +46,7 @@ export const EditVariableDialog = ({
         confirmButtonName: string
         cancelButtonName: string
         hideVariables?: boolean
-        availableNodesForVariable: Node[]
+        availableNodesForVariable?: Node[]
         arrayItemBody: {
             arrayItemValues: Record<string, string>
             arrayItemInput: Input
@@ -219,12 +219,13 @@ export const EditVariableDialog = ({
                             <Typography sx={{ mb: 2, ml: 2 }} variant='h4'>
                                 Variables
                             </Typography>
-                            {dialogProps.availableNodesForVariable.length === 0 && (
+                            {dialogProps.availableNodesForVariable?.length === 0 && (
                                 <div style={{ padding: 10, marginLeft: 10 }}>
                                     <span>No Variables. Try connect to other nodes. </span>
                                 </div>
                             )}
-                            {dialogProps.availableNodesForVariable.length > 0 && (
+                            {/* ! logic changed */}
+                            {(dialogProps.availableNodesForVariable || { length: 0 }).length > 0 && (
                                 <PerfectScrollbar style={{ height: '100%', maxHeight: 'calc(100vh - 220px)', overflowX: 'hidden' }}>
                                     <Box sx={{ pl: 2, pr: 2 }}>
                                         <List
@@ -246,7 +247,7 @@ export const EditVariableDialog = ({
                                                 }
                                             }}
                                         >
-                                            {dialogProps.availableNodesForVariable.map((node, index) => (
+                                            {dialogProps.availableNodesForVariable?.map((node, index) => (
                                                 <Box key={index}>
                                                     <Accordion
                                                         expanded={expanded === node.data.label}

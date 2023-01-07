@@ -24,7 +24,7 @@ export type Node = StrictOmit<IReactFlowNode, 'data'> &
         data: NodeData
     }
 export type Nodes = Node[]
-export type ParamsType = 'actions' | 'networks' | 'credentials' | 'inputParameters' | 'outputResponses'
+export type ParamsType = 'actions' | 'networks' | 'credentials' | 'inputParameters' | 'outputResponses' | 'walletInfo'
 type NodeDependencies = Record<string, number>
 type Graph = Record<string, string[]>
 export type Edges = IReactFlowEdge[]

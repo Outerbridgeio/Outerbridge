@@ -106,7 +106,7 @@ export const network_details = {
         {
             label: 'Select Network',
             name: 'network',
-            type: 'options',
+            type: 'options' as const,
             options: networks,
             default: 'homestead'
         }
@@ -115,7 +115,7 @@ export const network_details = {
         {
             label: 'API Key (Optional)',
             name: 'credentialMethod',
-            type: 'options',
+            type: 'options' as const,
             description: 'Provide an API key to avoid rate limit',
             options: [
                 {
@@ -168,7 +168,7 @@ export const network_details = {
             default: 'noAuth'
         }
     ]
-} as const
+}
 
 export const contract_details = {
     ...network_details,
@@ -176,25 +176,25 @@ export const contract_details = {
         {
             label: 'Contract Name',
             name: 'name',
-            type: 'string',
+            type: 'string' as const,
             description: 'Name the contract to make it easier to identify it in Outerbridge',
             default: ''
         },
         {
             label: 'Contract Address',
             name: 'address',
-            type: 'string',
+            type: 'string' as const,
             default: ''
         },
         {
             label: 'ABI',
             name: 'abi',
-            type: 'json',
+            type: 'json' as const,
             default: '',
             description: 'ABI will be fetched automatically if address is valid'
         }
     ]
-} as const
+}
 
 export const wallet_details = {
     ...network_details,
@@ -202,21 +202,21 @@ export const wallet_details = {
         {
             label: 'Wallet Name',
             name: 'name',
-            type: 'string',
+            type: 'string' as const,
             description: 'Name the wallet to make it easier to identify it in Outerbridge',
             default: ''
         }
     ]
-} as const
+}
 
 export const privateKeyField = [
     {
         label: 'Private Key',
         name: 'privateKey',
-        type: 'string',
+        type: 'string' as const,
         description: 'Private key of wallet to be imported',
         default: ''
     }
-] as const
+]
 
 export type NetWorkName = typeof networks[number]['name']

@@ -83,7 +83,7 @@ const DateCustomInput = forwardRef<HTMLButtonElement, { value?: string; onClick?
 )
 
 // ==============================|| INPUT PARAMETERS ||============================== //
-type Values = Record<string, unknown> & { submit?: unknown }
+export type Values = Record<string, unknown> & { submit?: unknown }
 
 export const InputParameters = ({
     params,
@@ -99,11 +99,11 @@ export const InputParameters = ({
 }: {
     params: NodeParams[]
     initialValues: Values
-    arrayParams: NodeParams[][]
+    arrayParams?: NodeParams[][]
     paramsType: ParamsType
-    arrayGroupName: string
+    arrayGroupName?: string
     errors?: Record<string, string>[]
-    nodeFlowData: NodeData
+    nodeFlowData?: NodeData
     nodeParamsValidation: Record<string, Yup.AnySchema<any, any, any>>
     valueChanged: (values: Values, paramsType: ParamsType) => void
     onSubmit: (values: Values, paramsType: ParamsType) => void | Promise<any>
@@ -532,29 +532,32 @@ export const InputParameters = ({
                                     const inputName = input.name
                                     return (
                                         <FormControl key={inputName} fullWidth sx={{ mb: 1, mt: 1 }}>
-                                            <AsyncSelectWrapper
-                                                title={input.label!}
-                                                description={input.description!}
-                                                value={values[inputName] as string}
-                                                loadMethod={input.loadMethod!}
-                                                loadFromDbCollections={input.loadFromDbCollections || []}
-                                                nodeFlowData={nodeFlowData}
-                                                error={JSON.stringify(errors[inputName])}
-                                                onChange={(selection) => {
-                                                    const value = selection ? selection.name : ''
-                                                    setFieldValue(inputName, value)
-                                                    const overwriteValues = {
-                                                        ...values,
-                                                        [inputName]: value
-                                                    }
-                                                    onChanged(overwriteValues)
-                                                }}
-                                                onMenuOpen={() => setVariableSelectorState(false)}
-                                                onSetError={() => {
-                                                    const value = ''
-                                                    setFieldValue(inputName, value)
-                                                }}
-                                            />
+                                            {/* ! logic changed */}
+                                            {nodeFlowData ? (
+                                                <AsyncSelectWrapper
+                                                    title={input.label!}
+                                                    description={input.description!}
+                                                    value={values[inputName] as string}
+                                                    loadMethod={input.loadMethod!}
+                                                    loadFromDbCollections={input.loadFromDbCollections || []}
+                                                    nodeFlowData={nodeFlowData}
+                                                    error={JSON.stringify(errors[inputName])}
+                                                    onChange={(selection) => {
+                                                        const value = selection ? selection.name : ''
+                                                        setFieldValue(inputName, value)
+                                                        const overwriteValues = {
+                                                            ...values,
+                                                            [inputName]: value
+                                                        }
+                                                        onChanged(overwriteValues)
+                                                    }}
+                                                    onMenuOpen={() => setVariableSelectorState(false)}
+                                                    onSetError={() => {
+                                                        const value = ''
+                                                        setFieldValue(inputName, value)
+                                                    }}
+                                                />
+                                            ) : null}
                                         </FormControl>
                                     )
                                 }

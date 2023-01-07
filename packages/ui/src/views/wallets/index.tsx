@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, ComponentProps } from 'react'
 
 // material-ui
 import { Grid, Button, Box, Stack } from '@mui/material'
@@ -25,14 +25,14 @@ export const Wallets = () => {
 
     const [isLoading, setLoading] = useState(true)
     const [showDialog, setShowDialog] = useState(false)
-    const [dialogProps, setDialogProps] = useState({})
+    const [dialogProps, setDialogProps] = useState<ComponentProps<typeof WalletDialog>['dialogProps']>({})
 
     const getAllWalletsApi = useApi(walletsApi.getAllWallets)
 
     const addNew = () => {
         const dialogProp = {
             title: 'Add New Wallet',
-            type: 'ADD',
+            type: 'ADD' as const,
             cancelButtonName: 'Cancel',
             confirmButtonName: 'Add'
         }
@@ -43,7 +43,7 @@ export const Wallets = () => {
     const importNew = () => {
         const dialogProp = {
             title: 'Import Wallet',
-            type: 'IMPORT',
+            type: 'IMPORT' as const,
             cancelButtonName: 'Cancel',
             confirmButtonName: 'IMPORT'
         }
@@ -54,7 +54,7 @@ export const Wallets = () => {
     const edit = (id: string) => {
         const dialogProp = {
             title: 'Edit Wallet',
-            type: 'EDIT',
+            type: 'EDIT' as const,
             cancelButtonName: 'Cancel',
             confirmButtonName: 'Save',
             id

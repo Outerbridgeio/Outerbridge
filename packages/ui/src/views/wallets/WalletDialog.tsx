@@ -1,9 +1,11 @@
+import { ComponentProps } from 'react'
 import { createPortal } from 'react-dom'
-import PropTypes from 'prop-types'
 import { useState, useEffect } from 'react'
 import { useDispatch } from 'store'
+import { useTheme } from 'themes'
 import { enqueueSnackbar as enqueueSnackbarAction, closeSnackbar as closeSnackbarAction } from 'store/actions'
-
+import { SnackbarKey } from 'notistack'
+import { ElementOf } from 'ts-essentials'
 import {
     Avatar,
     Accordion,
@@ -21,14 +23,13 @@ import {
     IconButton
 } from '@mui/material'
 import { ExpandMore } from '@mui/icons-material'
-import { useTheme } from 'themes'
 
 // third-party
 import * as Yup from 'yup'
 import lodash from 'lodash'
 
 // project imports
-import { InputParameters, CredentialInput } from './inputs'
+import { InputParameters, CredentialInput, Values } from '../inputs'
 import { EditVariableDialog } from 'ui-component'
 
 // Icons
@@ -44,10 +45,27 @@ import { useApi } from 'hooks'
 import { wallet_details, networkExplorers, privateKeyField } from 'store/constant'
 
 // utils
-import { handleCredentialParams, initializeNodeData } from 'utils/genericHelper'
-import { useNotifier } from 'utils'
+import { useNotifier, handleCredentialParams, initializeNodeData, NodeParams } from 'utils'
 
-const WalletDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
+type Type = 'ADD' | 'IMPORT' | 'EDIT'
+
+export const WalletDialog = ({
+    show,
+    dialogProps,
+    onCancel,
+    onConfirm
+}: {
+    show: boolean
+    onCancel: () => void
+    onConfirm: () => void
+    dialogProps: Partial<{
+        type: Type
+        cancelButtonName: string
+        confirmButtonName: string
+        title: string
+        id: string
+    }>
+}) => {
     const portalElement = document.getElementById('portal')
 
     const theme = useTheme()
@@ -56,25 +74,31 @@ const WalletDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
     // ==============================|| Snackbar ||============================== //
 
     useNotifier()
-    const enqueueSnackbar = (...args) => dispatch(enqueueSnackbarAction(...args))
-    const closeSnackbar = (...args) => dispatch(closeSnackbarAction(...args))
+    const enqueueSnackbar = (...args: Parameters<typeof enqueueSnackbarAction>) => dispatch(enqueueSnackbarAction(...args))
+    const closeSnackbar = (...args: Parameters<typeof closeSnackbarAction>) => dispatch(closeSnackbarAction(...args))
 
-    const [walletDetails, setWalletDetails] = useState(wallet_details)
-    const [walletData, setWalletData] = useState({})
+    const [walletDetails, setWalletDetails] = useState<typeof wallet_details>(wallet_details)
+    const [walletData, setWalletData] = useState<{
+        networks?: { network: string; submit: null }
+        walletInfo?: { name: string; submit: null; privateKey: string }
+        credentials?: { submit?: null }
+    }>({})
     const [walletParams, setWalletParams] = useState([])
     const [walletValues, setWalletValues] = useState({})
     const [walletValidation, setWalletValidation] = useState({})
     const [walletCredential, setWalletCredential] = useState({})
-    const [expanded, setExpanded] = useState(false)
+    const [expanded, setExpanded] = useState<ParamsType | false>(false)
     const [isReadyToAdd, setIsReadyToAdd] = useState(false)
     const [isEditVariableDialogOpen, setEditVariableDialog] = useState(false)
-    const [editVariableDialogProps, setEditVariableDialogProps] = useState({})
-    const walletParamsType = ['networks', 'credentials', 'walletInfo']
-
+    const [editVariableDialogProps, setEditVariableDialogProps] = useState<
+        Partial<ComponentProps<typeof EditVariableDialog>['dialogProps']>
+    >({})
+    const walletParamsType = ['networks', 'credentials', 'walletInfo'] as const
     const getSpecificWalletApi = useApi(walletsApi.getSpecificWallet)
     const getWalletCredentialApi = useApi(walletsApi.getWalletCredential)
+    type ParamsType = ElementOf<typeof walletParamsType>
 
-    const handleAccordionChange = (expanded) => (event, isExpanded) => {
+    const handleAccordionChange = (expanded: ParamsType) => (event: React.SyntheticEvent<Element, Event>, isExpanded: boolean) => {
         setExpanded(isExpanded ? expanded : false)
     }
 
@@ -90,8 +114,8 @@ const WalletDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
 
     const checkIsReadyToAdd = () => {
         for (let i = 0; i < walletParamsType.length; i += 1) {
-            const paramType = walletParamsType[i]
-            if (!walletData[paramType] || !walletData[paramType].submit) {
+            const paramType = walletParamsType[i]!
+            if (!walletData[paramType] || !walletData[paramType]?.submit) {
                 setIsReadyToAdd(false)
                 return
             }
@@ -99,7 +123,11 @@ const WalletDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
         setIsReadyToAdd(true)
     }
 
-    const onEditVariableDialogOpen = (input, values, arrayItemBody) => {
+    const onEditVariableDialogOpen = (
+        input: typeof editVariableDialogProps['input'],
+        values: typeof editVariableDialogProps['values'],
+        arrayItemBody: typeof editVariableDialogProps['arrayItemBody']
+    ) => {
         const dialogProps = {
             input,
             values,
@@ -113,13 +141,13 @@ const WalletDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
         setEditVariableDialog(true)
     }
 
-    const addNewWallet = async (type) => {
-        const createNewWalletBody = {
-            network: walletData.networks.network,
-            name: walletData.walletInfo.name,
+    const addNewWallet = async (type: 'IMPORT') => {
+        const createNewWalletBody: Parameters<typeof walletsApi.createNewWallet>[0] = {
+            network: walletData.networks?.network,
+            name: walletData.walletInfo?.name,
             providerCredential: JSON.stringify(walletData.credentials)
         }
-        if (type === 'IMPORT') createNewWalletBody.privateKey = walletData.walletInfo.privateKey
+        if (type === 'IMPORT') createNewWalletBody.privateKey = walletData.walletInfo?.privateKey
         const createResp = await walletsApi.createNewWallet(createNewWalletBody)
         if (createResp.data) {
             enqueueSnackbar({
@@ -127,7 +155,7 @@ const WalletDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'success',
-                    action: (key) => (
+                    action: (key: SnackbarKey) => (
                         <Button style={{ color: 'white' }} onClick={() => closeSnackbar(key)}>
                             <IconX />
                         </Button>
@@ -142,7 +170,7 @@ const WalletDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
                     persist: true,
-                    action: (key) => (
+                    action: (key: SnackbarKey) => (
                         <Button style={{ color: 'white' }} onClick={() => closeSnackbar(key)}>
                             <IconX />
                         </Button>
@@ -155,18 +183,19 @@ const WalletDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
 
     const saveWallet = async () => {
         const saveWalletBody = {
-            network: walletData.networks.network,
-            name: walletData.walletInfo.name,
+            network: walletData.networks?.network,
+            name: walletData.walletInfo?.name,
             providerCredential: JSON.stringify(walletData.credentials)
         }
-        const saveResp = await walletsApi.updateWallet(dialogProps.id, saveWalletBody)
-        if (saveResp.data) {
+        // ! logic changed
+        const saveResp = dialogProps.id ? await walletsApi.updateWallet(dialogProps.id, saveWalletBody) : undefined
+        if (saveResp?.data) {
             enqueueSnackbar({
                 message: 'Wallet saved',
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'success',
-                    action: (key) => (
+                    action: (key: SnackbarKey) => (
                         <Button style={{ color: 'white' }} onClick={() => closeSnackbar(key)}>
                             <IconX />
                         </Button>
@@ -181,7 +210,7 @@ const WalletDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
                     persist: true,
-                    action: (key) => (
+                    action: (key: SnackbarKey) => (
                         <Button style={{ color: 'white' }} onClick={() => closeSnackbar(key)}>
                             <IconX />
                         </Button>
@@ -193,14 +222,15 @@ const WalletDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
     }
 
     const deleteWallet = async () => {
-        const deleteResp = await walletsApi.deleteWallet(dialogProps.id)
-        if (deleteResp.data) {
+        // ! logic changed
+        const deleteResp = dialogProps.id ? await walletsApi.deleteWallet(dialogProps.id) : undefined
+        if (deleteResp?.data) {
             enqueueSnackbar({
                 message: 'Wallet deleted',
                 options: {
                     key: new Date().getTime() + Math.random(),
                     variant: 'success',
-                    action: (key) => (
+                    action: (key: SnackbarKey) => (
                         <Button style={{ color: 'white' }} onClick={() => closeSnackbar(key)}>
                             <IconX />
                         </Button>
@@ -215,7 +245,7 @@ const WalletDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
                     key: new Date().getTime() + Math.random(),
                     variant: 'error',
                     persist: true,
-                    action: (key) => (
+                    action: (key: SnackbarKey) => (
                         <Button style={{ color: 'white' }} onClick={() => closeSnackbar(key)}>
                             <IconX />
                         </Button>
@@ -226,7 +256,7 @@ const WalletDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
         }
     }
 
-    const valueChanged = (formValues, paramsType) => {
+    const valueChanged = (formValues: Values, paramsType: ParamsType) => {
         const updateWalletData = {
             ...walletData,
             [paramsType]: formValues
@@ -235,15 +265,18 @@ const WalletDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
         const index = walletParamsType.indexOf(paramsType)
         if (index >= 0 && index !== walletParamsType.length - 1) {
             for (let i = index + 1; i < walletParamsType.length; i += 1) {
-                const paramType = walletParamsType[i]
-                if (updateWalletData[paramType]) updateWalletData[paramType].submit = null
+                const paramType = walletParamsType[i]!
+                const data = updateWalletData[paramType]
+                if (data) {
+                    data.submit = null
+                }
             }
         }
 
         setWalletData(updateWalletData)
     }
 
-    const paramsChanged = (formParams, paramsType) => {
+    const paramsChanged = (formParams: NodeParams[], paramsType: ParamsType) => {
         // Because formParams options can be changed due to show hide options,
         // To avoid that, replace with original details options
 
@@ -251,9 +284,12 @@ const WalletDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
         const credentialMethodParamIndex = formParams.findIndex((param) => param.name === 'credentialMethod')
 
         if (credentialMethodParam !== undefined) {
+            // @ts-expect-error https://github.com/microsoft/TypeScript/issues/33591
             const originalParam = walletDetails[paramsType].find((param) => param.name === 'credentialMethod')
-            if (originalParam !== undefined) {
-                formParams[credentialMethodParamIndex]['options'] = originalParam.options
+            const formParam = formParams[credentialMethodParamIndex]
+            // ! logic changed
+            if (originalParam !== undefined && formParam) {
+                formParam['options'] = originalParam.options
             }
         }
 
@@ -263,8 +299,7 @@ const WalletDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
         }
         setWalletDetails(updateWalletDetails)
     }
-
-    const onSubmit = async (formValues, paramsType) => {
+    const onSubmit = async (formValues: Parameters<ComponentProps<typeof InputParameters>['onSubmit']>[0], paramsType: ParamsType) => {
         const updateWalletData = {
             ...walletData,
             [paramsType]: formValues
@@ -273,13 +308,13 @@ const WalletDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
 
         const index = walletParamsType.indexOf(paramsType)
         if (index >= 0 && index !== walletParamsType.length - 1) {
-            setExpanded(walletParamsType[index + 1])
+            setExpanded(walletParamsType[index + 1]!)
         } else if (index === walletParamsType.length - 1) {
             setExpanded(false)
         }
     }
 
-    const showHideOptions = (displayType, options) => {
+    const showHideOptions = (displayType: 'show' | 'hide', options) => {
         let returnOptions = options
         const toBeDeleteOptions = []
 
@@ -312,7 +347,7 @@ const WalletDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
     }
 
     const displayOptions = (params) => {
-        let clonedParams = params
+        const clonedParams = params
 
         for (let i = 0; i < clonedParams.length; i += 1) {
             const input = clonedParams[i]
@@ -340,7 +375,7 @@ const WalletDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
         return validationSchema
     }
 
-    const initializeFormValuesAndParams = (paramsType) => {
+    const initializeFormValuesAndParams = (paramsType: ParamsType) => {
         const initialValues = {}
         let walletParams = displayOptions(lodash.cloneDeep(walletDetails[paramsType] || []))
         walletParams = handleCredentialParams(walletParams, paramsType, walletDetails[paramsType], walletData)
@@ -699,12 +734,3 @@ const WalletDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
 
     return createPortal(component, portalElement)
 }
-
-WalletDialog.propTypes = {
-    show: PropTypes.bool,
-    dialogProps: PropTypes.object,
-    onCancel: PropTypes.func,
-    onConfirm: PropTypes.func
-}
-
-export default WalletDialog

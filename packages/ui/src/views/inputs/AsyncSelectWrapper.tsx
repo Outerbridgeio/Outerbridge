@@ -2,6 +2,7 @@ import { useState, useEffect, ComponentProps } from 'react'
 import { TooltipWithParser } from 'ui-component'
 import { useTheme } from 'themes'
 import { NodeData } from 'utils'
+import { INodeOptionsValue } from 'outerbridge-components'
 // material-ui
 import { Typography, Stack } from '@mui/material'
 
@@ -23,17 +24,6 @@ import { baseURL } from 'store/constant'
 
 // ==============================|| ASYNC SELECT WRAPPER ||============================== //
 
-type Option = {
-    name: string
-    label: string
-    description: string
-    inputParameters: string
-    exampleParameters: string
-    exampleResponse: string
-    hide: Record<string, unknown>
-    show: Record<string, unknown>
-}
-
 export const AsyncSelectWrapper = ({
     title,
     description,
@@ -53,13 +43,13 @@ export const AsyncSelectWrapper = ({
     loadFromDbCollections: unknown[]
     nodeFlowData: NodeData
     error: string
-    onChange: (value: SingleValue<Option>) => void
+    onChange: (value: SingleValue<INodeOptionsValue>) => void
     onMenuOpen: ComponentProps<typeof AsyncSelect>['onMenuOpen']
     onSetError: (...args: any) => void
 }) => {
     const theme = useTheme()
 
-    const customStyles: StylesConfig<Option, false, GroupBase<Option>> = {
+    const customStyles: StylesConfig<INodeOptionsValue, false, GroupBase<INodeOptionsValue>> = {
         option: (provided, state) => ({
             ...provided,
             paddingTop: 15,
@@ -98,7 +88,7 @@ export const AsyncSelectWrapper = ({
         })
     }
 
-    const [asyncOptions, setAsyncOptions] = useState<Option[]>([])
+    const [asyncOptions, setAsyncOptions] = useState<INodeOptionsValue[]>([])
 
     const getSelectedValue = (value: string) => asyncOptions.find((option) => option.name === value)
 
@@ -107,7 +97,7 @@ export const AsyncSelectWrapper = ({
         return ''
     }
 
-    const showHideOptions = (options: Option[]) => {
+    const showHideOptions = (options: INodeOptionsValue[]) => {
         let returnOptions = options
         const toBeDeleteOptions: typeof options = []
         const displayTypes = ['show', 'hide'] as const
@@ -157,11 +147,11 @@ export const AsyncSelectWrapper = ({
         return returnOptions
     }
 
-    const loadOptions: AsyncAdditionalProps<Option, GroupBase<Option>>['loadOptions'] = (inputValue, callback) => {
+    const loadOptions: AsyncAdditionalProps<INodeOptionsValue, GroupBase<INodeOptionsValue>>['loadOptions'] = (inputValue, callback) => {
         axios
             .post(`${baseURL}/api/v1/node-load-method/${nodeFlowData.name}`, { ...nodeFlowData, loadMethod, loadFromDbCollections })
             .then((response) => {
-                const data: Option[] | undefined = response.data
+                const data: INodeOptionsValue[] | undefined = response.data
                 const filteredOption = (data || []).filter((i) => i.label.toLowerCase().includes(inputValue.toLowerCase()))
                 const options = showHideOptions(filteredOption)
                 setAsyncOptions(options)
@@ -170,7 +160,7 @@ export const AsyncSelectWrapper = ({
     }
 
     const formatOptionLabel = (
-        { label, description }: { label: string; description: string },
+        { label, description }: Pick<INodeOptionsValue, 'label' | 'description'>,
         { context }: { context: 'menu' | 'value' }
     ) => (
         <>
@@ -208,7 +198,7 @@ export const AsyncSelectWrapper = ({
                 {description && <TooltipWithParser title={description} />}
             </Stack>
             <div style={{ position: 'relative' }}>
-                <AsyncSelect<Option>
+                <AsyncSelect<INodeOptionsValue>
                     key={JSON.stringify(nodeFlowData)} // to reload async select whenever flowdata changed
                     styles={customStyles}
                     value={getSelectedValue(value)} // ! logic change
