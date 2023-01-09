@@ -1,15 +1,16 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-
+import { useDispatch, useSelector } from 'react-redux'
 // material-ui
-import { Grid, Button, Box, Stack } from '@mui/material'
-
+import { Grid, Button, Box, Stack, Tooltip } from '@mui/material'
+import SwapHorizIcon from '@mui/icons-material/SwapHoriz'
+import SwapVertIcon from '@mui/icons-material/SwapVert'
 // project imports
 import MainCard from 'ui-component/cards/MainCard'
 import ItemCard from 'ui-component/cards/ItemCard'
 import { gridSpacing } from 'store/constant'
 import WorkflowEmptySVG from 'assets/images/workflow_empty.svg'
-
+import { SET_LAYOUT } from 'store/actions'
 // API
 import workflowsApi from 'api/workflows'
 
@@ -73,10 +74,26 @@ const Workflows = () => {
         }
     }, [getAllWorkflowsApi.data])
 
+    // Horizontal - Vertical flow change
+    const customization = useSelector((state) => state.customization)
+    const [isHorizontal, setIsHorizontal] = useState(customization.isHorizontal)
+    const dispatch = useDispatch()
+
+    const handleSwapLayout = () => {
+        dispatch({ type: SET_LAYOUT, isHorizontal: !isHorizontal })
+        setIsHorizontal((isHorizontal) => !isHorizontal)
+        localStorage.setItem('isHorizontal', !isHorizontal)
+    }
+
     return (
         <MainCard>
             <Stack flexDirection='row'>
                 <h1>Workflows</h1>
+                <Tooltip title='Change workflow flow top to bottom or left to right'>
+                    <Button variant='text' onClick={handleSwapLayout}>
+                        {isHorizontal ? <SwapVertIcon stroke={1.5} size='1.3rem' /> : <SwapHorizIcon stroke={1.5} size='1.3rem' />}
+                    </Button>
+                </Tooltip>
                 <Grid sx={{ mb: 1.25 }} container direction='row'>
                     <Box sx={{ flexGrow: 1 }} />
                     <Grid item>

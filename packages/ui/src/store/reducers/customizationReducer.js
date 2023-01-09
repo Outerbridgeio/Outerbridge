@@ -8,7 +8,8 @@ export const initialState = {
     isOpen: [], // for active default menu
     fontFamily: config.fontFamily,
     borderRadius: config.borderRadius,
-    opened: true
+    opened: true,
+    isHorizontal: localStorage.getItem('isHorizontal') === 'true' ? true : false
 }
 
 // ==============================|| CUSTOMIZATION REDUCER ||============================== //
@@ -36,6 +37,11 @@ const customizationReducer = (state = initialState, action) => {
             return {
                 ...state,
                 borderRadius: action.borderRadius
+            }
+        case actionTypes.SET_LAYOUT:
+            return {
+                ...state,
+                isHorizontal: action.isHorizontal
             }
         default:
             return state

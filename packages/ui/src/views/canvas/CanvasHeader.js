@@ -293,6 +293,7 @@ const CanvasHeader = ({ workflow, handleSaveFlow, handleDeployWorkflow, handleSt
                         </Avatar>
                     </ButtonBase>
                 )}
+
                 <ButtonBase title='Save Workflow' sx={{ borderRadius: '50%', mr: 2 }}>
                     <Avatar
                         variant='rounded'
