@@ -688,12 +688,15 @@ const Canvas = () => {
     }, [canvas])
 
     useEffect(() => {
-        window.addEventListener('paste', (e) => {
+        function handlePaste(e) {
             const pasteData = e.clipboardData.getData('text')
             handleLoadWorkflow(pasteData)
-        })
+        }
+
+        window.addEventListener('paste', handlePaste)
+
         return () => {
-            window.removeEventListener('paste')
+            window.removeEventListener('paste', handlePaste)
         }
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
