@@ -1,0 +1,27 @@
+version: '3.1'
+
+services:
+
+  mongo:
+    image: mongo
+    ports:
+      - "27017:27017"
+    restart: always
+    environment:
+      - MONGO_INITDB_DATABASE=outerbridge
+  
+  outerbridge:
+    image: <username>/<newImage>
+    restart: always
+    environment:
+      - MONGO_HOST=${MONGO_HOST}
+      - PASSPHRASE=${PASSPHRASE}
+      - ENABLE_TUNNEL=${ENABLE_TUNNEL}
+      - PORT=${PORT}
+    ports:
+      - "${PORT}:${PORT}"
+    links:
+      - mongo
+    volumes:
+      - ~/.outerbridge:/root/.outerbridge
+    command: /bin/sh -c "sleep 3; yarn start"
