@@ -283,7 +283,7 @@ export const constructGraphsAndGetStartingNodes = (res: Response, reactFlowNodes
  * @param {IReactFlowNode[]} reactFlowNodes
  * @returns {string}
  */
-export const getVariableValue = (paramValue: string, reactFlowNodes: IReactFlowNode[]): string => {
+export const getVariableValue = (paramValue: string, reactFlowNodes: IReactFlowNode[], key: string): string => {
     let returnVal = paramValue
     const variableStack = []
     const variableDict = {} as IVariableDict
@@ -310,9 +310,11 @@ export const getVariableValue = (paramValue: string, reactFlowNodes: IReactFlowN
 
             const executedNode = reactFlowNodes.find((nd) => nd.id === variableNodeId)
             if (executedNode) {
-                const resolvedVariablePath = getVariableValue(variablePath, reactFlowNodes)
-                const variableValue = lodash.get(executedNode.data, resolvedVariablePath, '')
-                variableDict[`{{${variableFullPath}}}`] = variableValue || ''
+                const resolvedVariablePath = getVariableValue(variablePath, reactFlowNodes, key)
+                const variableValue = lodash.get(executedNode.data, resolvedVariablePath)
+                variableDict[`{{${variableFullPath}}}`] = variableValue
+                // For instance: const var1 = "some var"
+                if (key === 'code' && typeof variableValue === 'string') variableDict[`{{${variableFullPath}}}`] = `"${variableValue}"`
             }
             variableStack.pop()
         }
@@ -345,13 +347,13 @@ export const resolveVariables = (reactFlowNodeData: INodeData, reactFlowNodes: I
             const paramValue = paramsObj[key]
 
             if (typeof paramValue === 'string') {
-                const resolvedValue = getVariableValue(paramValue, reactFlowNodes)
+                const resolvedValue = getVariableValue(paramValue, reactFlowNodes, key)
                 paramsObj[key] = resolvedValue
             }
 
             if (typeof paramValue === 'number') {
                 const paramValueStr = paramValue.toString()
-                const resolvedValue = getVariableValue(paramValueStr, reactFlowNodes)
+                const resolvedValue = getVariableValue(paramValueStr, reactFlowNodes, key)
                 paramsObj[key] = resolvedValue
             }
 

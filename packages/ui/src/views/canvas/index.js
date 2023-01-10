@@ -690,7 +690,10 @@ const Canvas = () => {
     useEffect(() => {
         function handlePaste(e) {
             const pasteData = e.clipboardData.getData('text')
-            handleLoadWorkflow(pasteData)
+            //TODO: prevent paste event when input focused, temporary fix: catch workflow syntax
+            if (pasteData.includes('{"nodes":[') && pasteData.includes('],"edges":[')) {
+                handleLoadWorkflow(pasteData)
+            }
         }
 
         window.addEventListener('paste', handlePaste)
