@@ -1,0 +1,14 @@
+{
+    "explorer.fileNesting.patterns": {
+        ".gitignore": ".gitattributes, .gitmodules, .gitmessage, .mailmap, .git-blame*",
+        "readme.*": "authors, backers.md, changelog*, citation*, code_of_conduct.md, codeowners, contributing.md, contributors, copying, credits, governance.md, history.md, license*, maintainers, readme*, security.md, sponsors.md, note.txt",
+        "tsconfig.json": "tsconfig.*.json",
+        "package.json": "package-lock.json, yarn.lock",
+        "*.ts": "$(capture).*.ts",
+        ".eslintrc.js": ".eslintrc.*.js",
+        "babel.config.js": "babel.*.js",
+        "jest.config.ts": "jest.*.js",
+        ".prettierrc.js": ".prettierignore"
+    },
+    "editor.formatOnSave": true
+}
