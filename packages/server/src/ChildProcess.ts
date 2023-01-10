@@ -165,7 +165,7 @@ async function initDB() {
  * @param {IWorkflowExecutedData[]} workflowExecutedData
  * @returns {string}
  */
-function getVariableValue(paramValue: string, workflowExecutedData: IWorkflowExecutedData[]): string {
+function getVariableValue(paramValue: string, workflowExecutedData: IWorkflowExecutedData[], key: string): string {
     let returnVal = paramValue
     const variableStack = []
     const variableDict = {} as IVariableDict
@@ -174,12 +174,9 @@ function getVariableValue(paramValue: string, workflowExecutedData: IWorkflowExe
 
     while (startIdx < endIdx) {
         const substr = returnVal.substring(startIdx, startIdx + 2)
-        // If this is the first opening double curly bracket
-        if (substr === '{{' && variableStack.length === 0) {
-            variableStack.push({ substr, startIdx: startIdx + 2 })
-        } else if (substr === '{{' && variableStack.length > 0 && variableStack[variableStack.length - 1].substr === '{{') {
-            // If we have seen opening double curly bracket without closing, replace it
-            variableStack.pop()
+
+        // Store the opening double curly bracket
+        if (substr === '{{') {
             variableStack.push({ substr, startIdx: startIdx + 2 })
         }
 
@@ -193,22 +190,26 @@ function getVariableValue(paramValue: string, workflowExecutedData: IWorkflowExe
             const [variableNodeId, ...rest] = variableFullPath.split('[')
             const variablePath = 'data' + '[' + rest.join('[')
 
-            const executedNode = workflowExecutedData.find((exec) => exec.nodeId === variableNodeId)
-            if (executedNode) {
-                const variableValue = lodash.get(executedNode, variablePath, '')
-                variableDict[`{{${variableFullPath}}}`] = variableValue || ''
+            const executedNodeData = workflowExecutedData.find((exec) => exec.nodeId === variableNodeId)
+            if (executedNodeData) {
+                const resolvedVariablePath = getVariableValue(variablePath, workflowExecutedData, key)
+                const variableValue = lodash.get(executedNodeData, resolvedVariablePath)
+                variableDict[`{{${variableFullPath}}}`] = variableValue
+                // For instance: const var1 = "some var"
+                if (key === 'code' && typeof variableValue === 'string') variableDict[`{{${variableFullPath}}}`] = `"${variableValue}"`
             }
             variableStack.pop()
         }
         startIdx += 1
     }
 
-    for (const variablePath in variableDict) {
-        const variableValue = variableDict[variablePath]
-
+    const variablePaths = Object.keys(variableDict)
+    variablePaths.sort() // Sort by length of variable path because longer path could possibly contains nested variable
+    variablePaths.forEach((path) => {
+        const variableValue = variableDict[path]
         // Replace all occurence
-        returnVal = returnVal.split(variablePath).join(variableValue)
-    }
+        returnVal = returnVal.split(path).join(variableValue)
+    })
 
     return returnVal
 }
@@ -228,13 +229,13 @@ function resolveVariables(reactFlowNodeData: INodeData, workflowExecutedData: IW
             const paramValue = paramsObj[key]
 
             if (typeof paramValue === 'string') {
-                const resolvedValue = getVariableValue(paramValue, workflowExecutedData)
+                const resolvedValue = getVariableValue(paramValue, workflowExecutedData, key)
                 paramsObj[key] = resolvedValue
             }
 
             if (typeof paramValue === 'number') {
                 const paramValueStr = paramValue.toString()
-                const resolvedValue = getVariableValue(paramValueStr, workflowExecutedData)
+                const resolvedValue = getVariableValue(paramValueStr, workflowExecutedData, key)
                 paramsObj[key] = resolvedValue
             }
 

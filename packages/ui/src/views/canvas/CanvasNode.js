@@ -135,8 +135,8 @@ const CanvasNode = ({ data }) => {
                                 width: 15,
                                 bottom: customization.isHorizontal ? -7.5 : null,
                                 backgroundColor: data.selected ? theme.palette.primary.main : theme.palette.text.secondary,
-                                left: customization.isHorizontal ? handlerPosition[data.inputAnchors.length - 1][index] : null,
-                                top: !customization.isHorizontal ? handlerPosition[data.inputAnchors.length - 1][index] : null
+                                left: customization.isHorizontal ? handlerPosition[data.outputAnchors.length - 1][index] : null,
+                                top: !customization.isHorizontal ? handlerPosition[data.outputAnchors.length - 1][index] : null
                             }}
                         />
                     ))}

@@ -688,12 +688,18 @@ const Canvas = () => {
     }, [canvas])
 
     useEffect(() => {
-        window.addEventListener('paste', (e) => {
+        function handlePaste(e) {
             const pasteData = e.clipboardData.getData('text')
-            handleLoadWorkflow(pasteData)
-        })
+            //TODO: prevent paste event when input focused, temporary fix: catch workflow syntax
+            if (pasteData.includes('{"nodes":[') && pasteData.includes('],"edges":[')) {
+                handleLoadWorkflow(pasteData)
+            }
+        }
+
+        window.addEventListener('paste', handlePaste)
+
         return () => {
-            window.removeEventListener('paste')
+            window.removeEventListener('paste', handlePaste)
         }
 
         // eslint-disable-next-line react-hooks/exhaustive-deps

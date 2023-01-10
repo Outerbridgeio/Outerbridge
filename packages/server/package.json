@@ -1,6 +1,6 @@
 {
     "name": "outerbridge",
-    "version": "1.0.15",
+    "version": "1.0.16",
     "description": "Outerbridge Server",
     "main": "dist/index",
     "types": "dist/index.d.ts",
