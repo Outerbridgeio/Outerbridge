@@ -1,7 +1,8 @@
 {
-    "name": "my-turborepo",
-    "version": "0.0.0",
+    "name": "outerbridge",
+    "version": "1.0.16",
     "private": true,
+    "homepage": "https://outerbridge.io",
     "workspaces": [
         "packages/*",
         "outerbridge",
