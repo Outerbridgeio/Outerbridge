@@ -30,9 +30,8 @@
 .env.test.local
 .env.production.local
 .env
-## backup
-package.json.lerna_backup
 
+## turbo
 .turbo
 
 ## secrets

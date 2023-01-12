@@ -1,3 +1,7 @@
+# Build local monorepo image
+# docker build --no-cache -t  outerbridge .
+# Run image
+# docker run -d -p 3000:3000 outerbridge
 FROM node:16
 
 WORKDIR /usr/src/packages
@@ -6,13 +10,13 @@ WORKDIR /usr/src/packages
 COPY package.json ./
 COPY yarn.lock ./
 
-# Copy the docs package.json
+# Copy components package.json
 COPY packages/components/package.json ./packages/components/package.json
 
-# Copy the docs package.json
+# Copy ui package.json
 COPY packages/ui/package.json ./packages/ui/package.json
 
-# Copy the docs package.json
+# Copy server package.json
 COPY packages/server/package.json ./packages/server/package.json
 
 RUN yarn install
@@ -22,6 +26,6 @@ COPY . .
 
 RUN yarn build
 
-EXPOSE 8080
+EXPOSE 3000
 
-CMD [ "yarn", "dev" ]
+CMD [ "yarn", "start" ]

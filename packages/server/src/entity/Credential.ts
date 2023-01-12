@@ -1,6 +1,6 @@
+/* eslint-disable */
 import { Entity, Column, ObjectIdColumn, Index, CreateDateColumn, UpdateDateColumn } from 'typeorm'
 import { ObjectId } from 'mongodb'
-
 import { ICredential } from '../Interface'
 
 @Entity()

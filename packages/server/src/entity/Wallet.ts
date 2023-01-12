@@ -1,6 +1,6 @@
+/* eslint-disable */
 import { Entity, Column, ObjectIdColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm'
 import { ObjectId } from 'mongodb'
-
 import { IWallet } from '../Interface'
 
 @Entity()

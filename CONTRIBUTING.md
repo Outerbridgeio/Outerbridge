@@ -68,31 +68,25 @@ Outerbridge has 3 different modules in a single mono repository.
     cd Outerbridge
     ```
 
-6. Install `lerna`, `husky` and `rimraf` :
+6. Install all dependencies of all modules:
 
     ```bash
-    yarn setup
+    yarn install
     ```
 
-7. Install all dependencies of all modules and link them together:
-
-    ```bash
-    yarn bootstrap
-    ```
-
-8. Build all the code:
+7. Build all the code:
 
     ```bash
     yarn build
     ```
 
-9. Start the app on [http://localhost:3000](http://localhost:3000)
+8. Start the app on [http://localhost:3000](http://localhost:3000)
 
     ```bash
     yarn start
     ```
 
-10. For development, run
+9. For development, run
 
     ```bash
     yarn dev
@@ -102,7 +96,7 @@ Outerbridge has 3 different modules in a single mono repository.
 
     For changes made in `packages/components`, run `yarn build` again to pickup the changes.
 
-11. After making all the changes, run
+10. After making all the changes, run
 
     ```bash
     yarn build
@@ -116,7 +110,7 @@ Outerbridge has 3 different modules in a single mono repository.
 
     to make sure everything works fine in production.
 
-12. Commit code and submit Pull Request from forked branch pointing to [Outerbridge master](https://github.com/Outerbridgeio/Outerbridge/tree/master). Example [PR](https://github.com/Outerbridgeio/Outerbridge/pull/50).
+11. Commit code and submit Pull Request from forked branch pointing to [Outerbridge master](https://github.com/Outerbridgeio/Outerbridge/tree/master). Example [PR](https://github.com/Outerbridgeio/Outerbridge/pull/50).
 
 ## 📖 Contribute to Docs
 

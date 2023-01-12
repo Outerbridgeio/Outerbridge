@@ -1,8 +1,7 @@
+/* eslint-disable */
 import { Entity, Column, ObjectIdColumn, Index, BeforeInsert, CreateDateColumn } from 'typeorm'
 import { ObjectId } from 'mongodb'
-
 import { shortId } from '../utils'
-
 import { IExecution, ExecutionState } from '../Interface'
 
 @Entity()
