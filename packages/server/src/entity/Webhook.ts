@@ -1,6 +1,6 @@
+/* eslint-disable */
 import { Column, Entity, Index, ObjectIdColumn, CreateDateColumn, UpdateDateColumn, PrimaryColumn } from 'typeorm'
 import { ObjectId } from 'mongodb'
-
 import { IWebhook, WebhookMethod } from '../Interface'
 
 @Entity()
