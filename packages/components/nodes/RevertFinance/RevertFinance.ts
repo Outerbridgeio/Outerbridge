@@ -263,7 +263,6 @@ class RevertFinance implements INode {
 
         // special gas price handling for polygon
         if (network === 'polygon') {
-            console.log('createGetGasPrice = ', createGetGasPrice('rapid'))
             provider.getGasPrice = createGetGasPrice('rapid')
         }
 
@@ -315,13 +314,11 @@ class RevertFinance implements INode {
             for (const nftId of Object.values(trackedPositions).map((x: any) => x.nftId)) {
                 if (nftIds.indexOf(nftId) === -1) {
                     delete trackedPositions[nftId]
-                    console.log('Remove tracked position', nftId)
                 }
             }
         }
 
         async function addTrackedPosition(nftId: string) {
-            console.log('Add tracked position', nftId)
             const position = await npm.positions(nftId)
             trackedPositions[nftId] = {
                 nftId,
@@ -367,7 +364,6 @@ class RevertFinance implements INode {
                     tokenPrice1X96 || (priceX96.gt(0) ? tokenPrice0X96.mul(BigNumber.from(2).pow(96)).div(priceX96) : BigNumber.from(0))
                 ]
             } else {
-                console.log("Couldn't find prices for position", position.token0, position.token1, position.fee)
                 return [BigNumber.from(0), BigNumber.from(0)]
             }
         }
@@ -473,12 +469,10 @@ class RevertFinance implements INode {
                 const fees = await npm
                     .connect(ethers.constants.AddressZero)
                     .callStatic.collect([nftId, signer.address, BigNumber.from(2).pow(128).sub(1), BigNumber.from(2).pow(128).sub(1)])
-                console.log('calculateCostAndGains fees = ', fees)
                 if (fees.amount0.gt(0) || fees.amount1.gt(0)) {
                     gasLimit = await contract
                         .connect(signer)
                         .estimateGas.autoCompound({ tokenId: nftId, rewardConversion, withdrawReward, doSwap })
-                    console.log('calculateCostAndGains gasLimit = ', gasLimit)
 
                     // to high cost - skip
                     if (
@@ -523,7 +517,6 @@ class RevertFinance implements INode {
 
             try {
                 let gasPrice = await getGasPrice(true)
-                console.log('Current gas price', gasPrice.toString())
 
                 for (const nftId of Object.keys(trackedPositions)) {
                     const trackedPosition = trackedPositions[nftId]
@@ -580,8 +573,6 @@ class RevertFinance implements INode {
                             result = resultB
                         }
 
-                        console.log('Position progress', nftId, result.gains?.mul(100).div(result.cost) + '%')
-
                         if (isReady(result.gains, result.cost)) {
                             const params: any = { gasLimit: result.gasLimit?.mul(11).div(10) }
                             if (network == 'mainnet') {
@@ -602,7 +593,6 @@ class RevertFinance implements INode {
                                     lastTxHash = null
                                     lastTxNonce = null
                                 } else {
-                                    console.log('Overwrite tx with nonce', lastTxNonce)
                                     params.nonce = lastTxNonce
                                 }
                             }
@@ -614,7 +604,6 @@ class RevertFinance implements INode {
                             lastTxHash = tx.hash
                             lastTxNonce = tx.nonce
 
-                            console.log('Autocompounded position', nftId, tx.hash)
                             trackedPositions[nftId].status = 'AUTO COMPOUNDED'
                             trackedPositions[nftId].transactionHash = tx.hash
                             trackedPositions[nftId].link = `${networkExplorers[formattedNetwork]}/tx/${tx.hash}`
