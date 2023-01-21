@@ -117,10 +117,12 @@ class FlowBalanceTrigger extends EventEmitter implements INode {
         if (networksData === undefined || inputParametersData === undefined) {
             throw new Error('Required data missing')
         }
-
+        
         const network = networksData.network as NETWORK
         const baseUrl =
-            network === NETWORK.FLOW_TESTNET ? `https://rest-testnet.onflow.org/v1/accounts/` : `https://rest.onflow.org/v1/accounts/`
+            network === NETWORK.FLOW_TESTNET
+                ? `https://rest-testnet.onflow.org/v1/accounts/`
+                : `https://rest-mainnet.onflow.org/v1/accounts/`
 
         const emitEventKey = nodeData.emitEventKey as string
         const address = (inputParametersData.address as string) || ''
