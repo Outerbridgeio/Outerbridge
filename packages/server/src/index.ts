@@ -460,7 +460,8 @@ export class App {
             if (startNode && startNode.data) {
                 let nodeData = startNode.data
                 await decryptCredentials(nodeData)
-                nodeData = resolveVariables(nodeData, nodes)
+                const nodeDataArray = resolveVariables(nodeData, nodes)
+                nodeData = nodeDataArray[0]
 
                 if (!Object.prototype.hasOwnProperty.call(this.componentNodes, nodeData.name)) {
                     res.status(404).send(`Unable to test workflow from node: ${nodeData.name}`)
@@ -688,12 +689,14 @@ export class App {
                     await decryptCredentials(nodeData)
 
                     if (nodeType === 'action') {
-                        const reactFlowNodeData: INodeData = resolveVariables(nodeData, nodes)
-                        const result = await nodeInstance.run!.call(nodeInstance, reactFlowNodeData)
-
-                        checkOAuth2TokenRefreshed(result, reactFlowNodeData)
-
-                        return res.json(result)
+                        let results: INodeExecutionData[] = []
+                        const reactFlowNodeData: INodeData[] = resolveVariables(nodeData, nodes)
+                        for (let i = 0; i < reactFlowNodeData.length; i += 1) {
+                            const result = await nodeInstance.run!.call(nodeInstance, reactFlowNodeData[i])
+                            checkOAuth2TokenRefreshed(result, reactFlowNodeData[i])
+                            if (result) results.push(...result)
+                        }
+                        return res.json(results)
                     } else if (nodeType === 'trigger') {
                         const triggerNodeInstance = nodeInstance as ITriggerNode
                         const emitEventKey = nodeId

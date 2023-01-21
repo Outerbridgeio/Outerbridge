@@ -1,4 +1,4 @@
-import { ICommonObject, INodeData } from 'outerbridge-components'
+import { ICommonObject, INodeData, INodeExecutionData } from 'outerbridge-components'
 import {
     IChildProcessMessage,
     IExploredNode,
@@ -68,18 +68,22 @@ export class ChildProcess {
 
                     await decryptCredentials(reactFlowNode.data, childAppDataSource)
 
-                    const reactFlowNodeData: INodeData = resolveVariables(reactFlowNode.data, workflowExecutedData)
+                    const reactFlowNodeData: INodeData[] = resolveVariables(reactFlowNode.data, workflowExecutedData)
 
-                    const result = await newNodeInstance.run!.call(newNodeInstance, reactFlowNodeData)
+                    let results: INodeExecutionData[] = []
 
-                    checkOAuth2TokenRefreshed(result, reactFlowNodeData, childAppDataSource)
+                    for (let i = 0; i < reactFlowNodeData.length; i += 1) {
+                        const result = await newNodeInstance.run!.call(newNodeInstance, reactFlowNodeData[i])
+                        checkOAuth2TokenRefreshed(result, reactFlowNodeData[i], childAppDataSource)
+                        if (result) results.push(...result)
+                    }
 
                     // Determine which nodes to route next when it comes to ifElse
-                    if (result && nodeId.includes('ifElse')) {
+                    if (results.length && nodeId.includes('ifElse')) {
                         let anchorIndex = -1
-                        if (Array.isArray(result) && Object.keys(result[0].data).length === 0) {
+                        if (Array.isArray(results) && Object.keys((results as any)[0].data).length === 0) {
                             anchorIndex = 0
-                        } else if (Array.isArray(result) && Object.keys(result[1].data).length === 0) {
+                        } else if (Array.isArray(results) && Object.keys((results as any)[1].data).length === 0) {
                             anchorIndex = 1
                         }
                         const ifElseEdge = reactFlowEdges.find(
@@ -93,7 +97,7 @@ export class ChildProcess {
                     const newWorkflowExecutedData = {
                         nodeId,
                         nodeLabel: reactFlowNode.data.label,
-                        data: result
+                        data: results
                     } as IWorkflowExecutedData
 
                     workflowExecutedData.push(newWorkflowExecutedData)
@@ -163,9 +167,11 @@ async function initDB() {
  * Get variable value from outputResponses.output
  * @param {string} paramValue
  * @param {IWorkflowExecutedData[]} workflowExecutedData
+ * @param {string} key
+ * @param {number} loopIndex
  * @returns {string}
  */
-function getVariableValue(paramValue: string, workflowExecutedData: IWorkflowExecutedData[], key: string): string {
+function getVariableValue(paramValue: string, workflowExecutedData: IWorkflowExecutedData[], key: string, loopIndex: number): string {
     let returnVal = paramValue
     const variableStack = []
     const variableDict = {} as IVariableDict
@@ -188,15 +194,20 @@ function getVariableValue(paramValue: string, workflowExecutedData: IWorkflowExe
 
             // Split by first occurence of '[' to get just nodeId
             const [variableNodeId, ...rest] = variableFullPath.split('[')
-            const variablePath = 'data' + '[' + rest.join('[')
+            let variablePath = 'data' + '[' + rest.join('[')
+            if (variablePath.includes('$index')) {
+                variablePath = variablePath.split('$index').join(loopIndex.toString())
+            }
 
             const executedNodeData = workflowExecutedData.find((exec) => exec.nodeId === variableNodeId)
             if (executedNodeData) {
-                const resolvedVariablePath = getVariableValue(variablePath, workflowExecutedData, key)
+                const resolvedVariablePath = getVariableValue(variablePath, workflowExecutedData, key, loopIndex)
                 const variableValue = lodash.get(executedNodeData, resolvedVariablePath)
                 variableDict[`{{${variableFullPath}}}`] = variableValue
                 // For instance: const var1 = "some var"
                 if (key === 'code' && typeof variableValue === 'string') variableDict[`{{${variableFullPath}}}`] = `"${variableValue}"`
+                if (key === 'code' && typeof variableValue === 'object')
+                    variableDict[`{{${variableFullPath}}}`] = `${JSON.stringify(variableValue)}`
             }
             variableStack.pop()
         }
@@ -215,43 +226,124 @@ function getVariableValue(paramValue: string, workflowExecutedData: IWorkflowExe
 }
 
 /**
+ * Get minimum variable array length from outputResponses.output
+ * @param {string} paramValue
+ * @param {IReactFlowNode[]} reactFlowNodes
+ * @returns {number}
+ */
+export const getVariableLength = (paramValue: string, workflowExecutedData: IWorkflowExecutedData[]): number => {
+    let minLoop = Infinity
+    const variableStack = []
+    let startIdx = 0
+    const endIdx = paramValue.length - 1
+
+    while (startIdx < endIdx) {
+        const substr = paramValue.substring(startIdx, startIdx + 2)
+
+        // Store the opening double curly bracket
+        if (substr === '{{') {
+            variableStack.push({ substr, startIdx: startIdx + 2 })
+        }
+
+        // Found the complete variable
+        if (substr === '}}' && variableStack.length > 0 && variableStack[variableStack.length - 1].substr === '{{') {
+            const variableStartIdx = variableStack[variableStack.length - 1].startIdx
+            const variableEndIdx = startIdx
+            const variableFullPath = paramValue.substring(variableStartIdx, variableEndIdx)
+
+            if (variableFullPath.includes('$index')) {
+                // Split by first occurence of '[' to get just nodeId
+                const [variableNodeId, ...rest] = variableFullPath.split('[')
+                const variablePath = 'data' + '[' + rest.join('[')
+                const [variableArrayPath, ..._] = variablePath.split('[$index]')
+
+                const executedNodeData = workflowExecutedData.find((exec) => exec.nodeId === variableNodeId)
+                if (executedNodeData) {
+                    const variableValue = lodash.get(executedNodeData, variableArrayPath)
+                    if (Array.isArray(variableValue)) minLoop = Math.min(minLoop, variableValue.length)
+                }
+            }
+            variableStack.pop()
+        }
+        startIdx += 1
+    }
+    return minLoop
+}
+
+/**
  * Loop through each inputs and resolve variable if neccessary
  * @param {INodeData} reactFlowNodeData
  * @param {IWorkflowExecutedData[]} workflowExecutedData
  * @returns {INodeData}
  */
-function resolveVariables(reactFlowNodeData: INodeData, workflowExecutedData: IWorkflowExecutedData[]): INodeData {
+function resolveVariables(reactFlowNodeData: INodeData, workflowExecutedData: IWorkflowExecutedData[]): INodeData[] {
+    const flowNodeDataArray: INodeData[] = []
     const flowNodeData = lodash.cloneDeep(reactFlowNodeData)
     const types = ['actions', 'networks', 'inputParameters']
 
-    function getParamValues(paramsObj: ICommonObject) {
+    const getMinForLoop = (paramsObj: ICommonObject) => {
+        let minLoop = Infinity
+        for (const key in paramsObj) {
+            const paramValue = paramsObj[key]
+            if (typeof paramValue === 'string' && paramValue.includes('$index')) {
+                // node.data[$index].smtg
+                minLoop = Math.min(minLoop, getVariableLength(paramValue, workflowExecutedData))
+            }
+            if (Array.isArray(paramValue)) {
+                for (let j = 0; j < paramValue.length; j += 1) {
+                    minLoop = Math.min(minLoop, getMinForLoop(paramValue[j] as ICommonObject))
+                }
+            }
+        }
+        return minLoop
+    }
+
+    const getParamValues = (paramsObj: ICommonObject, loopIndex: number) => {
         for (const key in paramsObj) {
             const paramValue = paramsObj[key]
 
             if (typeof paramValue === 'string') {
-                const resolvedValue = getVariableValue(paramValue, workflowExecutedData, key)
+                const resolvedValue = getVariableValue(paramValue, workflowExecutedData, key, loopIndex)
                 paramsObj[key] = resolvedValue
             }
 
             if (typeof paramValue === 'number') {
                 const paramValueStr = paramValue.toString()
-                const resolvedValue = getVariableValue(paramValueStr, workflowExecutedData, key)
+                const resolvedValue = getVariableValue(paramValueStr, workflowExecutedData, key, loopIndex)
                 paramsObj[key] = resolvedValue
             }
 
             if (Array.isArray(paramValue)) {
                 for (let j = 0; j < paramValue.length; j += 1) {
-                    getParamValues(paramValue[j] as ICommonObject)
+                    getParamValues(paramValue[j] as ICommonObject, loopIndex)
                 }
             }
         }
     }
 
+    let minLoop = Infinity
     for (let i = 0; i < types.length; i += 1) {
         const paramsObj = (flowNodeData as any)[types[i]]
-        getParamValues(paramsObj)
+        minLoop = Math.min(minLoop, getMinForLoop(paramsObj))
     }
-    return flowNodeData
+
+    if (minLoop === Infinity) {
+        for (let i = 0; i < types.length; i += 1) {
+            const paramsObj = (flowNodeData as any)[types[i]]
+            getParamValues(paramsObj, -1)
+        }
+        return [flowNodeData]
+    } else {
+        for (let j = 0; j < minLoop; j += 1) {
+            const clonedFlowNodeData = lodash.cloneDeep(flowNodeData)
+            for (let i = 0; i < types.length; i += 1) {
+                const paramsObj = (clonedFlowNodeData as any)[types[i]]
+                getParamValues(paramsObj, j)
+            }
+            flowNodeDataArray.push(clonedFlowNodeData)
+        }
+        return flowNodeDataArray
+    }
 }
 
 /**
