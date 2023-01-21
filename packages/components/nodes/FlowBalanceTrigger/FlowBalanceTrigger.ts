@@ -112,7 +112,6 @@ class FlowBalanceTrigger extends EventEmitter implements INode {
 
     async runTrigger(nodeData: INodeData): Promise<void> {
         const networksData = nodeData.networks
-        // const credentials = nodeData.credentials
         const inputParametersData = nodeData.inputParameters
 
         if (networksData === undefined || inputParametersData === undefined) {
