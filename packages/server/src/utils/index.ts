@@ -281,9 +281,11 @@ export const constructGraphsAndGetStartingNodes = (res: Response, reactFlowNodes
  * Get variable value from outputResponses.output
  * @param {string} paramValue
  * @param {IReactFlowNode[]} reactFlowNodes
+ * @param {string} key
+ * @param {number} loopIndex
  * @returns {string}
  */
-export const getVariableValue = (paramValue: string, reactFlowNodes: IReactFlowNode[], key: string): string => {
+export const getVariableValue = (paramValue: string, reactFlowNodes: IReactFlowNode[], key: string, loopIndex: number): string => {
     let returnVal = paramValue
     const variableStack = []
     const variableDict = {} as IVariableDict
@@ -306,15 +308,20 @@ export const getVariableValue = (paramValue: string, reactFlowNodes: IReactFlowN
 
             // Split by first occurence of '[' to get just nodeId
             const [variableNodeId, ...rest] = variableFullPath.split('[')
-            const variablePath = 'outputResponses.output' + '[' + rest.join('[')
+            let variablePath = 'outputResponses.output' + '[' + rest.join('[')
+            if (variablePath.includes('$index')) {
+                variablePath = variablePath.split('$index').join(loopIndex.toString())
+            }
 
             const executedNode = reactFlowNodes.find((nd) => nd.id === variableNodeId)
             if (executedNode) {
-                const resolvedVariablePath = getVariableValue(variablePath, reactFlowNodes, key)
+                const resolvedVariablePath = getVariableValue(variablePath, reactFlowNodes, key, loopIndex)
                 const variableValue = lodash.get(executedNode.data, resolvedVariablePath)
                 variableDict[`{{${variableFullPath}}}`] = variableValue
                 // For instance: const var1 = "some var"
                 if (key === 'code' && typeof variableValue === 'string') variableDict[`{{${variableFullPath}}}`] = `"${variableValue}"`
+                if (key === 'code' && typeof variableValue === 'object')
+                    variableDict[`{{${variableFullPath}}}`] = `${JSON.stringify(variableValue)}`
             }
             variableStack.pop()
         }
@@ -333,43 +340,124 @@ export const getVariableValue = (paramValue: string, reactFlowNodes: IReactFlowN
 }
 
 /**
+ * Get minimum variable array length from outputResponses.output
+ * @param {string} paramValue
+ * @param {IReactFlowNode[]} reactFlowNodes
+ * @returns {number}
+ */
+export const getVariableLength = (paramValue: string, reactFlowNodes: IReactFlowNode[]): number => {
+    let minLoop = Infinity
+    const variableStack = []
+    let startIdx = 0
+    const endIdx = paramValue.length - 1
+
+    while (startIdx < endIdx) {
+        const substr = paramValue.substring(startIdx, startIdx + 2)
+
+        // Store the opening double curly bracket
+        if (substr === '{{') {
+            variableStack.push({ substr, startIdx: startIdx + 2 })
+        }
+
+        // Found the complete variable
+        if (substr === '}}' && variableStack.length > 0 && variableStack[variableStack.length - 1].substr === '{{') {
+            const variableStartIdx = variableStack[variableStack.length - 1].startIdx
+            const variableEndIdx = startIdx
+            const variableFullPath = paramValue.substring(variableStartIdx, variableEndIdx)
+
+            if (variableFullPath.includes('$index')) {
+                // Split by first occurence of '[' to get just nodeId
+                const [variableNodeId, ...rest] = variableFullPath.split('[')
+                const variablePath = 'outputResponses.output' + '[' + rest.join('[')
+                const [variableArrayPath, ..._] = variablePath.split('[$index]')
+
+                const executedNode = reactFlowNodes.find((nd) => nd.id === variableNodeId)
+                if (executedNode) {
+                    const variableValue = lodash.get(executedNode.data, variableArrayPath)
+                    if (Array.isArray(variableValue)) minLoop = Math.min(minLoop, variableValue.length)
+                }
+            }
+            variableStack.pop()
+        }
+        startIdx += 1
+    }
+    return minLoop
+}
+
+/**
  * Loop through each inputs and resolve variable if neccessary
  * @param {INodeData} reactFlowNodeData
  * @param {IReactFlowNode[]} reactFlowNodes
  * @returns {INodeData}
  */
-export const resolveVariables = (reactFlowNodeData: INodeData, reactFlowNodes: IReactFlowNode[]): INodeData => {
+export const resolveVariables = (reactFlowNodeData: INodeData, reactFlowNodes: IReactFlowNode[]): INodeData[] => {
+    const flowNodeDataArray: INodeData[] = []
     const flowNodeData = lodash.cloneDeep(reactFlowNodeData)
     const types = ['actions', 'networks', 'inputParameters']
 
-    const getParamValues = (paramsObj: ICommonObject) => {
+    const getMinForLoop = (paramsObj: ICommonObject) => {
+        let minLoop = Infinity
+        for (const key in paramsObj) {
+            const paramValue = paramsObj[key]
+            if (typeof paramValue === 'string' && paramValue.includes('$index')) {
+                // node.data[$index].smtg
+                minLoop = Math.min(minLoop, getVariableLength(paramValue, reactFlowNodes))
+            }
+            if (Array.isArray(paramValue)) {
+                for (let j = 0; j < paramValue.length; j += 1) {
+                    minLoop = Math.min(minLoop, getMinForLoop(paramValue[j] as ICommonObject))
+                }
+            }
+        }
+        return minLoop
+    }
+
+    const getParamValues = (paramsObj: ICommonObject, loopIndex: number) => {
         for (const key in paramsObj) {
             const paramValue = paramsObj[key]
 
             if (typeof paramValue === 'string') {
-                const resolvedValue = getVariableValue(paramValue, reactFlowNodes, key)
+                const resolvedValue = getVariableValue(paramValue, reactFlowNodes, key, loopIndex)
                 paramsObj[key] = resolvedValue
             }
 
             if (typeof paramValue === 'number') {
                 const paramValueStr = paramValue.toString()
-                const resolvedValue = getVariableValue(paramValueStr, reactFlowNodes, key)
+                const resolvedValue = getVariableValue(paramValueStr, reactFlowNodes, key, loopIndex)
                 paramsObj[key] = resolvedValue
             }
 
             if (Array.isArray(paramValue)) {
                 for (let j = 0; j < paramValue.length; j += 1) {
-                    getParamValues(paramValue[j] as ICommonObject)
+                    getParamValues(paramValue[j] as ICommonObject, loopIndex)
                 }
             }
         }
     }
 
+    let minLoop = Infinity
     for (let i = 0; i < types.length; i += 1) {
         const paramsObj = (flowNodeData as any)[types[i]]
-        getParamValues(paramsObj)
+        minLoop = Math.min(minLoop, getMinForLoop(paramsObj))
     }
-    return flowNodeData
+
+    if (minLoop === Infinity) {
+        for (let i = 0; i < types.length; i += 1) {
+            const paramsObj = (flowNodeData as any)[types[i]]
+            getParamValues(paramsObj, -1)
+        }
+        return [flowNodeData]
+    } else {
+        for (let j = 0; j < minLoop; j += 1) {
+            const clonedFlowNodeData = lodash.cloneDeep(flowNodeData)
+            for (let i = 0; i < types.length; i += 1) {
+                const paramsObj = (clonedFlowNodeData as any)[types[i]]
+                getParamValues(paramsObj, j)
+            }
+            flowNodeDataArray.push(clonedFlowNodeData)
+        }
+        return flowNodeDataArray
+    }
 }
 
 /**
@@ -719,32 +807,36 @@ export const testWorkflow = async (
 
                 await decryptCredentials(reactFlowNode.data)
 
-                const reactFlowNodeData: INodeData = resolveVariables(reactFlowNode.data, reactFlowNodes)
+                const reactFlowNodeData: INodeData[] = resolveVariables(reactFlowNode.data, reactFlowNodes)
 
-                const result = await newNodeInstance.run!.call(newNodeInstance, reactFlowNodeData)
+                let results: INodeExecutionData[] = []
 
-                checkOAuth2TokenRefreshed(result, reactFlowNodeData)
+                for (let i = 0; i < reactFlowNodeData.length; i += 1) {
+                    const result = await newNodeInstance.run!.call(newNodeInstance, reactFlowNodeData[i])
+                    checkOAuth2TokenRefreshed(result, reactFlowNodeData[i])
+                    if (result) results.push(...result)
+                }
 
                 // Update reactFlowNodes for resolveVariables
                 if (reactFlowNodes[nodeIndex].data.outputResponses) {
                     reactFlowNodes[nodeIndex].data.outputResponses = {
                         ...reactFlowNodes[nodeIndex].data.outputResponses,
-                        output: result
+                        output: results
                     }
                 } else {
                     reactFlowNodes[nodeIndex].data.outputResponses = {
                         submit: true,
                         needRetest: null,
-                        output: result
+                        output: results
                     }
                 }
 
                 // Determine which nodes to route next when it comes to ifElse
-                if (result && nodeId.includes('ifElse')) {
+                if (results.length && nodeId.includes('ifElse')) {
                     let anchorIndex = -1
-                    if (Array.isArray(result) && Object.keys(result[0].data).length === 0) {
+                    if (Array.isArray(results) && Object.keys((results as any)[0].data).length === 0) {
                         anchorIndex = 0
-                    } else if (Array.isArray(result) && Object.keys(result[1].data).length === 0) {
+                    } else if (Array.isArray(results) && Object.keys((results as any)[1].data).length === 0) {
                         anchorIndex = 1
                     }
                     const ifElseEdge = reactFlowEdges.find(
@@ -758,11 +850,11 @@ export const testWorkflow = async (
                 const newWorkflowExecutedData = {
                     nodeId,
                     nodeLabel: reactFlowNode.data.label,
-                    data: result,
+                    data: results,
                     status: 'FINISHED'
                 } as IWorkflowExecutedData
 
-                lastExecutedResult = result
+                lastExecutedResult = results
 
                 io.to(clientId).emit('testWorkflowNodeResponse', newWorkflowExecutedData)
             } catch (e: any) {
