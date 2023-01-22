@@ -4,7 +4,7 @@ import { ICronJobs, INode, INodeData, INodeOptionsValue, INodeParams, NodeType }
 import { returnNodeExecutionData } from '../../src/utils'
 import EventEmitter from 'events'
 import axios from 'axios'
-import { FLOWNetworks, getNetworkProvidersList, NETWORK, networkExplorers, networkProviderCredentials } from '../../src/ChainNetwork'
+import { FLOWNetworks, getNetworkProvidersList, NETWORK, networkExplorers } from '../../src/ChainNetwork'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
 
 class FlowBalanceTrigger extends EventEmitter implements INode {
@@ -43,7 +43,6 @@ class FlowBalanceTrigger extends EventEmitter implements INode {
                 default: 'homestead'
             }
         ] as INodeParams[]
-        this.credentials = [...networkProviderCredentials] as INodeParams[]
         this.inputParameters = [
             {
                 label: 'Wallet Address',
@@ -117,7 +116,7 @@ class FlowBalanceTrigger extends EventEmitter implements INode {
         if (networksData === undefined || inputParametersData === undefined) {
             throw new Error('Required data missing')
         }
-        
+
         const network = networksData.network as NETWORK
         const baseUrl =
             network === NETWORK.FLOW_TESTNET
