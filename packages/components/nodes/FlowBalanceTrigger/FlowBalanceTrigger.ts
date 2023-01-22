@@ -1,5 +1,5 @@
 import { CronJob } from 'cron'
-import { BigNumber, BigNumberish, utils } from 'ethers'
+import { BigNumber, BigNumberish } from 'ethers'
 import { ICronJobs, INode, INodeData, INodeOptionsValue, INodeParams, NodeType } from '../../src/Interface'
 import { returnNodeExecutionData } from '../../src/utils'
 import EventEmitter from 'events'
