@@ -32,7 +32,9 @@ export enum NETWORK {
     MOONRIVER = 'moonriver',
     MOONBEAM = 'moonbeam',
     METIS = 'metis',
-    KLATYN_TESTNET = 'klaytn-testnet'
+    KLATYN_TESTNET = 'klaytn-testnet',
+    FLOW = 'mainnet',
+    FLOW_TESTNET = 'testnet'
 }
 
 export enum NETWORK_LABEL {
@@ -63,7 +65,9 @@ export enum NETWORK_LABEL {
     MOONRIVER = 'Moonriver Mainnet',
     MOONBEAM = 'Moonbeam Mainnet',
     METIS = 'Metis Mainnet',
-    KLATYN_TESTNET = 'Klaytn Baobab Testnet'
+    KLATYN_TESTNET = 'Klaytn Baobab Testnet',
+    FLOW = 'Flow',
+    FLOW_TESTNET = 'Flow Testnet'
 }
 
 export enum NETWORK_PROVIDER {
@@ -84,7 +88,9 @@ export enum NETWORK_PROVIDER {
     MOONRIVER = 'moonriver',
     MOONBEAM = 'moonbeam',
     METIS = 'metis',
-    KLAYTN = 'klaytn'
+    KLAYTN = 'klaytn',
+    FLOW = 'flow',
+    FLOW_TESTNET = 'flow_testnet'
 }
 
 export enum CHAIN_ID {
@@ -288,6 +294,19 @@ export const KlatynNetworks = [
     }
 ] as INodeOptionsValue[]
 
+export const FLOWNetworks = [
+    {
+        label: NETWORK_LABEL.FLOW,
+        name: NETWORK.FLOW,
+        parentGroup: 'Flow Mainnet'
+    },
+    {
+        label: NETWORK_LABEL.FLOW_TESTNET,
+        name: NETWORK.FLOW_TESTNET,
+        parentGroup: 'Flow Testnet'
+    }
+] as INodeOptionsValue[]
+
 /**
  * Network Providers
  */
@@ -469,6 +488,26 @@ export const klaytnNetworkProviders = [
         label: 'Klaytn',
         name: NETWORK_PROVIDER.KLAYTN,
         description: 'Public Klaytn RPC/Websocket',
+        parentGroup: 'Public Nodes'
+    },
+    ...customNetworkProviders
+] as INodeOptionsValue[]
+
+export const flowNetworkProviders = [
+    {
+        label: 'Flow',
+        name: NETWORK_PROVIDER.FLOW,
+        description: 'Public FLOW RPC/Websocket',
+        parentGroup: 'Public Nodes'
+    },
+    ...customNetworkProviders
+] as INodeOptionsValue[]
+
+export const flowTestnetNetworkProviders = [
+    {
+        label: 'Flow Testnet',
+        name: NETWORK_PROVIDER.FLOW_TESTNET,
+        description: 'Public FLOW testnet RPC/Websocket',
         parentGroup: 'Public Nodes'
     },
     ...customNetworkProviders
@@ -678,6 +717,10 @@ export function getNetworkProvidersList(network: NETWORK): INodeOptionsValue[] {
             return metisNetworkProviders
         case NETWORK.KLATYN_TESTNET:
             return klaytnNetworkProviders
+        case NETWORK.FLOW:
+            return flowNetworkProviders
+        case NETWORK.FLOW_TESTNET:
+            return flowTestnetNetworkProviders
         default:
             return customNetworkProviders
     }
