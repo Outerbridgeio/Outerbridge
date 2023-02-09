@@ -468,7 +468,7 @@ export const decryptCredentials = async (nodeData: INodeData, appDataSource?: Da
     if (!appDataSource) appDataSource = getDataSource()
 
     if (nodeData.credentials && nodeData.credentials.registeredCredential) {
-        // @ts-expect-error investigate this later
+        // @ts-ignore
         const credentialId: string = nodeData.credentials.registeredCredential?._id
 
         const credential = await appDataSource.getMongoRepository(Credential).findOneBy({
