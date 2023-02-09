@@ -54,8 +54,7 @@ class Xero implements INode {
                         name: 'sendToEmail',
                         description: 'Send email with invoice to primary email.'
                     }
-                ],
-                default: 'getXeroBalance'
+                ]
             }
         ] as INodeParams[]
 

@@ -833,7 +833,7 @@ export class App {
         // Get list of registered credentials via nodeCredentialName
         this.app.get('/api/v1/credentials', async (req: Request, res: Response) => {
             const credentials = await this.AppDataSource.getMongoRepository(Credential).find({
-                // @ts-expect-error investigate this later
+                // @ts-ignore
                 where: {
                     nodeCredentialName: { $eq: req.query.nodeCredentialName }
                 }
@@ -982,7 +982,7 @@ export class App {
             }
 
             if (body.credentials && body.credentials.registeredCredential) {
-                // @ts-expect-error investigate this later
+                // @ts-ignore
                 const credentialId: string = body.credentials.registeredCredential?._id
 
                 const credential = await this.AppDataSource.getMongoRepository(Credential).findOneBy({
