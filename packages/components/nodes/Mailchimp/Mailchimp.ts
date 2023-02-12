@@ -1,4 +1,4 @@
-import { ICommonObject, INode, INodeData, INodeExecutionData, INodeParams, NodeType } from '../../src/Interface'
+import { ICommonObject, INode, INodeData, INodeExecutionData, INodeOptionsValue, INodeParams, NodeType } from '../../src/Interface'
 import { handleErrorMessage, returnNodeExecutionData } from '../../src/utils'
 import axios, { AxiosRequestConfig, Method } from 'axios'
 
@@ -28,14 +28,14 @@ class Mailchimp implements INode {
         this.icon = 'mailchimp.svg'
         this.type = 'action'
         this.category = 'Communication'
-        this.version = 1.0
-        this.description = 'Mailchimp market api integration'
+        this.version = 2.0
+        this.description = 'Execute Mailchimp API integration'
         this.incoming = 1
         this.outgoing = 1
         this.actions = [
             {
-                label: 'API',
-                name: 'api',
+                label: 'Operation',
+                name: 'operation',
                 type: 'options',
                 options: [
                     {
@@ -52,6 +52,21 @@ class Mailchimp implements INode {
                         label: 'Delete campaign',
                         name: 'deleteCampaign',
                         description: 'It will delete campaigns'
+                    },
+                    {
+                        label: 'Add user to subscribe list',
+                        name: 'addUser',
+                        description: 'Add or update user to a subscribe list'
+                    },
+                    {
+                        label: 'Get user',
+                        name: 'getUser',
+                        description: 'Get information about a specific audience'
+                    },
+                    {
+                        label: 'Get list of users',
+                        name: 'listUsers',
+                        description: 'Get information about list of members in a specific audience list'
                     }
                 ],
                 default: 'listCampaigns'
@@ -74,21 +89,112 @@ class Mailchimp implements INode {
         ] as INodeParams[]
         this.inputParameters = [
             {
-                label: 'Campaign Id',
+                label: 'Campaign',
                 name: 'campaignId',
+                type: 'asyncOptions',
+                loadMethod: 'getCampaigns',
+                show: {
+                    'actions.operation': ['deleteCampaign', 'getCampaign']
+                }
+            },
+            {
+                label: 'Audience List',
+                name: 'listId',
+                type: 'asyncOptions',
+                loadMethod: 'getLists',
+                show: {
+                    'actions.operation': ['addUser', 'getUser', 'listUsers']
+                }
+            },
+            {
+                label: 'Customer Email',
+                name: 'email',
                 type: 'string',
                 show: {
-                    'actions.api': ['deleteCampaign', 'getCampaign']
-                },
-                default: ''
+                    'actions.operation': ['addUser', 'getUser']
+                }
             }
         ] as INodeParams[]
+    }
+
+    loadMethods = {
+        async getCampaigns(nodeData: INodeData): Promise<INodeOptionsValue[]> {
+            const returnData: INodeOptionsValue[] = []
+            const credentials = nodeData.credentials
+
+            const apiKey = credentials!.apiKey as string
+            const dc = ((apiKey && apiKey.split('-')[1]) || '') as string
+
+            if (!apiKey || !dc) return returnData
+
+            try {
+                const authObj: Auth = { username: '', password: apiKey }
+                const axiosConfig: AxiosRequestConfig = {
+                    method: 'GET' as Method,
+                    url: `https://${dc}.api.mailchimp.com/3.0/campaigns`,
+                    headers: { 'Content-Type': 'application/json' },
+                    auth: {
+                        ...authObj
+                    }
+                }
+                const response = await axios(axiosConfig)
+                const campaigns = response.data?.campaigns
+
+                campaigns.forEach((campaign: any) => {
+                    const data = {
+                        label: campaign.settings.title || campaign.web_id,
+                        name: campaign.id
+                    } as INodeOptionsValue
+                    returnData.push(data)
+                })
+                return returnData
+            } catch (e) {
+                return returnData
+            }
+        },
+
+        async getLists(nodeData: INodeData): Promise<INodeOptionsValue[]> {
+            const returnData: INodeOptionsValue[] = []
+            const credentials = nodeData.credentials
+
+            const apiKey = credentials!.apiKey as string
+            const dc = ((apiKey && apiKey.split('-')[1]) || '') as string
+
+            if (!apiKey || !dc) return returnData
+
+            try {
+                const authObj: Auth = { username: '', password: apiKey }
+                const axiosConfig: AxiosRequestConfig = {
+                    method: 'GET' as Method,
+                    url: `https://${dc}.api.mailchimp.com/3.0/lists`,
+                    headers: { 'Content-Type': 'application/json' },
+                    auth: {
+                        ...authObj
+                    }
+                }
+
+                const response = await axios(axiosConfig)
+                const lists = response.data?.lists
+
+                lists.forEach((list: any) => {
+                    const data = {
+                        label: list.name || list.web_id,
+                        name: list.id
+                    } as INodeOptionsValue
+                    returnData.push(data)
+                })
+                return returnData
+            } catch (e) {
+                return returnData
+            }
+        }
     }
 
     async run(nodeData: INodeData): Promise<INodeExecutionData[] | null> {
         // function to make calls
         let authObj: Auth
-        async function makeApiCall(method: string, url: string): Promise<any[]> {
+
+        async function makeApiCall(method: string, url: string, operation: string, body?: ICommonObject): Promise<any[]> {
             const axiosConfig: AxiosRequestConfig = {
                 method: method as Method,
                 url,
@@ -97,6 +203,7 @@ class Mailchimp implements INode {
                     ...authObj
                 }
             }
+            if (method === 'post' && body) axiosConfig.data = body
             let responseData: any[] = []
             try {
                 const response = await axios(axiosConfig)
@@ -104,19 +211,24 @@ class Mailchimp implements INode {
                     responseData.push(response?.data)
                 }
             } catch (err) {
-                throw handleErrorMessage(err)
+                if (operation === 'addUser' && err.response.data.title.includes('Member Exists')) {
+                    // dont throw error
+                } else throw handleErrorMessage(err)
             }
             return responseData
         }
+
         // function to start running the node
         const actionData = nodeData.actions
         const credentials = nodeData.credentials
         if (actionData === undefined || credentials === undefined) {
             throw handleErrorMessage({ message: 'Required data missing' })
         }
-        const api = actionData.api as string
+
+        const operation = actionData.operation as string
         const apiKey = credentials.apiKey as string
         const dc = ((apiKey && apiKey.split('-')[1]) || '') as string
+
         if (!apiKey) {
             throw handleErrorMessage({ message: 'Api key is required' })
         }
@@ -126,7 +238,7 @@ class Mailchimp implements INode {
 
         let campaignId
 
-        if (['deleteCampaign', 'getCampaign'].includes(api)) {
+        if (['deleteCampaign', 'getCampaign'].includes(operation)) {
             if (nodeData?.inputParameters?.campaignId === undefined) throw handleErrorMessage({ message: 'Campaign id is required' })
             else {
                 campaignId = nodeData?.inputParameters?.campaignId
@@ -136,15 +248,35 @@ class Mailchimp implements INode {
         let returnData: ICommonObject[] = []
         let url = `https://${dc}.api.mailchimp.com/3.0/campaigns`
         authObj = { username: '', password: apiKey }
-        if (['deleteCampaign', 'getCampaign'].includes(api)) {
-            url += `/${campaignId}`
-        }
-        if (api === 'listCampaigns') {
-            returnData = await makeApiCall('get', url)
-        } else if (api === 'getCampaign') {
-            returnData = await makeApiCall('get', url)
-        } else if (api === 'deleteCampaign') {
-            returnData = await makeApiCall('delete', url)
+
+        if (['deleteCampaign', 'getCampaign'].includes(operation)) url += `/${campaignId}`
+
+        if (operation === 'listCampaigns') {
+            returnData = await makeApiCall('get', url, operation)
+        } else if (operation === 'getCampaign') {
+            returnData = await makeApiCall('get', url, operation)
+        } else if (operation === 'deleteCampaign') {
+            returnData = await makeApiCall('delete', url, operation)
+        } else if (operation === 'getUser') {
+            const audienceList = nodeData?.inputParameters?.listId as string
+            const email = nodeData?.inputParameters?.email as string
+            url = `https://${dc}.api.mailchimp.com/3.0/lists/${audienceList}/members/${email}`
+            returnData = await makeApiCall('get', url, operation)
+        } else if (operation === 'listUsers') {
+            const audienceList = nodeData?.inputParameters?.listId as string
+            url = `https://${dc}.api.mailchimp.com/3.0/lists/${audienceList}/members`
+            returnData = await makeApiCall('get', url, operation)
+        } else if (operation === 'addUser') {
+            const audienceList = nodeData?.inputParameters?.listId as string
+            const email = nodeData?.inputParameters?.email as string
+            url = `https://${dc}.api.mailchimp.com/3.0/lists/${audienceList}/members`
+            const body = {
+                email_address: email,
+                status: 'subscribed'
+            }
+            await makeApiCall('post', url, operation, body)
+            url = `https://${dc}.api.mailchimp.com/3.0/lists/${audienceList}/members/${email}`
+            returnData = await makeApiCall('get', url, operation)
         }
 
         return returnNodeExecutionData(returnData)
