@@ -76,6 +76,11 @@ class GoogleSheet implements INode {
                         label: 'Clear By Range',
                         name: 'clearRange',
                         description: 'Clear the values in a spreadsheet from specified range'
+                    },
+                    {
+                        label: 'Clear All Values',
+                        name: 'clearAll',
+                        description: 'Clear all the values in a spreadsheet'
                     }
                 ],
                 default: 'create'
@@ -427,6 +432,9 @@ class GoogleSheet implements INode {
                     url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(range)}:clear`
                 } else if (operation === 'clearRange') {
                     const range = inputParametersData?.range as string
+                    url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(range)}:clear`
+                } else if (operation === 'clearAll') {
+                    const range = sheetName
                     url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(range)}:clear`
                 }
 
