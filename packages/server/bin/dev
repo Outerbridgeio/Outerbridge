@@ -1,8 +1,6 @@
 #!/usr/bin/env node
 
-import { run, settings } from '@oclif/core'
-import flush from '@oclif/core/flush'
-import handle from '@oclif/core/handle'
+const oclif = require('@oclif/core')
 
 const path = require('path')
 const project = path.join(__dirname, '..', 'tsconfig.json')
@@ -13,7 +11,7 @@ process.env.NODE_ENV = 'development'
 require('ts-node').register({ project })
 
 // In dev mode, always show stack traces
-settings.debug = true
+oclif.settings.debug = true
 
 // Start the CLI
-run().then(flush).catch(handle)
+oclif.run().then(oclif.flush).catch(oclif.Errors.handle)
