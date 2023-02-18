@@ -81,7 +81,6 @@ class Arbiscan implements INode {
                         name: GET_INTERNAL_TRANSACTIONS_BY_BLOCK.name,
                         description: 'Returns the list of internal transactions performed within a block range, with optional pagination.'
                     },
-
                     {
                         label: 'Get Contract ABI',
                         name: GET_ABI.name,
@@ -114,7 +113,6 @@ class Arbiscan implements INode {
                         description: `Returns the current balance of a ERC-20 token of an address. The result is returned in the token's smallest decimal representation.
                         Eg. a token with a balance of 215.241526476136819398 and 18 decimal places will be returned as 215241526476136819398`
                     },
-
                     {
                         label: 'Get ETHER Price',
                         name: GET_ETHER_PRICE.name,
@@ -171,23 +169,12 @@ class Arbiscan implements INode {
                 show: {
                     'actions.api': [
                         GET_ETHER_BALANCE.name,
-
                         GET_NORMAL_TRANSACTIONS.name,
                         GET_INTERNAL_TRANSACTIONS.name,
-
                         GET_ABI.name,
                         GET_CONTRACT_SOURCE_CODE.name,
                         GET_ERC20_TOKEN_BALANCE.name
                     ]
-                }
-            },
-            {
-                label: 'Block Number',
-                name: 'blockno',
-                type: 'number',
-                description: 'the block number to check balance for eg. 2000000',
-                show: {
-                    'actions.api': []
                 }
             },
             {
@@ -258,21 +245,6 @@ class Arbiscan implements INode {
                 }
             },
             {
-                label: 'Block Type',
-                name: 'blockType',
-                type: 'options',
-                options: [
-                    {
-                        label: 'blocks',
-                        name: 'blocks'
-                    }
-                ],
-                default: 'blocks',
-                show: {
-                    'actions.api': []
-                }
-            },
-            {
                 label: 'Contract Address',
                 name: 'contractAddress',
                 type: 'string',
@@ -289,24 +261,6 @@ class Arbiscan implements INode {
                 default: 'latest',
                 show: {
                     'actions.api': [GET_ERC20_TOKEN_BALANCE.name]
-                }
-            },
-            {
-                label: 'Start Time',
-                name: 'startTime',
-                type: 'date',
-                optional: true,
-                show: {
-                    'actions.api': []
-                }
-            },
-            {
-                label: 'End Time',
-                name: 'endTime',
-                type: 'date',
-                optional: true,
-                show: {
-                    'actions.api': []
                 }
             }
         ] as INodeParams[]
@@ -333,14 +287,13 @@ class Arbiscan implements INode {
         if (actionData === undefined || inputParameters === undefined || credentials === undefined || networksData === undefined) {
             throw new Error('Required data missing')
         }
+        
         // GET api
         const api = actionData.api as string
-
         // GET network
         const network = networksData.network as NETWORK
         // GET credentials
         const apiKey = credentials.apiKey as string
-
         // GET address
         const address = inputParameters.address as string
 
