@@ -287,7 +287,7 @@ class Arbiscan implements INode {
         if (actionData === undefined || inputParameters === undefined || credentials === undefined || networksData === undefined) {
             throw new Error('Required data missing')
         }
-        
+
         // GET api
         const api = actionData.api as string
         // GET network
