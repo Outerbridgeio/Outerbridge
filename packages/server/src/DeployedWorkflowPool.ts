@@ -137,7 +137,7 @@ export class DeployedWorkflowPool {
                 const foundWebhook = await this.AppDataSource.getMongoRepository(Webhook).findOneBy(newBody)
 
                 // If third party webhook exists, delete and re-create with new tunnel
-                if (foundWebhook && foundWebhook.webhookId) {
+                if (foundWebhook && foundWebhook.webhookId && process.env.ENABLE_TUNNEL === 'true') {
                     if (!process.env.TUNNEL_BASE_URL) {
                         return
                     }

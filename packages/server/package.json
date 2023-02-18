@@ -5,9 +5,10 @@
     "main": "dist/index",
     "types": "dist/index.d.ts",
     "bin": {
-        "outerbridge": "dist/bin/run.js"
+        "outerbridge": "dist/bin/run"
     },
     "files": [
+        "bin",
         "dist",
         "npm-shrinkwrap.json",
         "oclif.manifest.json",
@@ -19,10 +20,14 @@
         "commands": "./dist/commands"
     },
     "scripts": {
-        "build": "tsc && babel bin -d dist/bin && babel bin/run.ts -o dist/bin/run.js",
-        "start": "babel-node -x .ts -- bin/run.ts start",
+        "build": "tsc",
+        "start": "run-script-os",
+        "start:windows": "cd bin && run start",
+        "start:default": "cd bin && ./run start",
         "dev": "concurrently \"yarn watch\" \"nodemon\"",
-        "oclif-dev": "babel-node -x .ts -- bin/dev.ts start",
+        "oclif-dev": "run-script-os",
+        "oclif-dev:windows": "cd bin && dev start",
+        "oclif-dev:default": "cd bin && ./dev start",
         "postpack": "shx rm -f oclif.manifest.json",
         "prepack": "yarn build && oclif manifest && oclif readme",
         "typeorm": "typeorm-ts-node-commonjs",
@@ -36,7 +41,7 @@
         "email": "henryheng@outerbridge.io"
     },
     "engines": {
-        "node": ">=12.0.0"
+        "node": ">=14.0.0"
     },
     "license": "SEE LICENSE IN LICENSE.md",
     "dependencies": {
@@ -60,8 +65,6 @@
         "typeorm": "^0.3.6"
     },
     "devDependencies": {
-        "@babel/cli": "^7.19.3",
-        "@babel/node": "^7.19.1",
         "@types/cors": "^2.8.12",
         "@types/crypto-js": "^4.1.1",
         "@types/localtunnel": "^2.0.1",
@@ -69,6 +72,7 @@
         "concurrently": "^7.1.0",
         "nodemon": "^2.0.15",
         "oclif": "^3",
+        "run-script-os": "^1.1.6",
         "shx": "^0.3.3",
         "ts-node": "^10.7.0",
         "typescript": "^4.8.4"

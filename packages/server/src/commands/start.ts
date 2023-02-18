@@ -19,7 +19,7 @@ export default class Start extends Command {
 
     static args = []
 
-    static async stopProcess() {
+    async stopProcess() {
         console.info('Shutting down Outerbridge...')
         try {
             // Shut down the app after timeout if it ever stuck removing pools
@@ -38,8 +38,8 @@ export default class Start extends Command {
     }
 
     async run(): Promise<void> {
-        process.on('SIGTERM', Start.stopProcess)
-        process.on('SIGINT', Start.stopProcess)
+        process.on('SIGTERM', this.stopProcess)
+        process.on('SIGINT', this.stopProcess)
 
         // Prevent throw new Error from crashing the app
         // TODO: Get rid of this and send proper error message to ui
