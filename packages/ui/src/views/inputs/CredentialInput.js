@@ -31,6 +31,7 @@ import useScriptRef from 'hooks/useScriptRef'
 
 // icons
 import { IconTrash, IconCopy } from '@tabler/icons'
+import gLoginLogo from 'assets/images/google-login-white.png'
 
 //css
 import './InputParameters.css'
@@ -662,23 +663,52 @@ const CredentialInput = ({
                                 })}
 
                             <Box sx={{ mt: 2 }}>
-                                <AnimateButton>
+                                {!(values.credentialMethod || '').toLowerCase().includes('google') && (
+                                    <AnimateButton>
+                                        <Button
+                                            disableElevation
+                                            disabled={isSubmitting || Object.keys(errors).length > 0}
+                                            fullWidth
+                                            size='large'
+                                            type='submit'
+                                            variant='contained'
+                                            color='secondary'
+                                        >
+                                            {values &&
+                                            values.registeredCredential &&
+                                            (values.registeredCredential.name === ADD_NEW_CREDENTIAL || credentialParams.length)
+                                                ? 'Save and Continue'
+                                                : 'Continue'}
+                                        </Button>
+                                    </AnimateButton>
+                                )}
+                                {(values.credentialMethod || '').toLowerCase().includes('google') && (
                                     <Button
-                                        disableElevation
                                         disabled={isSubmitting || Object.keys(errors).length > 0}
                                         fullWidth
                                         size='large'
                                         type='submit'
                                         variant='contained'
                                         color='secondary'
+                                        sx={{ p: 0, margin: 0 }}
                                     >
-                                        {values &&
-                                        values.registeredCredential &&
-                                        (values.registeredCredential.name === ADD_NEW_CREDENTIAL || credentialParams.length)
-                                            ? 'Save and Continue'
-                                            : 'Continue'}
+                                        <div
+                                            style={{
+                                                alignItems: 'center',
+                                                display: 'flex',
+                                                width: '100%',
+                                                height: 50,
+                                                background: 'white'
+                                            }}
+                                        >
+                                            <img
+                                                style={{ objectFit: 'contain', height: '100%', width: '100%', padding: 7 }}
+                                                src={gLoginLogo}
+                                                alt='Google Login'
+                                            />
+                                        </div>
                                     </Button>
-                                </AnimateButton>
+                                )}
                             </Box>
                         </form>
                     )}
