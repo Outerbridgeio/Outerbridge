@@ -122,8 +122,15 @@ export enum CHAIN_ID {
 
 export enum DOMAIN_ID {
     MAINNET = 6648936,
-    GÖRLI = 3331,
-    MATIC_MUMBAI = 9991
+    MATIC = 1886350457,
+    OPT_MAINNET = 1869640809,
+    ARB_MAINNET = 1634886255,
+    GNOSIS = 6778479,
+    BINANCE_MAINNET = 6450786,
+    GÖRLI = 1735353714,
+    OPT_TESTNET_GOERLI = 1735356532,
+    MATIC_MUMBAI = 9991,
+    ARB_TESTNET_GOERLI = 1734439522
 }
 
 /**
@@ -862,6 +869,18 @@ export const openseaExplorers = {
     [NETWORK.MATIC_MUMBAI]: 'https://testnets.opensea.io/assets/mumbai'
 } as INetworkMapping
 
+export const ethMainnetRPC = [
+    'https://rpc.ankr.com/eth',
+    'https://ethereum.publicnode.com',
+    'https://endpoints.omniatech.io/v1/eth/mainnet/public'
+] as string[]
+
+export const goerliTestnetRPC = [
+    'https://rpc.ankr.com/eth_goerli',
+    'https://eth-goerli.public.blastapi.io',
+    'https://endpoints.omniatech.io/v1/eth/goerli/public'
+] as string[]
+
 export const binanceTestnetRPC = [
     'https://data-seed-prebsc-1-s3.binance.org:8545',
     'https://data-seed-prebsc-1-s1.binance.org:8545',
@@ -875,11 +894,29 @@ export const binanceMainnetRPC = [
     'https://bsc.nodereal.io'
 ] as string[]
 
+export const optimismMainnetRPC = [
+    'https://mainnet.optimism.io',
+    'https://rpc.ankr.com/optimism',
+    'https://endpoints.omniatech.io/v1/op/mainnet/public'
+] as string[]
+
+export const optimismGoerliTestnetRPC = ['https://goerli.optimism.io', 'https://rpc.ankr.com/optimism'] as string[]
+
+export const arbitrumMainnetRPC = [
+    'https://arb1.arbitrum.io/rpc',
+    'https://rpc.ankr.com/arbitrum',
+    'https://endpoints.omniatech.io/v1/arbitrum/one/public'
+] as string[]
+
+export const arbitrumGoerliTestnetRPC = [
+    'https://goerli-rollup.arbitrum.io/rpc',
+    'https://endpoints.omniatech.io/v1/arbitrum/goerli/public'
+] as string[]
+
 export const polygonMumbaiRPC = [
-    'https://matic-testnet-archive-rpc.bwarelabs.com',
-    'https://rpc-mumbai.maticvigil.com',
     'https://matic-mumbai.chainstacklabs.com',
-    'https://rpc-mumbai.matic.today'
+    'https://rpc-mumbai.maticvigil.com',
+    'https://rpc.ankr.com/polygon_mumbai'
 ] as string[]
 
 export const polygonMainnetRPC = ['https://polygon-rpc.com', 'https://rpc-mainnet.matic.quiknode.pro'] as string[]
@@ -942,7 +979,14 @@ export const chainIdLookup = {
 export const domainIdLookup = {
     [NETWORK.MAINNET]: DOMAIN_ID.MAINNET,
     [NETWORK.GÖRLI]: DOMAIN_ID.GÖRLI,
-    [NETWORK.MATIC_MUMBAI]: DOMAIN_ID.MATIC_MUMBAI
+    [NETWORK.MATIC_MUMBAI]: DOMAIN_ID.MATIC_MUMBAI,
+    [NETWORK.MATIC]: DOMAIN_ID.MATIC,
+    [NETWORK.OPTIMISM]: DOMAIN_ID.OPT_MAINNET,
+    [NETWORK.OPTIMISM_GOERLI]: DOMAIN_ID.OPT_TESTNET_GOERLI,
+    [NETWORK.ARBITRUM]: DOMAIN_ID.ARB_MAINNET,
+    [NETWORK.ARBITRUM_GOERLI]: DOMAIN_ID.ARB_TESTNET_GOERLI,
+    [NETWORK.GNOSIS]: DOMAIN_ID.GNOSIS,
+    [NETWORK.BSC]: DOMAIN_ID.BINANCE_MAINNET
 } as INetworkMapping
 
 export const nativeCurrency = {
@@ -977,3 +1021,16 @@ export const erc1155SingleTransferAbi = [
 export const erc1155BatchTransferAbi = [
     'event TransferSingle(address indexed operator, address indexed from, address indexed to, uint[] id, uint[] value)'
 ]
+
+export const WETHAddressLookup = {
+    [NETWORK.MAINNET]: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+    [NETWORK.GÖRLI]: '0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6',
+    [NETWORK.MATIC]: '0x7ceb23fd6bc0add59e62ac25578270cff1b9f619',
+    [NETWORK.MATIC_MUMBAI]: '0xfd2ab41e083c75085807c4a65c0a14fdd93d55a9',
+    [NETWORK.OPTIMISM]: '0x4200000000000000000000000000000000000006',
+    [NETWORK.OPTIMISM_GOERLI]: '0x74c6fd7d2bc6a8f0ebd7d78321a95471b8c2b806',
+    [NETWORK.ARBITRUM]: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
+    [NETWORK.ARBITRUM_GOERLI]: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
+    [NETWORK.GNOSIS]: '0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1',
+    [NETWORK.BSC]: '0x2170ed0880ac9a755fd29b2688956bd959f933f8'
+} as INetworkMapping

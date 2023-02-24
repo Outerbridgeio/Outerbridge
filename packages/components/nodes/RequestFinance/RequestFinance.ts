@@ -92,7 +92,7 @@ class RequestFinance implements INode {
     }
 
     loadMethods = {
-        async getInvoiceCurrency(nodeData: INodeData): Promise<INodeOptionsValue[]> {
+        async getInvoiceCurrency(): Promise<INodeOptionsValue[]> {
             const returnData: INodeOptionsValue[] = []
 
             try {
@@ -123,7 +123,7 @@ class RequestFinance implements INode {
             }
         },
 
-        async getPaymentCurrency(nodeData: INodeData): Promise<INodeOptionsValue[]> {
+        async getPaymentCurrency(): Promise<INodeOptionsValue[]> {
             const returnData: INodeOptionsValue[] = []
 
             try {
@@ -154,7 +154,7 @@ class RequestFinance implements INode {
             }
         },
 
-        async getCountry(nodeData: INodeData): Promise<INodeOptionsValue[]> {
+        async getCountry(): Promise<INodeOptionsValue[]> {
             const returnData: INodeOptionsValue[] = []
 
             try {
