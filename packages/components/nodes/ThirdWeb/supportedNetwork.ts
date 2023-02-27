@@ -138,3 +138,24 @@ export const ThirdWebSupportedPrebuiltContract = [
         name: 'vote'
     }
 ] as INodeOptionsValue[]
+
+interface IThirdWebNetwork {
+    [key: string]: NETWORK
+}
+
+export const networkLookup: IThirdWebNetwork = {
+    mainnet: NETWORK.MAINNET,
+    goerli: NETWORK.GÖRLI,
+    polygon: NETWORK.MATIC,
+    mumbai: NETWORK.MATIC_MUMBAI,
+    binance: NETWORK.BSC,
+    'binance-testnet': NETWORK.BSC_TESTNET,
+    [NETWORK.ARBITRUM]: NETWORK.ARBITRUM,
+    [NETWORK.ARBITRUM_GOERLI]: NETWORK.ARBITRUM_GOERLI,
+    [NETWORK.AVALANCHE]: NETWORK.AVALANCHE,
+    [NETWORK.AVALANCHE_TESTNET]: NETWORK.AVALANCHE_TESTNET,
+    [NETWORK.OPTIMISM]: NETWORK.OPTIMISM,
+    [NETWORK.OPTIMISM_GOERLI]: NETWORK.OPTIMISM_GOERLI,
+    [NETWORK.FANTOM]: NETWORK.FANTOM,
+    [NETWORK.FANTOM_TESTNET]: NETWORK.FANTOM_TESTNET
+}
