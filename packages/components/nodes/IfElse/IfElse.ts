@@ -123,6 +123,10 @@ class IfElse implements INode {
                             {
                                 label: 'Is Empty',
                                 name: 'isEmpty'
+                            },
+                            {
+                                label: 'Not Empty',
+                                name: 'notEmpty'
                             }
                         ],
                         default: 'equal',
@@ -139,6 +143,9 @@ class IfElse implements INode {
                         description: 'Second value to be compared with',
                         show: {
                             'inputParameters.conditions[$index].type': ['string']
+                        },
+                        hide: {
+                            'inputParameters.conditions[$index].operation': ['isEmpty', 'notEmpty']
                         }
                     },
                     /////////////////////////////////////// NUMBER ////////////////////////////////////////
@@ -184,6 +191,10 @@ class IfElse implements INode {
                             {
                                 label: 'Is Empty',
                                 name: 'isEmpty'
+                            },
+                            {
+                                label: 'Not Empty',
+                                name: 'notEmpty'
                             }
                         ],
                         default: 'equal',
@@ -200,6 +211,9 @@ class IfElse implements INode {
                         description: 'Second value to be compared with',
                         show: {
                             'inputParameters.conditions[$index].type': ['number']
+                        },
+                        hide: {
+                            'inputParameters.conditions[$index].operation': ['isEmpty', 'notEmpty']
                         }
                     },
                     /////////////////////////////////////// BOOLEAN ////////////////////////////////////////
@@ -273,7 +287,8 @@ class IfElse implements INode {
             smaller: (value1: CommonType, value2: CommonType) => (Number(value1) || 0) < (Number(value2) || 0),
             smallerEqual: (value1: CommonType, value2: CommonType) => (Number(value1) || 0) <= (Number(value2) || 0),
             startsWith: (value1: CommonType, value2: CommonType) => (value1 as string).startsWith(value2 as string),
-            isEmpty: (value1: CommonType) => [undefined, null, ''].includes(value1 as string)
+            isEmpty: (value1: CommonType) => [undefined, null, ''].includes(value1 as string),
+            notEmpty: (value1: CommonType) => ![undefined, null, ''].includes(value1 as string)
         }
 
         const conditions = inputParametersData.conditions as unknown as ICondition[]
