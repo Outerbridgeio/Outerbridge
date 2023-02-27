@@ -367,6 +367,23 @@ class Pinata implements INode {
             }
         }
 
+        function getExtension(base64string: string) {
+            switch (base64string.charAt(0)) {
+                case '/':
+                    return 'jpg'
+                case 'i':
+                    return 'png'
+                case 'R':
+                    return 'gif'
+                case 'U':
+                    return 'webp'
+                case 'P':
+                    return 'svg'
+                default:
+                    return 'png'
+            }
+        }
+
         try {
             if (operation === 'json') {
                 // Json Content
@@ -434,9 +451,11 @@ class Pinata implements INode {
                 const splitDataURI = base64Content_str.split(',')
 
                 const bf = Buffer.from(splitDataURI.pop() || '', 'base64')
+                let ext = 'png'
                 const extension = splitDataURI.pop()?.split(';')[0].split('/')[1]
-
-                const filename = name ? `${name}.${extension}` : `0.${extension}`
+                if (extension) ext
+                else ext = getExtension(base64Content_str)
+                const filename = name ? `${name}.${ext}` : `0.${ext}`
 
                 const formData = new FormData()
                 formData.append('file', bf, filename)
@@ -461,8 +480,11 @@ class Pinata implements INode {
                 for (let i = 0; i < base64ContentArray.length; i += 1) {
                     const splitDataURI = base64ContentArray[i].split(',')
                     const bf = Buffer.from(splitDataURI.pop() || '', 'base64')
+                    let ext = 'png'
                     const extension = splitDataURI.pop()?.split(';')[0].split('/')[1]
-                    const filename = `${i}.${extension}`
+                    if (extension) ext
+                    else ext = getExtension(base64ContentArray[i])
+                    const filename = `${i}.${ext}`
                     const foldername = name ? name : `MultipleRawDataFolder`
                     formData.append('file', bf, { filepath: `${foldername}/${filename}` })
                 }
