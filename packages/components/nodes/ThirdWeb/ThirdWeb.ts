@@ -128,7 +128,7 @@ class ThirdWeb implements INode {
                 }
             },
             {
-                label: 'Select Wallet',
+                label: 'Wallet Account',
                 name: 'wallet',
                 type: 'asyncOptions',
                 description: 'Wallet account to execute transaction or deploy contract.',
@@ -426,7 +426,6 @@ class ThirdWeb implements INode {
                         throw handleErrorMessage(error)
                     }
                 }
-
                 const contractAddress = await sdk.deployer.deployVote(metadata)
                 const returnItem: ICommonObject = {
                     address: contractAddress,
