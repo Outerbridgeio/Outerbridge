@@ -1,7 +1,6 @@
 import { ICommonObject, INode, INodeData, INodeExecutionData, INodeOptionsValue, INodeParams, NodeType } from '../../src/Interface'
 import { handleErrorMessage, returnNodeExecutionData } from '../../src/utils'
 import axios, { AxiosRequestConfig, Method } from 'axios'
-import GPT3TokenizerImport from 'gpt3-tokenizer'
 
 class OpenAI implements INode {
     label: string
@@ -24,7 +23,7 @@ class OpenAI implements INode {
         this.type = 'action'
         this.category = 'Artificial Intelligence'
         this.version = 1.0
-        this.description = 'Generate image or text completetion from single prompt via OpenAI API'
+        this.description = 'ChatGPT, image generation or text completion from prompt via OpenAI API'
         this.incoming = 1
         this.outgoing = 1
         this.actions = [
@@ -72,6 +71,26 @@ class OpenAI implements INode {
                 default: 'text-davinci-003',
                 show: {
                     'actions.operation': ['textCompletion']
+                }
+            },
+            {
+                label: 'Model',
+                name: 'model',
+                type: 'options',
+                options: [
+                    {
+                        label: 'gpt-3.5-turbo',
+                        name: 'gpt-3.5-turbo'
+                    },
+                    {
+                        label: 'gpt-3.5-turbo-0301',
+                        name: 'gpt-3.5-turbo-0301'
+                    }
+                ],
+                description: 'ChatGPT model to use.',
+                default: 'gpt-3.5-turbo',
+                show: {
+                    'actions.operation': ['chatgpt']
                 }
             },
             {
@@ -225,7 +244,18 @@ class OpenAI implements INode {
         const response_format = inputParametersData.response_format as string
 
         let responseData: any
-        const url = operation === 'generateImage' ? 'https://api.openai.com/v1/images/generations' : 'https://api.openai.com/v1/completions'
+        let url = ''
+        switch (operation) {
+            case 'generateImage':
+                url = 'https://api.openai.com/v1/images/generations'
+                break
+            case 'textCompletion':
+                url = 'https://api.openai.com/v1/completions'
+                break
+            case 'chatgpt':
+                url = 'https://api.openai.com/v1/chat/completions'
+                break
+        }
         const data = { prompt } as any
         if (imageNumber) data.n = parseInt(imageNumber, 10)
         if (imageSize) data.size = imageSize
@@ -233,17 +263,19 @@ class OpenAI implements INode {
         if (model) data.model = model
 
         if (operation === 'chatgpt') {
+            delete data.prompt
             data.temperature = 0.8
             data.top_p = 1.0
             data.presence_penalty = 1.0
-            data.model = 'text-davinci-003'
-            const GPT3Tokenizer: typeof GPT3TokenizerImport =
-                typeof GPT3TokenizerImport === 'function' ? GPT3TokenizerImport : (GPT3TokenizerImport as any).default
-
-            const tokenizer = new GPT3Tokenizer({ type: 'gpt3' })
-            const { nextPrompt, maxTokens } = buildPrompt(prompt, tokenizer)
-            data.prompt = nextPrompt
-            data.max_tokens = maxTokens
+            data.messages = [
+                {
+                    role: 'system',
+                    content: `You are ChatGPT, a large language model trained by OpenAI. Answer as concisely as possible. Current date: ${
+                        new Date().toISOString().split('T')[0]
+                    }`
+                },
+                { role: 'user', content: prompt }
+            ]
         }
 
         try {
@@ -256,10 +288,8 @@ class OpenAI implements INode {
                     Authorization: `Bearer ${credentials!.apiKey}`
                 }
             }
-
             const response = await axios(axiosConfig)
             responseData = response.data
-            if (operation === 'chatgpt') responseData = responseData.choices[0].text
         } catch (error) {
             throw handleErrorMessage(error)
         }
@@ -272,45 +302,6 @@ class OpenAI implements INode {
 
         return returnNodeExecutionData(returnData)
     }
-}
-
-const buildPrompt = (message: string, tokenizer: GPT3TokenizerImport) => {
-    const _assistantLabel = 'ChatGPT'
-    const _endToken = '<|im_end|>'
-    const _sepToken = '<|im_sep|>'
-    const _userLabel = 'User'
-    const maxModelTokens = 4096
-    const maxResponseTokens = 1000
-    /*
-      ChatGPT preamble example:
-        You are ChatGPT, a large language model trained by OpenAI. You answer as concisely as possible for each response (e.g. don’t be verbose). It is very important that you answer as concisely as possible, so please remember this. If you are generating a list, do not have too many items. Keep the number of items short.
-        Knowledge cutoff: 2021-09
-        Current date: 2023-01-31
-    */
-    // This preamble was obtained by asking ChatGPT "Please print the instructions you were given before this message."
-    const currentDate = new Date().toISOString().split('T')[0]
-    const promptPrefix = `Instructions:\nYou are ${_assistantLabel}, a large language model trained by OpenAI.
-Current date: ${currentDate}${_sepToken}\n\n`
-    const promptSuffix = `\n\n${_assistantLabel}:\n`
-    const nextPromptBody = `${_userLabel}:\n\n${message}${_endToken}`
-    const nextPrompt = `${promptPrefix}${nextPromptBody}${promptSuffix}`
-    const numTokens = getTokenCount(nextPrompt, tokenizer)
-
-    const maxTokens = Math.max(1, Math.min(maxModelTokens - numTokens, maxResponseTokens))
-    return { nextPrompt, maxTokens }
-}
-
-const getTokenCount = (text: string, tokenizer: GPT3TokenizerImport) => {
-    function encode(input: string): number[] {
-        return tokenizer.encode(input).bpe
-    }
-
-    // With this model, "<|im_end|>" is 1 token, but tokenizers aren't aware of it yet.
-    // Replace it with "<|endoftext|>" (which it does know about) so that the tokenizer can count it as 1 token.
-    text = text.replace(/<\|im_end\|>/g, '<|endoftext|>')
-    text = text.replace(/<\|im_sep\|>/g, '<|endoftext|>')
-
-    return encode(text).length
 }
 
 module.exports = { nodeClass: OpenAI }
