@@ -1,4 +1,4 @@
-import { IDbCollection, INode, INodeData, INodeOptionsValue, INodeParams, IProviders, IWallet, NodeType } from '../../src/Interface'
+import { INode, INodeData, INodeOptionsValue, INodeParams, IProviders, NodeType } from '../../src/Interface'
 import { returnNodeExecutionData } from '../../src/utils'
 import EventEmitter from 'events'
 import { ThirdwebSDK as ThirdwebEVMSDK } from '@thirdweb-dev/sdk'
@@ -122,37 +122,6 @@ class ThirdWebEventTrigger extends EventEmitter implements INode {
                 default:
                     return []
             }
-        },
-
-        async getWallets(nodeData: INodeData, dbCollection?: IDbCollection): Promise<INodeOptionsValue[]> {
-            const returnData: INodeOptionsValue[] = []
-
-            const networksData = nodeData.networks
-            if (networksData === undefined) {
-                return returnData
-            }
-
-            try {
-                if (dbCollection === undefined || !dbCollection || !dbCollection.Wallet) {
-                    return returnData
-                }
-
-                const wallets: IWallet[] = dbCollection.Wallet
-
-                for (let i = 0; i < wallets.length; i += 1) {
-                    const wallet = wallets[i]
-                    const data = {
-                        label: `${wallet.name} (${wallet.network})`,
-                        name: JSON.stringify(wallet),
-                        description: wallet.address
-                    } as INodeOptionsValue
-                    returnData.push(data)
-                }
-
-                return returnData
-            } catch (e) {
-                return returnData
-            }
         }
     }
 
@@ -171,33 +140,84 @@ class ThirdWebEventTrigger extends EventEmitter implements INode {
 
         const contract = await new ThirdwebEVMSDK(network).getContract(contractAddress)
 
-        /** Disabling this because it got triggered multiple times
-        contract.events.addEventListener(eventName, (event) => {
-            console.log(new Date())
-            console.log(event);
-            this.emit(emitEventKey, returnNodeExecutionData(event))
-        });*/
+        let eventData = ''
+        const provider = contract.events
+        const filter = {
+            network,
+            eventName,
+            contractAddress
+        }
 
-        contract.events.listenToAllEvents((event) => {
-            if (eventName === event.eventName) {
-                this.emit(emitEventKey, returnNodeExecutionData(event))
+        /********** WORKAROUND FOR THIRDWEB REMOVEEVENTLISTENER BUG *********
+         ** If this emitEventKey hasn't been called before OR emitEventKey has been called but not this filter
+         ** This prevents from adding multiple event listener
+         **/
+        if (
+            !Object.prototype.hasOwnProperty.call(this.providers, emitEventKey) ||
+            !Object.prototype.hasOwnProperty.call(this.providers[emitEventKey].filter, JSON.stringify(filter))
+        ) {
+            provider.addEventListener(eventName, (event) => {
+                if (eventData !== JSON.stringify(event)) {
+                    eventData = JSON.stringify(event)
+
+                    if (JSON.stringify(this.providers[emitEventKey].filter.currentFilter) === JSON.stringify(filter)) {
+                        this.emit(emitEventKey, returnNodeExecutionData(event))
+                    }
+                }
+            })
+        }
+
+        /** Example of providers
+        this.providers = {
+            'W03MAR23-LPQ88HJB_thirdWebEventTrigger_0': {
+                provider: ContractEvents { contractWrapper: [ContractWrapper] },
+                filter: {
+                    '{"network":"mumbai","eventName":"TokensMinted","contractAddress":"0x..."}': {
+                        network: 'mumbai',
+                        eventName: 'TokensMinted',
+                        contractAddress: '0x...'
+                    },
+                    '{"network":"mumbai","eventName":"PlatformFeeInfoUpdated","contractAddress":"0x.."}': {
+                        network: 'mumbai',
+                        eventName: 'PlatformFeeInfoUpdated',
+                        contractAddress: '0x...'
+                    },
+                    currentFilter: {
+                        network: 'mumbai',
+                        eventName: 'PlatformFeeInfoUpdated',
+                        contractAddress: '0x...'
+                    },
+                }
             }
-        })
+        }
+        */
 
-        this.providers[emitEventKey] = { provider: { network, contractAddress }, filter: eventName }
+        if (Object.prototype.hasOwnProperty.call(this.providers, emitEventKey)) {
+            const newFilter = {
+                ...this.providers[emitEventKey].filter,
+                [JSON.stringify(filter)]: filter,
+                currentFilter: filter
+            }
+            this.providers[emitEventKey] = { provider, filter: newFilter }
+        } else {
+            const newFilter = {
+                [JSON.stringify(filter)]: filter,
+                currentFilter: filter
+            }
+            this.providers[emitEventKey] = { provider, filter: newFilter }
+        }
     }
 
     async removeTrigger(nodeData: INodeData): Promise<void> {
         const emitEventKey = nodeData.emitEventKey as string
 
         if (Object.prototype.hasOwnProperty.call(this.providers, emitEventKey)) {
-            const { network, contractAddress } = this.providers[emitEventKey].provider
-            const contract = await new ThirdwebEVMSDK(network).getContract(contractAddress)
-            /** Disabling this because it got triggered multiple times
-            contract.events.removeEventListener(eventName, (event: any) => {
-                console.log('removeTrigger event = ', event)
-            });*/
-            contract.events.removeAllListeners()
+            /** Disabling this because thirdweb removeEventListener bug, it doesnt remove listener
+            const provider = this.providers[emitEventKey].provider
+            provider.removeEventListener(eventName, (event: any) => {
+                console.log(event)
+            }) 
+            **/
             this.removeAllListeners(emitEventKey)
         }
     }
