@@ -474,7 +474,6 @@ export class App {
                     nodeData.emitEventKey = emitEventKey
 
                     triggerNodeInstance.once(emitEventKey, async (result: INodeExecutionData[]) => {
-                        await triggerNodeInstance.removeTrigger!.call(triggerNodeInstance, nodeData)
                         await this.activeTestTriggerPool.remove(nodeData.name, this.componentNodes)
 
                         const newWorkflowExecutedData = {
@@ -702,7 +701,6 @@ export class App {
                         const emitEventKey = nodeId
                         nodeData.emitEventKey = emitEventKey
                         triggerNodeInstance.once(emitEventKey, async (result: INodeExecutionData[]) => {
-                            await triggerNodeInstance.removeTrigger!.call(triggerNodeInstance, nodeData)
                             await this.activeTestTriggerPool.remove(nodeData.name, this.componentNodes)
                             return res.json(result)
                         })
