@@ -29,6 +29,7 @@ import { DeployedWorkflowPool } from '../DeployedWorkflowPool'
 import { ObjectId } from 'mongodb'
 import { ActiveTestWebhookPool } from '../ActiveTestWebhookPool'
 import { getDataSource } from '../DataSource'
+import { scryptSync, randomBytes, timingSafeEqual } from 'crypto'
 
 export enum ShortIdConstants {
     WORKFLOW_ID_PREFIX = 'W',
@@ -140,6 +141,122 @@ export const getEncryptionKey = async (): Promise<string> => {
         await fs.promises.writeFile(getEncryptionKeyPath(), encryptKey)
         return encryptKey
     }
+}
+
+/**
+ * Returns the api key path
+ * @returns {string}
+ */
+export const getAPIKeyPath = (): string => {
+    return path.join(__dirname, '..', '..', 'api.json')
+}
+
+/**
+ * Generate the api key
+ * @returns {string}
+ */
+export const generateAPIKey = () => {
+    const buffer = randomBytes(32)
+    return buffer.toString('base64')
+}
+
+/**
+ * Generate the secret key
+ * @param {string} apiKey
+ * @returns {string}
+ */
+export const generateSecretHash = (apiKey: string) => {
+    const salt = randomBytes(8).toString('hex')
+    const buffer = scryptSync(apiKey, salt, 64) as Buffer
+    return `${buffer.toString('hex')}.${salt}`
+}
+
+/**
+ * Verify valid keys
+ * @param {string} storedKey
+ * @param {string} suppliedKey
+ * @returns {boolean}
+ */
+export const compareKeys = (storedKey: string, suppliedKey: string) => {
+    const [hashedPassword, salt] = storedKey.split('.')
+    const buffer = scryptSync(suppliedKey, salt, 64) as Buffer
+    return timingSafeEqual(Buffer.from(hashedPassword, 'hex'), buffer)
+}
+
+/**
+ * Get API keys
+ * @returns {Promise<ICommonObject[]>}
+ */
+export const getAPIKeys = async (): Promise<ICommonObject[]> => {
+    try {
+        const content = await fs.promises.readFile(getAPIKeyPath(), 'utf8')
+        return JSON.parse(content)
+    } catch (error) {
+        const keyName = 'DefaultKey'
+        const apiKey = generateAPIKey()
+        const apiSecret = generateSecretHash(apiKey)
+        const content = [
+            {
+                keyName,
+                apiKey,
+                apiSecret,
+                createdAt: moment().format('DD-MMM-YY'),
+                id: randomBytes(16).toString('hex')
+            }
+        ]
+        await fs.promises.writeFile(getAPIKeyPath(), JSON.stringify(content), 'utf8')
+        return content
+    }
+}
+
+/**
+ * Add new API key
+ * @param {string} keyName
+ * @returns {Promise<ICommonObject[]>}
+ */
+export const addAPIKey = async (keyName: string): Promise<ICommonObject[]> => {
+    const existingAPIKeys = await getAPIKeys()
+    const apiKey = generateAPIKey()
+    const apiSecret = generateSecretHash(apiKey)
+    const content = [
+        ...existingAPIKeys,
+        {
+            keyName,
+            apiKey,
+            apiSecret,
+            createdAt: moment().format('DD-MMM-YY'),
+            id: randomBytes(16).toString('hex')
+        }
+    ]
+    await fs.promises.writeFile(getAPIKeyPath(), JSON.stringify(content), 'utf8')
+    return content
+}
+
+/**
+ * Update existing API key
+ * @param {string} keyIdToUpdate
+ * @param {string} newKeyName
+ * @returns {Promise<ICommonObject[]>}
+ */
+export const updateAPIKey = async (keyIdToUpdate: string, newKeyName: string): Promise<ICommonObject[]> => {
+    const existingAPIKeys = await getAPIKeys()
+    const keyIndex = existingAPIKeys.findIndex((key) => key.id === keyIdToUpdate)
+    if (keyIndex < 0) return []
+    existingAPIKeys[keyIndex].keyName = newKeyName
+    await fs.promises.writeFile(getAPIKeyPath(), JSON.stringify(existingAPIKeys), 'utf8')
+    return existingAPIKeys
+}
+
+/**
+ * Delete API key
+ * @param {string} keyIdToDelete
+ * @returns {Promise<ICommonObject[]>}
+ */
+export const deleteAPIKey = async (keyIdToDelete: string): Promise<ICommonObject[]> => {
+    const existingAPIKeys = await getAPIKeys()
+    const result = existingAPIKeys.filter((key) => key.id !== keyIdToDelete)
+    await fs.promises.writeFile(getAPIKeyPath(), JSON.stringify(result), 'utf8')
+    return result
 }
 
 /**
@@ -558,7 +675,10 @@ export const processWebhook = async (
                 activeTestWebhooksPool.remove(testWebhookKey, componentNodes)
 
                 const webhookResponseCode = (nodeData.inputParameters?.responseCode as number) || 200
-                if ((nodeData.inputParameters?.returnType as string) === 'lastNodeResponse') {
+                if (
+                    (nodeData.inputParameters?.returnType as string) === 'lastNodeResponse' ||
+                    nodeData.name === 'chainLinkFunctionWebhook'
+                ) {
                     const webhookResponseData = result || []
                     return res.status(webhookResponseCode).json(webhookResponseData)
                 } else {
@@ -586,7 +706,10 @@ export const processWebhook = async (
                 const { graph } = constructGraphs(nodes, edges)
 
                 const webhookResponseCode = (nodeData.inputParameters?.responseCode as number) || 200
-                if ((nodeData.inputParameters?.returnType as string) === 'lastNodeResponse') {
+                if (
+                    (nodeData.inputParameters?.returnType as string) === 'lastNodeResponse' ||
+                    nodeData.name === 'chainLinkFunctionWebhook'
+                ) {
                     const lastExecutedResult = await testWorkflow(webhookNodeId, nodes, edges, graph, componentNodes, clientId, io, true)
                     const webhookResponseData = lastExecutedResult || []
                     return res.status(webhookResponseCode).json(webhookResponseData)
@@ -666,7 +789,7 @@ export const processWebhook = async (
                 startingNodeIds,
                 graph
             )) as unknown as IWorkflowExecutedData[]
-            if ((nodeData.inputParameters?.returnType as string) === 'lastNodeResponse') {
+            if ((nodeData.inputParameters?.returnType as string) === 'lastNodeResponse' || nodeData.name === 'chainLinkFunctionWebhook') {
                 const lastExecutedResult = workflowExecutedData[workflowExecutedData.length - 1]
                 const webhookResponseData = lastExecutedResult.data || []
                 return res.status(webhookResponseCode).json(webhookResponseData)

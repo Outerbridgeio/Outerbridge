@@ -10,7 +10,7 @@ import {
 } from '../../src/Interface'
 import { compareKeys, returnWebhookNodeExecutionData } from '../../src/utils'
 
-class Webhook implements INode {
+class ChainLinkFunctionWebhook implements INode {
     label: string
     name: string
     type: NodeType
@@ -23,13 +23,13 @@ class Webhook implements INode {
     inputParameters?: INodeParams[]
 
     constructor() {
-        this.label = 'Webhook'
-        this.icon = 'webhook.svg'
-        this.name = 'webhook'
+        this.label = 'Chainlink Function Webhook'
+        this.icon = 'chainlink.svg'
+        this.name = 'chainLinkFunctionWebhook'
         this.type = 'webhook'
-        this.category = 'Utilities'
-        this.version = 2.0
-        this.description = 'Start workflow when webhook is called'
+        this.category = 'Decentralized Oracle Network'
+        this.version = 1.0
+        this.description = 'Start workflow whenever chainlink function webhook is called'
         this.incoming = 0
         this.outgoing = 1
         this.inputParameters = [
@@ -72,49 +72,11 @@ class Webhook implements INode {
                 label: 'API key',
                 name: 'apiKey',
                 type: 'asyncOptions',
-                loadMethod: 'getAPIKeys',
                 description:
                     'Incoming call must consists header "x-api-key" with matching API key. You can create new key from the dashboard',
+                loadMethod: 'getAPIKeys',
                 show: {
                     'inputParameters.authorization': ['headerAuth']
-                }
-            },
-            {
-                label: 'Response Code',
-                name: 'responseCode',
-                type: 'number',
-                default: 200,
-                description: 'The HTTP response code to return when a HTTP request is made to this endpoint URL. Valid range: 1XX - 5XX'
-            },
-            {
-                label: 'What/How to Return',
-                name: 'returnType',
-                type: 'options',
-                options: [
-                    {
-                        label: 'Immediate Reponse',
-                        name: 'immediateResponse',
-                        description: 'Returns response immediately once webhook is called'
-                    },
-                    {
-                        label: 'When Last Node Finishes',
-                        name: 'lastNodeResponse',
-                        description: 'Returns output response of the last executed node'
-                    }
-                ],
-                default: 'immediateResponse',
-                description: 'What data or message, and how should Webhook node return upon successful calling'
-            },
-            {
-                label: 'Response Data',
-                name: 'responseData',
-                type: 'string',
-                default: '',
-                description:
-                    'Custom response data to return when a HTTP request is made to this webhook endpoint URL. If not provided, default to: Webhook received!',
-                optional: true,
-                show: {
-                    'inputParameters.returnType': ['immediateResponse']
                 }
             }
         ]
@@ -151,7 +113,6 @@ class Webhook implements INode {
             throw new Error('Missing request')
         }
 
-        const responseData = (inputParametersData.responseData as string) || ''
         const authorization = inputParametersData.authorization as string
         const apiSecret = inputParametersData.apiKey as string
 
@@ -175,8 +136,8 @@ class Webhook implements INode {
             url: req?.url
         })
 
-        return returnWebhookNodeExecutionData(returnData, responseData)
+        return returnWebhookNodeExecutionData(returnData)
     }
 }
 
-module.exports = { nodeClass: Webhook }
+module.exports = { nodeClass: ChainLinkFunctionWebhook }
