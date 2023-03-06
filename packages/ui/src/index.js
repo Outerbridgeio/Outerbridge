@@ -1,5 +1,3 @@
-import ReactDOM from 'react-dom'
-
 // third party
 import { BrowserRouter } from 'react-router-dom'
 import { Provider } from 'react-redux'
@@ -11,12 +9,16 @@ import * as serviceWorker from 'serviceWorker'
 import App from 'App'
 import { store } from 'store'
 
+import { createRoot } from 'react-dom/client'
+const container = document.getElementById('root')
+const root = createRoot(container) // createRoot(container!) if you use TypeScript
+
 // style + assets
 import 'assets/scss/style.scss'
 
 // ==============================|| REACT DOM RENDER  ||============================== //
 
-ReactDOM.render(
+root.render(
     <Provider store={store}>
         <BrowserRouter>
             <SnackbarProvider>
@@ -25,8 +27,7 @@ ReactDOM.render(
                 </ConfirmContextProvider>
             </SnackbarProvider>
         </BrowserRouter>
-    </Provider>,
-    document.getElementById('root')
+    </Provider>
 )
 
 // If you want your app to work offline and load faster, you can change
