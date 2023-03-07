@@ -2,6 +2,7 @@ import axios, { AxiosRequestConfig } from 'axios'
 import ClientOAuth2 from 'client-oauth2'
 import FormData from 'form-data'
 import { ICommonObject, INodeExecutionData, IWebhookNodeExecutionData, IOAuth2RefreshResponse } from './Interface'
+import { scryptSync, timingSafeEqual } from 'crypto'
 import * as fs from 'fs'
 import * as path from 'path'
 
@@ -272,4 +273,16 @@ export const getNodeModulesPackagePath = (packageName: string): string => {
         }
     }
     return ''
+}
+
+/**
+ * Verify valid keys
+ * @param {string} storedKey
+ * @param {string} suppliedKey
+ * @returns {boolean}
+ */
+export const compareKeys = (storedKey: string, suppliedKey: string) => {
+    const [hashedPassword, salt] = storedKey.split('.')
+    const buffer = scryptSync(suppliedKey, salt, 64) as Buffer
+    return timingSafeEqual(Buffer.from(hashedPassword, 'hex'), buffer)
 }
