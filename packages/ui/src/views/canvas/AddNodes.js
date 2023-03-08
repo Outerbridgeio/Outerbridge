@@ -278,7 +278,7 @@ const AddNodes = ({ nodesData, node }) => {
                                                             key={category}
                                                         >
                                                             <AccordionSummary
-                                                                expandIcon={<ExpandMoreIcon />}
+                                                                expandIcon={<ExpandMoreIcon color='primary' />}
                                                                 aria-controls={`nodes-accordian-${category}`}
                                                                 id={`nodes-accordian-header-${category}`}
                                                             >

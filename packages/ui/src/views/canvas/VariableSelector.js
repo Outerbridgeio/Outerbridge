@@ -154,7 +154,7 @@ const VariableSelector = ({ nodes, isVariableSelectorOpen, anchorEl, onVariableS
                                                             onChange={handleAccordionChange(node.data.label)}
                                                         >
                                                             <AccordionSummary
-                                                                expandIcon={<ExpandMoreIcon />}
+                                                                expandIcon={<ExpandMoreIcon color='primary' />}
                                                                 aria-controls={`${node.data.label}-content`}
                                                                 id={`${node.data.label}-header`}
                                                             >

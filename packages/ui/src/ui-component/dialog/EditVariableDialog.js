@@ -221,7 +221,7 @@ const EditVariableDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
                                                         onChange={handleAccordionChange(node.data.label)}
                                                     >
                                                         <AccordionSummary
-                                                            expandIcon={<ExpandMoreIcon />}
+                                                            expandIcon={<ExpandMoreIcon color='primary' />}
                                                             aria-controls={`${node.data.label}-content`}
                                                             id={`${node.data.label}-header`}
                                                         >

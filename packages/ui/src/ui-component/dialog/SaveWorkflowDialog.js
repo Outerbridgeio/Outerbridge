@@ -39,8 +39,10 @@ const SaveWorkflowDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
                 />
             </DialogContent>
             <DialogActions>
-                <Button onClick={onCancel}>{dialogProps.cancelButtonName}</Button>
-                <Button disabled={!isReadyToSave} variant='contained' onClick={() => onConfirm(workflowName)}>
+                <Button color='primary' onClick={onCancel}>
+                    {dialogProps.cancelButtonName}
+                </Button>
+                <Button color='secondary' variant='contained' onClick={() => (isReadyToSave ? onConfirm(workflowName) : null)}>
                     {dialogProps.confirmButtonName}
                 </Button>
             </DialogActions>

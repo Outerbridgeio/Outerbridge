@@ -235,7 +235,7 @@ const Executions = ({ workflowShortId, execution, executionCount, isExecutionOpe
                                                                 onChange={handleAccordionChange(exec.shortId)}
                                                             >
                                                                 <AccordionSummary
-                                                                    expandIcon={<ExpandMoreIcon />}
+                                                                    expandIcon={<ExpandMoreIcon color='primary' />}
                                                                     aria-controls={`${exec.shortId}-content`}
                                                                     id={`${exec.shortId}-header`}
                                                                 >

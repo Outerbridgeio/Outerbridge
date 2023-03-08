@@ -573,7 +573,11 @@ const WalletDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
                 {/* networks */}
                 <Box sx={{ p: 2 }}>
                     <Accordion expanded={expanded === 'networks'} onChange={handleAccordionChange('networks')}>
-                        <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls='networks-content' id='networks-header'>
+                        <AccordionSummary
+                            expandIcon={<ExpandMoreIcon color='primary' />}
+                            aria-controls='networks-content'
+                            id='networks-header'
+                        >
                             <Typography variant='h4'>Networks</Typography>
                             {walletData && walletData.networks && walletData.networks.submit && (
                                 <Avatar
@@ -609,7 +613,11 @@ const WalletDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
                 {/* credentials */}
                 <Box sx={{ p: 2 }}>
                     <Accordion expanded={expanded === 'credentials'} onChange={handleAccordionChange('credentials')}>
-                        <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls='credentials-content' id='credentials-header'>
+                        <AccordionSummary
+                            expandIcon={<ExpandMoreIcon color='primary' />}
+                            aria-controls='credentials-content'
+                            id='credentials-header'
+                        >
                             <Typography variant='h4'>Credentials</Typography>
                             {walletData && walletData.credentials && walletData.credentials.submit && (
                                 <Avatar
@@ -644,7 +652,11 @@ const WalletDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
                 {/* walletInfo */}
                 <Box sx={{ p: 2 }}>
                     <Accordion expanded={expanded === 'walletInfo'} onChange={handleAccordionChange('walletInfo')}>
-                        <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls='walletInfo-content' id='walletInfo-header'>
+                        <AccordionSummary
+                            expandIcon={<ExpandMoreIcon color='primary' />}
+                            aria-controls='walletInfo-content'
+                            id='walletInfo-header'
+                        >
                             <Typography variant='h4'>Wallet Details</Typography>
                             {walletData && walletData.walletInfo && walletData.walletInfo.submit && (
                                 <Avatar

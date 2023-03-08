@@ -1,11 +1,11 @@
 import PropTypes from 'prop-types'
 import { useNavigate } from 'react-router-dom'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { useEffect, useRef, useState } from 'react'
 
 // material-ui
 import { useTheme } from '@mui/material/styles'
-import { Avatar, Box, ButtonBase, Typography, Stack, TextField, Chip } from '@mui/material'
+import { Box, ButtonBase, Typography, Stack, TextField, Chip } from '@mui/material'
 
 // icons
 import {
@@ -17,7 +17,9 @@ import {
     IconCheck,
     IconX,
     IconPlayerPause,
-    IconListCheck
+    IconListCheck,
+    IconMoon,
+    IconSun
 } from '@tabler/icons'
 
 // project imports
@@ -33,6 +35,9 @@ import useApi from 'hooks/useApi'
 
 // utils
 import { generateExportFlowData } from 'utils/genericHelper'
+
+// store
+import { SET_DARKMODE } from 'store/actions'
 
 // ==============================|| CANVAS HEADER ||============================== //
 
@@ -51,6 +56,15 @@ const CanvasHeader = ({ workflow, handleSaveFlow, handleDeployWorkflow, handleSt
 
     const updateWorkflowApi = useApi(workflowsApi.updateWorkflow)
     const canvas = useSelector((state) => state.canvas)
+    const customization = useSelector((state) => state.customization)
+
+    const [isDark, setIsDark] = useState(customization.isDarkMode)
+    const dispatch = useDispatch()
+
+    const changeDarkMode = () => {
+        dispatch({ type: SET_DARKMODE, isDarkMode: !isDark })
+        setIsDark((isDark) => !isDark)
+    }
 
     const onSettingsItemClick = (setting) => {
         setSettingsOpen(false)
@@ -118,24 +132,7 @@ const CanvasHeader = ({ workflow, handleSaveFlow, handleDeployWorkflow, handleSt
         <>
             <Box>
                 <ButtonBase title='Back' sx={{ borderRadius: '50%' }}>
-                    <Avatar
-                        variant='rounded'
-                        sx={{
-                            ...theme.typography.commonAvatar,
-                            ...theme.typography.mediumAvatar,
-                            transition: 'all .2s ease-in-out',
-                            background: theme.palette.secondary.light,
-                            color: theme.palette.secondary.dark,
-                            '&:hover': {
-                                background: theme.palette.secondary.dark,
-                                color: theme.palette.secondary.light
-                            }
-                        }}
-                        color='inherit'
-                        onClick={() => navigate(-1)}
-                    >
-                        <IconChevronLeft stroke={1.5} size='1.3rem' />
-                    </Avatar>
+                    <IconChevronLeft stroke={1.5} size='1.3rem' onClick={() => navigate(-1)} />
                 </ButtonBase>
             </Box>
             <Box sx={{ flexGrow: 1 }}>
@@ -152,25 +149,7 @@ const CanvasHeader = ({ workflow, handleSaveFlow, handleDeployWorkflow, handleSt
                         </Typography>
                         {workflow?.shortId && (
                             <ButtonBase title='Edit Name' sx={{ borderRadius: '50%' }}>
-                                <Avatar
-                                    variant='rounded'
-                                    sx={{
-                                        ...theme.typography.commonAvatar,
-                                        ...theme.typography.mediumAvatar,
-                                        transition: 'all .2s ease-in-out',
-                                        background: 'white',
-                                        color: theme.palette.text.dark,
-                                        ml: 1,
-                                        '&:hover': {
-                                            background: theme.palette.secondary.light,
-                                            color: theme.palette.secondary.dark
-                                        }
-                                    }}
-                                    color='inherit'
-                                    onClick={() => setEditingWorkflowName(true)}
-                                >
-                                    <IconPencil stroke={1.5} size='1.3rem' />
-                                </Avatar>
+                                <IconPencil stroke={1.5} size='1.3rem' onClick={() => setEditingWorkflowName(true)} />
                             </ButtonBase>
                         )}
                         {workflow?.deployed && (
@@ -198,46 +177,10 @@ const CanvasHeader = ({ workflow, handleSaveFlow, handleDeployWorkflow, handleSt
                             defaultValue={workflowName}
                         />
                         <ButtonBase title='Save Name' sx={{ borderRadius: '50%' }}>
-                            <Avatar
-                                variant='rounded'
-                                sx={{
-                                    ...theme.typography.commonAvatar,
-                                    ...theme.typography.mediumAvatar,
-                                    transition: 'all .2s ease-in-out',
-                                    background: 'white',
-                                    color: theme.palette.text.dark,
-                                    ml: 1,
-                                    '&:hover': {
-                                        background: theme.palette.secondary.light,
-                                        color: theme.palette.secondary.dark
-                                    }
-                                }}
-                                color='inherit'
-                                onClick={submitWorkflowName}
-                            >
-                                <IconCheck stroke={1.5} size='1.3rem' />
-                            </Avatar>
+                            <IconCheck stroke={1.5} size='1.3rem' onClick={submitWorkflowName} />
                         </ButtonBase>
                         <ButtonBase title='Cancel' sx={{ borderRadius: '50%' }}>
-                            <Avatar
-                                variant='rounded'
-                                sx={{
-                                    ...theme.typography.commonAvatar,
-                                    ...theme.typography.mediumAvatar,
-                                    transition: 'all .2s ease-in-out',
-                                    background: 'white',
-                                    color: theme.palette.text.dark,
-                                    ml: 1,
-                                    '&:hover': {
-                                        background: theme.palette.error.light,
-                                        color: theme.palette.error.dark
-                                    }
-                                }}
-                                color='inherit'
-                                onClick={() => setEditingWorkflowName(false)}
-                            >
-                                <IconX stroke={1.5} size='1.3rem' />
-                            </Avatar>
+                            <IconX stroke={1.5} size='1.3rem' onClick={() => setEditingWorkflowName(false)} />
                         </ButtonBase>
                     </Stack>
                 )}
@@ -245,93 +188,32 @@ const CanvasHeader = ({ workflow, handleSaveFlow, handleDeployWorkflow, handleSt
             <Box>
                 {workflow?.shortId && (
                     <ButtonBase ref={viewExecutionRef} title='View Executions' sx={{ borderRadius: '50%', mr: 2 }}>
-                        <Avatar
-                            variant='rounded'
-                            sx={{
-                                ...theme.typography.commonAvatar,
-                                ...theme.typography.mediumAvatar,
-                                width: '54px',
-                                transition: 'all .2s ease-in-out',
-                                background: theme.palette.success.light,
-                                color: theme.palette.success.dark,
-                                '&:hover': {
-                                    background: theme.palette.success.dark,
-                                    color: theme.palette.success.light
-                                }
-                            }}
-                            color='inherit'
-                            onClick={() => setExecutionOpen(!isExecutionOpen)}
-                        >
-                            <h6>{workflow?.executionCount}</h6>&nbsp;
-                            <IconListCheck stroke={1.5} size='1.3rem' />
-                        </Avatar>
+                        <h6>{workflow?.executionCount}</h6>&nbsp;
+                        <IconListCheck stroke={1.5} size='1.3rem' onClick={() => setExecutionOpen(!isExecutionOpen)} />
                     </ButtonBase>
                 )}
                 {workflow?.shortId && (
                     <ButtonBase title={workflow?.deployed ? 'Stop Workflow' : 'Deploy Workflow'} sx={{ borderRadius: '50%', mr: 2 }}>
-                        <Avatar
-                            variant='rounded'
-                            sx={{
-                                ...theme.typography.commonAvatar,
-                                ...theme.typography.mediumAvatar,
-                                transition: 'all .2s ease-in-out',
-                                background: theme.palette.primary.light,
-                                color: theme.palette.primary.dark,
-                                '&:hover': {
-                                    background: theme.palette.primary.dark,
-                                    color: theme.palette.primary.light
-                                }
-                            }}
-                            color='inherit'
-                            onClick={workflow?.deployed ? handleStopWorkflow : handleDeployWorkflow}
-                        >
-                            {workflow?.deployed ? (
-                                <IconPlayerPause stroke={1.5} size='1.3rem' />
-                            ) : (
-                                <IconRocket stroke={1.5} size='1.3rem' />
-                            )}
-                        </Avatar>
+                        {workflow?.deployed ? (
+                            <IconPlayerPause stroke={1.5} size='1.3rem' onClick={handleStopWorkflow} />
+                        ) : (
+                            <IconRocket stroke={1.5} size='1.3rem' onClick={handleDeployWorkflow} />
+                        )}
                     </ButtonBase>
                 )}
 
-                <ButtonBase title='Save Workflow' sx={{ borderRadius: '50%', mr: 2 }}>
-                    <Avatar
-                        variant='rounded'
-                        sx={{
-                            ...theme.typography.commonAvatar,
-                            ...theme.typography.mediumAvatar,
-                            transition: 'all .2s ease-in-out',
-                            background: theme.palette.secondary.light,
-                            color: theme.palette.secondary.dark,
-                            '&:hover': {
-                                background: theme.palette.secondary.dark,
-                                color: theme.palette.secondary.light
-                            }
-                        }}
-                        color='inherit'
-                        onClick={onSaveWorkflowClick}
-                    >
-                        <IconDeviceFloppy stroke={1.5} size='1.3rem' />
-                    </Avatar>
+                <ButtonBase title='Save Workflow' sx={{ mr: 2 }}>
+                    <IconDeviceFloppy stroke={1.5} size='1.3rem' onClick={onSaveWorkflowClick} />
                 </ButtonBase>
-                <ButtonBase ref={settingsRef} title='Settings' sx={{ borderRadius: '50%' }}>
-                    <Avatar
-                        variant='rounded'
-                        sx={{
-                            ...theme.typography.commonAvatar,
-                            ...theme.typography.mediumAvatar,
-                            transition: 'all .2s ease-in-out',
-                            background: theme.palette.grey[300],
-                            color: theme.palette.grey[700],
-                            '&:hover': {
-                                background: theme.palette.grey[700],
-                                color: theme.palette.grey[300]
-                            }
-                        }}
-                        onClick={() => setSettingsOpen(!isSettingsOpen)}
-                    >
-                        <IconSettings stroke={1.5} size='1.3rem' />
-                    </Avatar>
+                <ButtonBase ref={settingsRef} title='Settings' sx={{ mr: 2 }}>
+                    <IconSettings stroke={1.5} size='1.3rem' onClick={() => setSettingsOpen(!isSettingsOpen)} />
+                </ButtonBase>
+                <ButtonBase title='Settings'>
+                    {isDark ? (
+                        <IconMoon stroke={1.5} size='1.3rem' onClick={changeDarkMode} />
+                    ) : (
+                        <IconSun stroke={1.5} size='1.3rem' onClick={changeDarkMode} />
+                    )}
                 </ButtonBase>
             </Box>
             {workflow?.shortId && (

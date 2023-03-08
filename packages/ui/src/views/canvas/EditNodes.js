@@ -566,7 +566,7 @@ const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValu
                                             <Box sx={{ p: 2 }}>
                                                 <Accordion expanded={expanded === 'actions'} onChange={handleAccordionChange('actions')}>
                                                     <AccordionSummary
-                                                        expandIcon={<ExpandMoreIcon />}
+                                                        expandIcon={<ExpandMoreIcon color='primary' />}
                                                         aria-controls='actions-content'
                                                         id='actions-header'
                                                     >
@@ -610,7 +610,7 @@ const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValu
                                             <Box sx={{ p: 2 }}>
                                                 <Accordion expanded={expanded === 'networks'} onChange={handleAccordionChange('networks')}>
                                                     <AccordionSummary
-                                                        expandIcon={<ExpandMoreIcon />}
+                                                        expandIcon={<ExpandMoreIcon color='primary' />}
                                                         aria-controls='networks-content'
                                                         id='networks-header'
                                                     >
@@ -657,7 +657,7 @@ const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValu
                                                     onChange={handleAccordionChange('credentials')}
                                                 >
                                                     <AccordionSummary
-                                                        expandIcon={<ExpandMoreIcon />}
+                                                        expandIcon={<ExpandMoreIcon color='primary' />}
                                                         aria-controls='credentials-content'
                                                         id='credentials-header'
                                                     >
@@ -702,7 +702,7 @@ const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValu
                                                     onChange={handleAccordionChange('inputParameters')}
                                                 >
                                                     <AccordionSummary
-                                                        expandIcon={<ExpandMoreIcon />}
+                                                        expandIcon={<ExpandMoreIcon color='primary' />}
                                                         aria-controls='inputParameters-content'
                                                         id='inputParameters-header'
                                                     >
@@ -751,7 +751,7 @@ const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValu
                                                     onChange={handleAccordionChange('outputResponses')}
                                                 >
                                                     <AccordionSummary
-                                                        expandIcon={<ExpandMoreIcon />}
+                                                        expandIcon={<ExpandMoreIcon color='primary' />}
                                                         aria-controls='outputResponses-content'
                                                         id='outputResponses-header'
                                                     >
