@@ -707,6 +707,27 @@ const Canvas = () => {
 
     usePrompt('You have unsaved changes! Do you want to navigate away?', canvasDataStore.isDirty)
 
+    const handleContextEditMenu = (event, clickedNode) => {
+        event.preventDefault()
+        setSelectedNode(clickedNode)
+        setNodes((nds) =>
+            nds.map((node) => {
+                if (node.id === clickedNode.id) {
+                    node.data = {
+                        ...node.data,
+                        selected: true
+                    }
+                } else {
+                    node.data = {
+                        ...node.data,
+                        selected: false
+                    }
+                }
+                return node
+            })
+        )
+    }
+
     return (
         <>
             <Box>
@@ -748,6 +769,7 @@ const Canvas = () => {
                                     onConnect={onConnect}
                                     onInit={setRfInstance}
                                     fitView
+                                    onNodeContextMenu={handleContextEditMenu}
                                 >
                                     <MiniMap
                                         nodeStrokeColor={() => theme.palette.primary.main}
