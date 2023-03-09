@@ -23,8 +23,10 @@ const ExpandDataDialog = ({ show, dialogProps, onCancel, onCopyClick, enableClip
                 {dialogProps.title}
             </DialogTitle>
             <DialogContent>
-                {!enableClipboard && <ReactJson src={dialogProps.data} enableClipboard={(e) => copyToClipboard(e)} />}
-                {enableClipboard && <ReactJson src={dialogProps.data} enableClipboard={(e) => onCopyClick(e, dialogProps.node)} />}
+                {!enableClipboard && <ReactJson theme={'codeschool'} src={dialogProps.data} enableClipboard={(e) => copyToClipboard(e)} />}
+                {enableClipboard && (
+                    <ReactJson theme={'codeschool'} src={dialogProps.data} enableClipboard={(e) => onCopyClick(e, dialogProps.node)} />
+                )}
             </DialogContent>
         </Dialog>
     ) : null

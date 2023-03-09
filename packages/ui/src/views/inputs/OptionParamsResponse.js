@@ -77,6 +77,7 @@ const OptionParamsResponse = ({ value, options }) => {
                         Example Parameters
                     </Typography>
                     <ReactJson
+                        theme={'codeschool'}
                         collapsed
                         src={JSON.parse(getSelectedOptionExampleParams(value))}
                         enableClipboard={(e) => copyToClipboard(e)}
@@ -97,7 +98,12 @@ const OptionParamsResponse = ({ value, options }) => {
                     <Typography sx={{ p: 1 }} variant='h6'>
                         Example Response
                     </Typography>
-                    <ReactJson collapsed src={getSelectedOptionExampleResponse(value)} enableClipboard={(e) => copyToClipboard(e)} />
+                    <ReactJson
+                        theme={'codeschool'}
+                        collapsed
+                        src={getSelectedOptionExampleResponse(value)}
+                        enableClipboard={(e) => copyToClipboard(e)}
+                    />
                 </Box>
             )}
         </>

@@ -246,7 +246,7 @@ const OutputResponses = ({ nodeId, nodeParamsType, nodeFlowData, nodes, edges, w
                     </Box>
                 )}
                 <Box sx={{ position: 'relative' }}>
-                    <ReactJson collapsed src={outputResponse} enableClipboard={(e) => copyToClipboard(e)} />
+                    <ReactJson theme={'codeschool'} collapsed src={outputResponse} enableClipboard={(e) => copyToClipboard(e)} />
                     <IconButton
                         size='small'
                         sx={{

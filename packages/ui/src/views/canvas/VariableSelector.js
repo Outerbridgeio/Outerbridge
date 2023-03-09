@@ -163,6 +163,7 @@ const VariableSelector = ({ nodes, isVariableSelectorOpen, anchorEl, onVariableS
                                                             <AccordionDetails>
                                                                 <div style={{ position: 'relative' }}>
                                                                     <ReactJson
+                                                                        theme={'codeschool'}
                                                                         collapsed
                                                                         src={
                                                                             node.data.outputResponses && node.data.outputResponses.output

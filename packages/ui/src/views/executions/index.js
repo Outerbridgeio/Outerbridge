@@ -289,6 +289,7 @@ const Executions = ({ workflowShortId, execution, executionCount, isExecutionOpe
                                                                                 {execData.nodeLabel}
                                                                             </Typography>
                                                                             <ReactJson
+                                                                                theme={'codeschool'}
                                                                                 collapsed
                                                                                 src={execData.data}
                                                                                 enableClipboard={(e) => copyToClipboard(e)}
