@@ -710,11 +710,30 @@ export const processWebhook = async (
                     (nodeData.inputParameters?.returnType as string) === 'lastNodeResponse' ||
                     nodeData.name === 'chainLinkFunctionWebhook'
                 ) {
-                    const lastExecutedResult = await testWorkflow(webhookNodeId, nodes, edges, graph, componentNodes, clientId, io, true)
+                    const lastExecutedResult = await testWorkflow(
+                        webhookNodeId,
+                        result.length ? [{ data: result[0].data }] : [],
+                        nodes,
+                        edges,
+                        graph,
+                        componentNodes,
+                        clientId,
+                        io,
+                        true
+                    )
                     const webhookResponseData = lastExecutedResult || []
                     return res.status(webhookResponseCode).json(webhookResponseData)
                 } else {
-                    await testWorkflow(webhookNodeId, nodes, edges, graph, componentNodes, clientId, io)
+                    await testWorkflow(
+                        webhookNodeId,
+                        result.length ? [{ data: result[0].data }] : [],
+                        nodes,
+                        edges,
+                        graph,
+                        componentNodes,
+                        clientId,
+                        io
+                    )
                     const webhookResponseData = (nodeData.inputParameters?.responseData as string) || `Webhook ${req.originalUrl} received!`
                     return res.status(webhookResponseCode).send(webhookResponseData)
                 }
@@ -778,6 +797,33 @@ export const processWebhook = async (
             const result = (await webhookNode.runWebhook!.call(webhookNode, nodeData)) || []
 
             if (result === null) return res.status(200).send('OK!')
+
+            /**
+             * Very specific use case for chainLinkFunctionWebhook
+             * This is to prevent workflow from triggering multiple times because
+             * Each oracle node runs the same computation in the Off-chain Reporting protocol, hence webhook will be called multiple times
+             * By storing sessionId, we can keep track if this is the same computation run from oracle node
+             * Info: https://docs.chain.link/chainlink-functions/tutorials/api-post-data
+             */
+            if (
+                result.length &&
+                result[0].data.headers &&
+                ((result[0].data.headers as any)['cf-session-id'] || (result[0].data.headers as any)['CF-SESSION-ID']) &&
+                nodeData.name === 'chainLinkFunctionWebhook'
+            ) {
+                // If webhookId does not exists OR sessionID !== webhookId
+                const sessionId = (result[0].data.headers as any)['cf-session-id']
+                if (!webhook.webhookId || webhook.webhookId !== sessionId) {
+                    const body = { webhookId: sessionId }
+                    const updateWebhook = new Webhook()
+                    Object.assign(updateWebhook, body)
+
+                    AppDataSource.getMongoRepository(Webhook).merge(webhook, updateWebhook)
+                    await AppDataSource.getMongoRepository(Webhook).save(webhook)
+                } else {
+                    return res.status(200).send('OK!')
+                }
+            }
 
             const webhookResponseCode = (nodeData.inputParameters?.responseCode as number) || 200
             const workflowExecutedData = (await deployedWorkflowsPool.startWorkflow(
@@ -879,8 +925,30 @@ export const checkOAuth2TokenRefreshed = (result: INodeExecutionData[] | null, n
 }
 
 /**
+ * Update reactFlowNodes so that resolveVariables is called, it is getting updated result
+ * @param {IReactFlowNode[]} reactFlowNodes
+ * @param {number} nodeIndex
+ * @param {INodeExecutionData[]} newResult
+ */
+export const updateNodeOutput = (reactFlowNodes: IReactFlowNode[], nodeIndex: number, newResult: INodeExecutionData[] = []) => {
+    if (reactFlowNodes[nodeIndex].data.outputResponses) {
+        reactFlowNodes[nodeIndex].data.outputResponses = {
+            ...reactFlowNodes[nodeIndex].data.outputResponses,
+            output: newResult
+        }
+    } else {
+        reactFlowNodes[nodeIndex].data.outputResponses = {
+            submit: true,
+            needRetest: null,
+            output: newResult
+        }
+    }
+}
+
+/**
  * Test Workflow from starting node to end
  * @param {string} startingNodeId
+ * @param {INodeExecutionData[]} startingNodeExecutedData
  * @param {IReactFlowNode[]} reactFlowNodes
  * @param {IReactFlowEdge[]} reactFlowEdges
  * @param {INodeDirectedGraph} graph
@@ -890,6 +958,7 @@ export const checkOAuth2TokenRefreshed = (result: INodeExecutionData[] | null, n
  */
 export const testWorkflow = async (
     startingNodeId: string,
+    startingNodeExecutedData: INodeExecutionData[],
     reactFlowNodes: IReactFlowNode[],
     reactFlowEdges: IReactFlowEdge[],
     graph: INodeDirectedGraph,
@@ -900,6 +969,8 @@ export const testWorkflow = async (
 ) => {
     // Create a Queue and add our initial node in it
     const startingNodeIds = [startingNodeId]
+    const startingNodeIndex = reactFlowNodes.findIndex((nd) => nd.id === startingNodeId)
+    updateNodeOutput(reactFlowNodes, startingNodeIndex, startingNodeExecutedData)
 
     const nodeQueue = [] as INodeQueue[]
     const exploredNode = {} as IExploredNode
@@ -940,19 +1011,7 @@ export const testWorkflow = async (
                     if (result) results.push(...result)
                 }
 
-                // Update reactFlowNodes for resolveVariables
-                if (reactFlowNodes[nodeIndex].data.outputResponses) {
-                    reactFlowNodes[nodeIndex].data.outputResponses = {
-                        ...reactFlowNodes[nodeIndex].data.outputResponses,
-                        output: results
-                    }
-                } else {
-                    reactFlowNodes[nodeIndex].data.outputResponses = {
-                        submit: true,
-                        needRetest: null,
-                        output: results
-                    }
-                }
+                updateNodeOutput(reactFlowNodes, nodeIndex, results)
 
                 // Determine which nodes to route next when it comes to ifElse
                 if (results.length && nodeId.includes('ifElse')) {
