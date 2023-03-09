@@ -58,7 +58,8 @@ import {
     getAPIKeys,
     addAPIKey,
     deleteAPIKey,
-    updateAPIKey
+    updateAPIKey,
+    updateNodeOutput
 } from './utils'
 import { DeployedWorkflowPool } from './DeployedWorkflowPool'
 import { ActiveTestTriggerPool } from './ActiveTestTriggerPool'
@@ -492,7 +493,7 @@ export class App {
 
                         io.to(clientId).emit('testWorkflowNodeResponse', newWorkflowExecutedData)
 
-                        testWorkflow(startingNodeId, nodes, edges, graph, this.componentNodes, clientId, io)
+                        testWorkflow(startingNodeId, result, nodes, edges, graph, this.componentNodes, clientId, io)
                     })
 
                     await triggerNodeInstance.runTrigger!.call(triggerNodeInstance, nodeData)
@@ -549,22 +550,9 @@ export class App {
 
                     const reactFlowNodes = nodes
                     const nodeIndex = reactFlowNodes.findIndex((nd) => nd.id === startingNodeId)
+                    updateNodeOutput(reactFlowNodes, nodeIndex, result || [])
 
-                    // Update reactFlowNodes for resolveVariables
-                    if (reactFlowNodes[nodeIndex].data.outputResponses) {
-                        reactFlowNodes[nodeIndex].data.outputResponses = {
-                            ...reactFlowNodes[nodeIndex].data.outputResponses,
-                            output: result
-                        }
-                    } else {
-                        reactFlowNodes[nodeIndex].data.outputResponses = {
-                            submit: true,
-                            needRetest: null,
-                            output: result
-                        }
-                    }
-
-                    testWorkflow(startingNodeId, reactFlowNodes, edges, graph, this.componentNodes, clientId, io)
+                    testWorkflow(startingNodeId, result || [], reactFlowNodes, edges, graph, this.componentNodes, clientId, io)
                 }
             }
         })
