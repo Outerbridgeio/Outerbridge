@@ -13,6 +13,9 @@ const Contracts = Loadable(lazy(() => import('views/contracts')))
 // wallets routing
 const Wallets = Loadable(lazy(() => import('views/wallets')))
 
+// apikey routing
+const APIKey = Loadable(lazy(() => import('views/apikey')))
+
 // ==============================|| MAIN ROUTING ||============================== //
 
 const MainRoutes = {
@@ -34,6 +37,10 @@ const MainRoutes = {
         {
             path: '/wallets',
             element: <Wallets />
+        },
+        {
+            path: '/apikey',
+            element: <APIKey />
         }
     ]
 }
