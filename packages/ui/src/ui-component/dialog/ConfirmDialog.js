@@ -19,9 +19,7 @@ const ConfirmDialog = () => {
                 {confirmState.title}
             </DialogTitle>
             <DialogContent>
-                <DialogContentText sx={{ color: 'black' }} id='alert-dialog-description'>
-                    {confirmState.description}
-                </DialogContentText>
+                <DialogContentText id='alert-dialog-description'>{confirmState.description}</DialogContentText>
             </DialogContent>
             <DialogActions>
                 <Button onClick={onCancel}>{confirmState.cancelButtonName}</Button>

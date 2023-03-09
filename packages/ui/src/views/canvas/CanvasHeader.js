@@ -148,7 +148,7 @@ const CanvasHeader = ({ workflow, handleSaveFlow, handleDeployWorkflow, handleSt
                             {canvas.isDirty && <strong style={{ color: theme.palette.orange.main }}>*</strong>} {workflowName}
                         </Typography>
                         {workflow?.shortId && (
-                            <ButtonBase title='Edit Name' sx={{ borderRadius: '50%' }}>
+                            <ButtonBase title='Edit Name' sx={{ borderRadius: '50%', mr: 2, ml: 2 }}>
                                 <IconPencil stroke={1.5} size='1.3rem' onClick={() => setEditingWorkflowName(true)} />
                             </ButtonBase>
                         )}
