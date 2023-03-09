@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import PropTypes from 'prop-types'
-
+import { useSelector } from 'react-redux'
 // material-ui
 import { useTheme } from '@mui/material/styles'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
@@ -23,6 +23,7 @@ import { IconX, IconArrowsMaximize } from '@tabler/icons'
 const isPositiveNumeric = (value) => /^\d+$/.test(value)
 
 const VariableSelector = ({ nodes, isVariableSelectorOpen, anchorEl, onVariableSelected, handleClose }) => {
+    const customization = useSelector((state) => state.customization)
     const theme = useTheme()
     const [expanded, setExpanded] = useState(false)
     const [open, setOpen] = useState(false)
@@ -163,7 +164,7 @@ const VariableSelector = ({ nodes, isVariableSelectorOpen, anchorEl, onVariableS
                                                             <AccordionDetails>
                                                                 <div style={{ position: 'relative' }}>
                                                                     <ReactJson
-                                                                        theme={'codeschool'}
+                                                                        theme={customization.isDarkMode ? 'apathy:inverted' : 'apathy'}
                                                                         collapsed
                                                                         src={
                                                                             node.data.outputResponses && node.data.outputResponses.output

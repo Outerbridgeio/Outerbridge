@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
+import { useSelector } from 'react-redux'
 
 // material-ui
 import { Box, Button, Chip, CircularProgress, Stack, Typography, IconButton } from '@mui/material'
@@ -48,7 +49,7 @@ const OutputResponses = ({ nodeId, nodeParamsType, nodeFlowData, nodes, edges, w
     const [attachmentDialogProps, setAttachmentDialogProps] = useState({})
     const [showExpandDialog, setShowExpandDialog] = useState(false)
     const [expandDialogProps, setExpandDialogProps] = useState({})
-
+    const customization = useSelector((state) => state.customization)
     const testNodeApi = useApi(nodesApi.testNode)
 
     const onTestNodeClick = (nodeType) => {
@@ -246,7 +247,12 @@ const OutputResponses = ({ nodeId, nodeParamsType, nodeFlowData, nodes, edges, w
                     </Box>
                 )}
                 <Box sx={{ position: 'relative' }}>
-                    <ReactJson theme={'codeschool'} collapsed src={outputResponse} enableClipboard={(e) => copyToClipboard(e)} />
+                    <ReactJson
+                        theme={customization.isDarkMode ? 'apathy:inverted' : 'apathy'}
+                        collapsed
+                        src={outputResponse}
+                        enableClipboard={(e) => copyToClipboard(e)}
+                    />
                     <IconButton
                         size='small'
                         sx={{

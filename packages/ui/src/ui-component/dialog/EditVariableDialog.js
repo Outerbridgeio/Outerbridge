@@ -1,5 +1,6 @@
 import { createPortal } from 'react-dom'
 import { useState, useEffect } from 'react'
+import { useSelector } from 'react-redux'
 import PropTypes from 'prop-types'
 import {
     Button,
@@ -34,7 +35,7 @@ const isPositiveNumeric = (value) => /^\d+$/.test(value)
 
 const EditVariableDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
     const portalElement = document.getElementById('portal')
-
+    const customization = useSelector((state) => state.customization)
     const theme = useTheme()
 
     const [inputValue, setInputValue] = useState('')
@@ -230,7 +231,7 @@ const EditVariableDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
                                                         <AccordionDetails>
                                                             <div style={{ position: 'relative' }}>
                                                                 <ReactJson
-                                                                    theme={'codeschool'}
+                                                                    theme={customization.isDarkMode ? 'apathy:inverted' : 'apathy'}
                                                                     collapsed
                                                                     src={
                                                                         node.data.outputResponses && node.data.outputResponses.output

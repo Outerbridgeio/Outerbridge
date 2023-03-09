@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types'
-
+import { useSelector } from 'react-redux'
 // material-ui
 import { Box, Typography } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
@@ -17,7 +17,7 @@ import './OptionParamsResponse.css'
 
 const OptionParamsResponse = ({ value, options }) => {
     const theme = useTheme()
-
+    const customization = useSelector((state) => state.customization)
     const getSelectedValue = (value) => options.find((option) => option.name === value)
 
     const getSelectedOptionInputParams = (value) => {
@@ -77,7 +77,7 @@ const OptionParamsResponse = ({ value, options }) => {
                         Example Parameters
                     </Typography>
                     <ReactJson
-                        theme={'codeschool'}
+                        theme={customization.isDarkMode ? 'apathy:inverted' : 'apathy'}
                         collapsed
                         src={JSON.parse(getSelectedOptionExampleParams(value))}
                         enableClipboard={(e) => copyToClipboard(e)}
@@ -99,7 +99,7 @@ const OptionParamsResponse = ({ value, options }) => {
                         Example Response
                     </Typography>
                     <ReactJson
-                        theme={'codeschool'}
+                        theme={customization.isDarkMode ? 'apathy:inverted' : 'apathy'}
                         collapsed
                         src={getSelectedOptionExampleResponse(value)}
                         enableClipboard={(e) => copyToClipboard(e)}

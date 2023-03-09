@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { SET_WORKFLOW, enqueueSnackbar as enqueueSnackbarAction, closeSnackbar as closeSnackbarAction } from 'store/actions'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 // material-ui
 import { useTheme } from '@mui/material/styles'
@@ -50,6 +50,7 @@ import { copyToClipboard } from 'utils/genericHelper'
 // ==============================|| EXECUTIONS ||============================== //
 
 const Executions = ({ workflowShortId, execution, executionCount, isExecutionOpen, anchorEl }) => {
+    const customization = useSelector((state) => state.customization)
     const theme = useTheme()
     const [expanded, setExpanded] = useState(false)
     const [open, setOpen] = useState(false)
@@ -289,7 +290,9 @@ const Executions = ({ workflowShortId, execution, executionCount, isExecutionOpe
                                                                                 {execData.nodeLabel}
                                                                             </Typography>
                                                                             <ReactJson
-                                                                                theme={'codeschool'}
+                                                                                theme={
+                                                                                    customization.isDarkMode ? 'apathy:inverted' : 'apathy'
+                                                                                }
                                                                                 collapsed
                                                                                 src={execData.data}
                                                                                 enableClipboard={(e) => copyToClipboard(e)}
