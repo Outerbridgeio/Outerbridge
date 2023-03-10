@@ -36,6 +36,7 @@
 
 ## secrets
 **/*.key
+**/api.json
 
 ## compressed
 **/*.tgz

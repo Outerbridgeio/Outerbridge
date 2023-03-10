@@ -1,8 +1,7 @@
 /tests
 /src
 /public
-/build/report.html
-/build/**/*.map
+!build
 
 yarn-debug.log*
 yarn-error.log*
