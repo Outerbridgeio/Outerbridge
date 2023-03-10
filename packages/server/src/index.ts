@@ -54,7 +54,12 @@ import {
     constructGraphs,
     testWorkflow,
     getNodeModulesPackagePath,
-    getRandomSubdomain
+    getRandomSubdomain,
+    getAPIKeys,
+    addAPIKey,
+    deleteAPIKey,
+    updateAPIKey,
+    updateNodeOutput
 } from './utils'
 import { DeployedWorkflowPool } from './DeployedWorkflowPool'
 import { ActiveTestTriggerPool } from './ActiveTestTriggerPool'
@@ -132,6 +137,9 @@ export class App {
 
                 // Initialize activeTestWebhookPool instance
                 this.activeTestWebhookPool = new ActiveTestWebhookPool()
+
+                // Initialize API keys
+                await getAPIKeys()
             })
             .catch((err) => {
                 console.error('❌[server]: Error during Data Source initialization:', err)
@@ -485,7 +493,7 @@ export class App {
 
                         io.to(clientId).emit('testWorkflowNodeResponse', newWorkflowExecutedData)
 
-                        testWorkflow(startingNodeId, nodes, edges, graph, this.componentNodes, clientId, io)
+                        testWorkflow(startingNodeId, result, nodes, edges, graph, this.componentNodes, clientId, io)
                     })
 
                     await triggerNodeInstance.runTrigger!.call(triggerNodeInstance, nodeData)
@@ -542,22 +550,9 @@ export class App {
 
                     const reactFlowNodes = nodes
                     const nodeIndex = reactFlowNodes.findIndex((nd) => nd.id === startingNodeId)
+                    updateNodeOutput(reactFlowNodes, nodeIndex, result || [])
 
-                    // Update reactFlowNodes for resolveVariables
-                    if (reactFlowNodes[nodeIndex].data.outputResponses) {
-                        reactFlowNodes[nodeIndex].data.outputResponses = {
-                            ...reactFlowNodes[nodeIndex].data.outputResponses,
-                            output: result
-                        }
-                    } else {
-                        reactFlowNodes[nodeIndex].data.outputResponses = {
-                            submit: true,
-                            needRetest: null,
-                            output: result
-                        }
-                    }
-
-                    testWorkflow(startingNodeId, reactFlowNodes, edges, graph, this.componentNodes, clientId, io)
+                    testWorkflow(startingNodeId, result || [], reactFlowNodes, edges, graph, this.componentNodes, clientId, io)
                 }
             }
         })
@@ -766,6 +761,7 @@ export class App {
                     const methodName = nodeData.loadMethod || ''
                     const loadFromDbCollections = nodeData.loadFromDbCollections || []
                     const dbCollection = {} as IDbCollection
+                    const apiKeys = await getAPIKeys()
 
                     for (let i = 0; i < loadFromDbCollections.length; i += 1) {
                         let collection: any
@@ -786,7 +782,8 @@ export class App {
                     const returnOptions: INodeOptionsValue[] = await nodeInstance.loadMethods![methodName]!.call(
                         nodeInstance,
                         nodeData,
-                        loadFromDbCollections.length ? dbCollection : undefined
+                        loadFromDbCollections.length ? dbCollection : undefined,
+                        apiKeys
                     )
 
                     return res.json(returnOptions)
@@ -1219,6 +1216,34 @@ export class App {
         })
 
         // ----------------------------------------
+        // API Keys
+        // ----------------------------------------
+
+        // Get api keys
+        this.app.get('/api/v1/apikey', async (req: Request, res: Response) => {
+            const keys = await getAPIKeys()
+            return res.json(keys)
+        })
+
+        // Add new api key
+        this.app.post('/api/v1/apikey', async (req: Request, res: Response) => {
+            const keys = await addAPIKey(req.body.keyName)
+            return res.json(keys)
+        })
+
+        // Update api key
+        this.app.put('/api/v1/apikey/:id', async (req: Request, res: Response) => {
+            const keys = await updateAPIKey(req.params.id, req.body.keyName)
+            return res.json(keys)
+        })
+
+        // Delete new api key
+        this.app.delete('/api/v1/apikey/:id', async (req: Request, res: Response) => {
+            const keys = await deleteAPIKey(req.params.id)
+            return res.json(keys)
+        })
+
+        // ----------------------------------------
         // Webhook
         // ----------------------------------------
 
@@ -1254,6 +1279,11 @@ export class App {
                 this.deployedWorkflowsPool,
                 this.activeTestWebhookPool
             )
+        })
+
+        this.app.get('/api/v1/get-tunnel-url', (req: Request, res: Response) => {
+            if (!process.env.TUNNEL_BASE_URL) throw new Error(`Tunnel URL not found`)
+            res.send(process.env.TUNNEL_BASE_URL)
         })
 
         // ----------------------------------------

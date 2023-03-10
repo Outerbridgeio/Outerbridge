@@ -29,6 +29,7 @@ import { DeployedWorkflowPool } from '../DeployedWorkflowPool'
 import { ObjectId } from 'mongodb'
 import { ActiveTestWebhookPool } from '../ActiveTestWebhookPool'
 import { getDataSource } from '../DataSource'
+import { scryptSync, randomBytes, timingSafeEqual } from 'crypto'
 
 export enum ShortIdConstants {
     WORKFLOW_ID_PREFIX = 'W',
@@ -140,6 +141,122 @@ export const getEncryptionKey = async (): Promise<string> => {
         await fs.promises.writeFile(getEncryptionKeyPath(), encryptKey)
         return encryptKey
     }
+}
+
+/**
+ * Returns the api key path
+ * @returns {string}
+ */
+export const getAPIKeyPath = (): string => {
+    return path.join(__dirname, '..', '..', 'api.json')
+}
+
+/**
+ * Generate the api key
+ * @returns {string}
+ */
+export const generateAPIKey = () => {
+    const buffer = randomBytes(32)
+    return buffer.toString('base64')
+}
+
+/**
+ * Generate the secret key
+ * @param {string} apiKey
+ * @returns {string}
+ */
+export const generateSecretHash = (apiKey: string) => {
+    const salt = randomBytes(8).toString('hex')
+    const buffer = scryptSync(apiKey, salt, 64) as Buffer
+    return `${buffer.toString('hex')}.${salt}`
+}
+
+/**
+ * Verify valid keys
+ * @param {string} storedKey
+ * @param {string} suppliedKey
+ * @returns {boolean}
+ */
+export const compareKeys = (storedKey: string, suppliedKey: string) => {
+    const [hashedPassword, salt] = storedKey.split('.')
+    const buffer = scryptSync(suppliedKey, salt, 64) as Buffer
+    return timingSafeEqual(Buffer.from(hashedPassword, 'hex'), buffer)
+}
+
+/**
+ * Get API keys
+ * @returns {Promise<ICommonObject[]>}
+ */
+export const getAPIKeys = async (): Promise<ICommonObject[]> => {
+    try {
+        const content = await fs.promises.readFile(getAPIKeyPath(), 'utf8')
+        return JSON.parse(content)
+    } catch (error) {
+        const keyName = 'DefaultKey'
+        const apiKey = generateAPIKey()
+        const apiSecret = generateSecretHash(apiKey)
+        const content = [
+            {
+                keyName,
+                apiKey,
+                apiSecret,
+                createdAt: moment().format('DD-MMM-YY'),
+                id: randomBytes(16).toString('hex')
+            }
+        ]
+        await fs.promises.writeFile(getAPIKeyPath(), JSON.stringify(content), 'utf8')
+        return content
+    }
+}
+
+/**
+ * Add new API key
+ * @param {string} keyName
+ * @returns {Promise<ICommonObject[]>}
+ */
+export const addAPIKey = async (keyName: string): Promise<ICommonObject[]> => {
+    const existingAPIKeys = await getAPIKeys()
+    const apiKey = generateAPIKey()
+    const apiSecret = generateSecretHash(apiKey)
+    const content = [
+        ...existingAPIKeys,
+        {
+            keyName,
+            apiKey,
+            apiSecret,
+            createdAt: moment().format('DD-MMM-YY'),
+            id: randomBytes(16).toString('hex')
+        }
+    ]
+    await fs.promises.writeFile(getAPIKeyPath(), JSON.stringify(content), 'utf8')
+    return content
+}
+
+/**
+ * Update existing API key
+ * @param {string} keyIdToUpdate
+ * @param {string} newKeyName
+ * @returns {Promise<ICommonObject[]>}
+ */
+export const updateAPIKey = async (keyIdToUpdate: string, newKeyName: string): Promise<ICommonObject[]> => {
+    const existingAPIKeys = await getAPIKeys()
+    const keyIndex = existingAPIKeys.findIndex((key) => key.id === keyIdToUpdate)
+    if (keyIndex < 0) return []
+    existingAPIKeys[keyIndex].keyName = newKeyName
+    await fs.promises.writeFile(getAPIKeyPath(), JSON.stringify(existingAPIKeys), 'utf8')
+    return existingAPIKeys
+}
+
+/**
+ * Delete API key
+ * @param {string} keyIdToDelete
+ * @returns {Promise<ICommonObject[]>}
+ */
+export const deleteAPIKey = async (keyIdToDelete: string): Promise<ICommonObject[]> => {
+    const existingAPIKeys = await getAPIKeys()
+    const result = existingAPIKeys.filter((key) => key.id !== keyIdToDelete)
+    await fs.promises.writeFile(getAPIKeyPath(), JSON.stringify(result), 'utf8')
+    return result
 }
 
 /**
@@ -558,7 +675,10 @@ export const processWebhook = async (
                 activeTestWebhooksPool.remove(testWebhookKey, componentNodes)
 
                 const webhookResponseCode = (nodeData.inputParameters?.responseCode as number) || 200
-                if ((nodeData.inputParameters?.returnType as string) === 'lastNodeResponse') {
+                if (
+                    (nodeData.inputParameters?.returnType as string) === 'lastNodeResponse' ||
+                    nodeData.name === 'chainLinkFunctionWebhook'
+                ) {
                     const webhookResponseData = result || []
                     return res.status(webhookResponseCode).json(webhookResponseData)
                 } else {
@@ -586,12 +706,34 @@ export const processWebhook = async (
                 const { graph } = constructGraphs(nodes, edges)
 
                 const webhookResponseCode = (nodeData.inputParameters?.responseCode as number) || 200
-                if ((nodeData.inputParameters?.returnType as string) === 'lastNodeResponse') {
-                    const lastExecutedResult = await testWorkflow(webhookNodeId, nodes, edges, graph, componentNodes, clientId, io, true)
+                if (
+                    (nodeData.inputParameters?.returnType as string) === 'lastNodeResponse' ||
+                    nodeData.name === 'chainLinkFunctionWebhook'
+                ) {
+                    const lastExecutedResult = await testWorkflow(
+                        webhookNodeId,
+                        result.length ? [{ data: result[0].data }] : [],
+                        nodes,
+                        edges,
+                        graph,
+                        componentNodes,
+                        clientId,
+                        io,
+                        true
+                    )
                     const webhookResponseData = lastExecutedResult || []
                     return res.status(webhookResponseCode).json(webhookResponseData)
                 } else {
-                    await testWorkflow(webhookNodeId, nodes, edges, graph, componentNodes, clientId, io)
+                    await testWorkflow(
+                        webhookNodeId,
+                        result.length ? [{ data: result[0].data }] : [],
+                        nodes,
+                        edges,
+                        graph,
+                        componentNodes,
+                        clientId,
+                        io
+                    )
                     const webhookResponseData = (nodeData.inputParameters?.responseData as string) || `Webhook ${req.originalUrl} received!`
                     return res.status(webhookResponseCode).send(webhookResponseData)
                 }
@@ -656,6 +798,33 @@ export const processWebhook = async (
 
             if (result === null) return res.status(200).send('OK!')
 
+            /**
+             * Very specific use case for chainLinkFunctionWebhook
+             * This is to prevent workflow from triggering multiple times because
+             * Each oracle node runs the same computation in the Off-chain Reporting protocol, hence webhook will be called multiple times
+             * By storing sessionId, we can keep track if this is the same computation run from oracle node
+             * Info: https://docs.chain.link/chainlink-functions/tutorials/api-post-data
+             */
+            if (
+                result.length &&
+                result[0].data.headers &&
+                ((result[0].data.headers as any)['cf-session-id'] || (result[0].data.headers as any)['CF-SESSION-ID']) &&
+                nodeData.name === 'chainLinkFunctionWebhook'
+            ) {
+                // If webhookId does not exists OR sessionID !== webhookId
+                const sessionId = (result[0].data.headers as any)['cf-session-id']
+                if (!webhook.webhookId || webhook.webhookId !== sessionId) {
+                    const body = { webhookId: sessionId }
+                    const updateWebhook = new Webhook()
+                    Object.assign(updateWebhook, body)
+
+                    AppDataSource.getMongoRepository(Webhook).merge(webhook, updateWebhook)
+                    await AppDataSource.getMongoRepository(Webhook).save(webhook)
+                } else {
+                    return res.status(200).send('OK!')
+                }
+            }
+
             const webhookResponseCode = (nodeData.inputParameters?.responseCode as number) || 200
             const workflowExecutedData = (await deployedWorkflowsPool.startWorkflow(
                 workflowShortId,
@@ -666,7 +835,7 @@ export const processWebhook = async (
                 startingNodeIds,
                 graph
             )) as unknown as IWorkflowExecutedData[]
-            if ((nodeData.inputParameters?.returnType as string) === 'lastNodeResponse') {
+            if ((nodeData.inputParameters?.returnType as string) === 'lastNodeResponse' || nodeData.name === 'chainLinkFunctionWebhook') {
                 const lastExecutedResult = workflowExecutedData[workflowExecutedData.length - 1]
                 const webhookResponseData = lastExecutedResult.data || []
                 return res.status(webhookResponseCode).json(webhookResponseData)
@@ -756,8 +925,30 @@ export const checkOAuth2TokenRefreshed = (result: INodeExecutionData[] | null, n
 }
 
 /**
+ * Update reactFlowNodes so that resolveVariables is called, it is getting updated result
+ * @param {IReactFlowNode[]} reactFlowNodes
+ * @param {number} nodeIndex
+ * @param {INodeExecutionData[]} newResult
+ */
+export const updateNodeOutput = (reactFlowNodes: IReactFlowNode[], nodeIndex: number, newResult: INodeExecutionData[] = []) => {
+    if (reactFlowNodes[nodeIndex].data.outputResponses) {
+        reactFlowNodes[nodeIndex].data.outputResponses = {
+            ...reactFlowNodes[nodeIndex].data.outputResponses,
+            output: newResult
+        }
+    } else {
+        reactFlowNodes[nodeIndex].data.outputResponses = {
+            submit: true,
+            needRetest: null,
+            output: newResult
+        }
+    }
+}
+
+/**
  * Test Workflow from starting node to end
  * @param {string} startingNodeId
+ * @param {INodeExecutionData[]} startingNodeExecutedData
  * @param {IReactFlowNode[]} reactFlowNodes
  * @param {IReactFlowEdge[]} reactFlowEdges
  * @param {INodeDirectedGraph} graph
@@ -767,6 +958,7 @@ export const checkOAuth2TokenRefreshed = (result: INodeExecutionData[] | null, n
  */
 export const testWorkflow = async (
     startingNodeId: string,
+    startingNodeExecutedData: INodeExecutionData[],
     reactFlowNodes: IReactFlowNode[],
     reactFlowEdges: IReactFlowEdge[],
     graph: INodeDirectedGraph,
@@ -777,6 +969,8 @@ export const testWorkflow = async (
 ) => {
     // Create a Queue and add our initial node in it
     const startingNodeIds = [startingNodeId]
+    const startingNodeIndex = reactFlowNodes.findIndex((nd) => nd.id === startingNodeId)
+    updateNodeOutput(reactFlowNodes, startingNodeIndex, startingNodeExecutedData)
 
     const nodeQueue = [] as INodeQueue[]
     const exploredNode = {} as IExploredNode
@@ -817,19 +1011,7 @@ export const testWorkflow = async (
                     if (result) results.push(...result)
                 }
 
-                // Update reactFlowNodes for resolveVariables
-                if (reactFlowNodes[nodeIndex].data.outputResponses) {
-                    reactFlowNodes[nodeIndex].data.outputResponses = {
-                        ...reactFlowNodes[nodeIndex].data.outputResponses,
-                        output: results
-                    }
-                } else {
-                    reactFlowNodes[nodeIndex].data.outputResponses = {
-                        submit: true,
-                        needRetest: null,
-                        output: results
-                    }
-                }
+                updateNodeOutput(reactFlowNodes, nodeIndex, results)
 
                 // Determine which nodes to route next when it comes to ifElse
                 if (results.length && nodeId.includes('ifElse')) {
