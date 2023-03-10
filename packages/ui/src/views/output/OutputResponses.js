@@ -18,6 +18,7 @@ import ExpandDataDialog from 'ui-component/dialog/ExpandDataDialog'
 
 // API
 import nodesApi from 'api/nodes'
+import webhookApi from 'api/webhooks'
 
 // Hooks
 import useApi from 'hooks/useApi'
@@ -49,8 +50,13 @@ const OutputResponses = ({ nodeId, nodeParamsType, nodeFlowData, nodes, edges, w
     const [attachmentDialogProps, setAttachmentDialogProps] = useState({})
     const [showExpandDialog, setShowExpandDialog] = useState(false)
     const [expandDialogProps, setExpandDialogProps] = useState({})
+
     const customization = useSelector((state) => state.customization)
+
+    const [tunnelURL, setTunnelURL] = useState('')
+
     const testNodeApi = useApi(nodesApi.testNode)
+    const getTunnelURLApi = useApi(webhookApi.getTunnelURL)
 
     const onTestNodeClick = (nodeType) => {
         /* If workflow is already deployed, stop it first to be safe.
@@ -180,6 +186,18 @@ const OutputResponses = ({ nodeId, nodeParamsType, nodeFlowData, nodes, edges, w
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [testNodeApi.data])
 
+    useEffect(() => {
+        getTunnelURLApi.request()
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
+    useEffect(() => {
+        if (getTunnelURLApi.data) {
+            setTunnelURL(getTunnelURLApi.data)
+        }
+    }, [getTunnelURLApi.data])
+
     // Test node error
     useEffect(() => {
         if (testNodeApi.error && nodeType && nodeType !== 'webhook') {
@@ -217,9 +235,25 @@ const OutputResponses = ({ nodeId, nodeParamsType, nodeFlowData, nodes, edges, w
                 {nodeFlowData && nodeFlowData.outputResponses && nodeFlowData.outputResponses.needRetest && (
                     <Chip sx={{ mb: 2 }} icon={<IconExclamationMark />} label='Retest the node for updated parameters' color='warning' />
                 )}
-                {nodeName && nodeName === 'webhook' && (
+                {nodeName && (nodeName === 'webhook' || nodeName === 'chainLinkFunctionWebhook') && (
                     <Box sx={{ mb: 3 }}>
-                        <Typography variant='h5' sx={{ mb: 1 }}>{`${baseURL}/api/v1/webhook/${nodeFlowData.webhookEndpoint}`}</Typography>
+                        <Typography variant='h5' sx={{ mb: 1 }}>
+                            Local URL:
+                        </Typography>
+                        <Typography
+                            variant='h5'
+                            sx={{
+                                p: 1,
+                                borderRadius: 2,
+                                backgroundColor: theme.palette.primary.light,
+                                width: 'max-content',
+                                height: 'max-content',
+                                mb: 2,
+                                mr: 2
+                            }}
+                        >
+                            {`${baseURL}/api/v1/webhook/${nodeFlowData.webhookEndpoint}`}
+                        </Typography>
                         <Stack direction='row' spacing={2}>
                             <Button
                                 size='small'
@@ -238,6 +272,47 @@ const OutputResponses = ({ nodeId, nodeParamsType, nodeFlowData, nodes, edges, w
                                 Open in New Tab
                             </Button>
                         </Stack>
+                        {tunnelURL && (
+                            <div>
+                                <Typography variant='h5' sx={{ mb: 1, mt: 2 }}>
+                                    Tunnel URL:
+                                </Typography>
+                                <Typography
+                                    variant='h5'
+                                    sx={{
+                                        p: 1,
+                                        borderRadius: 2,
+                                        backgroundColor: theme.palette.primary.light,
+                                        width: 'max-content',
+                                        height: 'max-content',
+                                        mb: 2,
+                                        mr: 2
+                                    }}
+                                >
+                                    {`${tunnelURL}api/v1/webhook/${nodeFlowData.webhookEndpoint}`}
+                                </Typography>
+                                <Stack direction='row' spacing={2}>
+                                    <Button
+                                        size='small'
+                                        variant='outlined'
+                                        startIcon={<IconCopy />}
+                                        onClick={() =>
+                                            navigator.clipboard.writeText(`${tunnelURL}api/v1/webhook/${nodeFlowData.webhookEndpoint}`)
+                                        }
+                                    >
+                                        Copy URL
+                                    </Button>
+                                    <Button
+                                        size='small'
+                                        variant='outlined'
+                                        startIcon={<IconArrowUpRightCircle />}
+                                        onClick={() => window.open(`${tunnelURL}api/v1/webhook/${nodeFlowData.webhookEndpoint}`, '_blank')}
+                                    >
+                                        Open in New Tab
+                                    </Button>
+                                </Stack>
+                            </div>
+                        )}
                     </Box>
                 )}
                 {errorResponse && (
