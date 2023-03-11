@@ -407,6 +407,27 @@ const Canvas = () => {
         )
     })
 
+    const onNodeContextMenu = (event, clickedNode) => {
+        event.preventDefault()
+        setSelectedNode(clickedNode)
+        setNodes((nds) =>
+            nds.map((node) => {
+                if (node.id === clickedNode.id) {
+                    node.data = {
+                        ...node.data,
+                        selected: true
+                    }
+                } else {
+                    node.data = {
+                        ...node.data,
+                        selected: false
+                    }
+                }
+                return node
+            })
+        )
+    }
+
     // eslint-disable-next-line
     const onNodeLabelUpdate = useCallback((nodeLabel) => {
         setNodes((nds) =>
@@ -741,6 +762,7 @@ const Canvas = () => {
                                 edges={edges}
                                 onNodesChange={onNodesChange}
                                 onNodeDoubleClick={onNodeDoubleClick}
+                                onNodeContextMenu={onNodeContextMenu}
                                 onEdgesChange={onEdgesChange}
                                 onDrop={onDrop}
                                 onDragOver={onDragOver}
