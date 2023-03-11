@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
-import ReactFlow, { ReactFlowProvider, addEdge, MiniMap, Controls, Background, useNodesState, useEdgesState } from 'react-flow-renderer'
+import ReactFlow, { addEdge, MiniMap, Controls, Background, useNodesState, useEdgesState } from 'reactflow'
+import 'reactflow/dist/style.css'
+
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { usePrompt } from '../../utils/usePrompt'
@@ -643,7 +645,8 @@ const Canvas = () => {
     useEffect(() => {
         if (rfInstance) {
             const edges = rfInstance.getEdges()
-            setEdges(edges.filter((edge) => edge.id !== canvasDataStore.removeEdgeId))
+            const toRemoveEdgeId = canvasDataStore.removeEdgeId.split(':')[0]
+            setEdges(edges.filter((edge) => edge.id !== toRemoveEdgeId))
             setDirty()
         }
 
@@ -732,71 +735,69 @@ const Canvas = () => {
                 </AppBar>
                 <Box sx={{ marginTop: '70px', height: '90vh', width: '100%' }}>
                     <div className='reactflow-parent-wrapper'>
-                        <ReactFlowProvider>
-                            <div className='reactflow-wrapper' ref={reactFlowWrapper}>
-                                <ReactFlow
+                        <div className='reactflow-wrapper' ref={reactFlowWrapper}>
+                            <ReactFlow
+                                nodes={nodes}
+                                edges={edges}
+                                onNodesChange={onNodesChange}
+                                onNodeDoubleClick={onNodeDoubleClick}
+                                onEdgesChange={onEdgesChange}
+                                onDrop={onDrop}
+                                onDragOver={onDragOver}
+                                onNodeDragStop={setDirty}
+                                nodeTypes={nodeTypes}
+                                edgeTypes={edgeTypes}
+                                onConnect={onConnect}
+                                onInit={setRfInstance}
+                                fitView
+                            >
+                                <MiniMap
+                                    nodeStrokeColor={() => theme.palette.primary.main}
+                                    nodeColor={() => theme.palette.primary.main}
+                                    nodeBorderRadius={2}
+                                />
+                                <Controls
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        left: '50%',
+                                        transform: 'translate(-50%, -50%)'
+                                    }}
+                                />
+                                <Background color='#aaa' gap={16} />
+                                <AddNodes nodesData={getNodesApi.data} node={selectedNode} />
+                                <EditNodes
                                     nodes={nodes}
                                     edges={edges}
-                                    onNodesChange={onNodesChange}
-                                    onNodeDoubleClick={onNodeDoubleClick}
-                                    onEdgesChange={onEdgesChange}
-                                    onDrop={onDrop}
-                                    onDragOver={onDragOver}
-                                    onNodeDragStop={setDirty}
-                                    nodeTypes={nodeTypes}
-                                    edgeTypes={edgeTypes}
-                                    onConnect={onConnect}
-                                    onInit={setRfInstance}
-                                    fitView
+                                    node={selectedNode}
+                                    workflow={workflow}
+                                    onNodeLabelUpdate={onNodeLabelUpdate}
+                                    onNodeValuesUpdate={onNodeValuesUpdate}
+                                />
+                                <Fab
+                                    sx={{ position: 'absolute', right: 20, top: 20 }}
+                                    size='small'
+                                    color='warning'
+                                    aria-label='test'
+                                    title='Test Workflow'
+                                    disabled={isTestingWorkflow}
+                                    onClick={handleTestWorkflow}
                                 >
-                                    <MiniMap
-                                        nodeStrokeColor={() => theme.palette.primary.main}
-                                        nodeColor={() => theme.palette.primary.main}
-                                        nodeBorderRadius={2}
-                                    />
-                                    <Controls
-                                        style={{
-                                            display: 'flex',
-                                            flexDirection: 'row',
-                                            left: '50%',
-                                            transform: 'translate(-50%, -50%)'
+                                    {<IconBolt />}
+                                </Fab>
+                                {isTestingWorkflow && (
+                                    <CircularProgress
+                                        size={50}
+                                        sx={{
+                                            color: theme.palette.warning.dark,
+                                            position: 'absolute',
+                                            right: 15,
+                                            top: 15
                                         }}
                                     />
-                                    <Background color='#aaa' gap={16} />
-                                    <AddNodes nodesData={getNodesApi.data} node={selectedNode} />
-                                    <EditNodes
-                                        nodes={nodes}
-                                        edges={edges}
-                                        node={selectedNode}
-                                        workflow={workflow}
-                                        onNodeLabelUpdate={onNodeLabelUpdate}
-                                        onNodeValuesUpdate={onNodeValuesUpdate}
-                                    />
-                                    <Fab
-                                        sx={{ position: 'absolute', right: 20, top: 20 }}
-                                        size='small'
-                                        color='warning'
-                                        aria-label='test'
-                                        title='Test Workflow'
-                                        disabled={isTestingWorkflow}
-                                        onClick={handleTestWorkflow}
-                                    >
-                                        {<IconBolt />}
-                                    </Fab>
-                                    {isTestingWorkflow && (
-                                        <CircularProgress
-                                            size={50}
-                                            sx={{
-                                                color: theme.palette.warning.dark,
-                                                position: 'absolute',
-                                                right: 15,
-                                                top: 15
-                                            }}
-                                        />
-                                    )}
-                                </ReactFlow>
-                            </div>
-                        </ReactFlowProvider>
+                                )}
+                            </ReactFlow>
+                        </div>
                     </div>
                 </Box>
                 <ConfirmDialog />

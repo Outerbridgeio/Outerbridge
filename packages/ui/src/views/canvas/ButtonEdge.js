@@ -1,4 +1,4 @@
-import { getBezierPath, getEdgeCenter, EdgeText } from 'react-flow-renderer'
+import { getBezierPath, EdgeText } from 'reactflow'
 import PropTypes from 'prop-types'
 import { useDispatch } from 'react-redux'
 import { REMOVE_EDGE } from 'store/actions'
@@ -8,7 +8,7 @@ import './index.css'
 const foreignObjectSize = 40
 
 const ButtonEdge = ({ id, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, style = {}, data, markerEnd }) => {
-    const edgePath = getBezierPath({
+    const [edgePath, edgeCenterX, edgeCenterY] = getBezierPath({
         sourceX,
         sourceY,
         sourcePosition,
@@ -17,18 +17,11 @@ const ButtonEdge = ({ id, sourceX, sourceY, targetX, targetY, sourcePosition, ta
         targetPosition
     })
 
-    const [edgeCenterX, edgeCenterY] = getEdgeCenter({
-        sourceX,
-        sourceY,
-        targetX,
-        targetY
-    })
-
     const dispatch = useDispatch()
 
     const onEdgeClick = (evt, id) => {
         evt.stopPropagation()
-        dispatch({ type: REMOVE_EDGE, edgeId: id })
+        dispatch({ type: REMOVE_EDGE, edgeId: `${id}:${Date.now()}` })
     }
 
     return (
@@ -54,7 +47,7 @@ const ButtonEdge = ({ id, sourceX, sourceY, targetX, targetY, sourcePosition, ta
                 requiredExtensions='http://www.w3.org/1999/xhtml'
             >
                 <div>
-                    <button type='button' className='edgebutton' onClick={(event) => onEdgeClick(event, id)}>
+                    <button className='edgebutton' onClick={(event) => onEdgeClick(event, id)}>
                         ×
                     </button>
                 </div>

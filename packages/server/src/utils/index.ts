@@ -806,10 +806,10 @@ export const processWebhook = async (
              * Info: https://docs.chain.link/chainlink-functions/tutorials/api-post-data
              */
             if (
+                nodeData.name === 'chainLinkFunctionWebhook' &&
                 result.length &&
                 result[0].data.headers &&
-                ((result[0].data.headers as any)['cf-session-id'] || (result[0].data.headers as any)['CF-SESSION-ID']) &&
-                nodeData.name === 'chainLinkFunctionWebhook'
+                ((result[0].data.headers as any)['cf-session-id'] || (result[0].data.headers as any)['CF-SESSION-ID'])
             ) {
                 // If webhookId does not exists OR sessionID !== webhookId
                 const sessionId = (result[0].data.headers as any)['cf-session-id']
@@ -837,7 +837,7 @@ export const processWebhook = async (
             )) as unknown as IWorkflowExecutedData[]
             if ((nodeData.inputParameters?.returnType as string) === 'lastNodeResponse' || nodeData.name === 'chainLinkFunctionWebhook') {
                 const lastExecutedResult = workflowExecutedData[workflowExecutedData.length - 1]
-                const webhookResponseData = lastExecutedResult.data || []
+                const webhookResponseData = lastExecutedResult?.data || []
                 return res.status(webhookResponseCode).json(webhookResponseData)
             } else {
                 const webhookResponseData = (nodeData.inputParameters?.responseData as string) || `Webhook ${req.originalUrl} received!`

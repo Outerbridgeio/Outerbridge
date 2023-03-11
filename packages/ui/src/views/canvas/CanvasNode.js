@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types'
-import { Handle, Position } from 'react-flow-renderer'
+import { Handle, Position } from 'reactflow'
 import { useSelector } from 'react-redux'
 // material-ui
 import { styled, useTheme } from '@mui/material/styles'
