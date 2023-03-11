@@ -798,6 +798,8 @@ export const processWebhook = async (
 
             if (result === null) return res.status(200).send('OK!')
 
+            const webhookResponseCode = (nodeData.inputParameters?.responseCode as number) || 200
+
             /**
              * Very specific use case for chainLinkFunctionWebhook
              * This is to prevent workflow from triggering multiple times because
@@ -805,27 +807,68 @@ export const processWebhook = async (
              * By storing sessionId, we can keep track if this is the same computation run from oracle node
              * Info: https://docs.chain.link/chainlink-functions/tutorials/api-post-data
              */
+            let chainLinkSessionId = ''
+
+            const updateWebhookData = async (chainLinkSessionId: string, data?: any) => {
+                const content: ICommonObject = { sessionId: chainLinkSessionId }
+                if (data) content.data = data
+                const body = { webhookId: JSON.stringify(content) }
+                const updateWebhook = new Webhook()
+                Object.assign(updateWebhook, body)
+
+                AppDataSource.getMongoRepository(Webhook).merge(webhook, updateWebhook)
+                await AppDataSource.getMongoRepository(Webhook).save(webhook)
+            }
+
             if (
                 nodeData.name === 'chainLinkFunctionWebhook' &&
                 result.length &&
                 result[0].data.headers &&
                 ((result[0].data.headers as any)['cf-session-id'] || (result[0].data.headers as any)['CF-SESSION-ID'])
             ) {
-                // If webhookId does not exists OR sessionID !== webhookId
                 const sessionId = (result[0].data.headers as any)['cf-session-id']
-                if (!webhook.webhookId || webhook.webhookId !== sessionId) {
-                    const body = { webhookId: sessionId }
-                    const updateWebhook = new Webhook()
-                    Object.assign(updateWebhook, body)
 
-                    AppDataSource.getMongoRepository(Webhook).merge(webhook, updateWebhook)
-                    await AppDataSource.getMongoRepository(Webhook).save(webhook)
+                if (!webhook.webhookId) {
+                    chainLinkSessionId = sessionId
+                    await updateWebhookData(chainLinkSessionId)
                 } else {
-                    return res.status(200).send('OK!')
+                    const lastSavedSessionId = JSON.parse(webhook.webhookId)?.sessionId
+                    if (lastSavedSessionId !== sessionId) {
+                        chainLinkSessionId = sessionId
+                        await updateWebhookData(chainLinkSessionId)
+                    } else {
+                        const promise = () => {
+                            return new Promise((resolve, reject) => {
+                                let count = 10
+                                const timeout = setInterval(async () => {
+                                    if (count < 0) {
+                                        clearInterval(timeout)
+                                        reject(new Error(`Chainlink Function Webhook Timeout`))
+                                    }
+                                    const webhook = await AppDataSource.getMongoRepository(Webhook).findOneBy({
+                                        webhookEndpoint,
+                                        httpMethod
+                                    })
+                                    if (!webhook) {
+                                        clearInterval(timeout)
+                                        reject(new Error(`Error finding Chainlink Function Webhook`))
+                                    } else {
+                                        const lastSavedData = JSON.parse(webhook.webhookId)?.data
+                                        if (lastSavedData) {
+                                            clearInterval(timeout)
+                                            resolve(lastSavedData)
+                                        }
+                                    }
+                                    count -= 1
+                                }, 1000)
+                            })
+                        }
+                        const responseData = await promise()
+                        return res.status(webhookResponseCode).json(responseData)
+                    }
                 }
             }
 
-            const webhookResponseCode = (nodeData.inputParameters?.responseCode as number) || 200
             const workflowExecutedData = (await deployedWorkflowsPool.startWorkflow(
                 workflowShortId,
                 reactFlowNode,
@@ -838,6 +881,7 @@ export const processWebhook = async (
             if ((nodeData.inputParameters?.returnType as string) === 'lastNodeResponse' || nodeData.name === 'chainLinkFunctionWebhook') {
                 const lastExecutedResult = workflowExecutedData[workflowExecutedData.length - 1]
                 const webhookResponseData = lastExecutedResult?.data || []
+                if (chainLinkSessionId) await updateWebhookData(chainLinkSessionId, webhookResponseData)
                 return res.status(webhookResponseCode).json(webhookResponseData)
             } else {
                 const webhookResponseData = (nodeData.inputParameters?.responseData as string) || `Webhook ${req.originalUrl} received!`
