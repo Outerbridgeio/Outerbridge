@@ -1,7 +1,7 @@
 import React from 'react'
-import ReactDOM from 'react-dom/client'
 import App from './App'
 import { store } from 'store'
+import { createRoot } from 'react-dom/client'
 
 // style + assets
 import 'assets/scss/style.scss'
@@ -12,7 +12,9 @@ import { Provider } from 'react-redux'
 import { SnackbarProvider } from 'notistack'
 import ConfirmContextProvider from 'store/context/ConfirmContextProvider'
 
-const root = ReactDOM.createRoot(document.getElementById('root'))
+const container = document.getElementById('root')
+const root = createRoot(container)
+
 root.render(
     <React.StrictMode>
         <Provider store={store}>
