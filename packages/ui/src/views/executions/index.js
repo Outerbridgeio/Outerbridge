@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { SET_WORKFLOW, enqueueSnackbar as enqueueSnackbarAction, closeSnackbar as closeSnackbarAction } from 'store/actions'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 // material-ui
 import { useTheme } from '@mui/material/styles'
@@ -32,6 +32,7 @@ import Transitions from 'ui-component/extended/Transitions'
 import AttachmentDialog from 'ui-component/dialog/AttachmentDialog'
 import HTMLDialog from 'ui-component/dialog/HTMLDialog'
 import ExpandDataDialog from 'ui-component/dialog/ExpandDataDialog'
+import { StyledButton } from 'ui-component/StyledButton'
 
 // hooks
 import useConfirm from 'hooks/useConfirm'
@@ -51,6 +52,8 @@ import { copyToClipboard } from 'utils/genericHelper'
 
 const Executions = ({ workflowShortId, execution, executionCount, isExecutionOpen, anchorEl }) => {
     const theme = useTheme()
+    const customization = useSelector((state) => state.customization)
+
     const [expanded, setExpanded] = useState(false)
     const [open, setOpen] = useState(false)
     const [showHTMLDialog, setShowHTMLDialog] = useState(false)
@@ -289,6 +292,8 @@ const Executions = ({ workflowShortId, execution, executionCount, isExecutionOpe
                                                                                 {execData.nodeLabel}
                                                                             </Typography>
                                                                             <ReactJson
+                                                                                theme={customization.isDarkMode ? 'ocean' : 'rjv-default'}
+                                                                                style={{ padding: 10, borderRadius: 10 }}
                                                                                 collapsed
                                                                                 src={execData.data}
                                                                                 enableClipboard={(e) => copyToClipboard(e)}
@@ -334,7 +339,7 @@ const Executions = ({ workflowShortId, execution, executionCount, isExecutionOpe
                                                                                             />
                                                                                         )}
                                                                                         {execObj.html && (
-                                                                                            <Button
+                                                                                            <StyledButton
                                                                                                 sx={{ mt: 1 }}
                                                                                                 size='small'
                                                                                                 variant='contained'
@@ -343,7 +348,7 @@ const Executions = ({ workflowShortId, execution, executionCount, isExecutionOpe
                                                                                                 }
                                                                                             >
                                                                                                 View HTML
-                                                                                            </Button>
+                                                                                            </StyledButton>
                                                                                         )}
 
                                                                                         {execObj.attachments && (
@@ -374,7 +379,7 @@ const Executions = ({ workflowShortId, execution, executionCount, isExecutionOpe
                                                                                                             style={{ borderStyle: 'solid' }}
                                                                                                             type={attachment.contentType}
                                                                                                         />
-                                                                                                        <Button
+                                                                                                        <StyledButton
                                                                                                             size='small'
                                                                                                             variant='contained'
                                                                                                             onClick={() =>
@@ -384,7 +389,7 @@ const Executions = ({ workflowShortId, execution, executionCount, isExecutionOpe
                                                                                                             }
                                                                                                         >
                                                                                                             View Attachment
-                                                                                                        </Button>
+                                                                                                        </StyledButton>
                                                                                                     </div>
                                                                                                 )
                                                                                             )}

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
+import { useSelector } from 'react-redux'
 import PropTypes from 'prop-types'
-import { TooltipWithParser } from '../../ui-component/TooltipWithParser'
 
 // material-ui
 import { Typography, Stack } from '@mui/material'
@@ -8,6 +8,7 @@ import { useTheme } from '@mui/material/styles'
 
 // project imports
 import OptionParamsResponse from './OptionParamsResponse'
+import { TooltipWithParser } from '../../ui-component/TooltipWithParser'
 
 // third party
 import lodash from 'lodash'
@@ -35,6 +36,7 @@ const AsyncSelectWrapper = ({
     onSetError
 }) => {
     const theme = useTheme()
+    const customization = useSelector((state) => state.customization)
 
     const customStyles = {
         option: (provided, state) => ({
@@ -45,33 +47,41 @@ const AsyncSelectWrapper = ({
             paddingRight: 20,
             cursor: 'pointer',
             fontWeight: '500',
-            backgroundColor: state.isSelected ? theme.palette.primary.light : '',
-            color: 'black',
+            backgroundColor: customization.isDarkMode
+                ? state.isSelected
+                    ? '#233345'
+                    : theme.palette.primary.light
+                : state.isSelected
+                ? theme.palette.primary.light
+                : '',
+            color: customization.isDarkMode ? 'white' : 'black',
             '&:hover': {
-                backgroundColor: theme.palette.grey['200']
+                backgroundColor: customization.isDarkMode ? '#233345' : theme.palette.grey['200']
             }
         }),
         control: (provided) => ({
             ...provided,
             cursor: 'text',
-            backgroundColor: '#fafafa',
+            backgroundColor: theme.palette.asyncSelect.main,
             paddingTop: 8,
             paddingBottom: 8,
             paddingRight: 6,
             paddingLeft: 6,
             borderRadius: 12,
+            border: customization.isDarkMode ? 'none' : `solid 1px ${theme.palette.grey['400']}`,
             '&:hover': {
                 borderColor: theme.palette.grey['700']
             }
         }),
         singleValue: (provided) => ({
             ...provided,
+            color: customization.isDarkMode ? 'white' : 'black',
             fontWeight: '600'
         }),
         menuList: (provided) => ({
             ...provided,
-            boxShadow: '0px 8px 10px -5px rgb(0 0 0 / 20%), 0px 16px 24px 2px rgb(0 0 0 / 14%), 0px 6px 30px 5px rgb(0 0 0 / 12%)',
-            borderRadius: '10px'
+            backgroundColor: customization.isDarkMode ? theme.palette.primary.light : '',
+            boxShadow: '0px 8px 10px -5px rgb(0 0 0 / 20%), 0px 16px 24px 2px rgb(0 0 0 / 14%), 0px 6px 30px 5px rgb(0 0 0 / 12%)'
         })
     }
 
@@ -201,8 +211,8 @@ const AsyncSelectWrapper = ({
                         minHeight: 10,
                         height: 27,
                         width: 30,
-                        backgroundColor: '#FAFAFA',
-                        color: theme.palette.grey['500'],
+                        backgroundColor: theme.palette.asyncSelect.main,
+                        color: customization.isDarkMode ? 'white' : theme.palette.grey['500'],
                         position: 'absolute',
                         right: 10,
                         top: 0,

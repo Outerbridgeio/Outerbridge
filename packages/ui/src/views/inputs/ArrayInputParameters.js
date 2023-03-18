@@ -3,24 +3,19 @@ import PropTypes from 'prop-types'
 import { forwardRef } from 'react'
 
 // material-ui
-import { Box, Switch, Fab, FormControl, OutlinedInput, Popper, TextField, Typography, Stack, Button } from '@mui/material'
+import { Box, Switch, FormControl, OutlinedInput, Popper, TextField, Typography, Stack, Button } from '@mui/material'
 import Autocomplete, { autocompleteClasses } from '@mui/material/Autocomplete'
 import { useTheme, styled } from '@mui/material/styles'
 import { TooltipWithParser } from '../../ui-component/TooltipWithParser'
+import { DarkCodeEditor } from 'ui-component/editor/DarkCodeEditor'
+import { LightCodeEditor } from 'ui-component/editor/LightCodeEditor'
 
 // icons
 import { IconX, IconUpload } from '@tabler/icons'
 
 // third party
 import lodash from 'lodash'
-import Editor from 'react-simple-code-editor'
 import PerfectScrollbar from 'react-perfect-scrollbar'
-import { highlight, languages } from 'prismjs/components/prism-core'
-import 'prismjs/components/prism-clike'
-import 'prismjs/components/prism-javascript'
-import 'prismjs/components/prism-json'
-import 'prismjs/components/prism-markup'
-import 'prismjs/themes/prism.css'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 
@@ -29,6 +24,7 @@ import { convertDateStringToDateObject, getFileName, getFolderName } from 'utils
 
 //css
 import './InputParameters.css'
+import { StyledFab } from 'ui-component/StyledFab'
 
 const StyledPopper = styled(Popper)({
     boxShadow: '0px 8px 10px -5px rgb(0 0 0 / 20%), 0px 16px 24px 2px rgb(0 0 0 / 14%), 0px 6px 30px 5px rgb(0 0 0 / 12%)',
@@ -200,22 +196,21 @@ const ArrayInputParameters = ({
                         key={index}
                     >
                         {arrayParams.length > 1 && (
-                            <Fab
+                            <StyledFab
                                 sx={{
                                     minHeight: 30,
                                     height: 30,
                                     width: 30,
-                                    backgroundColor: theme.palette.secondary.light,
-                                    color: theme.palette.secondary.main,
                                     position: 'absolute',
                                     right: -10,
                                     top: -10
                                 }}
+                                color='secondary'
                                 size='small'
                                 onClick={() => onRemoveClick(index)}
                             >
                                 <IconX />
-                            </Fab>
+                            </StyledFab>
                         )}
 
                         {params.map((input, paramIndex) => {
@@ -326,24 +321,41 @@ const ArrayInputParameters = ({
                                             }}
                                             onScroll={(e) => e.stopPropagation()}
                                         >
-                                            <Editor
-                                                placeholder={input.placeholder}
-                                                value={values[inputName] || ''}
-                                                onBlur={(e) => {
-                                                    onInputBlur(e.target.value, inputName, values, index)
-                                                    onMouseUp(e, inputName, index)
-                                                }}
-                                                onValueChange={(code) => onInputChange(code, inputName, values, index)}
-                                                onMouseUp={(e) => onMouseUp(e, inputName, index)}
-                                                highlight={(code) => highlight(code, input.type === 'json' ? languages.json : languages.js)}
-                                                padding={10}
-                                                style={{
-                                                    fontSize: '0.875rem',
-                                                    minHeight: '200px',
-                                                    width: '100%'
-                                                }}
-                                                textareaClassName='editor__textarea'
-                                            />
+                                            {customization.isDarkMode ? (
+                                                <DarkCodeEditor
+                                                    value={values[inputName] || ''}
+                                                    onValueChange={(code) => onInputChange(code, inputName, values, index)}
+                                                    placeholder={input.placeholder}
+                                                    type={input.type}
+                                                    onMouseUp={(e) => onMouseUp(e, inputName, index)}
+                                                    onBlur={(e) => {
+                                                        onInputBlur(e.target.value, inputName, values, index)
+                                                        onMouseUp(e, inputName, index)
+                                                    }}
+                                                    style={{
+                                                        fontSize: '0.875rem',
+                                                        minHeight: '200px',
+                                                        width: '100%'
+                                                    }}
+                                                />
+                                            ) : (
+                                                <LightCodeEditor
+                                                    value={values[inputName] || ''}
+                                                    onValueChange={(code) => onInputChange(code, inputName, values, index)}
+                                                    placeholder={input.placeholder}
+                                                    type={input.type}
+                                                    onMouseUp={(e) => onMouseUp(e, inputName, index)}
+                                                    onBlur={(e) => {
+                                                        onInputBlur(e.target.value, inputName, values, index)
+                                                        onMouseUp(e, inputName, index)
+                                                    }}
+                                                    style={{
+                                                        fontSize: '0.875rem',
+                                                        minHeight: '200px',
+                                                        width: '100%'
+                                                    }}
+                                                />
+                                            )}
                                         </PerfectScrollbar>
                                     </FormControl>
                                 )

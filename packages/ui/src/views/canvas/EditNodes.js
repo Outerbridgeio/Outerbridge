@@ -8,7 +8,6 @@ import {
     AccordionSummary,
     AccordionDetails,
     Box,
-    Fab,
     ClickAwayListener,
     Divider,
     Paper,
@@ -33,6 +32,7 @@ import CredentialInput from 'views/inputs/CredentialInput'
 import OutputResponses from 'views/output/OutputResponses'
 import VariableSelector from './VariableSelector'
 import EditVariableDialog from 'ui-component/dialog/EditVariableDialog'
+import { StyledFab } from 'ui-component/StyledFab'
 
 // API
 import nodesApi from 'api/nodes'
@@ -482,9 +482,9 @@ const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValu
 
     return (
         <>
-            <Fab sx={{ left: 40, top: 20 }} ref={anchorRef} size='small' color='secondary' onClick={handleToggle} title='Edit Node'>
+            <StyledFab sx={{ left: 40, top: 20 }} ref={anchorRef} size='small' color='secondary' onClick={handleToggle} title='Edit Node'>
                 {open ? <IconMinus /> : <IconPencil />}
-            </Fab>
+            </StyledFab>
             <Popper
                 placement='bottom-end'
                 open={open}
@@ -543,21 +543,20 @@ const EditNodes = ({ node, nodes, edges, workflow, onNodeLabelUpdate, onNodeValu
                                                     onChange={handleNodeLabelChange}
                                                     fullWidth
                                                 />
-                                                <Fab
+                                                <StyledFab
                                                     sx={{
                                                         minHeight: 10,
                                                         height: 27,
                                                         width: 30,
-                                                        backgroundColor: theme.palette.secondary.light,
-                                                        color: theme.palette.secondary.main,
                                                         ml: 2
                                                     }}
                                                     size='small'
+                                                    color='secondary'
                                                     title='Validate and Save'
                                                     onClick={saveNodeLabel}
                                                 >
                                                     <IconCheck />
-                                                </Fab>
+                                                </StyledFab>
                                             </Box>
                                         )}
 

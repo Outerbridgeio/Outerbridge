@@ -1,8 +1,9 @@
 import PropTypes from 'prop-types'
 import { forwardRef } from 'react'
+import { useSelector } from 'react-redux'
 
 // material-ui
-import { Box, Button, Stack, FormControl, OutlinedInput, Popper, TextField, Typography, Switch } from '@mui/material'
+import { Box, Stack, Button, FormControl, OutlinedInput, Popper, TextField, Typography, Switch } from '@mui/material'
 import Autocomplete, { autocompleteClasses } from '@mui/material/Autocomplete'
 import { styled, useTheme } from '@mui/material/styles'
 
@@ -11,17 +12,8 @@ import lodash from 'lodash'
 import * as Yup from 'yup'
 import { Formik } from 'formik'
 import PerfectScrollbar from 'react-perfect-scrollbar'
-import Editor from 'react-simple-code-editor'
-import { highlight, languages } from 'prismjs/components/prism-core'
-import 'prismjs/components/prism-clike'
-import 'prismjs/components/prism-javascript'
-import 'prismjs/components/prism-json'
-import 'prismjs/components/prism-markup'
-import 'prismjs/themes/prism.css'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
-
-import { TooltipWithParser } from '../../ui-component/TooltipWithParser'
 
 // project imports
 import useScriptRef from 'hooks/useScriptRef'
@@ -29,6 +21,10 @@ import AnimateButton from 'ui-component/extended/AnimateButton'
 import ArrayInputParameters from './ArrayInputParameters'
 import OptionParamsResponse from './OptionParamsResponse'
 import AsyncSelectWrapper from './AsyncSelectWrapper'
+import { DarkCodeEditor } from 'ui-component/editor/DarkCodeEditor'
+import { LightCodeEditor } from 'ui-component/editor/LightCodeEditor'
+import { TooltipWithParser } from '../../ui-component/TooltipWithParser'
+import { StyledButton } from '../../ui-component/StyledButton'
 
 // icons
 import { IconPlus, IconUpload } from '@tabler/icons'
@@ -46,16 +42,17 @@ const StyledPopper = styled(Popper)({
         boxSizing: 'border-box',
         '& ul': {
             padding: 10,
-            margin: 10
+            margin: 10,
+            backgroundColor: 'red'
         }
     }
 })
 
-const DateCustomInput = forwardRef(function DateCustomInput({ value, onClick }, ref) {
+const DateCustomInput = forwardRef(function DateCustomInput({ isDarkMode, value, onClick }, ref) {
     return (
         <button
             style={{
-                backgroundColor: '#fafafa',
+                backgroundColor: isDarkMode ? '#32353b' : '#fafafa',
                 paddingTop: 8,
                 paddingBottom: 8,
                 paddingRight: 12,
@@ -63,11 +60,11 @@ const DateCustomInput = forwardRef(function DateCustomInput({ value, onClick }, 
                 borderRadius: 12,
                 width: '100%',
                 height: 50,
-                border: `1px solid #BDBDBD`,
+                border: isDarkMode ? 'none' : `1px solid #BDBDBD`,
                 cursor: 'pointer',
                 fontWeight: 'bold',
                 textAlign: 'start',
-                color: '#212121',
+                color: isDarkMode ? '#ffffff' : '#212121',
                 opacity: 0.9
             }}
             type='button'
@@ -80,6 +77,7 @@ const DateCustomInput = forwardRef(function DateCustomInput({ value, onClick }, 
 })
 
 DateCustomInput.propTypes = {
+    isDarkMode: PropTypes.bool,
     value: PropTypes.string,
     onClick: PropTypes.func
 }
@@ -99,7 +97,7 @@ const InputParameters = ({
     ...others
 }) => {
     const theme = useTheme()
-
+    const customization = useSelector((state) => state.customization)
     const scriptedRef = useScriptRef()
 
     const onChanged = (values) => {
@@ -325,32 +323,53 @@ const InputParameters = ({
                                                 }}
                                                 onScroll={(e) => e.stopPropagation()}
                                             >
-                                                <Editor
-                                                    placeholder={input.placeholder}
-                                                    value={values[inputName] || ''}
-                                                    onBlur={(e) => {
-                                                        const overwriteValues = {
-                                                            ...values,
-                                                            [inputName]: e.target.value
-                                                        }
-                                                        onChanged(overwriteValues)
-                                                        onMouseUp(e, inputName)
-                                                    }}
-                                                    onValueChange={(code) => {
-                                                        setFieldValue(inputName, code)
-                                                    }}
-                                                    onMouseUp={(e) => onMouseUp(e, inputName)}
-                                                    highlight={(code) =>
-                                                        highlight(code, input.type === 'json' ? languages.json : languages.js)
-                                                    }
-                                                    padding={10}
-                                                    style={{
-                                                        fontSize: '0.875rem',
-                                                        minHeight: '200px',
-                                                        width: '100%'
-                                                    }}
-                                                    textareaClassName='editor__textarea'
-                                                />
+                                                {customization.isDarkMode ? (
+                                                    <DarkCodeEditor
+                                                        value={values[inputName] || ''}
+                                                        onValueChange={(code) => {
+                                                            setFieldValue(inputName, code)
+                                                        }}
+                                                        placeholder={input.placeholder}
+                                                        type={input.type}
+                                                        onMouseUp={(e) => onMouseUp(e, inputName)}
+                                                        onBlur={(e) => {
+                                                            const overwriteValues = {
+                                                                ...values,
+                                                                [inputName]: e.target.value
+                                                            }
+                                                            onChanged(overwriteValues)
+                                                            onMouseUp(e, inputName)
+                                                        }}
+                                                        style={{
+                                                            fontSize: '0.875rem',
+                                                            minHeight: '200px',
+                                                            width: '100%'
+                                                        }}
+                                                    />
+                                                ) : (
+                                                    <LightCodeEditor
+                                                        value={values[inputName] || ''}
+                                                        onValueChange={(code) => {
+                                                            setFieldValue(inputName, code)
+                                                        }}
+                                                        placeholder={input.placeholder}
+                                                        type={input.type}
+                                                        onMouseUp={(e) => onMouseUp(e, inputName)}
+                                                        onBlur={(e) => {
+                                                            const overwriteValues = {
+                                                                ...values,
+                                                                [inputName]: e.target.value
+                                                            }
+                                                            onChanged(overwriteValues)
+                                                            onMouseUp(e, inputName)
+                                                        }}
+                                                        style={{
+                                                            fontSize: '0.875rem',
+                                                            minHeight: '200px',
+                                                            width: '100%'
+                                                        }}
+                                                    />
+                                                )}
                                             </PerfectScrollbar>
                                             {errors[inputName] && (
                                                 <span style={{ color: 'red', fontSize: '0.7rem', fontStyle: 'italic' }}>
@@ -371,7 +390,7 @@ const InputParameters = ({
                                                 {input.description && <TooltipWithParser title={input.description} />}
                                             </Stack>
                                             <DatePicker
-                                                customInput={<DateCustomInput />}
+                                                customInput={<DateCustomInput isDarkMode={customization.isDarkMode} />}
                                                 selected={convertDateStringToDateObject(values[inputName]) || null}
                                                 showTimeInput
                                                 isClearable
@@ -543,7 +562,9 @@ const InputParameters = ({
                                                                 {option.label}
                                                             </Typography>
                                                             {option.description && (
-                                                                <Typography sx={{ p: 1 }}>{option.description}</Typography>
+                                                                <Typography sx={{ p: 1, color: customization.isDarkMode ? '#9e9e9e' : '' }}>
+                                                                    {option.description}
+                                                                </Typography>
                                                             )}
                                                         </div>
                                                     </Box>
@@ -645,7 +666,7 @@ const InputParameters = ({
 
                             <Box sx={{ mt: 2 }}>
                                 <AnimateButton>
-                                    <Button
+                                    <StyledButton
                                         disableElevation
                                         disabled={isSubmitting || Object.keys(errors).length > 0}
                                         fullWidth
@@ -655,7 +676,7 @@ const InputParameters = ({
                                         color='secondary'
                                     >
                                         Continue
-                                    </Button>
+                                    </StyledButton>
                                 </AnimateButton>
                             </Box>
                         </form>

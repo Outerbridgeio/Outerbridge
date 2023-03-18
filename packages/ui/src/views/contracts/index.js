@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
+import { useSelector } from 'react-redux'
 
 // material-ui
-import { Grid, Button, Box, Stack } from '@mui/material'
+import { Grid, Box, Stack } from '@mui/material'
+import { useTheme } from '@mui/material/styles'
 
 // project imports
 import MainCard from 'ui-component/cards/MainCard'
@@ -9,6 +11,7 @@ import ItemCard from 'ui-component/cards/ItemCard'
 import ContractDialog from './ContractDialog'
 import ContractEmptySVG from 'assets/images/contract_empty.svg'
 import { TooltipWithParser } from 'ui-component/TooltipWithParser'
+import { StyledButton } from 'ui-component/StyledButton'
 
 // const
 import { gridSpacing } from 'store/constant'
@@ -22,6 +25,9 @@ import useApi from 'hooks/useApi'
 // ==============================|| CONTRACTS ||============================== //
 
 const Contracts = () => {
+    const theme = useTheme()
+    const customization = useSelector((state) => state.customization)
+
     const [isLoading, setLoading] = useState(true)
     const [showDialog, setShowDialog] = useState(false)
     const [dialogProps, setDialogProps] = useState({})
@@ -68,16 +74,16 @@ const Contracts = () => {
 
     return (
         <>
-            <MainCard>
+            <MainCard sx={{ background: customization.isDarkMode ? theme.palette.common.black : '' }}>
                 <Stack flexDirection='row'>
                     <h1>Contracts&nbsp;</h1>
                     <TooltipWithParser title='Verified smart contracts can be imported. Events and functions of smart contracts can be monitored and executed. Read <a target="_blank" href=https://docs.outerbridge.io/how-to-use/contracts>more</a>' />
                     <Grid sx={{ mb: 1.25 }} container direction='row'>
                         <Box sx={{ flexGrow: 1 }} />
                         <Grid item>
-                            <Button variant='contained' sx={{ color: 'white' }} onClick={addNew}>
+                            <StyledButton variant='contained' onClick={addNew}>
                                 Add New
-                            </Button>
+                            </StyledButton>
                         </Grid>
                     </Grid>
                 </Stack>

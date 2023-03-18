@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 
 import { Button, Dialog, DialogActions, DialogContent, OutlinedInput, DialogTitle } from '@mui/material'
+import { StyledButton } from 'ui-component/StyledButton'
 
 const SaveWorkflowDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
     const portalElement = document.getElementById('portal')
@@ -40,9 +41,9 @@ const SaveWorkflowDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
             </DialogContent>
             <DialogActions>
                 <Button onClick={onCancel}>{dialogProps.cancelButtonName}</Button>
-                <Button disabled={!isReadyToSave} variant='contained' onClick={() => onConfirm(workflowName)}>
+                <StyledButton disabled={!isReadyToSave} variant='contained' onClick={() => onConfirm(workflowName)}>
                     {dialogProps.confirmButtonName}
-                </Button>
+                </StyledButton>
             </DialogActions>
         </Dialog>
     ) : null

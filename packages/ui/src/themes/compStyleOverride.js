@@ -9,6 +9,14 @@ export default function componentStyleOverrides(theme) {
                 }
             }
         },
+        MuiSvgIcon: {
+            styleOverrides: {
+                root: {
+                    color: theme?.customization?.isDarkMode ? theme.colors?.paper : 'inherit',
+                    background: theme?.customization?.isDarkMode ? theme.colors?.darkPrimaryLight : 'inherit'
+                }
+            }
+        },
         MuiPaper: {
             defaultProps: {
                 elevation: 0
@@ -102,7 +110,7 @@ export default function componentStyleOverrides(theme) {
         MuiOutlinedInput: {
             styleOverrides: {
                 root: {
-                    background: bgColor,
+                    background: theme?.customization?.isDarkMode ? theme.colors?.darkPrimary800 : bgColor,
                     borderRadius: `${theme?.customization?.borderRadius}px`,
                     '& .MuiOutlinedInput-notchedOutline': {
                         borderColor: theme.colors?.grey400
@@ -116,7 +124,7 @@ export default function componentStyleOverrides(theme) {
                 },
                 input: {
                     fontWeight: 500,
-                    background: bgColor,
+                    background: theme?.customization?.isDarkMode ? theme.colors?.darkPrimary800 : bgColor,
                     padding: '15.5px 14px',
                     borderRadius: `${theme?.customization?.borderRadius}px`,
                     '&.MuiInputBase-inputSizeSmall': {
@@ -178,8 +186,17 @@ export default function componentStyleOverrides(theme) {
         MuiTooltip: {
             styleOverrides: {
                 tooltip: {
-                    color: theme.paper,
+                    color: theme?.customization?.isDarkMode ? theme.colors?.paper : theme.paper,
                     background: theme.colors?.grey700
+                }
+            }
+        },
+        MuiAutocomplete: {
+            styleOverrides: {
+                option: {
+                    '&:hover': {
+                        background: theme?.customization?.isDarkMode ? '#233345 !important' : ''
+                    }
                 }
             }
         }

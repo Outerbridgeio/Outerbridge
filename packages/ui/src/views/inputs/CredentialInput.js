@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useSelector } from 'react-redux'
 import PropTypes from 'prop-types'
 
 // material-ui
@@ -10,16 +11,12 @@ import { useTheme, styled } from '@mui/material/styles'
 import * as Yup from 'yup'
 import { Formik } from 'formik'
 import PerfectScrollbar from 'react-perfect-scrollbar'
-import Editor from 'react-simple-code-editor'
-import { highlight, languages } from 'prismjs/components/prism-core'
-import 'prismjs/components/prism-clike'
-import 'prismjs/components/prism-javascript'
-import 'prismjs/components/prism-json'
-import 'prismjs/components/prism-markup'
-import 'prismjs/themes/prism.css'
 
 // project imports
 import AnimateButton from 'ui-component/extended/AnimateButton'
+import { StyledButton } from 'ui-component/StyledButton'
+import { DarkCodeEditor } from 'ui-component/editor/DarkCodeEditor'
+import { LightCodeEditor } from 'ui-component/editor/LightCodeEditor'
 
 // API
 import credentialApi from 'api/credential'
@@ -66,6 +63,7 @@ const CredentialInput = ({
 }) => {
     const scriptedRef = useScriptRef()
     const theme = useTheme()
+    const customization = useSelector((state) => state.customization)
 
     const [credentialValidation, setCredentialValidation] = useState({})
     const [credentialValues, setCredentialValues] = useState({})
@@ -516,28 +514,45 @@ const CredentialInput = ({
                                                     }}
                                                     onScroll={(e) => e.stopPropagation()}
                                                 >
-                                                    <Editor
-                                                        placeholder={input.placeholder}
-                                                        value={values[inputName] || ''}
-                                                        onBlur={(e) => {
-                                                            const overwriteValues = {
-                                                                ...values,
-                                                                [inputName]: e.target.value
-                                                            }
-                                                            onChanged(overwriteValues)
-                                                        }}
-                                                        onValueChange={(code) => {
-                                                            setFieldValue(inputName, code)
-                                                        }}
-                                                        highlight={(code) => highlight(code, languages.json)}
-                                                        padding={10}
-                                                        style={{
-                                                            fontSize: '0.875rem',
-                                                            minHeight: '200px',
-                                                            width: '100%'
-                                                        }}
-                                                        textareaClassName='editor__textarea'
-                                                    />
+                                                    {customization.isDarkMode ? (
+                                                        <DarkCodeEditor
+                                                            value={values[inputName] || ''}
+                                                            onValueChange={(code) => onInputChange(code, inputName, values, index)}
+                                                            placeholder={input.placeholder}
+                                                            type={input.type}
+                                                            onMouseUp={(e) => onMouseUp(e, inputName, index)}
+                                                            onBlur={(e) => {
+                                                                onInputBlur(e.target.value, inputName, values, index)
+                                                                onMouseUp(e, inputName, index)
+                                                            }}
+                                                            style={{
+                                                                fontSize: '0.875rem',
+                                                                minHeight: '200px',
+                                                                width: '100%'
+                                                            }}
+                                                        />
+                                                    ) : (
+                                                        <LightCodeEditor
+                                                            value={values[inputName] || ''}
+                                                            onValueChange={(code) => {
+                                                                setFieldValue(inputName, code)
+                                                            }}
+                                                            placeholder={input.placeholder}
+                                                            type='json'
+                                                            onBlur={(e) => {
+                                                                const overwriteValues = {
+                                                                    ...values,
+                                                                    [inputName]: e.target.value
+                                                                }
+                                                                onChanged(overwriteValues)
+                                                            }}
+                                                            style={{
+                                                                fontSize: '0.875rem',
+                                                                minHeight: '200px',
+                                                                width: '100%'
+                                                            }}
+                                                        />
+                                                    )}
                                                 </PerfectScrollbar>
                                                 {errors[inputName] && (
                                                     <span style={{ color: 'red', fontSize: '0.7rem', fontStyle: 'italic' }}>
@@ -665,7 +680,7 @@ const CredentialInput = ({
                             <Box sx={{ mt: 2 }}>
                                 {!(values.credentialMethod || '').toLowerCase().includes('google') && (
                                     <AnimateButton>
-                                        <Button
+                                        <StyledButton
                                             disableElevation
                                             disabled={isSubmitting || Object.keys(errors).length > 0}
                                             fullWidth
@@ -679,11 +694,11 @@ const CredentialInput = ({
                                             (values.registeredCredential.name === ADD_NEW_CREDENTIAL || credentialParams.length)
                                                 ? 'Save and Continue'
                                                 : 'Continue'}
-                                        </Button>
+                                        </StyledButton>
                                     </AnimateButton>
                                 )}
                                 {(values.credentialMethod || '').toLowerCase().includes('google') && (
-                                    <Button
+                                    <StyledButton
                                         disabled={isSubmitting || Object.keys(errors).length > 0}
                                         fullWidth
                                         size='large'
@@ -707,7 +722,7 @@ const CredentialInput = ({
                                                 alt='Google Login'
                                             />
                                         </div>
-                                    </Button>
+                                    </StyledButton>
                                 )}
                             </Box>
                         </form>

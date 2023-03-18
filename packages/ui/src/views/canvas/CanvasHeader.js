@@ -158,12 +158,12 @@ const CanvasHeader = ({ workflow, handleSaveFlow, handleDeployWorkflow, handleSt
                                         ...theme.typography.commonAvatar,
                                         ...theme.typography.mediumAvatar,
                                         transition: 'all .2s ease-in-out',
-                                        background: 'white',
-                                        color: theme.palette.text.dark,
                                         ml: 1,
+                                        background: theme.palette.secondary.light,
+                                        color: theme.palette.secondary.dark,
                                         '&:hover': {
-                                            background: theme.palette.secondary.light,
-                                            color: theme.palette.secondary.dark
+                                            background: theme.palette.secondary.dark,
+                                            color: theme.palette.secondary.light
                                         }
                                     }}
                                     color='inherit'
@@ -176,8 +176,8 @@ const CanvasHeader = ({ workflow, handleSaveFlow, handleDeployWorkflow, handleSt
                         {workflow?.deployed && (
                             <Chip
                                 sx={{
-                                    color: theme.palette.success.dark,
-                                    backgroundColor: theme.palette.success.light,
+                                    color: 'white',
+                                    backgroundColor: theme.palette.success.dark,
                                     ml: 1
                                 }}
                                 label='Deployed'
@@ -204,12 +204,12 @@ const CanvasHeader = ({ workflow, handleSaveFlow, handleDeployWorkflow, handleSt
                                     ...theme.typography.commonAvatar,
                                     ...theme.typography.mediumAvatar,
                                     transition: 'all .2s ease-in-out',
-                                    background: 'white',
-                                    color: theme.palette.text.dark,
+                                    background: theme.palette.success.light,
+                                    color: theme.palette.success.dark,
                                     ml: 1,
                                     '&:hover': {
-                                        background: theme.palette.secondary.light,
-                                        color: theme.palette.secondary.dark
+                                        background: theme.palette.success.dark,
+                                        color: theme.palette.success.light
                                     }
                                 }}
                                 color='inherit'
@@ -225,12 +225,12 @@ const CanvasHeader = ({ workflow, handleSaveFlow, handleDeployWorkflow, handleSt
                                     ...theme.typography.commonAvatar,
                                     ...theme.typography.mediumAvatar,
                                     transition: 'all .2s ease-in-out',
-                                    background: 'white',
-                                    color: theme.palette.text.dark,
+                                    background: theme.palette.error.light,
+                                    color: theme.palette.error.dark,
                                     ml: 1,
                                     '&:hover': {
-                                        background: theme.palette.error.light,
-                                        color: theme.palette.error.dark
+                                        background: theme.palette.error.dark,
+                                        color: theme.palette.error.light
                                     }
                                 }}
                                 color='inherit'
@@ -252,11 +252,11 @@ const CanvasHeader = ({ workflow, handleSaveFlow, handleDeployWorkflow, handleSt
                                 ...theme.typography.mediumAvatar,
                                 width: '54px',
                                 transition: 'all .2s ease-in-out',
-                                background: theme.palette.success.light,
-                                color: theme.palette.success.dark,
+                                background: theme.palette.canvasHeader.executionLight,
+                                color: theme.palette.canvasHeader.executionDark,
                                 '&:hover': {
-                                    background: theme.palette.success.dark,
-                                    color: theme.palette.success.light
+                                    background: theme.palette.canvasHeader.executionDark,
+                                    color: theme.palette.canvasHeader.executionLight
                                 }
                             }}
                             color='inherit'
@@ -275,11 +275,11 @@ const CanvasHeader = ({ workflow, handleSaveFlow, handleDeployWorkflow, handleSt
                                 ...theme.typography.commonAvatar,
                                 ...theme.typography.mediumAvatar,
                                 transition: 'all .2s ease-in-out',
-                                background: theme.palette.primary.light,
-                                color: theme.palette.primary.dark,
+                                background: theme.palette.canvasHeader.deployLight,
+                                color: theme.palette.canvasHeader.deployDark,
                                 '&:hover': {
-                                    background: theme.palette.primary.dark,
-                                    color: theme.palette.primary.light
+                                    background: theme.palette.canvasHeader.deployDark,
+                                    color: theme.palette.canvasHeader.deployLight
                                 }
                             }}
                             color='inherit'
@@ -301,11 +301,11 @@ const CanvasHeader = ({ workflow, handleSaveFlow, handleDeployWorkflow, handleSt
                             ...theme.typography.commonAvatar,
                             ...theme.typography.mediumAvatar,
                             transition: 'all .2s ease-in-out',
-                            background: theme.palette.secondary.light,
-                            color: theme.palette.secondary.dark,
+                            background: theme.palette.canvasHeader.saveLight,
+                            color: theme.palette.canvasHeader.saveDark,
                             '&:hover': {
-                                background: theme.palette.secondary.dark,
-                                color: theme.palette.secondary.light
+                                background: theme.palette.canvasHeader.saveDark,
+                                color: theme.palette.canvasHeader.saveLight
                             }
                         }}
                         color='inherit'
@@ -321,11 +321,11 @@ const CanvasHeader = ({ workflow, handleSaveFlow, handleDeployWorkflow, handleSt
                             ...theme.typography.commonAvatar,
                             ...theme.typography.mediumAvatar,
                             transition: 'all .2s ease-in-out',
-                            background: theme.palette.grey[300],
-                            color: theme.palette.grey[700],
+                            background: theme.palette.canvasHeader.settingsLight,
+                            color: theme.palette.canvasHeader.settingsDark,
                             '&:hover': {
-                                background: theme.palette.grey[700],
-                                color: theme.palette.grey[300]
+                                background: theme.palette.canvasHeader.settingsDark,
+                                color: theme.palette.canvasHeader.settingsLight
                             }
                         }}
                         onClick={() => setSettingsOpen(!isSettingsOpen)}
