@@ -330,7 +330,11 @@ const Executions = ({ workflowShortId, execution, executionCount, isExecutionOpe
                                                                                                     height: '100%',
                                                                                                     maxHeight: 400,
                                                                                                     overflow: 'auto',
-                                                                                                    backgroundColor: 'white',
+                                                                                                    backgroundColor:
+                                                                                                        theme.palette.card.main,
+                                                                                                    color: customization.isDarkMode
+                                                                                                        ? 'white'
+                                                                                                        : 'black',
                                                                                                     borderRadius: 5
                                                                                                 }}
                                                                                                 dangerouslySetInnerHTML={{
