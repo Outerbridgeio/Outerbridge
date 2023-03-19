@@ -74,7 +74,6 @@ const CredentialInput = ({
 
     const getCredentialParamsApi = useApi(credentialApi.getCredentialParams)
     const getRegisteredCredentialsApi = useApi(credentialApi.getCredentials)
-    const getSpecificCredentialApi = useApi(credentialApi.getSpecificCredential)
 
     const onChanged = (values) => {
         const updateValues = values
@@ -207,20 +206,6 @@ const CredentialInput = ({
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [getCredentialParamsApi.data])
-
-    // getSpecificCredentialApi successful
-    useEffect(() => {
-        if (getSpecificCredentialApi.data) {
-            const updateValues = {
-                ...credentialValues,
-                ...getSpecificCredentialApi.data.credentialData,
-                name: getSpecificCredentialApi.data.name
-            }
-            valueChanged(updateValues, paramsType)
-        }
-
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [getSpecificCredentialApi.data])
 
     // Initialize values
     useEffect(() => {
@@ -408,7 +393,15 @@ const CredentialInput = ({
                                             onChanged(overwriteValues)
                                             if (selectedCredential) {
                                                 if (selectedCredential.name !== ADD_NEW_CREDENTIAL) {
-                                                    getSpecificCredentialApi.request(selectedCredential._id)
+                                                    const resp = await credentialApi.getSpecificCredential(selectedCredential._id)
+                                                    if (resp.data) {
+                                                        const updateValues = {
+                                                            ...overwriteValues,
+                                                            ...resp.data.credentialData,
+                                                            name: resp.data.name
+                                                        }
+                                                        valueChanged(updateValues, paramsType)
+                                                    }
                                                 } else {
                                                     clearCredentialParamsValues(selectedCredential)
                                                 }
@@ -517,13 +510,17 @@ const CredentialInput = ({
                                                     {customization.isDarkMode ? (
                                                         <DarkCodeEditor
                                                             value={values[inputName] || ''}
-                                                            onValueChange={(code) => onInputChange(code, inputName, values, index)}
+                                                            onValueChange={(code) => {
+                                                                setFieldValue(inputName, code)
+                                                            }}
                                                             placeholder={input.placeholder}
                                                             type={input.type}
-                                                            onMouseUp={(e) => onMouseUp(e, inputName, index)}
                                                             onBlur={(e) => {
-                                                                onInputBlur(e.target.value, inputName, values, index)
-                                                                onMouseUp(e, inputName, index)
+                                                                const overwriteValues = {
+                                                                    ...values,
+                                                                    [inputName]: e.target.value
+                                                                }
+                                                                onChanged(overwriteValues)
                                                             }}
                                                             style={{
                                                                 fontSize: '0.875rem',
