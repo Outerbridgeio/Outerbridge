@@ -1,5 +1,6 @@
 import { createPortal } from 'react-dom'
 import { useState, useEffect } from 'react'
+import { useSelector } from 'react-redux'
 import PropTypes from 'prop-types'
 import {
     Button,
@@ -20,13 +21,9 @@ import ReactJson from 'react-json-view'
 import PerfectScrollbar from 'react-perfect-scrollbar'
 import { IconArrowsMaximize } from '@tabler/icons'
 import ExpandDataDialog from './ExpandDataDialog'
-import Editor from 'react-simple-code-editor'
-import { highlight, languages } from 'prismjs/components/prism-core'
-import 'prismjs/components/prism-clike'
-import 'prismjs/components/prism-javascript'
-import 'prismjs/components/prism-json'
-import 'prismjs/components/prism-markup'
-import 'prismjs/themes/prism.css'
+import { StyledButton } from 'ui-component/StyledButton'
+import { DarkCodeEditor } from 'ui-component/editor/DarkCodeEditor'
+import { LightCodeEditor } from 'ui-component/editor/LightCodeEditor'
 
 import './EditVariableDialog.css'
 
@@ -36,6 +33,7 @@ const EditVariableDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
     const portalElement = document.getElementById('portal')
 
     const theme = useTheme()
+    const customization = useSelector((state) => state.customization)
 
     const [inputValue, setInputValue] = useState('')
     const [input, setInput] = useState(null)
@@ -43,7 +41,7 @@ const EditVariableDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
     const [showExpandDialog, setShowExpandDialog] = useState(false)
     const [expandDialogProps, setExpandDialogProps] = useState({})
     const [copiedVariableBody, setCopiedVariableBody] = useState({})
-    const [languageType, setLanguageType] = useState(languages.js)
+    const [languageType, setLanguageType] = useState('')
 
     const handleAccordionChange = (nodeLabel) => (event, isExpanded) => {
         setExpanded(isExpanded ? nodeLabel : false)
@@ -139,8 +137,8 @@ const EditVariableDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
             }
             setInput(input)
             setInputValue(inputValues[input.name].toString() || '')
-            if (input.type === 'json' || input.type === 'string' || input.type === 'number') setLanguageType(languages.json)
-            if (input.type === 'code') setLanguageType(languages.js)
+            if (input.type === 'json' || input.type === 'string' || input.type === 'number') setLanguageType('json')
+            if (input.type === 'code') setLanguageType('js')
         }
     }, [dialogProps])
 
@@ -164,21 +162,35 @@ const EditVariableDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
                                     backgroundColor: 'white'
                                 }}
                             >
-                                <Editor
-                                    value={inputValue}
-                                    onValueChange={(code) => setInputValue(code)}
-                                    placeholder={input.placeholder}
-                                    highlight={(code) => highlight(code, languageType)}
-                                    onMouseUp={(e) => onMouseUp(e)}
-                                    onBlur={(e) => onMouseUp(e)}
-                                    padding={10}
-                                    style={{
-                                        fontSize: '0.875rem',
-                                        minHeight: 'calc(100vh - 220px)',
-                                        width: '100%'
-                                    }}
-                                    textareaClassName='editor__textarea'
-                                />
+                                {customization.isDarkMode ? (
+                                    <DarkCodeEditor
+                                        value={inputValue}
+                                        onValueChange={(code) => setInputValue(code)}
+                                        placeholder={input.placeholder}
+                                        type={languageType}
+                                        onMouseUp={(e) => onMouseUp(e)}
+                                        onBlur={(e) => onMouseUp(e)}
+                                        style={{
+                                            fontSize: '0.875rem',
+                                            minHeight: 'calc(100vh - 220px)',
+                                            width: '100%'
+                                        }}
+                                    />
+                                ) : (
+                                    <LightCodeEditor
+                                        value={inputValue}
+                                        onValueChange={(code) => setInputValue(code)}
+                                        placeholder={input.placeholder}
+                                        type={languageType}
+                                        onMouseUp={(e) => onMouseUp(e)}
+                                        onBlur={(e) => onMouseUp(e)}
+                                        style={{
+                                            fontSize: '0.875rem',
+                                            minHeight: 'calc(100vh - 220px)',
+                                            width: '100%'
+                                        }}
+                                    />
+                                )}
                             </PerfectScrollbar>
                         </div>
                     )}
@@ -230,7 +242,9 @@ const EditVariableDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
                                                         <AccordionDetails>
                                                             <div style={{ position: 'relative' }}>
                                                                 <ReactJson
+                                                                    theme={customization.isDarkMode ? 'ocean' : 'rjv-default'}
                                                                     collapsed
+                                                                    style={{ padding: 10, borderRadius: 10 }}
                                                                     src={
                                                                         node.data.outputResponses && node.data.outputResponses.output
                                                                             ? node.data.outputResponses.output
@@ -244,7 +258,7 @@ const EditVariableDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
                                                                         height: 25,
                                                                         width: 25,
                                                                         position: 'absolute',
-                                                                        top: -5,
+                                                                        top: 5,
                                                                         right: 5
                                                                     }}
                                                                     title='Expand Variable'
@@ -285,9 +299,9 @@ const EditVariableDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
             </DialogContent>
             <DialogActions>
                 <Button onClick={onCancel}>{dialogProps.cancelButtonName}</Button>
-                <Button variant='contained' onClick={() => onSave(inputValue)}>
+                <StyledButton variant='contained' onClick={() => onSave(inputValue)}>
                     {dialogProps.confirmButtonName}
-                </Button>
+                </StyledButton>
             </DialogActions>
         </Dialog>
     ) : null

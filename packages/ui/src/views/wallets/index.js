@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
+import { useSelector } from 'react-redux'
 
 // material-ui
-import { Grid, Button, Box, Stack } from '@mui/material'
+import { Grid, Box, Stack } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 
 // project imports
@@ -10,6 +11,7 @@ import ItemCard from 'ui-component/cards/ItemCard'
 import WalletDialog from './WalletDialog'
 import WalletEmptySVG from 'assets/images/wallet_empty.svg'
 import { TooltipWithParser } from 'ui-component/TooltipWithParser'
+import { StyledButton } from 'ui-component/StyledButton'
 
 // const
 import { gridSpacing } from 'store/constant'
@@ -24,6 +26,7 @@ import useApi from 'hooks/useApi'
 
 const Wallets = () => {
     const theme = useTheme()
+    const customization = useSelector((state) => state.customization)
 
     const [isLoading, setLoading] = useState(true)
     const [showDialog, setShowDialog] = useState(false)
@@ -82,23 +85,23 @@ const Wallets = () => {
 
     return (
         <>
-            <MainCard>
+            <MainCard sx={{ background: customization.isDarkMode ? theme.palette.common.black : '' }}>
                 <Stack flexDirection='row'>
                     <h1>Wallets&nbsp;</h1>
                     <TooltipWithParser title='Wallet is used to execute transaction on blockchain. For instance: swapping token, execute smart contract function, etc. Read <a target="_blank" href=https://docs.outerbridge.io/how-to-use/wallets>more</a>' />
                     <Grid sx={{ mb: 1.25 }} container direction='row'>
                         <Box sx={{ flexGrow: 1 }} />
                         <Grid item>
-                            <Button variant='contained' sx={{ color: 'white', mr: 2 }} onClick={addNew}>
+                            <StyledButton variant='contained' sx={{ color: 'white', mr: 2 }} onClick={addNew}>
                                 Add New
-                            </Button>
-                            <Button
+                            </StyledButton>
+                            <StyledButton
                                 variant='contained'
                                 sx={{ color: 'white', backgroundColor: theme.palette.secondary.main }}
                                 onClick={importNew}
                             >
                                 Import Wallet
-                            </Button>
+                            </StyledButton>
                         </Grid>
                     </Grid>
                 </Stack>

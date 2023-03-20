@@ -9,7 +9,6 @@ import {
     AccordionSummary,
     AccordionDetails,
     Box,
-    Fab,
     ClickAwayListener,
     Divider,
     InputAdornment,
@@ -34,6 +33,7 @@ import PerfectScrollbar from 'react-perfect-scrollbar'
 // project imports
 import MainCard from 'ui-component/cards/MainCard'
 import Transitions from 'ui-component/extended/Transitions'
+import { StyledFab } from 'ui-component/StyledFab'
 
 // icons
 import { IconPlus, IconSearch, IconMinus } from '@tabler/icons'
@@ -179,7 +179,7 @@ const AddNodes = ({ nodesData, node }) => {
 
     return (
         <>
-            <Fab
+            <StyledFab
                 sx={{ left: 20, top: 20 }}
                 ref={anchorRef}
                 size='small'
@@ -189,7 +189,7 @@ const AddNodes = ({ nodesData, node }) => {
                 onClick={handleToggle}
             >
                 {open ? <IconMinus /> : <IconPlus />}
-            </Fab>
+            </StyledFab>
             <Popper
                 placement='bottom-end'
                 open={open}

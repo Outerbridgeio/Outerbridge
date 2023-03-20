@@ -15,14 +15,15 @@ import { IconCheck, IconExclamationMark } from '@tabler/icons'
 import { baseURL } from 'store/constant'
 
 const CardWrapper = styled(MainCard)(({ theme }) => ({
-    backgroundColor: '#ffffff',
-    border: 'solid 1px',
+    background: theme.palette.card.main,
     color: theme.darkTextPrimary,
+    border: 'solid 1px',
     width: '200px',
     height: 'auto',
     padding: '10px',
     boxShadow: '0 2px 14px 0 rgb(32 40 45 / 8%)',
     '&:hover': {
+        background: theme.palette.card.hover,
         borderColor: theme.palette.primary.main
     }
 }))
@@ -102,12 +103,13 @@ const CanvasNode = ({ data }) => {
                                 style={{
                                     ...theme.typography.commonAvatar,
                                     ...theme.typography.largeAvatar,
+                                    borderRadius: '50%',
                                     backgroundColor: 'white',
                                     cursor: 'grab'
                                 }}
                             >
                                 <img
-                                    style={{ width: '100%', height: '100%' }}
+                                    style={{ width: '100%', height: '100%', padding: 5, objectFit: 'contain' }}
                                     src={`${baseURL}/api/v1/node-icon/${data.name}`}
                                     alt='Notification'
                                 />

@@ -8,11 +8,13 @@
     font-size: 12px;
     line-height: 1;
 }
-  
+
 .edgebutton:hover {
+    background: #5e35b1;
+    color: #eee;
     box-shadow: 0 0 6px 2px rgba(0, 0, 0, 0.08);
 }
-  
+
 .edgebutton-foreignobject div {
     background: transparent;
     width: 40px;
@@ -28,7 +30,7 @@
     flex-grow: 1;
     height: 100%;
 }
-  
+
 .reactflow-parent-wrapper .reactflow-wrapper {
     flex-grow: 1;
     height: 100%;

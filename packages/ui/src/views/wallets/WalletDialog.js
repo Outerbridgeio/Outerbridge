@@ -31,6 +31,7 @@ import lodash from 'lodash'
 import InputParameters from 'views/inputs/InputParameters'
 import CredentialInput from 'views/inputs/CredentialInput'
 import EditVariableDialog from 'ui-component/dialog/EditVariableDialog'
+import { StyledButton } from 'ui-component/StyledButton'
 
 // Icons
 import { IconCheck, IconX, IconArrowUpRightCircle, IconCopy, IconKey } from '@tabler/icons'
@@ -557,7 +558,7 @@ const WalletDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
                             </>
                         )}
                         {!Object.keys(walletCredential).length && (
-                            <Button
+                            <StyledButton
                                 size='small'
                                 sx={{ ml: 1 }}
                                 variant='contained'
@@ -565,7 +566,7 @@ const WalletDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
                                 onClick={() => getWalletCredentialApi.request(dialogProps.id)}
                             >
                                 View PrivateKey and Mnemonic
-                            </Button>
+                            </StyledButton>
                         )}
                     </Box>
                 )}
@@ -690,11 +691,11 @@ const WalletDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
             <DialogActions>
                 <Button onClick={onCancel}>{dialogProps.cancelButtonName}</Button>
                 {dialogProps.type === 'EDIT' && (
-                    <Button variant='contained' color='error' onClick={() => deleteWallet()}>
+                    <StyledButton variant='contained' color='error' onClick={() => deleteWallet()}>
                         Delete
-                    </Button>
+                    </StyledButton>
                 )}
-                <Button
+                <StyledButton
                     variant='contained'
                     disabled={!isReadyToAdd}
                     onClick={() =>
@@ -702,7 +703,7 @@ const WalletDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
                     }
                 >
                     {dialogProps.confirmButtonName}
-                </Button>
+                </StyledButton>
             </DialogActions>
         </Dialog>
     ) : null

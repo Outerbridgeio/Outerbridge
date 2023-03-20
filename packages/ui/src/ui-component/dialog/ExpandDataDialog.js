@@ -1,4 +1,5 @@
 import { createPortal } from 'react-dom'
+import { useSelector } from 'react-redux'
 import PropTypes from 'prop-types'
 
 import { Dialog, DialogContent, DialogTitle } from '@mui/material'
@@ -9,6 +10,7 @@ import { copyToClipboard } from 'utils/genericHelper'
 
 const ExpandDataDialog = ({ show, dialogProps, onCancel, onCopyClick, enableClipboard }) => {
     const portalElement = document.getElementById('portal')
+    const customization = useSelector((state) => state.customization)
 
     const component = show ? (
         <Dialog
@@ -23,8 +25,22 @@ const ExpandDataDialog = ({ show, dialogProps, onCancel, onCopyClick, enableClip
                 {dialogProps.title}
             </DialogTitle>
             <DialogContent>
-                {!enableClipboard && <ReactJson src={dialogProps.data} enableClipboard={(e) => copyToClipboard(e)} />}
-                {enableClipboard && <ReactJson src={dialogProps.data} enableClipboard={(e) => onCopyClick(e, dialogProps.node)} />}
+                {!enableClipboard && (
+                    <ReactJson
+                        theme={customization.isDarkMode ? 'ocean' : 'rjv-default'}
+                        style={{ padding: 10, borderRadius: 10 }}
+                        src={dialogProps.data}
+                        enableClipboard={(e) => copyToClipboard(e)}
+                    />
+                )}
+                {enableClipboard && (
+                    <ReactJson
+                        theme={customization.isDarkMode ? 'ocean' : 'rjv-default'}
+                        style={{ padding: 10, borderRadius: 10 }}
+                        src={dialogProps.data}
+                        enableClipboard={(e) => onCopyClick(e, dialogProps.node)}
+                    />
+                )}
             </DialogContent>
         </Dialog>
     ) : null

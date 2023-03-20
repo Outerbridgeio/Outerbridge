@@ -9,7 +9,8 @@ export const initialState = {
     fontFamily: config.fontFamily,
     borderRadius: config.borderRadius,
     opened: true,
-    isHorizontal: localStorage.getItem('isHorizontal') === 'true' ? true : false
+    isHorizontal: localStorage.getItem('isHorizontal') === 'true' ? true : false,
+    isDarkMode: localStorage.getItem('isDarkMode') === 'true' ? true : false
 }
 
 // ==============================|| CUSTOMIZATION REDUCER ||============================== //
@@ -42,6 +43,11 @@ const customizationReducer = (state = initialState, action) => {
             return {
                 ...state,
                 isHorizontal: action.isHorizontal
+            }
+        case actionTypes.SET_DARKMODE:
+            return {
+                ...state,
+                isDarkMode: action.isDarkMode
             }
         default:
             return state

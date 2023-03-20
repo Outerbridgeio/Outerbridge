@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useSelector } from 'react-redux'
 import PropTypes from 'prop-types'
 
 // material-ui
@@ -14,6 +15,7 @@ import AnimateButton from 'ui-component/extended/AnimateButton'
 import AttachmentDialog from 'ui-component/dialog/AttachmentDialog'
 import HTMLDialog from 'ui-component/dialog/HTMLDialog'
 import ExpandDataDialog from 'ui-component/dialog/ExpandDataDialog'
+import { StyledButton } from 'ui-component/StyledButton'
 
 // API
 import nodesApi from 'api/nodes'
@@ -35,6 +37,7 @@ import { copyToClipboard } from 'utils/genericHelper'
 
 const OutputResponses = ({ nodeId, nodeParamsType, nodeFlowData, nodes, edges, workflow, onSubmit }) => {
     const theme = useTheme()
+    const customization = useSelector((state) => state.customization)
 
     const [outputResponse, setOutputResponse] = useState([])
     const [errorResponse, setErrorResponse] = useState(null)
@@ -318,14 +321,20 @@ const OutputResponses = ({ nodeId, nodeParamsType, nodeFlowData, nodes, edges, w
                     </Box>
                 )}
                 <Box sx={{ position: 'relative' }}>
-                    <ReactJson collapsed src={outputResponse} enableClipboard={(e) => copyToClipboard(e)} />
+                    <ReactJson
+                        theme={customization.isDarkMode ? 'ocean' : 'rjv-default'}
+                        collapsed
+                        style={{ padding: 10, borderRadius: 10 }}
+                        src={outputResponse}
+                        enableClipboard={(e) => copyToClipboard(e)}
+                    />
                     <IconButton
                         size='small'
                         sx={{
                             height: 25,
                             width: 25,
                             position: 'absolute',
-                            top: -5,
+                            top: 5,
                             right: 5
                         }}
                         title='Expand Data'
@@ -356,9 +365,14 @@ const OutputResponses = ({ nodeId, nodeParamsType, nodeFlowData, nodes, edges, w
                                     />
                                 )}
                                 {respObj.html && (
-                                    <Button sx={{ mt: 1 }} size='small' variant='contained' onClick={() => openHTMLDialog(outputResponse)}>
+                                    <StyledButton
+                                        sx={{ mt: 1 }}
+                                        size='small'
+                                        variant='contained'
+                                        onClick={() => openHTMLDialog(outputResponse)}
+                                    >
                                         View HTML
-                                    </Button>
+                                    </StyledButton>
                                 )}
 
                                 {respObj.attachments && (
@@ -391,7 +405,7 @@ const OutputResponses = ({ nodeId, nodeParamsType, nodeFlowData, nodes, edges, w
                 </Box>
                 <Box sx={{ mt: 2, position: 'relative' }}>
                     <AnimateButton>
-                        <Button
+                        <StyledButton
                             disableElevation
                             disabled={isTestNodeBtnDisabled || testNodeLoading}
                             fullWidth
@@ -402,7 +416,7 @@ const OutputResponses = ({ nodeId, nodeParamsType, nodeFlowData, nodes, edges, w
                             onClick={() => onTestNodeClick(nodeType)}
                         >
                             Test Node
-                        </Button>
+                        </StyledButton>
                     </AnimateButton>
                     {testNodeLoading && (
                         <CircularProgress

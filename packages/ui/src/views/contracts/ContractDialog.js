@@ -33,6 +33,7 @@ import { ethers } from 'ethers'
 import InputParameters from 'views/inputs/InputParameters'
 import CredentialInput from 'views/inputs/CredentialInput'
 import EditVariableDialog from 'ui-component/dialog/EditVariableDialog'
+import { StyledButton } from 'ui-component/StyledButton'
 
 // Icons
 import { IconExclamationMark, IconCheck, IconX, IconArrowUpRightCircle, IconCopy } from '@tabler/icons'
@@ -688,17 +689,17 @@ const ContractDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
             <DialogActions>
                 <Button onClick={onCancel}>{dialogProps.cancelButtonName}</Button>
                 {dialogProps.type === 'EDIT' && (
-                    <Button variant='contained' color='error' onClick={() => deleteContract()}>
+                    <StyledButton variant='contained' color='error' onClick={() => deleteContract()}>
                         Delete
-                    </Button>
+                    </StyledButton>
                 )}
-                <Button
+                <StyledButton
                     variant='contained'
                     disabled={!isReadyToAdd}
                     onClick={() => (dialogProps.type === 'ADD' ? addNewContract() : saveContract())}
                 >
                     {dialogProps.confirmButtonName}
-                </Button>
+                </StyledButton>
             </DialogActions>
         </Dialog>
     ) : null

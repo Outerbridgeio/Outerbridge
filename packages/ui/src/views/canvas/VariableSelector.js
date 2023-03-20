@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from 'react'
+import { useSelector } from 'react-redux'
 import PropTypes from 'prop-types'
 
 // material-ui
 import { useTheme } from '@mui/material/styles'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import { Box, Fab, List, Accordion, AccordionSummary, AccordionDetails, Paper, Popper, Stack, Typography, IconButton } from '@mui/material'
+import { Box, List, Accordion, AccordionSummary, AccordionDetails, Paper, Popper, Stack, Typography, IconButton } from '@mui/material'
 
 // third-party
 import PerfectScrollbar from 'react-perfect-scrollbar'
@@ -14,6 +15,7 @@ import ReactJson from 'react-json-view'
 import MainCard from 'ui-component/cards/MainCard'
 import Transitions from 'ui-component/extended/Transitions'
 import ExpandDataDialog from 'ui-component/dialog/ExpandDataDialog'
+import { StyledFab } from 'ui-component/StyledFab'
 
 // icons
 import { IconX, IconArrowsMaximize } from '@tabler/icons'
@@ -24,6 +26,8 @@ const isPositiveNumeric = (value) => /^\d+$/.test(value)
 
 const VariableSelector = ({ nodes, isVariableSelectorOpen, anchorEl, onVariableSelected, handleClose }) => {
     const theme = useTheme()
+    const customization = useSelector((state) => state.customization)
+
     const [expanded, setExpanded] = useState(false)
     const [open, setOpen] = useState(false)
     const [showExpandDialog, setShowExpandDialog] = useState(false)
@@ -100,22 +104,21 @@ const VariableSelector = ({ nodes, isVariableSelectorOpen, anchorEl, onVariableS
                 {({ TransitionProps }) => (
                     <Transitions in={open} {...TransitionProps}>
                         <Paper>
-                            <Fab
+                            <StyledFab
                                 sx={{
                                     minHeight: 30,
                                     height: 30,
                                     width: 30,
-                                    backgroundColor: theme.palette.secondary.light,
-                                    color: theme.palette.secondary.main,
                                     position: 'absolute',
                                     right: -10,
                                     top: -10
                                 }}
+                                color='secondary'
                                 size='small'
                                 onClick={handleClose}
                             >
                                 <IconX />
-                            </Fab>
+                            </StyledFab>
                             <MainCard border={false} elevation={16} content={false} boxShadow shadow={theme.shadows[16]}>
                                 <Box sx={{ p: 2 }}>
                                     <Stack>
@@ -163,6 +166,8 @@ const VariableSelector = ({ nodes, isVariableSelectorOpen, anchorEl, onVariableS
                                                             <AccordionDetails>
                                                                 <div style={{ position: 'relative' }}>
                                                                     <ReactJson
+                                                                        theme={customization.isDarkMode ? 'ocean' : 'rjv-default'}
+                                                                        style={{ padding: 10, borderRadius: 10 }}
                                                                         collapsed
                                                                         src={
                                                                             node.data.outputResponses && node.data.outputResponses.output
@@ -177,7 +182,7 @@ const VariableSelector = ({ nodes, isVariableSelectorOpen, anchorEl, onVariableS
                                                                             height: 25,
                                                                             width: 25,
                                                                             position: 'absolute',
-                                                                            top: -5,
+                                                                            top: 5,
                                                                             right: 5
                                                                         }}
                                                                         title='Expand Variable'

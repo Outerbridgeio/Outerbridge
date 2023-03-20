@@ -6,6 +6,7 @@ import { enqueueSnackbar as enqueueSnackbarAction, closeSnackbar as closeSnackba
 
 import { Box, Typography, Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, IconButton, OutlinedInput } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
+import { StyledButton } from 'ui-component/StyledButton'
 
 // Icons
 import { IconX, IconCopy } from '@tabler/icons'
@@ -171,9 +172,9 @@ const APIKeyDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
                 </Box>
             </DialogContent>
             <DialogActions>
-                <Button variant='contained' onClick={() => (dialogProps.type === 'ADD' ? addNewKey() : saveKey())}>
+                <StyledButton variant='contained' onClick={() => (dialogProps.type === 'ADD' ? addNewKey() : saveKey())}>
                     {dialogProps.confirmButtonName}
-                </Button>
+                </StyledButton>
             </DialogActions>
         </Dialog>
     ) : null

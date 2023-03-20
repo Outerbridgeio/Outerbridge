@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { enqueueSnackbar as enqueueSnackbarAction, closeSnackbar as closeSnackbarAction } from 'store/actions'
 
 // material-ui
 import { Button, Box, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton } from '@mui/material'
+import { useTheme } from '@mui/material/styles'
 
 // project imports
 import MainCard from 'ui-component/cards/MainCard'
 import APIKeyDialog from './APIKeyDialog'
 import { TooltipWithParser } from 'ui-component/TooltipWithParser'
+import { StyledButton } from 'ui-component/StyledButton'
 
 // API
 import apiKeyApi from 'api/apikey'
@@ -26,6 +28,9 @@ import APIEmptySVG from 'assets/images/api_empty.svg'
 // ==============================|| APIKey ||============================== //
 
 const APIKey = () => {
+    const theme = useTheme()
+    const customization = useSelector((state) => state.customization)
+
     const dispatch = useDispatch()
     useNotifier()
 
@@ -117,15 +122,15 @@ const APIKey = () => {
 
     return (
         <>
-            <MainCard>
+            <MainCard sx={{ background: customization.isDarkMode ? theme.palette.common.black : '' }}>
                 <Stack flexDirection='row'>
                     <h1>API Keys&nbsp;</h1>
                     <TooltipWithParser title='Include API key as header when turning workflow into HTTP call' />
                     <Box sx={{ flexGrow: 1 }} />
 
-                    <Button variant='contained' sx={{ color: 'white', mr: 1, height: 37 }} onClick={addNew}>
+                    <StyledButton variant='contained' sx={{ color: 'white', mr: 1, height: 37 }} onClick={addNew}>
                         Add New
-                    </Button>
+                    </StyledButton>
                 </Stack>
                 {apiKeys.length <= 0 && (
                     <Stack sx={{ alignItems: 'center', justifyContent: 'center' }} flexDirection='column'>
