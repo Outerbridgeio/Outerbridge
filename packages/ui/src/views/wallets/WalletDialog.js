@@ -90,7 +90,7 @@ const WalletDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
         setExpanded(false)
     }
 
-    const checkIsReadyToAdd = () => {
+    const checkIsReadyToAdd = (walletData) => {
         for (let i = 0; i < walletParamsType.length; i += 1) {
             const paramType = walletParamsType[i]
             if (!walletData[paramType] || !walletData[paramType].submit) {
@@ -247,7 +247,9 @@ const WalletDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
         if (index >= 0 && index !== walletParamsType.length - 1) {
             for (let i = index + 1; i < walletParamsType.length; i += 1) {
                 const paramType = walletParamsType[i]
-                if (updateWalletData[paramType]) updateWalletData[paramType].submit = null
+                if (updateWalletData[paramType]) {
+                    updateWalletData[paramType].submit = null
+                }
             }
         }
 
@@ -288,6 +290,8 @@ const WalletDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
         } else if (index === walletParamsType.length - 1) {
             setExpanded(false)
         }
+
+        checkIsReadyToAdd(updateWalletData)
     }
 
     const showHideOptions = (displayType, options) => {
@@ -445,7 +449,6 @@ const WalletDialog = ({ show, dialogProps, onCancel, onConfirm }) => {
     useEffect(() => {
         if (walletDetails && walletData && expanded) {
             initializeFormValuesAndParams(expanded)
-            checkIsReadyToAdd()
         }
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
