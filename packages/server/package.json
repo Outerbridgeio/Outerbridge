@@ -41,7 +41,7 @@
         "email": "henryheng@outerbridge.io"
     },
     "engines": {
-        "node": ">=14.0.0"
+        "node": ">=14.7.0"
     },
     "license": "SEE LICENSE IN LICENSE.md",
     "dependencies": {
@@ -56,7 +56,6 @@
         "localtunnel": "^2.0.2",
         "moment-timezone": "^0.5.34",
         "mongodb": "^3.6.0",
-        "node-abort-controller": "^3.0.1",
         "outerbridge-components": "*",
         "outerbridge-ui": "*",
         "pg": "^8.4.0",
