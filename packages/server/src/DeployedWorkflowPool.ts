@@ -17,7 +17,6 @@ import {
 import { DataSource } from 'typeorm'
 import { join as pathJoin } from 'path'
 import { fork } from 'child_process'
-import { AbortController } from 'node-abort-controller'
 import * as fs from 'fs'
 import lodash from 'lodash'
 import { ObjectId } from 'mongodb'
