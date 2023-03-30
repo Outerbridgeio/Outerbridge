@@ -878,6 +878,8 @@ export const processWebhook = async (
                 startingNodeIds,
                 graph
             )) as unknown as IWorkflowExecutedData[]
+            if (!workflowExecutedData) return res.status(500).send(`Webhook timeout`)
+
             if ((nodeData.inputParameters?.returnType as string) === 'lastNodeResponse' || nodeData.name === 'chainLinkFunctionWebhook') {
                 const lastExecutedResult = workflowExecutedData[workflowExecutedData.length - 1]
                 const webhookResponseData = lastExecutedResult?.data || []
@@ -889,6 +891,7 @@ export const processWebhook = async (
             }
         }
     } catch (error) {
+        console.error(error)
         res.status(500).send(`Webhook error: ${error}`)
         return
     }

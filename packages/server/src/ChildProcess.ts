@@ -171,7 +171,12 @@ async function initDB() {
  * @param {number} loopIndex
  * @returns {string}
  */
-function getVariableValue(paramValue: string, workflowExecutedData: IWorkflowExecutedData[], key: string, loopIndex: number): string {
+export const getVariableValue = (
+    paramValue: string,
+    workflowExecutedData: IWorkflowExecutedData[],
+    key: string,
+    loopIndex: number
+): string => {
     let returnVal = paramValue
     const variableStack = []
     const variableDict = {} as IVariableDict
@@ -276,7 +281,7 @@ export const getVariableLength = (paramValue: string, workflowExecutedData: IWor
  * @param {IWorkflowExecutedData[]} workflowExecutedData
  * @returns {INodeData}
  */
-function resolveVariables(reactFlowNodeData: INodeData, workflowExecutedData: IWorkflowExecutedData[]): INodeData[] {
+export const resolveVariables = (reactFlowNodeData: INodeData, workflowExecutedData: IWorkflowExecutedData[]): INodeData[] => {
     const flowNodeDataArray: INodeData[] = []
     const flowNodeData = lodash.cloneDeep(reactFlowNodeData)
     const types = ['actions', 'networks', 'inputParameters']

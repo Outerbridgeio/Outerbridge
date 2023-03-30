@@ -17,6 +17,7 @@
     "license": "SEE LICENSE IN LICENSE.md",
     "dependencies": {
         "@openzeppelin/contracts": "^4.7.3",
+        "@supabase/supabase-js": "^2.12.1",
         "@thirdweb-dev/sdk": "^3.6.3",
         "@uniswap/v2-periphery": "^1.1.0-beta.0",
         "axios": "^0.27.2",
