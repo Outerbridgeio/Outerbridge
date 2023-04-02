@@ -999,6 +999,16 @@ export class App {
                 url = `${body.networks.uri}?module=contract&action=getabi&address=${body.contractInfo.address}`
             }
 
+            // URL is not etherscan.io subdomain
+            if (new URL(url).hostname.split('.').slice(-2).join('.') !== 'etherscan.io') {
+                // How do you want to handle this error?
+                return res.status(403).json({
+                    status: '0',
+                    message: 'NOTOK',
+                    result: 'Please change URL and try again'
+                })
+            }
+
             const options: AxiosRequestConfig = {
                 method: 'GET',
                 url

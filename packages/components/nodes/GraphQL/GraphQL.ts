@@ -1,6 +1,7 @@
 import { ICommonObject, INode, INodeData, INodeExecutionData, INodeParams, NodeType } from '../../src/Interface'
 import { handleErrorMessage, returnNodeExecutionData } from '../../src/utils'
 import axios, { AxiosRequestConfig, AxiosRequestHeaders, Method } from 'axios'
+import isLocalhost from 'is-localhost-ip'
 
 class GraphQL implements INode {
     label: string
@@ -113,6 +114,11 @@ class GraphQL implements INode {
         const variables = inputParametersData.variables as string
 
         const returnData: ICommonObject = {}
+
+        const urlHost = new URL(url).hostname;
+        if (await isLocalhost(urlHost) || urlHost === '169.254.169.254' || urlHost === '[fd00:ec2::254]') {
+            throw new Error('URL not allowed');
+        }
 
         try {
             const queryHeaders: AxiosRequestHeaders = {}
