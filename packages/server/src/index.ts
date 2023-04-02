@@ -1327,6 +1327,17 @@ export class App {
             } catch (e) {
                 return res.status(500).send(e)
             }
+
+            // check if authUrl is valid and is http/https
+            try {
+                const authUrlCheck = new URL(authUrl)
+                if (authUrlCheck.protocol !== 'http:' && authUrlCheck.protocol !== 'https:') {
+                    throw new Error('Invalid URL Protocol')
+                }
+            } catch (e) {
+                return res.status(500).send(e)
+            }
+
             const serializedScope = scopeArray.join(' ')
             const redirectUrl = `${req.secure ? 'https' : req.protocol}://${baseURL}/api/v1/oauth2/callback`
 
