@@ -30,10 +30,15 @@ import {
 import solc from 'solc'
 
 function findImports(_path: string) {
+    // Remove all ../ from the path
+    while (_path.includes('../')) {
+        _path = _path.replace('../', '')
+    }
     const filepath = getNodeModulesPackagePath(_path)
     const contents = fs.readFileSync(filepath).toString()
     return { contents }
 }
+
 class Solidity implements INode {
     label: string
     name: string

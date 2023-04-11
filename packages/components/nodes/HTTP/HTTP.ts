@@ -1,6 +1,7 @@
 import { ICommonObject, INode, INodeData, INodeExecutionData, INodeParams, NodeType } from '../../src/Interface'
 import { handleErrorMessage, returnNodeExecutionData, serializeQueryParams } from '../../src/utils'
 import axios, { AxiosRequestConfig, AxiosRequestHeaders, Method, ResponseType } from 'axios'
+import isLocalhost from 'is-localhost-ip'
 
 class HTTP implements INode {
     label: string
@@ -213,6 +214,11 @@ class HTTP implements INode {
         const responseType = inputParametersData.responseType as string
 
         const returnData: ICommonObject = {}
+
+        const urlHost = new URL(url).hostname
+        if ((await isLocalhost(urlHost)) || urlHost === '169.254.169.254' || urlHost === '[fd00:ec2::254]') {
+            throw new Error('URL not allowed')
+        }
 
         try {
             const queryParameters: ICommonObject = {}
