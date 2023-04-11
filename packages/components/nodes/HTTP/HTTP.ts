@@ -215,11 +215,10 @@ class HTTP implements INode {
 
         const returnData: ICommonObject = {}
 
-        const urlHost = new URL(url).hostname;
-        if (await isLocalhost(urlHost) || urlHost === '169.254.169.254' || urlHost === '[fd00:ec2::254]') {
-            throw new Error('URL not allowed');
+        const urlHost = new URL(url).hostname
+        if ((await isLocalhost(urlHost)) || urlHost === '169.254.169.254' || urlHost === '[fd00:ec2::254]') {
+            throw new Error('URL not allowed')
         }
-
 
         try {
             const queryParameters: ICommonObject = {}
